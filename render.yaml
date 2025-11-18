@@ -1,0 +1,29 @@
+# Render Blueprint for Opticwise CRM
+services:
+  - type: web
+    name: opticwise-frontend
+    runtime: docker
+    repo: https://github.com/nbrain-team/opticwise
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    region: oregon
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: AUTH_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_BASE_URL
+        value: https://opticwise-frontend.onrender.com
+      - key: NODE_ENV
+        value: production
+
+databases:
+  - name: opticwise-db
+    databaseName: opticwise_db
+    user: opticwise_db_user
+    region: oregon
+    plan: starter
+

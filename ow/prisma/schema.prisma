@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  deals        Deal[]   @relation("DealOwner")
+}
+
+model Pipeline {
+  id        String  @id @default(cuid())
+  name      String  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  stages    Stage[]
+  deals     Deal[]
+}
+
+model Stage {
+  id         String   @id @default(cuid())
+  name       String
+  orderIndex Int
+  pipelineId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  pipeline Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  deals    Deal[]
+
+  @@unique([pipelineId, name])
+  @@unique([pipelineId, orderIndex])
+}
+
+model Organization {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  address      String?
+  websiteUrl   String?
+  domain       String?
+  customFields Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  people Person[]
+  deals  Deal[]
+  emailThreads EmailThread[]
+}
+
+model Person {
+  id             String   @id @default(cuid())
+  firstName      String
+  lastName       String
+  email          String?  @unique
+  phone          String?
+  title          String?
+  labels         String?
+  contactType    String?
+  organizationId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  deals        Deal[]
+  emailThreads EmailThread[]
+}
+
+enum DealStatus {
+  open
+  won
+  lost
+  deleted
+}
+
+model Deal {
+  id                String      @id @default(cuid())
+  title             String
+  value             Decimal     @default(0)
+  currency          String      @default("USD")
+  status            DealStatus  @default(open)
+  probability       Int?
+  expectedCloseDate DateTime?
+  label             String?
+  addTime           DateTime    @default(now())
+  updateTime        DateTime    @updatedAt
+  position          Int         @default(0) // ordering within a stage
+
+  pipelineId     String
+  stageId        String
+  organizationId String?
+  personId       String?
+  ownerId        String
+
+  pipeline     Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  stage        Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  owner        User          @relation("DealOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
+  emailThreads EmailThread[]
+
+  @@index([pipelineId, stageId])
+  @@index([ownerId])
+  @@index([organizationId])
+  @@index([personId])
+}
+
+enum EmailDirection {
+  INCOMING
+  OUTGOING
+}
+
+model EmailThread {
+  id             String         @id @default(cuid())
+  subject        String
+  dealId         String?
+  personId       String?
+  organizationId String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  messages     EmailMessage[]
+}
+
+model EmailMessage {
+  id        String         @id @default(cuid())
+  threadId  String
+  sender    String
+  recipients String
+  cc        String?
+  bcc       String?
+  body      String
+  direction EmailDirection
+  sentAt    DateTime
+  createdAt DateTime       @default(now())
+
+  thread EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+}
+
+
