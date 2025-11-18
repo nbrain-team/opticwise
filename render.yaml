@@ -1,29 +1,20 @@
-# Render Blueprint for Opticwise CRM
 services:
   - type: web
     name: opticwise-frontend
-    runtime: docker
-    repo: https://github.com/nbrain-team/opticwise
-    branch: main
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
+    runtime: node
     region: oregon
     plan: starter
-    autoDeploy: true
+    branch: main
+    buildCommand: cd ow && npm install && npx prisma generate && npm run build
+    startCommand: cd ow && npm start
     envVars:
       - key: DATABASE_URL
-        sync: false
+        value: postgresql://opticwise_db_user:er6uVwAIHfgoiGZ1u2IUdlayvZ0ouRJo@dpg-d4eboeh5pdvs73fpagfg-a.oregon-postgres.render.com/opticwise_db
       - key: AUTH_SECRET
-        sync: false
+        generateValue: true
       - key: NEXT_PUBLIC_BASE_URL
         value: https://opticwise-frontend.onrender.com
       - key: NODE_ENV
         value: production
-
-databases:
-  - name: opticwise-db
-    databaseName: opticwise_db
-    user: opticwise_db_user
-    region: oregon
-    plan: starter
-
+      - key: PORT
+        value: 10000
