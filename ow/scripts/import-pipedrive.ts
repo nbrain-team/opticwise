@@ -76,9 +76,22 @@ function parseCSV(filePath: string): CSVRow[] {
   return rows;
 }
 
+function parseDecimal(value: string): number | null {
+  if (!value || value === '' || value === '-') return null;
+  const num = parseFloat(value.replace(/[^0-9.-]/g, ''));
+  return isNaN(num) ? null : num;
+}
+
+function parseDate(value: string): Date | null {
+  if (!value || value === '' || value === '-') return null;
+  const date = new Date(value);
+  return isNaN(date.getTime()) ? null : date;
+}
+
 async function importOrganizations(rows: CSVRow[]) {
-  console.log(`Importing ${rows.length} organizations...`);
+  console.log(`\nImporting ${rows.length} organizations...`);
   let created = 0;
+  let updated = 0;
   let skipped = 0;
   
   for (const row of rows) {
@@ -95,50 +108,53 @@ async function importOrganizations(rows: CSVRow[]) {
           address: row['Full/combined address of Address'] || null,
           websiteUrl: row['Website'] || null,
           domain: row['Website']?.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] || null,
-          customFields: {
-            linkedInProfile: row['LinkedIn profile'] || null,
-            industry: row['Industry'] || null,
-            annualRevenue: row['Annual revenue'] || null,
-            numberOfEmployees: row['Number of employees'] || null,
-            doors: row['Doors'] || null,
-          }
+          linkedInProfile: row['LinkedIn profile'] || null,
+          industry: row['Industry'] || null,
+          annualRevenue: row['Annual revenue'] || null,
+          numberOfEmployees: row['Number of employees'] || null,
+          doors: row['Doors'] || null,
+          labels: row['Labels'] || row['Label'] || null,
+          profilePicture: row['Profile picture'] || null,
+          latitude: row['Latitude of Address'] || null,
+          longitude: row['Longitude of Address'] || null,
         },
         create: {
           name,
           address: row['Full/combined address of Address'] || null,
           websiteUrl: row['Website'] || null,
           domain: row['Website']?.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] || null,
-          customFields: {
-            linkedInProfile: row['LinkedIn profile'] || null,
-            industry: row['Industry'] || null,
-            annualRevenue: row['Annual revenue'] || null,
-            numberOfEmployees: row['Number of employees'] || null,
-            doors: row['Doors'] || null,
-          }
+          linkedInProfile: row['LinkedIn profile'] || null,
+          industry: row['Industry'] || null,
+          annualRevenue: row['Annual revenue'] || null,
+          numberOfEmployees: row['Number of employees'] || null,
+          doors: row['Doors'] || null,
+          labels: row['Labels'] || row['Label'] || null,
+          profilePicture: row['Profile picture'] || null,
+          latitude: row['Latitude of Address'] || null,
+          longitude: row['Longitude of Address'] || null,
         }
       });
-      created++;
+      updated++;
     } catch (err: any) {
       console.warn(`Failed to import org "${name}": ${err.message}`);
       skipped++;
     }
   }
   
-  console.log(`Organizations: ${created} created/updated, ${skipped} skipped`);
+  console.log(`Organizations: ${updated} created/updated, ${skipped} skipped`);
 }
 
 async function importPeople(rows: CSVRow[]) {
-  console.log(`Importing ${rows.length} people...`);
+  console.log(`\nImporting ${rows.length} people...`);
   let created = 0;
   let skipped = 0;
   
   for (const row of rows) {
-    const email = row['Email - Work']?.trim() || row['Email - Home']?.trim();
-    const firstName = row['First name']?.trim();
-    const lastName = row['Last name']?.trim();
-    const name = row['Name']?.trim();
+    const firstName = row['First name']?.trim() || '';
+    const lastName = row['Last name']?.trim() || '';
+    const name = row['Name']?.trim() || `${firstName} ${lastName}`.trim();
     
-    if (!email && !name) {
+    if (!name && !firstName && !lastName) {
       skipped++;
       continue;
     }
@@ -151,35 +167,75 @@ async function importPeople(rows: CSVRow[]) {
       organizationId = org?.id || null;
     }
     
+    const emailWork = row['Email - Work']?.trim() || null;
+    const emailHome = row['Email - Home']?.trim() || null;
+    const emailOther = row['Email - Other']?.trim() || null;
+    const primaryEmail = emailWork || emailHome || emailOther || row['Email']?.trim() || null;
+    
+    // Skip if no unique identifier
+    if (!primaryEmail && !name) {
+      skipped++;
+      continue;
+    }
+    
     try {
-      const person = await prisma.person.create({
-        data: {
-          name: name || `${firstName || ''} ${lastName || ''}`.trim() || 'Unknown',
-          email: email || null,
-          phone: row['Phone - Work'] || row['Phone - Mobile'] || null,
-          organizationId,
-          customFields: {
-            firstName,
-            lastName,
-            jobTitle: row['Job title'] || null,
-            linkedInProfile: row['LinkedIn profile'] || null,
-            contactType: row['Contact Type'] || null,
-            postalAddress: row['Full/combined address of Postal address'] || null,
-          }
-        }
-      });
+      const data = {
+        name: name || `${firstName} ${lastName}`.trim(),
+        firstName: firstName || name.split(' ')[0] || 'Unknown',
+        lastName: lastName || name.split(' ').slice(1).join(' ') || '',
+        email: primaryEmail,
+        phone: row['Phone - Work'] || row['Phone - Mobile'] || row['Phone - Home'] || null,
+        phoneWork: row['Phone - Work'] || null,
+        phoneHome: row['Phone - Home'] || null,
+        phoneMobile: row['Phone - Mobile'] || null,
+        phoneOther: row['Phone - Other'] || null,
+        emailWork,
+        emailHome,
+        emailOther,
+        title: row['Job title'] || null,
+        labels: row['Labels'] || row['Label'] || null,
+        contactType: row['Contact Type'] || null,
+        organizationId,
+        postalAddress: row['Full/combined address of Postal address'] || null,
+        birthday: parseDate(row['Birthday']),
+        notes: row['Notes'] || null,
+        linkedInProfile: row['LinkedIn profile'] || null,
+        qwilrProposal: row['Qwilr Proposal'] || null,
+        classification: row['Classification'] || null,
+        instantMessenger: row['Instant messenger'] || null,
+        marketingStatus: row['Marketing status'] || null,
+        doubleOptIn: row['Double opt-in'] || null,
+        profilePicture: row['Profile picture'] || null,
+        latitude: row['Latitude of Postal address'] || null,
+        longitude: row['Longitude of Postal address'] || null,
+      };
+      
+      if (primaryEmail) {
+        await prisma.person.upsert({
+          where: { email: primaryEmail },
+          update: data,
+          create: data,
+        });
+      } else {
+        await prisma.person.create({ data });
+      }
       created++;
     } catch (err: any) {
       // Likely duplicate; skip
       skipped++;
     }
+    
+    // Progress indicator every 1000 records
+    if ((created + skipped) % 1000 === 0) {
+      console.log(`  Processed ${created + skipped} people...`);
+    }
   }
   
-  console.log(`People: ${created} created, ${skipped} skipped`);
+  console.log(`People: ${created} created/updated, ${skipped} skipped`);
 }
 
 async function importDeals(rows: CSVRow[]) {
-  console.log(`Importing ${rows.length} deals...`);
+  console.log(`\nImporting ${rows.length} deals...`);
   let created = 0;
   let skipped = 0;
   
@@ -210,7 +266,6 @@ async function importDeals(rows: CSVRow[]) {
     }
     
     if (!stage) {
-      console.warn(`No stage found for deal "${title}"`);
       skipped++;
       continue;
     }
@@ -224,22 +279,23 @@ async function importDeals(rows: CSVRow[]) {
     
     const personName = row['Contact person']?.trim();
     let personId: string | null = null;
-    if (personName) {
-      // Person model uses firstName/lastName, not name field for search
+    if (personName && organizationId) {
+      // Try to find person by name in this organization
       const person = await prisma.person.findFirst({ 
         where: { 
+          organizationId,
           OR: [
+            { name: { contains: personName, mode: 'insensitive' } },
             { firstName: { contains: personName, mode: 'insensitive' } },
             { lastName: { contains: personName, mode: 'insensitive' } },
-            { email: { contains: personName, mode: 'insensitive' } }
           ]
         } 
       });
       personId = person?.id || null;
     }
     
-    const valueStr = row['Value']?.trim();
-    const value = valueStr ? parseFloat(valueStr) : 0;
+    const value = parseDecimal(row['Value']) || 0;
+    const probability = parseDecimal(row['Probability']);
     
     const status = row['Status']?.toLowerCase() === 'won' ? 'won' 
                  : row['Status']?.toLowerCase() === 'lost' ? 'lost' 
@@ -252,28 +308,87 @@ async function importDeals(rows: CSVRow[]) {
           value,
           currency: row['Currency of Value'] || 'USD',
           status,
+          probability: probability ? Math.round(probability) : null,
+          expectedCloseDate: parseDate(row['Expected close date']),
+          wonTime: parseDate(row['Won time']),
+          lostTime: parseDate(row['Lost time']),
+          lostReason: row['Lost reason'] || null,
+          label: row['Label'] || null,
+          labels: row['Label'] || null,
+          
+          // Activity tracking
+          nextActivityDate: parseDate(row['Next activity date']),
+          lastActivityDate: parseDate(row['Last activity date']),
+          totalActivities: parseDecimal(row['Total activities']) ? Math.round(parseDecimal(row['Total activities'])!) : null,
+          doneActivities: parseDecimal(row['Done activities']) ? Math.round(parseDecimal(row['Done activities'])!) : null,
+          activitiesToDo: parseDecimal(row['Activities to do']) ? Math.round(parseDecimal(row['Activities to do'])!) : null,
+          
+          // Email tracking
+          lastEmailReceived: parseDate(row['Last email received']),
+          lastEmailSent: parseDate(row['Last email sent']),
+          emailMessagesCount: parseDecimal(row['Email messages count']) ? Math.round(parseDecimal(row['Email messages count'])!) : null,
+          
+          // Products
+          productQuantity: row['Product quantity'] || null,
+          productAmount: parseDecimal(row['Product amount']),
+          productName: row['Product name'] || null,
+          mrr: parseDecimal(row['MRR']),
+          mrrCurrency: row['Currency of MRR'] || null,
+          arr: parseDecimal(row['ARR']),
+          arrCurrency: row['Currency of ARR'] || null,
+          acv: parseDecimal(row['ACV']),
+          acvCurrency: row['Currency of ACV'] || null,
+          
+          // Source tracking
+          sourceOrigin: row['Source origin'] || null,
+          sourceOriginId: row['Source origin ID'] || null,
+          sourceChannel: row['Source channel'] || null,
+          sourceChannelId: row['Source channel ID'] || null,
+          
+          // Custom Opticwise fields
+          goLiveTarget: row['Go-Live Target'] || null,
+          propertyAddress: row['Full/combined address of Property Address'] || null,
+          propertyType: row['Property Type'] || null,
+          qty: row['Qty (clarify; units, beds, sqft)'] || null,
+          arrForecast: parseDecimal(row['ARR forecast']),
+          arrForecastCurrency: row['Currency of ARR forecast'] || null,
+          capexRom: parseDecimal(row['CapEx ROM:']),
+          capexRomCurrency: row['Currency of CapEx ROM:'] || null,
+          roiNoiBomSheet: row['ROI/NOI/BOM sheet'] || null,
+          printsPlansExternal: row['Prints/Plans External link'] || null,
+          printsPlansDropbox: row['Prints/Plans OW DropBox Link'] || null,
+          leadSource: row['Lead Source'] || null,
+          technicalPOC: row['Technical POC'] || null,
+          icpSegment: row['ICP Segment'] || null,
+          leadSourcePPP: row['Lead Source PPP'] || null,
+          readinessScore: row['Readiness Score'] || null,
+          ddiAuditStatus: row['DDI Audit Status'] || null,
+          auditValue: parseDecimal(row['Audit Value']),
+          auditValueCurrency: row['Currency of Audit Value'] || null,
+          arrExpansionPotential: parseDecimal(row['ARR Expansion Potential']),
+          arrExpansionCurrency: row['Currency of ARR Expansion Potential'] || null,
+          
+          // Relations
           pipelineId: pipeline.id,
           stageId: stage.id,
           organizationId,
           personId,
           ownerId: user.id,
-          customFields: {
-            propertyType: row['Property Type'] || null,
-            qty: row['Qty (clarify; units, beds, sqft)'] || null,
-            arrForecast: row['ARR forecast'] || null,
-            capexRom: row['CapEx ROM:'] || null,
-            printsPlansExternal: row['Prints/Plans External link'] || null,
-            printsPlansDropbox: row['Prints/Plans OW DropBox Link'] || null,
-            leadSource: row['Lead Source'] || null,
-            sourceChannel: row['Source channel'] || null,
-            sourceChannelId: row['Source channel ID'] || null,
-          }
+          
+          // Timestamps (use Pipedrive dates if available)
+          addTime: parseDate(row['Deal created']) || new Date(),
+          updateTime: parseDate(row['Update time']) || new Date(),
         }
       });
       created++;
     } catch (err: any) {
       console.warn(`Failed to import deal "${title}": ${err.message}`);
       skipped++;
+    }
+    
+    // Progress indicator every 50 deals
+    if ((created + skipped) % 50 === 0) {
+      console.log(`  Processed ${created + skipped} deals...`);
     }
   }
   
@@ -284,39 +399,52 @@ async function main() {
   const rootDir = join(__dirname, '..', '..');
   
   console.log('Starting Pipedrive import...\n');
+  console.log('This will populate ALL fields from the CSV exports.');
+  console.log('Expected files:');
+  console.log('  - organizations-23955722-70.csv');
+  console.log('  - people-23955722-71.csv');
+  console.log('  - deals-23955722-69.csv\n');
   
   // Import organizations first (referenced by people and deals)
   const orgsPath = join(rootDir, 'organizations-23955722-70.csv');
+  console.log(`Reading ${orgsPath}...`);
   const orgRows = parseCSV(orgsPath);
   await importOrganizations(orgRows);
   
   // Import people (referenced by deals)
   const peoplePath = join(rootDir, 'people-23955722-71.csv');
+  console.log(`Reading ${peoplePath}...`);
   const peopleRows = parseCSV(peoplePath);
   await importPeople(peopleRows);
   
   // Import deals
   const dealsPath = join(rootDir, 'deals-23955722-69.csv');
+  console.log(`Reading ${dealsPath}...`);
   const dealRows = parseCSV(dealsPath);
   await importDeals(dealRows);
   
-  console.log('\nImport complete!');
+  console.log('\n✅ Import complete!');
   
   // Summary
   const orgCount = await prisma.organization.count();
   const personCount = await prisma.person.count();
   const dealCount = await prisma.deal.count();
+  const openDeals = await prisma.deal.count({ where: { status: 'open' } });
+  const wonDeals = await prisma.deal.count({ where: { status: 'won' } });
+  const lostDeals = await prisma.deal.count({ where: { status: 'lost' } });
   
-  console.log(`\nDatabase totals:`);
-  console.log(`  Organizations: ${orgCount}`);
-  console.log(`  People: ${personCount}`);
-  console.log(`  Deals: ${dealCount}`);
+  console.log(`\n📊 Database totals:`);
+  console.log(`  Organizations: ${orgCount.toLocaleString()}`);
+  console.log(`  People: ${personCount.toLocaleString()}`);
+  console.log(`  Deals: ${dealCount.toLocaleString()}`);
+  console.log(`    - Open: ${openDeals}`);
+  console.log(`    - Won: ${wonDeals}`);
+  console.log(`    - Lost: ${lostDeals}`);
   
   await prisma.$disconnect();
 }
 
 main().catch((err) => {
-  console.error('Import failed:', err);
+  console.error('\n❌ Import failed:', err);
   process.exit(1);
 });
-

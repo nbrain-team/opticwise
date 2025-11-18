@@ -1,28 +1,82 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 
-export default async function OrganizationsPage() {
-  const organizations = await prisma.organization.findMany({
-    include: {
-      people: true,
-      deals: {
-        where: { status: "open" },
+export default async function OrganizationsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const page = parseInt((searchParams.page as string) || "1");
+  const search = (searchParams.search as string) || "";
+  const perPage = 100;
+  const skip = (page - 1) * perPage;
+
+  const where = search
+    ? {
+        OR: [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { domain: { contains: search, mode: "insensitive" as const } },
+          { industry: { contains: search, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
+
+  const [organizations, totalCount] = await Promise.all([
+    prisma.organization.findMany({
+      where,
+      include: {
+        people: true,
+        deals: {
+          where: { status: "open" },
+        },
       },
-    },
-    orderBy: { name: "asc" },
-  });
+      orderBy: { name: "asc" },
+      take: perPage,
+      skip,
+    }),
+    prisma.organization.count({ where }),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / perPage);
 
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-light text-[#50555C]">Organizations</h1>
-          <div className="text-sm text-gray-500 mt-1">{organizations.length} organizations</div>
+          <div className="text-sm text-gray-500 mt-1">
+            Showing {skip + 1}-{Math.min(skip + perPage, totalCount)} of {totalCount} organizations
+          </div>
         </div>
         <Link href="/contacts" className="text-sm text-[#3B6B8F] hover:underline">
           View Contacts →
         </Link>
       </div>
+
+      {/* Search Bar */}
+      <form method="GET" className="flex gap-2">
+        <input
+          name="search"
+          type="search"
+          defaultValue={search}
+          placeholder="Search organizations by name, domain, or industry..."
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent transition-all"
+        />
+        <button
+          type="submit"
+          className="btn-primary"
+        >
+          Search
+        </button>
+        {search && (
+          <Link
+            href="/organizations"
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Clear
+          </Link>
+        )}
+      </form>
 
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -35,6 +89,7 @@ export default async function OrganizationsPage() {
                 <th className="text-left px-6 py-3 font-semibold text-[#2E2E2F]">Website</th>
                 <th className="text-left px-6 py-3 font-semibold text-[#2E2E2F]">LinkedIn</th>
                 <th className="text-left px-6 py-3 font-semibold text-[#2E2E2F]">Employees</th>
+                <th className="text-left px-6 py-3 font-semibold text-[#2E2E2F]">Annual Revenue</th>
                 <th className="text-left px-6 py-3 font-semibold text-[#2E2E2F]">Doors</th>
                 <th className="text-left px-6 py-3 font-semibold text-[#2E2E2F]">People</th>
                 <th className="text-left px-6 py-3 font-semibold text-[#2E2E2F]">Open Deals</th>
@@ -95,6 +150,9 @@ export default async function OrganizationsPage() {
                     {org.numberOfEmployees || "-"}
                   </td>
                   <td className="px-6 py-4 text-gray-600">
+                    {org.annualRevenue || "-"}
+                  </td>
+                  <td className="px-6 py-4 text-gray-600">
                     {org.doors || "-"}
                   </td>
                   <td className="px-6 py-4">
@@ -114,7 +172,7 @@ export default async function OrganizationsPage() {
               ))}
               {organizations.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="px-6 py-12 text-center text-gray-400">
+                  <td colSpan={11} className="px-6 py-12 text-center text-gray-400">
                     No organizations found
                   </td>
                 </tr>
@@ -124,10 +182,41 @@ export default async function OrganizationsPage() {
         </div>
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Page {page} of {totalPages}
+          </div>
+          <div className="flex items-center gap-2">
+            {page > 1 && (
+              <Link
+                href={`/organizations?page=${page - 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+              >
+                ← Previous
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link
+                href={`/organizations?page=${page + 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+              >
+                Next →
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
           <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Organizations</div>
+          <div className="text-2xl font-semibold text-[#3B6B8F]">{totalCount.toLocaleString()}</div>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Current Page</div>
           <div className="text-2xl font-semibold text-[#3B6B8F]">{organizations.length}</div>
         </div>
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
@@ -140,12 +229,6 @@ export default async function OrganizationsPage() {
           <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">With LinkedIn</div>
           <div className="text-2xl font-semibold text-[#3B6B8F]">
             {organizations.filter(o => o.linkedInProfile).length}
-          </div>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-5">
-          <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">Total Contacts</div>
-          <div className="text-2xl font-semibold text-[#3B6B8F]">
-            {organizations.reduce((sum, o) => sum + o.people.length, 0)}
           </div>
         </div>
       </div>
