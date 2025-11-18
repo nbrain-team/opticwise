@@ -1,28 +1,84 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 
-export default async function ContactsPage() {
-  const people = await prisma.person.findMany({
-    include: {
-      organization: true,
-      deals: {
-        where: { status: "open" },
+export default async function ContactsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const page = parseInt((searchParams.page as string) || "1");
+  const search = (searchParams.search as string) || "";
+  const perPage = 100;
+  const skip = (page - 1) * perPage;
+
+  const where = search
+    ? {
+        OR: [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { firstName: { contains: search, mode: "insensitive" as const } },
+          { lastName: { contains: search, mode: "insensitive" as const } },
+          { email: { contains: search, mode: "insensitive" as const } },
+          { organization: { name: { contains: search, mode: "insensitive" as const } } },
+        ],
+      }
+    : {};
+
+  const [people, totalCount] = await Promise.all([
+    prisma.person.findMany({
+      where,
+      include: {
+        organization: true,
+        deals: {
+          where: { status: "open" },
+        },
       },
-    },
-    orderBy: { lastName: "asc" },
-  });
+      orderBy: { lastName: "asc" },
+      take: perPage,
+      skip,
+    }),
+    prisma.person.count({ where }),
+  ]);
+
+  const totalPages = Math.ceil(totalCount / perPage);
 
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-light text-[#50555C]">Contacts</h1>
-          <div className="text-sm text-gray-500 mt-1">{people.length} people</div>
+          <div className="text-sm text-gray-500 mt-1">
+            Showing {skip + 1}-{Math.min(skip + perPage, totalCount)} of {totalCount} people
+          </div>
         </div>
         <Link href="/organizations" className="text-sm text-[#3B6B8F] hover:underline">
           View Organizations →
         </Link>
       </div>
+
+      {/* Search Bar */}
+      <form method="GET" className="flex gap-2">
+        <input
+          name="search"
+          type="search"
+          defaultValue={search}
+          placeholder="Search contacts by name, email, or organization..."
+          className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent transition-all"
+        />
+        <button
+          type="submit"
+          className="btn-primary"
+        >
+          Search
+        </button>
+        {search && (
+          <Link
+            href="/contacts"
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            Clear
+          </Link>
+        )}
+      </form>
 
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -48,33 +104,25 @@ export default async function ContactsPage() {
                       href={`/person/${person.id}`}
                       className="font-medium text-[#2E2E2F] hover:text-[#3B6B8F] transition-colors"
                     >
-                      {person.firstName} {person.lastName}
+                      {person.name || `${person.firstName} ${person.lastName}`}
                     </Link>
                   </td>
                   <td className="px-6 py-4 text-gray-600">
                     {person.title || "-"}
                   </td>
                   <td className="px-6 py-4">
-                    {person.emailWork ? (
-                      <a href={`mailto:${person.emailWork}`} className="text-[#3B6B8F] hover:underline">
-                        {person.emailWork}
-                      </a>
-                    ) : person.email ? (
-                      <a href={`mailto:${person.email}`} className="text-[#3B6B8F] hover:underline">
-                        {person.email}
+                    {person.emailWork || person.email ? (
+                      <a href={`mailto:${person.emailWork || person.email}`} className="text-[#3B6B8F] hover:underline">
+                        {person.emailWork || person.email}
                       </a>
                     ) : (
                       <span className="text-gray-400">-</span>
                     )}
                   </td>
                   <td className="px-6 py-4">
-                    {person.phoneWork ? (
-                      <a href={`tel:${person.phoneWork}`} className="text-[#3B6B8F] hover:underline">
-                        {person.phoneWork}
-                      </a>
-                    ) : person.phone ? (
-                      <a href={`tel:${person.phone}`} className="text-[#3B6B8F] hover:underline">
-                        {person.phone}
+                    {person.phoneWork || person.phone ? (
+                      <a href={`tel:${person.phoneWork || person.phone}`} className="text-[#3B6B8F] hover:underline">
+                        {person.phoneWork || person.phone}
                       </a>
                     ) : (
                       <span className="text-gray-400">-</span>
@@ -125,6 +173,33 @@ export default async function ContactsPage() {
           </table>
         </div>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Page {page} of {totalPages}
+          </div>
+          <div className="flex items-center gap-2">
+            {page > 1 && (
+              <Link
+                href={`/contacts?page=${page - 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+              >
+                ← Previous
+              </Link>
+            )}
+            {page < totalPages && (
+              <Link
+                href={`/contacts?page=${page + 1}${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+              >
+                Next →
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

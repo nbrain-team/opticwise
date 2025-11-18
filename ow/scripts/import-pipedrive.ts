@@ -1,19 +1,8 @@
 #!/usr/bin/env tsx
-/**
- * Import Pipedrive CSV exports into Opticwise CRM database
- * 
- * Usage:
- *   DATABASE_URL="..." tsx scripts/import-pipedrive.ts
- * 
- * Expects CSVs in workspace root:
- *   - organizations-23955722-70.csv
- *   - people-23955722-71.csv
- *   - deals-23955722-69.csv
- */
-
 import { PrismaClient } from '@prisma/client';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { parse } from 'csv-parse/sync';
 
 const prisma = new PrismaClient();
 
@@ -23,57 +12,13 @@ interface CSVRow {
 
 function parseCSV(filePath: string): CSVRow[] {
   const content = readFileSync(filePath, 'utf-8');
-  const lines = content.split('\n').filter(l => l.trim());
-  if (lines.length < 2) return [];
-  
-  // Parse header
-  const headerLine = lines[0];
-  const headers: string[] = [];
-  let inQuote = false;
-  let current = '';
-  
-  for (let i = 0; i < headerLine.length; i++) {
-    const char = headerLine[i];
-    if (char === '"') {
-      inQuote = !inQuote;
-    } else if (char === ',' && !inQuote) {
-      headers.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  if (current) headers.push(current.trim());
-  
-  // Parse rows
-  const rows: CSVRow[] = [];
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i];
-    const values: string[] = [];
-    inQuote = false;
-    current = '';
-    
-    for (let j = 0; j < line.length; j++) {
-      const char = line[j];
-      if (char === '"') {
-        inQuote = !inQuote;
-      } else if (char === ',' && !inQuote) {
-        values.push(current);
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    if (current) values.push(current);
-    
-    const row: CSVRow = {};
-    headers.forEach((h, idx) => {
-      row[h] = values[idx] || '';
-    });
-    rows.push(row);
-  }
-  
-  return rows;
+  const records = parse(content, {
+    columns: true,
+    skip_empty_lines: true,
+    relax_quotes: true,
+    trim: true,
+  });
+  return records;
 }
 
 function parseDecimal(value: string): number | null {
@@ -90,7 +35,6 @@ function parseDate(value: string): Date | null {
 
 async function importOrganizations(rows: CSVRow[]) {
   console.log(`\nImporting ${rows.length} organizations...`);
-  let created = 0;
   let updated = 0;
   let skipped = 0;
   
@@ -105,7 +49,7 @@ async function importOrganizations(rows: CSVRow[]) {
       await prisma.organization.upsert({
         where: { name },
         update: {
-          address: row['Full/combined address of Address'] || null,
+          address: row['Address'] || null,
           websiteUrl: row['Website'] || null,
           domain: row['Website']?.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] || null,
           linkedInProfile: row['LinkedIn profile'] || null,
@@ -120,7 +64,7 @@ async function importOrganizations(rows: CSVRow[]) {
         },
         create: {
           name,
-          address: row['Full/combined address of Address'] || null,
+          address: row['Address'] || null,
           websiteUrl: row['Website'] || null,
           domain: row['Website']?.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] || null,
           linkedInProfile: row['LinkedIn profile'] || null,
@@ -138,6 +82,10 @@ async function importOrganizations(rows: CSVRow[]) {
     } catch (err: any) {
       console.warn(`Failed to import org "${name}": ${err.message}`);
       skipped++;
+    }
+    
+    if (updated % 500 === 0) {
+      console.log(`  Updated ${updated} organizations...`);
     }
   }
   
@@ -170,7 +118,7 @@ async function importPeople(rows: CSVRow[]) {
     const emailWork = row['Email - Work']?.trim() || null;
     const emailHome = row['Email - Home']?.trim() || null;
     const emailOther = row['Email - Other']?.trim() || null;
-    const primaryEmail = emailWork || emailHome || emailOther || row['Email']?.trim() || null;
+    const primaryEmail = emailWork || emailHome || emailOther || null;
     
     // Skip if no unique identifier
     if (!primaryEmail && !name) {
@@ -221,13 +169,11 @@ async function importPeople(rows: CSVRow[]) {
       }
       created++;
     } catch (err: any) {
-      // Likely duplicate; skip
       skipped++;
     }
     
-    // Progress indicator every 1000 records
-    if ((created + skipped) % 1000 === 0) {
-      console.log(`  Processed ${created + skipped} people...`);
+    if (created % 1000 === 0) {
+      console.log(`  Processed ${created} people...`);
     }
   }
   
@@ -239,7 +185,6 @@ async function importDeals(rows: CSVRow[]) {
   let created = 0;
   let skipped = 0;
   
-  // Get the default pipeline and user
   const pipeline = await prisma.pipeline.findFirst();
   const user = await prisma.user.findFirst();
   
@@ -260,7 +205,6 @@ async function importDeals(rows: CSVRow[]) {
       ? await prisma.stage.findFirst({ where: { pipelineId: pipeline.id, name: stageName } })
       : null;
     
-    // If no exact match, default to first stage
     if (!stage) {
       stage = await prisma.stage.findFirst({ where: { pipelineId: pipeline.id }, orderBy: { orderIndex: 'asc' } });
     }
@@ -280,7 +224,6 @@ async function importDeals(rows: CSVRow[]) {
     const personName = row['Contact person']?.trim();
     let personId: string | null = null;
     if (personName && organizationId) {
-      // Try to find person by name in this organization
       const person = await prisma.person.findFirst({ 
         where: { 
           organizationId,
@@ -315,20 +258,14 @@ async function importDeals(rows: CSVRow[]) {
           lostReason: row['Lost reason'] || null,
           label: row['Label'] || null,
           labels: row['Label'] || null,
-          
-          // Activity tracking
           nextActivityDate: parseDate(row['Next activity date']),
           lastActivityDate: parseDate(row['Last activity date']),
           totalActivities: parseDecimal(row['Total activities']) ? Math.round(parseDecimal(row['Total activities'])!) : null,
           doneActivities: parseDecimal(row['Done activities']) ? Math.round(parseDecimal(row['Done activities'])!) : null,
           activitiesToDo: parseDecimal(row['Activities to do']) ? Math.round(parseDecimal(row['Activities to do'])!) : null,
-          
-          // Email tracking
           lastEmailReceived: parseDate(row['Last email received']),
           lastEmailSent: parseDate(row['Last email sent']),
           emailMessagesCount: parseDecimal(row['Email messages count']) ? Math.round(parseDecimal(row['Email messages count'])!) : null,
-          
-          // Products
           productQuantity: row['Product quantity'] || null,
           productAmount: parseDecimal(row['Product amount']),
           productName: row['Product name'] || null,
@@ -338,14 +275,10 @@ async function importDeals(rows: CSVRow[]) {
           arrCurrency: row['Currency of ARR'] || null,
           acv: parseDecimal(row['ACV']),
           acvCurrency: row['Currency of ACV'] || null,
-          
-          // Source tracking
           sourceOrigin: row['Source origin'] || null,
           sourceOriginId: row['Source origin ID'] || null,
           sourceChannel: row['Source channel'] || null,
           sourceChannelId: row['Source channel ID'] || null,
-          
-          // Custom Opticwise fields
           goLiveTarget: row['Go-Live Target'] || null,
           propertyAddress: row['Full/combined address of Property Address'] || null,
           propertyType: row['Property Type'] || null,
@@ -367,15 +300,11 @@ async function importDeals(rows: CSVRow[]) {
           auditValueCurrency: row['Currency of Audit Value'] || null,
           arrExpansionPotential: parseDecimal(row['ARR Expansion Potential']),
           arrExpansionCurrency: row['Currency of ARR Expansion Potential'] || null,
-          
-          // Relations
           pipelineId: pipeline.id,
           stageId: stage.id,
           organizationId,
           personId,
           ownerId: user.id,
-          
-          // Timestamps (use Pipedrive dates if available)
           addTime: parseDate(row['Deal created']) || new Date(),
           updateTime: parseDate(row['Update time']) || new Date(),
         }
@@ -386,9 +315,8 @@ async function importDeals(rows: CSVRow[]) {
       skipped++;
     }
     
-    // Progress indicator every 50 deals
-    if ((created + skipped) % 50 === 0) {
-      console.log(`  Processed ${created + skipped} deals...`);
+    if (created % 50 === 0) {
+      console.log(`  Processed ${created} deals...`);
     }
   }
   
@@ -398,20 +326,15 @@ async function importDeals(rows: CSVRow[]) {
 async function main() {
   const rootDir = join(__dirname, '..', '..');
   
-  console.log('Starting Pipedrive import...\n');
-  console.log('This will populate ALL fields from the CSV exports.');
-  console.log('Expected files:');
-  console.log('  - organizations-23955722-70.csv');
-  console.log('  - people-23955722-71.csv');
-  console.log('  - deals-23955722-69.csv\n');
+  console.log('Starting Pipedrive import with proper CSV parsing...\n');
   
-  // Import organizations first (referenced by people and deals)
+  // Import organizations first
   const orgsPath = join(rootDir, 'organizations-23955722-70.csv');
   console.log(`Reading ${orgsPath}...`);
   const orgRows = parseCSV(orgsPath);
   await importOrganizations(orgRows);
   
-  // Import people (referenced by deals)
+  // Import people
   const peoplePath = join(rootDir, 'people-23955722-71.csv');
   console.log(`Reading ${peoplePath}...`);
   const peopleRows = parseCSV(peoplePath);
@@ -430,16 +353,11 @@ async function main() {
   const personCount = await prisma.person.count();
   const dealCount = await prisma.deal.count();
   const openDeals = await prisma.deal.count({ where: { status: 'open' } });
-  const wonDeals = await prisma.deal.count({ where: { status: 'won' } });
-  const lostDeals = await prisma.deal.count({ where: { status: 'lost' } });
   
   console.log(`\n📊 Database totals:`);
   console.log(`  Organizations: ${orgCount.toLocaleString()}`);
   console.log(`  People: ${personCount.toLocaleString()}`);
-  console.log(`  Deals: ${dealCount.toLocaleString()}`);
-  console.log(`    - Open: ${openDeals}`);
-  console.log(`    - Won: ${wonDeals}`);
-  console.log(`    - Lost: ${lostDeals}`);
+  console.log(`  Deals: ${dealCount.toLocaleString()} (${openDeals} open)`);
   
   await prisma.$disconnect();
 }
