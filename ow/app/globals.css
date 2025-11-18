@@ -85,7 +85,7 @@
     @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2 rounded-full font-medium transition-colors;
     font-family: var(--font-condensed);
     text-transform: uppercase;
-    box-shadow: var(--shadow-subtle);
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
   }
   
   .card-shadow {
