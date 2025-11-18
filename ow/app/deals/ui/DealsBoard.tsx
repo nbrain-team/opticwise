@@ -107,12 +107,15 @@ function StageColumn({
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: stageId });
   return (
-    <div ref={setNodeRef} className={`bg-gray-50 rounded-lg border ${isOver ? "ring-2 ring-blue-400" : ""}`}>
-      <div className="px-3 py-2 border-b bg-white rounded-t-lg">
-        <div className="font-medium">{name}</div>
-        <div className="text-xs text-gray-500">{dealCount} deals</div>
+    <div 
+      ref={setNodeRef} 
+      className={`bg-white rounded-lg border border-gray-200 shadow-sm transition-all ${isOver ? "ring-2 ring-[#3B6B8F] bg-blue-50" : ""}`}
+    >
+      <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-b from-gray-50 to-white">
+        <div className="font-semibold text-[#2E2E2F] text-sm">{name}</div>
+        <div className="text-xs text-gray-500 mt-0.5">{dealCount} deals</div>
       </div>
-      <div className="p-2 space-y-2">{children}</div>
+      <div className="p-3 space-y-2 min-h-[200px]">{children}</div>
     </div>
   );
 }
@@ -133,15 +136,23 @@ function DealCard({ stageId, deal }: { stageId: string; deal: Deal }) {
       {...attributes}
       id={`${stageId}:${deal.id}`}
       role="button"
-      className={`rounded-md border bg-white p-3 shadow-sm ${isDragging ? "opacity-50" : ""}`}
+      className={`rounded-lg border border-gray-200 bg-white p-4 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing ${isDragging ? "opacity-50 shadow-lg" : ""}`}
       style={style}
     >
-      <Link href={`/deal/${deal.id}`} className="font-medium hover:underline">
+      <Link href={`/deal/${deal.id}`} className="font-medium text-[#2E2E2F] hover:text-[#3B6B8F] transition-colors block">
         {deal.title}
       </Link>
-      <div className="text-xs text-gray-600 mt-1">
-        {deal.organization?.name ?? "-"}
+      <div className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+        {deal.organization?.name ?? "No organization"}
       </div>
+      {deal.value > 0 && (
+        <div className="text-xs font-semibold text-[#3B6B8F] mt-2">
+          {deal.currency} {Number(deal.value).toLocaleString()}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,21 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Geist, Geist_Mono } from "next/font/google";
+import Image from "next/image";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "Opticwise CRM",
-  description: "Internal CRM replica",
+  description: "Professional CRM Platform",
 };
 
 export default function RootLayout({
@@ -25,25 +15,37 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <header className="sticky top-0 z-10 border-b bg-white">
-          <div className="mx-auto max-w-7xl px-4 h-12 flex items-center gap-6">
-            <Link href="/deals" className="font-semibold">
-              Opticwise CRM
+      <body className="antialiased bg-gray-50">
+        <header className="sticky top-0 z-10 border-b bg-white shadow-sm">
+          <div className="mx-auto max-w-7xl px-6 h-16 flex items-center gap-8">
+            <Link href="/deals" className="flex items-center gap-3">
+              <Image 
+                src="/opticwise-logo.png" 
+                alt="Opticwise" 
+                width={140} 
+                height={40}
+                className="h-8 w-auto"
+              />
             </Link>
-            <nav className="flex items-center gap-4 text-sm">
-              <Link href="/deals">Deals</Link>
-              <Link href="/contacts">Contacts</Link>
-              <Link href="/organizations">Organizations</Link>
-              <Link href="/sales-inbox">Sales Inbox</Link>
+            <nav className="flex items-center gap-6 text-sm font-medium">
+              <Link href="/deals" className="nav-link hover:text-[#3B6B8F] transition-colors">
+                Deals
+              </Link>
+              <Link href="/contacts" className="nav-link hover:text-[#3B6B8F] transition-colors">
+                Contacts
+              </Link>
+              <Link href="/organizations" className="nav-link hover:text-[#3B6B8F] transition-colors">
+                Organizations
+              </Link>
+              <Link href="/sales-inbox" className="nav-link hover:text-[#3B6B8F] transition-colors">
+                Sales Inbox
+              </Link>
             </nav>
             <form className="ml-auto" action={async () => {
               "use server";
               await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/api/auth/logout`, { method: "POST" });
             }}>
-              <button className="text-sm border rounded px-3 py-1 bg-white">
+              <button className="text-sm border border-gray-300 rounded-full px-4 py-1.5 bg-white hover:bg-gray-50 transition-colors">
                 Logout
               </button>
             </form>

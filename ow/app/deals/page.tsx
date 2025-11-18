@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import DealsBoard from "./ui/DealsBoard";
+import DealsFilters from "./ui/DealsFilters";
 import { getSession } from "@/lib/session";
 
 type SortKey =
@@ -101,63 +102,29 @@ export default async function DealsPage({
 
   const grouped = pipeline.stages.map((s) => ({
     stage: s,
-    deals: deals.filter((d) => d.stageId === s.id).sort((a, b) => a.position - b.position),
+    deals: deals
+      .filter((d) => d.stageId === s.id)
+      .sort((a, b) => a.position - b.position)
+      .map((deal) => ({
+        ...deal,
+        value: deal.value.toNumber(),
+        addTime: deal.addTime.toISOString(),
+        updateTime: deal.updateTime.toISOString(),
+        expectedCloseDate: deal.expectedCloseDate?.toISOString() || null,
+      })),
   }));
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-8 space-y-6">
       <div className="flex items-center gap-4">
-        <h1 className="text-2xl font-semibold">Deals</h1>
-        <div className="ml-auto flex items-center gap-2">
-          <form>
-            <label className="mr-2 text-sm text-gray-600">Owner</label>
-            <select
-              name="owner"
-              defaultValue={owner}
-              className="border rounded px-2 py-1 text-sm"
-              onChange={(e) => {
-                const params = new URLSearchParams(window.location.search);
-                params.set("owner", e.target.value);
-                window.location.search = params.toString();
-              }}
-            >
-              <option value="everyone">Everyone</option>
-              {users.map((u) => (
-                <option key={u.id} value={u.email}>
-                  {u.email}
-                </option>
-              ))}
-            </select>
-          </form>
-          <form>
-            <label className="mr-2 text-sm text-gray-600">Sort by</label>
-            <select
-              name="sort"
-              defaultValue={sort}
-              className="border rounded px-2 py-1 text-sm"
-              onChange={(e) => {
-                const params = new URLSearchParams(window.location.search);
-                params.set("sort", e.target.value);
-                window.location.search = params.toString();
-              }}
-            >
-              <option value="title">Deal title</option>
-              <option value="value">Deal value</option>
-              <option value="person">Linked person</option>
-              <option value="organization">Linked organization</option>
-              <option value="expectedCloseDate">Expected close date</option>
-              <option value="createdAt">Deal created</option>
-              <option value="updatedAt">Deal update time</option>
-              <option value="owner">Owner name</option>
-            </select>
-          </form>
-          <Link
-            href="/deals/new"
-            className="h-9 px-3 rounded bg-black text-white flex items-center text-sm"
-          >
-            + Deal
-          </Link>
-        </div>
+        <h1 className="text-3xl font-light text-[#50555C]">Deals</h1>
+        <DealsFilters users={users} currentOwner={owner} currentSort={sort} />
+        <Link
+          href="/deals/new"
+          className="btn-primary ml-2"
+        >
+          + Deal
+        </Link>
       </div>
       <DealsBoard pipelineId={pipeline.id} columns={grouped} />
     </div>

@@ -1,27 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=PT+Sans:wght@400;700&family=PT+Sans+Narrow:wght@400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
+  /* OpticWise Brand Typography */
+  --font-display: 'Rajdhani', sans-serif;
+  --font-body: 'PT Sans', sans-serif;
+  --font-condensed: 'PT Sans Narrow', sans-serif;
+
+  /* OpticWise Brand Colors */
+  --color-brand-blue: #3B6B8F;
+  --color-brand-blue-dark: #2A4D6B;
+  --color-slate-700: #50555C;
+  --color-charcoal-900: #222222;
+  --color-charcoal-800: #2E2E2F;
+  --color-gray-600: #636972;
+  --color-gray-500: #666666;
+  --color-gray-400: #555555;
+  --color-gray-300: #EEEEEE;
+  --color-gray-250: #D8D8D8;
+  --color-accent-blue: #006699;
+
+  /* Tailwind theme tokens */
   --radius: 0.625rem;
   --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
+  --foreground: 0 0% 13.3%;
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
+  --card-foreground: 0 0% 13.3%;
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 3.9%;
-  --primary: 0 0% 9%;
+  --popover-foreground: 0 0% 13.3%;
+  --primary: 209 44% 40%;
   --primary-foreground: 0 0% 98%;
   --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 9%;
+  --secondary-foreground: 0 0% 13.3%;
   --muted: 0 0% 96.1%;
   --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 96.1%;
-  --accent-foreground: 0 0% 9%;
+  --accent: 209 44% 40%;
+  --accent-foreground: 0 0% 98%;
   --destructive: 0 84.2% 60.2%;
   --border: 0 0% 89.8%;
   --input: 0 0% 89.8%;
-  --ring: 0 0% 3.9%;
+  --ring: 209 44% 40%;
 }
 
 .dark {
@@ -51,5 +72,27 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 300;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-6 py-2 rounded-full font-medium transition-colors;
+    font-family: var(--font-condensed);
+    text-transform: uppercase;
+    box-shadow: var(--shadow-subtle);
+  }
+  
+  .card-shadow {
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .nav-link {
+    @apply text-gray-600 hover:text-primary transition-colors;
   }
 }
