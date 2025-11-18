@@ -49,6 +49,15 @@ model Organization {
   address      String?
   websiteUrl   String?
   domain       String?
+  linkedInProfile String?
+  industry     String?
+  annualRevenue String?
+  numberOfEmployees String?
+  doors        String?
+  labels       String?
+  profilePicture String?
+  latitude     String?
+  longitude    String?
   customFields Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -60,14 +69,35 @@ model Organization {
 
 model Person {
   id             String   @id @default(cuid())
+  name           String?  // Full name for easy display
   firstName      String
   lastName       String
   email          String?  @unique
-  phone          String?
-  title          String?
+  phone          String?  // Keep for backward compat
+  phoneWork      String?
+  phoneHome      String?
+  phoneMobile    String?
+  phoneOther     String?
+  emailWork      String?
+  emailHome      String?
+  emailOther     String?
+  title          String?  // Job title
   labels         String?
   contactType    String?
   organizationId String?
+  postalAddress  String?
+  birthday       DateTime?
+  notes          String?
+  linkedInProfile String?
+  qwilrProposal  String?
+  classification String?
+  instantMessenger String?
+  marketingStatus String?
+  doubleOptIn    String?
+  profilePicture String?
+  latitude       String?
+  longitude      String?
+  customFields   Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -91,10 +121,68 @@ model Deal {
   status            DealStatus  @default(open)
   probability       Int?
   expectedCloseDate DateTime?
+  wonTime           DateTime?
+  lostTime          DateTime?
+  lostReason        String?
   label             String?
+  labels            String?
+  
+  // Activity tracking
+  nextActivityDate  DateTime?
+  lastActivityDate  DateTime?
+  totalActivities   Int?
+  doneActivities    Int?
+  activitiesToDo    Int?
+  
+  // Email tracking
+  lastEmailReceived DateTime?
+  lastEmailSent     DateTime?
+  emailMessagesCount Int?
+  
+  // Products
+  productQuantity   String?
+  productAmount     Decimal?
+  productName       String?
+  mrr               Decimal?
+  mrrCurrency       String?
+  arr               Decimal?
+  arrCurrency       String?
+  acv               Decimal?
+  acvCurrency       String?
+  
+  // Source tracking
+  sourceOrigin      String?
+  sourceOriginId    String?
+  sourceChannel     String?
+  sourceChannelId   String?
+  
+  // Custom Opticwise fields
+  goLiveTarget      String?
+  propertyAddress   String?
+  propertyType      String?
+  qty               String?  // units, beds, sqft
+  arrForecast       Decimal?
+  arrForecastCurrency String?
+  capexRom          Decimal?
+  capexRomCurrency  String?
+  roiNoiBomSheet    String?
+  printsPlansExternal String?
+  printsPlansDropbox String?
+  leadSource        String?
+  technicalPOC      String?
+  icpSegment        String?
+  leadSourcePPP     String?
+  readinessScore    String?
+  ddiAuditStatus    String?
+  auditValue        Decimal?
+  auditValueCurrency String?
+  arrExpansionPotential Decimal?
+  arrExpansionCurrency String?
+  
   addTime           DateTime    @default(now())
   updateTime        DateTime    @updatedAt
   position          Int         @default(0) // ordering within a stage
+  customFields      Json?       // For any additional dynamic fields
 
   pipelineId     String
   stageId        String
