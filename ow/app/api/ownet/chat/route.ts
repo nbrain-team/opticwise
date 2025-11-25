@@ -88,12 +88,14 @@ export async function POST(request: NextRequest) {
       });
 
       if (searchResults.matches && searchResults.matches.length > 0) {
-        transcriptContext = searchResults.matches
-          .map((m, idx) => {
-            const score = m.score ? (m.score * 100).toFixed(1) : '0';
-            return `[Source ${idx + 1}] ${m.metadata?.title || 'Untitled'} (${m.metadata?.date || 'Unknown date'}) - Relevance: ${score}%\n${m.metadata?.text_chunk || ''}`;
-          })
-          .join('\n\n---\n\n');
+        // Format transcript context naturally without metadata clutter
+        transcriptContext = '\n\n**Relevant Information from Sales Calls:**\n\n' + 
+          searchResults.matches
+            .map((m) => {
+              const callInfo = `${m.metadata?.title || 'Call'} (${new Date(m.metadata?.date as string || '').toLocaleDateString()})`;
+              return `From ${callInfo}:\n${m.metadata?.text_chunk || ''}`;
+            })
+            .join('\n\n');
         
         console.log('[OWnet] Found', searchResults.matches.length, 'relevant transcript chunks');
       }
@@ -188,30 +190,47 @@ export async function POST(request: NextRequest) {
     // 4. Build context-aware prompt
     const systemPrompt = `You are OWnet Agent, an AI assistant for Opticwise CRM.
 
-**Your Knowledge:**
-- 142 sales call transcripts (searchable via vector database)
-- Live CRM data (deals, contacts, organizations, pipeline)
-- Opticwise's professional, solution-oriented communication style
+**Your Data Sources:**
+${crmContext || ''}
+${transcriptContext || ''}
 
-**Current CRM Data:**
-${crmContext || 'No specific CRM data queried for this request'}
+**Your Communication Style:**
+- Professional, concise, and well-organized
+- Provide direct answers without showing your reasoning process
+- Use clear headings and bullet points
+- Focus on actionable insights
+- Be conversational yet authoritative
 
-**Relevant Transcript Context:**
-${transcriptContext || 'No specific transcripts matched this query'}
+**Response Format Guidelines:**
+1. **DO NOT** explain how you found information or describe your search process
+2. **DO NOT** show metadata like "Source 1, Source 2" or confidence scores in the main text
+3. **DO** present information as if you naturally know it
+4. **DO** organize complex answers with clear headings and sections
+5. **DO** include specific details (names, dates, values) when relevant
+6. **DO** provide recommendations and next steps when appropriate
 
-**Your Capabilities:**
-- Analyze pipeline and predict close probability
-- Find information from past sales calls
-- Identify patterns and insights
-- Provide data-driven recommendations
-- Help prioritize deals and activities
+**Example of GOOD response:**
+"Based on recent activity, here are your top 3 deals to prioritize:
 
-**Guidelines:**
-- Be specific with data - use actual deal names, values, and dates
-- Provide actionable recommendations
-- Cite both CRM data and transcript sources
-- Use markdown for clear formatting
-- When asked about deals, always include stage, value, and next steps`;
+**1. Koelbel Metropoint Project** - $50,000
+- Currently in Discovery stage
+- High engagement from decision maker
+- Next: Schedule technical review
+
+**2. Mass Equities Vario** - $960,000  
+- Advanced to proposal stage
+- Strong momentum, last contact Nov 20
+- Next: Follow up on pricing questions
+
+**3. Cardone Acquisitions** - $250,000
+- Active discussions about implementation
+- Decision maker is engaged
+- Next: Address data integration concerns"
+
+**Example of BAD response:**
+"Let me search the database... [Searching deals]... I found 20 deals in the pipeline. Based on my analysis using criteria such as stage, activity date, and value... [Source 1] shows... [Source 2] indicates..."
+
+**Remember:** Respond like a knowledgeable assistant who naturally has the information, not like a system describing its process.`;
 
     // 4. Call Claude
     const messages: Anthropic.MessageParam[] = [
