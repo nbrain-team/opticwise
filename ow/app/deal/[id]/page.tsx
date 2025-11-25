@@ -2,9 +2,10 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function DealDetailPage({ params }: { params: { id: string } }) {
+export default async function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const deal = await prisma.deal.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       pipeline: true,
       stage: true,

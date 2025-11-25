@@ -2,9 +2,10 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function PersonDetailPage({ params }: { params: { id: string } }) {
+export default async function PersonDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const person = await prisma.person.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       organization: true,
       deals: {

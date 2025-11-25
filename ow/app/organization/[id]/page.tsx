@@ -2,9 +2,10 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-export default async function OrganizationDetailPage({ params }: { params: { id: string } }) {
+export default async function OrganizationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const org = await prisma.organization.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       people: {
         orderBy: { lastName: "asc" },
