@@ -50,6 +50,9 @@ export default function OWnetAgentPage() {
         setSessions(data.sessions)
         if (!currentSessionId && data.sessions.length > 0) {
           setCurrentSessionId(data.sessions[0].id)
+        } else if (data.sessions.length === 0) {
+          // Auto-create first session if none exist
+          await createNewSession()
         }
       }
     } catch (error) {
