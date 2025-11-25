@@ -6,10 +6,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 import { getSession } from '@/lib/session';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-});
+let pool: Pool | null = null;
+
+function getPool() {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+    });
+  }
+  return pool;
+}
 
 export async function GET(
   request: NextRequest,
@@ -23,7 +30,8 @@ export async function GET(
 
     const { id } = await params;
 
-    const sessionResult = await pool.query(
+    const db = getPool();
+    const sessionResult = await db.query(
       'SELECT * FROM "AgentChatSession" WHERE id = $1 AND "userId" = $2',
       [id, session.userId]
     );
@@ -32,7 +40,7 @@ export async function GET(
       return NextResponse.json({ error: 'Session not found' }, { status: 404 });
     }
 
-    const messagesResult = await pool.query(
+    const messagesResult = await db.query(
       'SELECT * FROM "AgentChatMessage" WHERE "sessionId" = $1 ORDER BY "createdAt" ASC',
       [id]
     );
@@ -60,7 +68,8 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await pool.query(
+    const db = getPool();
+    await db.query(
       'DELETE FROM "AgentChatSession" WHERE id = $1 AND "userId" = $2',
       [id, session.userId]
     );

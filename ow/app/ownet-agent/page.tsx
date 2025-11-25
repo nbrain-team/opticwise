@@ -27,6 +27,7 @@ export default function OWnetAgentPage() {
   // Load sessions on mount
   useEffect(() => {
     loadSessions()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Load messages when session changes

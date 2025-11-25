@@ -6,20 +6,28 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 import { getSession } from '@/lib/session';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-});
+let pool: Pool | null = null;
+
+function getPool() {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+    });
+  }
+  return pool;
+}
 
 // GET - List sessions
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const result = await pool.query(
+    const db = getPool();
+    const result = await db.query(
       `SELECT s.*, 
               (SELECT COUNT(*) FROM "AgentChatMessage" WHERE "sessionId" = s.id) as "messageCount"
        FROM "AgentChatSession" s
@@ -50,7 +58,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { title = 'New Chat', dealId = null } = body;
 
-    const result = await pool.query(
+    const db = getPool();
+    const result = await db.query(
       'INSERT INTO "AgentChatSession" ("userId", "dealId", title) VALUES ($1, $2, $3) RETURNING *',
       [session.userId, dealId, title]
     );

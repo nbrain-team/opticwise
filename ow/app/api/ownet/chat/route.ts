@@ -9,18 +9,38 @@ import Anthropic from '@anthropic-ai/sdk';
 import { Pinecone } from '@pinecone-database/pinecone';
 import { getSession } from '@/lib/session';
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
-});
+// Initialize on first use to avoid build-time errors
+let pool: Pool | null = null;
+let anthropic: Anthropic | null = null;
+let pinecone: Pinecone | null = null;
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+function getPool() {
+  if (!pool) {
+    pool = new Pool({
+      connectionString: process.env.DATABASE_URL,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+    });
+  }
+  return pool;
+}
 
-const pinecone = new Pinecone({
-  apiKey: process.env.PINECONE_API_KEY!,
-});
+function getAnthropic() {
+  if (!anthropic) {
+    anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+  }
+  return anthropic;
+}
+
+function getPinecone() {
+  if (!pinecone) {
+    pinecone = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY!,
+    });
+  }
+  return pinecone;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -44,7 +64,8 @@ export async function POST(request: NextRequest) {
     
     let transcriptContext = '';
     try {
-      const index = pinecone.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
+      const pc = getPinecone();
+      const index = pc.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
       
       // Search (Pinecone will handle this even without vectors, will return empty)
       const searchResults = await index.query({
@@ -55,17 +76,18 @@ export async function POST(request: NextRequest) {
 
       if (searchResults.matches && searchResults.matches.length > 0) {
         transcriptContext = searchResults.matches
-          .map((m: any) => {
+          .map((m) => {
             return `[Call: ${m.metadata?.title}]\n${m.metadata?.text_chunk || ''}`;
           })
           .join('\n\n');
       }
-    } catch (pineconeError) {
+    } catch {
       console.log('[OWnet] Pinecone search skipped (will work after vectorization)');
     }
 
     // 2. Get conversation history
-    const historyResult = await pool.query(
+    const db = getPool();
+    const historyResult = await db.query<{ role: string; content: string }>(
       'SELECT role, content FROM "AgentChatMessage" WHERE "sessionId" = $1 ORDER BY "createdAt" DESC LIMIT 10',
       [sessionId]
     );
@@ -90,14 +112,15 @@ ${transcriptContext || 'No specific transcripts found for this query (transcript
 
     // 4. Call Claude
     const messages: Anthropic.MessageParam[] = [
-      ...history.map((h: any) => ({
+      ...history.map((h) => ({
         role: h.role as 'user' | 'assistant',
         content: h.content,
       })),
       { role: 'user', content: message },
     ];
 
-    const response = await anthropic.messages.create({
+    const ai = getAnthropic();
+    const response = await ai.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 4096,
       temperature: 0.7,
@@ -110,18 +133,18 @@ ${transcriptContext || 'No specific transcripts found for this query (transcript
       : '';
 
     // 5. Save messages to database
-    await pool.query(
+    await db.query(
       'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3)',
       [sessionId, 'user', message]
     );
 
-    await pool.query(
+    await db.query(
       'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3)',
       [sessionId, 'assistant', responseText]
     );
 
     // 6. Update session timestamp
-    await pool.query(
+    await db.query(
       'UPDATE "AgentChatSession" SET "updatedAt" = NOW() WHERE id = $1',
       [sessionId]
     );
