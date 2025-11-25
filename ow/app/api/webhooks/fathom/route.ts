@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { prisma } from '@/lib/db';
+import type { Prisma } from '@prisma/client';
 
 const FATHOM_WEBHOOK_SECRET = process.env.FATHOM_WEBHOOK_SECRET || 'whsec_Md1/I/ZdFvTDmI/DROEiGAlM6NjP3ffZ';
 
@@ -165,7 +166,12 @@ async function handleTranscriptReady(data: WebhookPayload) {
   try {
     console.log('📝 Processing transcript for call:', data.call_id || data.id);
     
-    const fathomCallId = data.call_id || data.id;
+    const callId = data.call_id || data.id;
+    if (!callId) {
+      throw new Error('No call ID provided in webhook data');
+    }
+    
+    const fathomCallId = String(callId);
     
     // Convert transcript array to text if it's in structured format
     let transcriptText = '';
@@ -185,15 +191,15 @@ async function handleTranscriptReady(data: WebhookPayload) {
     }
     
     // Try to find matching person by email from participants
-    let personId = null;
-    let organizationId = null;
+    let personId: string | null = null;
+    let organizationId: string | null = null;
     
     if (Array.isArray(data.participants)) {
       for (const participant of data.participants) {
         const email = participant.email || participant.matched_calendar_invitee_email;
         
         if (email) {
-              const person = await prisma.person.findUnique({
+          const person = await prisma.person.findUnique({
             where: { email },
             select: { id: true, organizationId: true },
           });
@@ -208,37 +214,39 @@ async function handleTranscriptReady(data: WebhookPayload) {
       }
     }
     
+    // Prepare base data
+    const baseData = {
+      title: data.title || data.meeting_title || 'Untitled Call',
+      transcript: transcriptText,
+      ...(transcriptJson !== null && { transcriptJson: transcriptJson as Prisma.InputJsonValue }),
+      ...(data.summary && { summary: data.summary }),
+      startTime: data.start_time ? new Date(data.start_time) : new Date(),
+      endTime: data.end_time ? new Date(data.end_time) : null,
+      duration: data.duration || 0,
+      ...(data.recording_url || data.url ? { recordingUrl: data.recording_url || data.url } : {}),
+    };
+    
     // Store transcript in database
     const transcript = await prisma.callTranscript.upsert({
       where: { fathomCallId },
       update: {
-        title: data.title || 'Untitled Call',
-        transcript: transcriptText,
-        transcriptJson: transcriptJson !== null ? transcriptJson : undefined,
-        summary: data.summary || null,
-        startTime: data.start_time ? new Date(data.start_time) : new Date(),
-        endTime: data.end_time ? new Date(data.end_time) : null,
-        duration: data.duration || 0,
-        participants: data.participants || [],
-        recordingUrl: data.recording_url || null,
-        personId,
-        organizationId,
-        metadata: data as unknown,
+        ...baseData,
+        ...(personId && {
+          person: {
+            connect: { id: personId }
+          }
+        }),
+        ...(organizationId && {
+          organization: {
+            connect: { id: organizationId }
+          }
+        }),
       },
       create: {
         fathomCallId,
-        title: data.title || 'Untitled Call',
-        transcript: transcriptText,
-        transcriptJson: transcriptJson !== null ? transcriptJson : undefined,
-        summary: data.summary || null,
-        startTime: data.start_time ? new Date(data.start_time) : new Date(),
-        endTime: data.end_time ? new Date(data.end_time) : null,
-        duration: data.duration || 0,
-        participants: data.participants || [],
-        recordingUrl: data.recording_url || null,
-        personId,
-        organizationId,
-        metadata: data as unknown,
+        ...baseData,
+        ...(personId && { personId }),
+        ...(organizationId && { organizationId }),
       },
     });
     

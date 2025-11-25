@@ -159,7 +159,7 @@ function DealCard({ stageId, deal }: { stageId: string; deal: Deal }) {
           </svg>
           {deal.organization?.name ?? "No organization"}
         </div>
-        {deal.value > 0 && (
+        {Number(deal.value) > 0 && (
           <div className="text-xs font-semibold text-[#3B6B8F] mt-2">
             {deal.currency} {Number(deal.value).toLocaleString()}
           </div>
