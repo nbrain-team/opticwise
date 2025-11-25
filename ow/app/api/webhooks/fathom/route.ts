@@ -223,7 +223,7 @@ async function handleTranscriptReady(data: WebhookPayload) {
         recordingUrl: data.recording_url || null,
         personId,
         organizationId,
-        metadata: data as Record<string, unknown>,
+        metadata: data as unknown,
       },
       create: {
         fathomCallId,
@@ -238,7 +238,7 @@ async function handleTranscriptReady(data: WebhookPayload) {
         recordingUrl: data.recording_url || null,
         personId,
         organizationId,
-        metadata: data as Record<string, unknown>,
+        metadata: data as unknown,
       },
     });
     
