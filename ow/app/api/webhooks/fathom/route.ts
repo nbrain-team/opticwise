@@ -169,11 +169,11 @@ async function handleTranscriptReady(data: WebhookPayload) {
     
     // Convert transcript array to text if it's in structured format
     let transcriptText = '';
-    let transcriptJson = null;
+    let transcriptJson: unknown = null;
     
     if (Array.isArray(data.transcript)) {
       // Structured format with speakers
-      transcriptJson = data.transcript;
+      transcriptJson = data.transcript as unknown;
       transcriptText = data.transcript.map((segment: WebhookTranscriptSegment) => {
         const speaker = segment.speaker?.display_name || 'Unknown Speaker';
         const timestamp = segment.timestamp || '';
@@ -214,7 +214,7 @@ async function handleTranscriptReady(data: WebhookPayload) {
       update: {
         title: data.title || 'Untitled Call',
         transcript: transcriptText,
-        transcriptJson: transcriptJson || undefined,
+        transcriptJson: transcriptJson !== null ? transcriptJson : undefined,
         summary: data.summary || null,
         startTime: data.start_time ? new Date(data.start_time) : new Date(),
         endTime: data.end_time ? new Date(data.end_time) : null,
@@ -229,7 +229,7 @@ async function handleTranscriptReady(data: WebhookPayload) {
         fathomCallId,
         title: data.title || 'Untitled Call',
         transcript: transcriptText,
-        transcriptJson: transcriptJson || undefined,
+        transcriptJson: transcriptJson !== null ? transcriptJson : undefined,
         summary: data.summary || null,
         startTime: data.start_time ? new Date(data.start_time) : new Date(),
         endTime: data.end_time ? new Date(data.end_time) : null,
