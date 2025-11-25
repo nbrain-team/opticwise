@@ -196,3 +196,4 @@ a {
 
 This document reflects the current site. If the product requires a broader design system (tokens/components/themes), extend these variables and codify component states (hover, focus, active, disabled) and responsive typography rules.
 
+

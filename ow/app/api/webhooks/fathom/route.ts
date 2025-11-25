@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { db } from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 const FATHOM_WEBHOOK_SECRET = process.env.FATHOM_WEBHOOK_SECRET || 'whsec_Md1/I/ZdFvTDmI/DROEiGAlM6NjP3ffZ';
 
@@ -156,7 +156,7 @@ async function handleTranscriptReady(data: any) {
         const email = participant.email || participant.matched_calendar_invitee_email;
         
         if (email) {
-          const person = await db.person.findUnique({
+              const person = await prisma.person.findUnique({
             where: { email },
             select: { id: true, organizationId: true },
           });
@@ -172,7 +172,7 @@ async function handleTranscriptReady(data: any) {
     }
     
     // Store transcript in database
-    const transcript = await db.callTranscript.upsert({
+    const transcript = await prisma.callTranscript.upsert({
       where: { fathomCallId },
       update: {
         title: data.title || 'Untitled Call',
