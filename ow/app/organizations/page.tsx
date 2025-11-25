@@ -4,10 +4,11 @@ import Link from "next/link";
 export default async function OrganizationsPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const page = parseInt((searchParams.page as string) || "1");
-  const search = (searchParams.search as string) || "";
+  const params = await searchParams;
+  const page = parseInt((params.page as string) || "1");
+  const search = (params.search as string) || "";
   const perPage = 100;
   const skip = (page - 1) * perPage;
 

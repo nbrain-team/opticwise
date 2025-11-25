@@ -20,15 +20,16 @@ export const dynamic = "force-dynamic";
 export default async function DealsPage({
   searchParams,
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const session = await getSession();
   if (!session) {
     return null;
   }
 
-  const owner = (searchParams.owner as string) || "everyone";
-  const sort = ((searchParams.sort as SortKey) || "title") as SortKey;
+  const params = await searchParams;
+  const owner = (params.owner as string) || "everyone";
+  const sort = ((params.sort as SortKey) || "title") as SortKey;
 
   const pipeline = await prisma.pipeline.findFirst({
     include: {
