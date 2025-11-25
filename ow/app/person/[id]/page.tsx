@@ -21,7 +21,8 @@ export default async function PersonDetailPage({ params }: { params: { id: strin
     return notFound();
   }
 
-  const openDeals = person.deals.filter((d) => d.status === "open");
+  // Commenting out unused variable to fix linter error
+  // const openDeals = person.deals.filter((d) => d.status === "open");
 
   return (
     <div className="p-8 space-y-6">

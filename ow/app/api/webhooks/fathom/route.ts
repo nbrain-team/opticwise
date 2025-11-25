@@ -121,10 +121,47 @@ export async function POST(request: NextRequest) {
   }
 }
 
+interface WebhookTranscriptSegment {
+  speaker?: {
+    display_name?: string;
+    matched_calendar_invitee_email?: string;
+  };
+  text: string;
+  timestamp?: string;
+}
+
+interface WebhookPayload {
+  call_id?: string;
+  id?: string;
+  title?: string;
+  meeting_title?: string;
+  transcript?: WebhookTranscriptSegment[] | string;
+  summary?: string;
+  start_time?: string;
+  scheduled_start_time?: string;
+  created_at?: string;
+  end_time?: string;
+  recording_end_time?: string;
+  duration?: number;
+  participants?: Array<{
+    name?: string;
+    email?: string;
+    matched_calendar_invitee_email?: string;
+  }>;
+  calendar_invitees?: Array<{
+    name?: string;
+    email?: string;
+    matched_calendar_invitee_email?: string;
+  }>;
+  recording_url?: string;
+  url?: string;
+  [key: string]: unknown;
+}
+
 /**
  * Handle transcript ready event
  */
-async function handleTranscriptReady(data: any) {
+async function handleTranscriptReady(data: WebhookPayload) {
   try {
     console.log('📝 Processing transcript for call:', data.call_id || data.id);
     
@@ -137,7 +174,7 @@ async function handleTranscriptReady(data: any) {
     if (Array.isArray(data.transcript)) {
       // Structured format with speakers
       transcriptJson = data.transcript;
-      transcriptText = data.transcript.map((segment: any) => {
+      transcriptText = data.transcript.map((segment: WebhookTranscriptSegment) => {
         const speaker = segment.speaker?.display_name || 'Unknown Speaker';
         const timestamp = segment.timestamp || '';
         return `[${timestamp}] ${speaker}: ${segment.text}`;
