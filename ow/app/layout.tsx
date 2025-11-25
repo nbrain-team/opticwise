@@ -40,6 +40,9 @@ export default function RootLayout({
               <Link href="/sales-inbox" className="nav-link hover:text-[#3B6B8F] transition-colors">
                 Sales Inbox
               </Link>
+              <Link href="/ownet-agent" className="nav-link hover:text-[#3B6B8F] transition-colors font-semibold border-l border-gray-300 pl-6 ml-2">
+                🧠 OWnet Agent
+              </Link>
             </nav>
             <form className="ml-auto" action={async () => {
               "use server";
