@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 
+// Force dynamic rendering to avoid build-time database access
+export const dynamic = 'force-dynamic';
+
 export default async function SalesInboxPage() {
   const threads = await prisma.emailThread.findMany({
     include: { messages: true, deal: true, person: true, organization: true },
