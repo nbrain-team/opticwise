@@ -59,30 +59,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Search transcripts using Pinecone
+    // 1. Search transcripts using Pinecone with OpenAI embeddings
     console.log('[OWnet] Searching transcripts for:', message);
     
     let transcriptContext = '';
     try {
+      // Generate embedding for the query
+      const openai = new (await import('openai')).default({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+      
+      const embeddingResponse = await openai.embeddings.create({
+        model: 'text-embedding-3-large',
+        input: message,
+        dimensions: 1024,
+      });
+      
+      const queryEmbedding = embeddingResponse.data[0].embedding;
+      
+      // Search Pinecone
       const pc = getPinecone();
       const index = pc.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
       
-      // Search (Pinecone will handle this even without vectors, will return empty)
       const searchResults = await index.query({
-        topK: 3,
+        topK: 5,
+        vector: queryEmbedding,
         includeMetadata: true,
-        vector: [], // Empty for now until we vectorize
       });
 
       if (searchResults.matches && searchResults.matches.length > 0) {
         transcriptContext = searchResults.matches
-          .map((m) => {
-            return `[Call: ${m.metadata?.title}]\n${m.metadata?.text_chunk || ''}`;
+          .map((m, idx) => {
+            const score = m.score ? (m.score * 100).toFixed(1) : '0';
+            return `[Source ${idx + 1}] ${m.metadata?.title || 'Untitled'} (${m.metadata?.date || 'Unknown date'}) - Relevance: ${score}%\n${m.metadata?.text_chunk || ''}`;
           })
-          .join('\n\n');
+          .join('\n\n---\n\n');
+        
+        console.log('[OWnet] Found', searchResults.matches.length, 'relevant transcript chunks');
       }
-    } catch {
-      console.log('[OWnet] Pinecone search skipped (will work after vectorization)');
+    } catch (error) {
+      console.log('[OWnet] Transcript search error:', error);
     }
 
     // 2. Get conversation history
