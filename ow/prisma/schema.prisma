@@ -65,6 +65,7 @@ model Organization {
   people Person[]
   deals  Deal[]
   emailThreads EmailThread[]
+  callTranscripts CallTranscript[]
 }
 
 model Person {
@@ -104,6 +105,7 @@ model Person {
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   deals        Deal[]
   emailThreads EmailThread[]
+  callTranscripts CallTranscript[]
 }
 
 enum DealStatus {
@@ -197,6 +199,7 @@ model Deal {
   owner        User          @relation("DealOwner", fields: [ownerId], references: [id], onDelete: SetNull)
 
   emailThreads EmailThread[]
+  callTranscripts CallTranscript[]
 
   @@index([pipelineId, stageId])
   @@index([ownerId])
@@ -237,6 +240,49 @@ model EmailMessage {
   createdAt DateTime       @default(now())
 
   thread EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+}
+
+// Fathom.ai Call Transcripts
+model CallTranscript {
+  id                String   @id @default(cuid())
+  fathomCallId      String   @unique  // External ID from Fathom
+  title             String
+  transcript        String   @db.Text  // Full transcript text
+  transcriptJson    Json?    // Structured transcript with speakers and timestamps
+  summary           String?  @db.Text  // AI-generated summary if provided by Fathom
+  
+  // Call metadata
+  startTime         DateTime
+  endTime           DateTime?
+  duration          Int?     // Duration in seconds
+  recordingUrl      String?
+  
+  // Participants (stored as JSON array)
+  participants      Json?    // [{name: string, email?: string}]
+  
+  // Linking to CRM entities
+  dealId            String?
+  personId          String?
+  organizationId    String?
+  
+  // Metadata
+  metadata          Json?    // Raw data from Fathom
+  vectorized        Boolean  @default(false) // Flag for AI vectorization status
+  vectorEmbedding   String?  @db.Text // Embedding for semantic search (if using)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  
+  @@index([fathomCallId])
+  @@index([dealId])
+  @@index([personId])
+  @@index([organizationId])
+  @@index([startTime])
 }
 
 
