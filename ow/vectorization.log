@@ -1,0 +1,269 @@
+=================================================
+🧠 Vectorizing Opticwise Transcripts
+=================================================
+
+✅ Connected to index: opticwise-transcripts
+
+📥 Found 136 transcripts to vectorize
+
+[1/136] PPP Podcast  intro call with Navjeet Chhina
+  Created 5 chunks
+  Batch 1/1: Embedding 5 chunks...
+  ✅ Upserted 5 vectors
+  ✅ Complete
+
+[2/136] PPP Podcast  intro call with Allen Witters
+  Created 14 chunks
+  Batch 1/1: Embedding 14 chunks...
+  ✅ Upserted 14 vectors
+  ✅ Complete
+
+[3/136] PPP Podcast  intro call with Reuben Levine
+  Created 10 chunks
+  Batch 1/1: Embedding 10 chunks...
+  ✅ Upserted 10 vectors
+  ✅ Complete
+
+[4/136] Richard Reyes | Meeting 
+  Created 13 chunks
+  Batch 1/1: Embedding 13 chunks...
+  ✅ Upserted 13 vectors
+  ✅ Complete
+
+[5/136] PPP Podcast  intro call with John Lind
+  Created 10 chunks
+  Batch 1/1: Embedding 10 chunks...
+  ✅ Upserted 10 vectors
+  ✅ Complete
+
+[6/136] PPP Podcast  intro call with Thomas Schneider
+  Created 7 chunks
+  Batch 1/1: Embedding 7 chunks...
+  ✅ Upserted 7 vectors
+  ✅ Complete
+
+[7/136] nBrain | Meeting
+  Created 12 chunks
+  Batch 1/1: Embedding 12 chunks...
+  ✅ Upserted 12 vectors
+  ✅ Complete
+
+[8/136] PPP Podcast  intro call with Jan Huisman
+  Created 8 chunks
+  Batch 1/1: Embedding 8 chunks...
+  ✅ Upserted 8 vectors
+  ✅ Complete
+
+[9/136] PPP Podcast  intro call with Sam knotts
+  Created 14 chunks
+  Batch 1/1: Embedding 14 chunks...
+  ✅ Upserted 14 vectors
+  ✅ Complete
+
+[10/136] From Scattered Tools to a Winning Asset: Building Your AI "Business Brain"
+  Created 38 chunks
+  Batch 1/1: Embedding 38 chunks...
+  ✅ Upserted 38 vectors
+  ✅ Complete
+
+[11/136] PPP Podcast  intro call with George Kushner 
+  Created 8 chunks
+  Batch 1/1: Embedding 8 chunks...
+  ✅ Upserted 8 vectors
+  ✅ Complete
+
+[12/136] PPP Podcast  intro call with Ken Morris 
+  Created 8 chunks
+  Batch 1/1: Embedding 8 chunks...
+  ✅ Upserted 8 vectors
+  ✅ Complete
+
+[13/136] PPP Podcast  intro call with Wes Snow
+  Created 6 chunks
+  Batch 1/1: Embedding 6 chunks...
+  ✅ Upserted 6 vectors
+  ✅ Complete
+
+[14/136] Liam Zirkle | Meeting 
+  Created 21 chunks
+  Batch 1/1: Embedding 21 chunks...
+  ✅ Upserted 21 vectors
+  ✅ Complete
+
+[15/136] Heather Hook | Kick Off Call with KeyCrew Media
+  Created 16 chunks
+  Batch 1/1: Embedding 16 chunks...
+  ✅ Upserted 16 vectors
+  ✅ Complete
+
+[16/136]  PPP Podcast  intro call with John D. Conway
+  Created 12 chunks
+  Batch 1/1: Embedding 12 chunks...
+  ✅ Upserted 12 vectors
+  ✅ Complete
+
+[17/136] OpticWise + nBrain AI Kick-Off Meeting
+  Created 17 chunks
+  Batch 1/1: Embedding 17 chunks...
+  ✅ Upserted 17 vectors
+  ✅ Complete
+
+[18/136] PPP Podcast  intro call with  Amanda Betts
+  Created 10 chunks
+  Batch 1/1: Embedding 10 chunks...
+  ✅ Upserted 10 vectors
+  ✅ Complete
+
+[19/136] Shea Fallick | Meeting 
+  Created 24 chunks
+  Batch 1/1: Embedding 24 chunks...
+  ✅ Upserted 24 vectors
+  ✅ Complete
+
+[20/136]  Ryan Elazari | Meeting 
+  Created 20 chunks
+  Batch 1/1: Embedding 20 chunks...
+  ✅ Upserted 20 vectors
+  ✅ Complete
+
+[21/136] Marshall Johnson | Meeting
+  Created 10 chunks
+  Batch 1/1: Embedding 10 chunks...
+  ✅ Upserted 10 vectors
+  ✅ Complete
+
+[22/136] Saharsh Chordia | Meeting
+  Created 15 chunks
+  Batch 1/1: Embedding 15 chunks...
+  ✅ Upserted 15 vectors
+  ✅ Complete
+
+[23/136] PPP Podcast  intro call with Joe Tagliente
+  Created 13 chunks
+  Batch 1/1: Embedding 13 chunks...
+  ✅ Upserted 13 vectors
+  ✅ Complete
+
+[24/136] 60 Minute Proptech-PR Consultancy.  with Andrew Stanton  CEO Proptech-PR
+  Created 25 chunks
+  Batch 1/1: Embedding 25 chunks...
+  ✅ Upserted 25 vectors
+  ✅ Complete
+
+[25/136] Laura Roman | Content Creation
+  Created 10 chunks
+  Batch 1/1: Embedding 10 chunks...
+  ✅ Upserted 10 vectors
+  ✅ Complete
+
+[26/136] Rosy
+  Created 9 chunks
+  Batch 1/1: Embedding 9 chunks...
+  ✅ Upserted 9 vectors
+  ✅ Complete
+
+[27/136] John Simmons call
+  Created 21 chunks
+  Batch 1/1: Embedding 21 chunks...
+  ✅ Upserted 21 vectors
+  ✅ Complete
+
+[28/136] Opticwise
+  Created 13 chunks
+  Batch 1/1: Embedding 13 chunks...
+  ✅ Upserted 13 vectors
+  ✅ Complete
+
+[29/136] Jesse Futia | Bill Douglas- Meeting 
+  Created 9 chunks
+  Batch 1/1: Embedding 9 chunks...
+  ✅ Upserted 9 vectors
+  ✅ Complete
+
+[30/136] PPP Podcast intro call with David Aaronson 
+  Created 5 chunks
+  Batch 1/1: Embedding 5 chunks...
+  ✅ Upserted 5 vectors
+  ✅ Complete
+
+[31/136] Impromptu Zoom Meeting
+  Created 8 chunks
+  Batch 1/1: Embedding 8 chunks...
+  ✅ Upserted 8 vectors
+  ✅ Complete
+
+[32/136] OpticWise + nBrain Meeting
+  Created 26 chunks
+  Batch 1/1: Embedding 26 chunks...
+  ✅ Upserted 26 vectors
+  ✅ Complete
+
+[33/136] CH - WD catchup 
+  Created 13 chunks
+  Batch 1/1: Embedding 13 chunks...
+  ✅ Upserted 13 vectors
+  ✅ Complete
+
+[34/136] Kit Edwards
+  Created 27 chunks
+  Batch 1/1: Embedding 27 chunks...
+  ✅ Upserted 27 vectors
+  ✅ Complete
+
+[35/136] Opticwise + nBrain AI Meeting
+  Created 24 chunks
+  Batch 1/1: Embedding 24 chunks...
+  ✅ Upserted 24 vectors
+  ✅ Complete
+
+[36/136] Jonathan Wilson
+  Created 11 chunks
+  Batch 1/1: Embedding 11 chunks...
+  ✅ Upserted 11 vectors
+  ✅ Complete
+
+[37/136] Vertus Group Software Meeting
+  Created 9 chunks
+  Batch 1/1: Embedding 9 chunks...
+  ✅ Upserted 9 vectors
+  ✅ Complete
+
+[38/136] Laura Roman
+  Created 22 chunks
+  Batch 1/1: Embedding 22 chunks...
+  ✅ Upserted 22 vectors
+  ✅ Complete
+
+[39/136] Bill Douglas
+  Created 24 chunks
+  Batch 1/1: Embedding 24 chunks...
+  ✅ Upserted 24 vectors
+  ✅ Complete
+
+[40/136] Neil Geary | Meeting 
+  Created 12 chunks
+  Batch 1/1: Embedding 12 chunks...
+  ✅ Upserted 12 vectors
+  ✅ Complete
+
+[41/136] Mintleads | Meeting
+  Created 13 chunks
+  Batch 1/1: Embedding 13 chunks...
+  ✅ Upserted 13 vectors
+  ✅ Complete
+
+[42/136] Opticwise and IpCapital Intro
+  Created 11 chunks
+  Batch 1/1: Embedding 11 chunks...
+  ✅ Upserted 11 vectors
+  ✅ Complete
+
+[43/136] Impromptu Zoom Meeting
+  Created 15 chunks
+  Batch 1/1: Embedding 15 chunks...
+  ✅ Upserted 15 vectors
+  ✅ Complete
+
+[44/136] Steve Marcinuk | KeyCrew
+  Created 8 chunks
+  Batch 1/1: Embedding 8 chunks...

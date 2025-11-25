@@ -76,21 +76,27 @@ async function vectorizeTranscripts() {
             dimensions: 1024,
           });
 
-          // Prepare vectors
-          const vectors = batch.map((text, idx) => ({
-            id: `${transcript.fathomCallId}_${b + idx}`,
-            values: embeddingRes.data[b + idx].embedding,
-            metadata: {
+          // Prepare vectors (filter out null values from metadata)
+          const vectors = batch.map((text, idx) => {
+            const metadata: Record<string, string | number> = {
               transcript_id: transcript.fathomCallId,
               title: transcript.title,
               date: transcript.startTime.toISOString(),
               chunk_index: b + idx,
               total_chunks: textChunks.length,
               text_chunk: text.substring(0, 1000),
-              person_id: transcript.personId,
-              organization_id: transcript.organizationId,
-            },
-          }));
+            };
+            
+            // Only add if not null
+            if (transcript.personId) metadata.person_id = transcript.personId;
+            if (transcript.organizationId) metadata.organization_id = transcript.organizationId;
+            
+            return {
+              id: `${transcript.fathomCallId}_${b + idx}`,
+              values: embeddingRes.data[b + idx].embedding,
+              metadata,
+            };
+          });
 
           // Upsert to Pinecone
           await index.upsert(vectors);
