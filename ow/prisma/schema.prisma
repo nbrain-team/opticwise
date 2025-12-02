@@ -86,7 +86,21 @@ model Person {
   labels         String?
   contactType    String?
   organizationId String?
-  postalAddress  String?
+  
+  // Address fields
+  postalAddress  String?  // Full combined address
+  streetAddress  String?  // Street/road name
+  houseNumber    String?  // House number
+  apartmentSuite String?  // Apartment/suite no
+  city           String?  // City/town/village/locality
+  state          String?  // State/county
+  region         String?  // Region
+  country        String?  // Country
+  zipCode        String?  // ZIP/Postal code
+  latitude       String?
+  longitude      String?
+  
+  // Personal info
   birthday       DateTime?
   notes          String?
   linkedInProfile String?
@@ -96,8 +110,21 @@ model Person {
   marketingStatus String?
   doubleOptIn    String?
   profilePicture String?
-  latitude       String?
-  longitude      String?
+  
+  // Activity tracking from Pipedrive
+  openDeals      Int?
+  wonDeals       Int?
+  lostDeals      Int?
+  closedDeals    Int?
+  totalActivities Int?
+  doneActivities Int?
+  activitiesToDo Int?
+  emailMessagesCount Int?
+  nextActivityDate DateTime?
+  lastActivityDate DateTime?
+  lastEmailReceived DateTime?
+  lastEmailSent  DateTime?
+  
   customFields   Json?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

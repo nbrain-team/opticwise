@@ -22,3 +22,5 @@ CREATE TABLE IF NOT EXISTS "AgentChatMessage" (
 CREATE INDEX IF NOT EXISTS "AgentChatSession_userId_idx" ON "AgentChatSession"("userId");
 CREATE INDEX IF NOT EXISTS "AgentChatMessage_sessionId_idx" ON "AgentChatMessage"("sessionId");
 
+
+
