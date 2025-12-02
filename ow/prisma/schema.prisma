@@ -46,7 +46,7 @@ model Stage {
 model Organization {
   id           String   @id @default(cuid())
   name         String   @unique
-  address      String?
+  address      String?  // Legacy full address
   websiteUrl   String?
   domain       String?
   linkedInProfile String?
@@ -56,8 +56,33 @@ model Organization {
   doors        String?
   labels       String?
   profilePicture String?
+  
+  // Detailed address fields
+  streetAddress String?  // Street/road name
+  houseNumber  String?   // House number
+  apartmentSuite String? // Apartment/suite no
+  district     String?   // District/sublocality
+  city         String?   // City/town/village/locality
+  state        String?   // State/county
+  region       String?   // Region
+  country      String?   // Country
+  zipCode      String?   // ZIP/Postal code
+  fullAddress  String?   // Full/combined address
   latitude     String?
   longitude    String?
+  
+  // Activity tracking from Pipedrive
+  openDeals      Int?
+  wonDeals       Int?
+  lostDeals      Int?
+  closedDeals    Int?
+  totalActivities Int?
+  doneActivities Int?
+  activitiesToDo Int?
+  emailMessagesCount Int?
+  nextActivityDate DateTime?
+  lastActivityDate DateTime?
+  
   customFields Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
