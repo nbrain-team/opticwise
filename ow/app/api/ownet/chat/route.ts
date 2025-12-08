@@ -103,12 +103,111 @@ export async function POST(request: NextRequest) {
       console.log('[OWnet] Transcript search error:', error);
     }
 
-    // 2. Query CRM data based on user's question
+    // 2. Search Google Workspace data (emails, calendar, drive)
+    let googleContext = '';
+    const messageLower = message.toLowerCase();
+    
+    // Check if query might benefit from Google Workspace data
+    const needsEmail = messageLower.includes('email') || messageLower.includes('mail') || messageLower.includes('message') || messageLower.includes('conversation');
+    const needsCalendar = messageLower.includes('meeting') || messageLower.includes('calendar') || messageLower.includes('schedule') || messageLower.includes('event');
+    const needsDrive = messageLower.includes('document') || messageLower.includes('file') || messageLower.includes('drive') || messageLower.includes('proposal');
+    
+    if (needsEmail || needsCalendar || needsDrive) {
+      try {
+        const openaiForGoogle = new (await import('openai')).default({
+          apiKey: process.env.OPENAI_API_KEY,
+        });
+        
+        const googleEmbedding = await openaiForGoogle.embeddings.create({
+          model: 'text-embedding-3-large',
+          input: message,
+          dimensions: 1024,
+        });
+        
+        const queryVector = googleEmbedding.data[0].embedding;
+        
+        // Search Gmail if needed
+        if (needsEmail) {
+          const db = getPool();
+          const emailResults = await db.query(
+            `SELECT id, subject, "from", "to", snippet, date, body
+             FROM "GmailMessage"
+             WHERE vectorized = true AND embedding IS NOT NULL
+             ORDER BY embedding <=> $1::vector
+             LIMIT 5`,
+            [`[${queryVector.join(',')}]`]
+          );
+          
+          if (emailResults.rows.length > 0) {
+            googleContext += '\n\n**Relevant Emails:**\n\n';
+            googleContext += emailResults.rows.map((email, idx) => {
+              return `${idx + 1}. **${email.subject}**
+   - From: ${email.from}
+   - Date: ${new Date(email.date).toLocaleDateString()}
+   - Preview: ${email.snippet || email.body?.slice(0, 200)}`;
+            }).join('\n\n');
+          }
+        }
+        
+        // Search Calendar if needed
+        if (needsCalendar) {
+          const db = getPool();
+          const calendarResults = await db.query(
+            `SELECT id, summary, description, "startTime", "endTime", organizer, location, attendees
+             FROM "CalendarEvent"
+             WHERE vectorized = true AND embedding IS NOT NULL
+             ORDER BY embedding <=> $1::vector
+             LIMIT 5`,
+            [`[${queryVector.join(',')}]`]
+          );
+          
+          if (calendarResults.rows.length > 0) {
+            googleContext += '\n\n**Relevant Calendar Events:**\n\n';
+            googleContext += calendarResults.rows.map((event, idx) => {
+              const attendeesList = event.attendees ? 
+                (Array.isArray(event.attendees) ? event.attendees : JSON.parse(event.attendees as any))
+                  .map((a: any) => a.name || a.email).join(', ') : '';
+              return `${idx + 1}. **${event.summary}**
+   - Time: ${new Date(event.startTime).toLocaleString()} - ${new Date(event.endTime).toLocaleTimeString()}
+   - Location: ${event.location || 'No location'}
+   - Attendees: ${attendeesList}
+   - Description: ${event.description?.slice(0, 150) || 'No description'}`;
+            }).join('\n\n');
+          }
+        }
+        
+        // Search Drive if needed
+        if (needsDrive) {
+          const db = getPool();
+          const driveResults = await db.query(
+            `SELECT id, name, "mimeType", description, content, "webViewLink", "modifiedTime"
+             FROM "DriveFile"
+             WHERE vectorized = true AND embedding IS NOT NULL
+             ORDER BY embedding <=> $1::vector
+             LIMIT 5`,
+            [`[${queryVector.join(',')}]`]
+          );
+          
+          if (driveResults.rows.length > 0) {
+            googleContext += '\n\n**Relevant Drive Files:**\n\n';
+            googleContext += driveResults.rows.map((file, idx) => {
+              const preview = file.content?.slice(0, 200) || file.description || '';
+              return `${idx + 1}. **${file.name}**
+   - Type: ${file.mimeType}
+   - Modified: ${new Date(file.modifiedTime).toLocaleDateString()}
+   - Preview: ${preview}
+   - Link: ${file.webViewLink}`;
+            }).join('\n\n');
+          }
+        }
+      } catch (error) {
+        console.log('[OWnet] Google Workspace search error:', error);
+      }
+    }
+    
+    // 3. Query CRM data based on user's question
     const db = getPool();
     let crmContext = '';
-    
-    // Check if user is asking about deals, contacts, or pipeline
-    const messageLower = message.toLowerCase();
     
     if (messageLower.includes('deal') || messageLower.includes('close') || messageLower.includes('pipeline') || messageLower.includes('opportunity')) {
       try {
@@ -188,11 +287,12 @@ export async function POST(request: NextRequest) {
     const history = historyResult.rows.reverse();
 
     // 4. Build context-aware prompt
-    const systemPrompt = `You are OWnet Agent, an AI assistant for Opticwise CRM.
+    const systemPrompt = `You are OWnet Agent, an AI assistant for Opticwise CRM with full Google Workspace access.
 
 **Your Data Sources:**
 ${crmContext || ''}
 ${transcriptContext || ''}
+${googleContext || ''}
 
 **Your Communication Style:**
 - Professional, concise, and well-organized
@@ -271,10 +371,20 @@ ${transcriptContext || ''}
       [sessionId]
     );
 
+    // Determine sources used
+    const sources = [];
+    if (transcriptContext) sources.push('transcripts');
+    if (googleContext) {
+      if (needsEmail) sources.push('gmail');
+      if (needsCalendar) sources.push('calendar');
+      if (needsDrive) sources.push('drive');
+    }
+    if (crmContext) sources.push('crm');
+    
     return NextResponse.json({
       success: true,
       response: responseText,
-      sources: transcriptContext ? ['transcripts'] : [],
+      sources,
     });
 
   } catch (error) {

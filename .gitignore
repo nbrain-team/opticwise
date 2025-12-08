@@ -1,2 +1,3 @@
 *.csv
 .playwright-mcp/
+OpticWise-Integration-OAuth/

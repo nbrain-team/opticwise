@@ -91,6 +91,9 @@ model Organization {
   deals  Deal[]
   emailThreads EmailThread[]
   callTranscripts CallTranscript[]
+  gmailMessages GmailMessage[]
+  calendarEvents CalendarEvent[]
+  driveFiles DriveFile[]
 }
 
 model Person {
@@ -158,6 +161,9 @@ model Person {
   deals        Deal[]
   emailThreads EmailThread[]
   callTranscripts CallTranscript[]
+  gmailMessages GmailMessage[]
+  calendarEvents CalendarEvent[]
+  driveFiles DriveFile[]
 }
 
 enum DealStatus {
@@ -252,6 +258,9 @@ model Deal {
 
   emailThreads EmailThread[]
   callTranscripts CallTranscript[]
+  gmailMessages GmailMessage[]
+  calendarEvents CalendarEvent[]
+  driveFiles DriveFile[]
 
   @@index([pipelineId, stageId])
   @@index([ownerId])
@@ -335,6 +344,160 @@ model CallTranscript {
   @@index([personId])
   @@index([organizationId])
   @@index([startTime])
+}
+
+// Google Workspace Integration Models
+
+model GmailMessage {
+  id              String   @id @default(cuid())
+  gmailMessageId  String   @unique  // Google's message ID
+  threadId        String
+  subject         String?
+  snippet         String?  // Short preview
+  body            String?  @db.Text  // Full email body
+  bodyHtml        String?  @db.Text  // HTML version
+  
+  // Participants
+  from            String
+  to              String?  @db.Text  // Can be multiple, comma-separated
+  cc              String?  @db.Text
+  bcc             String?  @db.Text
+  
+  // Metadata
+  date            DateTime
+  labels          String?  // JSON array of labels
+  attachments     Json?    // Array of attachment metadata
+  
+  // Vectorization for AI search
+  vectorized      Boolean  @default(false)
+  embedding       String?  @db.Text  // JSON array of embedding vector
+  
+  // Linking to CRM
+  dealId          String?
+  personId        String?
+  organizationId  String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  
+  @@index([gmailMessageId])
+  @@index([threadId])
+  @@index([date])
+  @@index([from])
+  @@index([dealId])
+  @@index([personId])
+  @@index([organizationId])
+  @@index([vectorized])
+}
+
+model CalendarEvent {
+  id              String   @id @default(cuid())
+  googleEventId   String   @unique  // Google's event ID
+  summary         String
+  description     String?  @db.Text
+  location        String?
+  
+  // Time
+  startTime       DateTime
+  endTime         DateTime
+  timezone        String?
+  allDay          Boolean  @default(false)
+  
+  // Participants
+  organizer       String?
+  attendees       Json?    // Array of {email, name, responseStatus}
+  
+  // Meeting details
+  meetingLink     String?  // Google Meet or other video link
+  conferenceData  Json?    // Full conference details
+  
+  // Status
+  status          String?  // confirmed, tentative, cancelled
+  visibility      String?  // default, public, private
+  
+  // Vectorization for AI search
+  vectorized      Boolean  @default(false)
+  embedding       String?  @db.Text
+  
+  // Linking to CRM
+  dealId          String?
+  personId        String?
+  organizationId  String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  
+  @@index([googleEventId])
+  @@index([startTime])
+  @@index([organizer])
+  @@index([dealId])
+  @@index([personId])
+  @@index([organizationId])
+  @@index([vectorized])
+}
+
+model DriveFile {
+  id              String   @id @default(cuid())
+  googleFileId    String   @unique  // Google's file ID
+  name            String
+  mimeType        String
+  description     String?  @db.Text
+  
+  // File metadata
+  size            BigInt?
+  webViewLink     String?
+  thumbnailLink   String?
+  iconLink        String?
+  
+  // Content for search
+  content         String?  @db.Text  // Extracted text content for documents
+  
+  // Timestamps
+  createdTime     DateTime?
+  modifiedTime    DateTime?
+  viewedTime      DateTime?
+  
+  // Ownership
+  ownedByMe       Boolean  @default(false)
+  owners          Json?    // Array of owner info
+  sharedWith      Json?    // Array of people with access
+  
+  // Organization
+  parents         Json?    // Array of parent folder IDs
+  folderPath      String?  // Computed folder path
+  
+  // Vectorization for AI search
+  vectorized      Boolean  @default(false)
+  embedding       String?  @db.Text
+  
+  // Linking to CRM
+  dealId          String?
+  personId        String?
+  organizationId  String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  
+  @@index([googleFileId])
+  @@index([mimeType])
+  @@index([createdTime])
+  @@index([modifiedTime])
+  @@index([dealId])
+  @@index([personId])
+  @@index([organizationId])
+  @@index([vectorized])
 }
 
 

@@ -9,7 +9,11 @@
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "sync:google": "tsx scripts/sync-google-workspace.ts",
+    "sync:gmail": "tsx scripts/sync-gmail.ts",
+    "sync:calendar": "tsx scripts/sync-calendar.ts",
+    "sync:drive": "tsx scripts/sync-drive.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",
