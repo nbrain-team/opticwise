@@ -26,48 +26,46 @@ export default async function ContactsPage({
       }
     : {};
 
-  // Fetch people with last names first, then those without
-  // Split into two queries to ensure proper ordering
-  const whereWithLastName = {
-    ...where,
-    lastName: { not: '' },
-  };
-  
-  const whereWithoutLastName = {
-    ...where,
-    lastName: '',
-  };
-
-  const [peopleWithLastName, peopleWithoutLastName, totalCount] = await Promise.all([
+  // Fetch all people, then sort in memory to handle edge cases
+  // (empty last names, special characters, numbers that sort before letters)
+  const [allPeople, totalCount] = await Promise.all([
     prisma.person.findMany({
-      where: whereWithLastName,
+      where,
       include: {
         organization: true,
         deals: {
           where: { status: "open" },
         },
       },
-      orderBy: [
-        { lastName: "asc" },
-        { firstName: "asc" },
-      ],
-    }),
-    prisma.person.findMany({
-      where: whereWithoutLastName,
-      include: {
-        organization: true,
-        deals: {
-          where: { status: "open" },
-        },
-      },
-      orderBy: { firstName: "asc" },
     }),
     prisma.person.count({ where }),
   ]);
 
-  // Combine and apply pagination
-  const allPeople = [...peopleWithLastName, ...peopleWithoutLastName];
-  const people = allPeople.slice(skip, skip + perPage);
+  // Smart sort: contacts with alphabetic last names first, then others
+  const sortedPeople = allPeople.sort((a, b) => {
+    const aLastName = a.lastName || '';
+    const bLastName = b.lastName || '';
+    
+    // Check if last name starts with a letter (A-Z, a-z)
+    const aStartsWithLetter = /^[a-zA-Z]/.test(aLastName);
+    const bStartsWithLetter = /^[a-zA-Z]/.test(bLastName);
+    
+    // Prioritize contacts whose last name starts with a letter
+    if (aStartsWithLetter && !bStartsWithLetter) return -1;
+    if (!aStartsWithLetter && bStartsWithLetter) return 1;
+    
+    // Both start with letter or both don't - sort alphabetically
+    const lastNameCompare = aLastName.toLowerCase().localeCompare(bLastName.toLowerCase());
+    if (lastNameCompare !== 0) return lastNameCompare;
+    
+    // If last names are equal, sort by first name
+    const aFirstName = a.firstName || '';
+    const bFirstName = b.firstName || '';
+    return aFirstName.toLowerCase().localeCompare(bFirstName.toLowerCase());
+  });
+
+  // Apply pagination to sorted results
+  const people = sortedPeople.slice(skip, skip + perPage);
   const totalPages = Math.ceil(totalCount / perPage);
 
   // Serialize the data for client component
