@@ -23,7 +23,7 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
         },
         orderBy: { updateTime: "desc" },
       },
-      notes: {
+      noteRecords: {
         orderBy: { createdAt: "desc" },
       },
       gmailMessages: {
@@ -91,7 +91,7 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
       auditValue: deal.auditValue?.toString() || null,
       arrExpansionPotential: deal.arrExpansionPotential?.toString() || null,
     })),
-    notes: org.notes.map((n) => ({
+    notes: org.noteRecords.map((n) => ({
       ...n,
       createdAt: n.createdAt.toISOString(),
       updatedAt: n.updatedAt.toISOString(),

@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     select: { stageId: true },
   });
 
-  const updateData: any = {
+  const updateData: Record<string, unknown> = {
     stageId: toStageId,
     position: nextPos,
     updateTime: new Date(),

@@ -21,7 +21,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
         },
         orderBy: { updateTime: "desc" },
       },
-      notes: {
+      noteRecords: {
         orderBy: { createdAt: "desc" },
       },
       gmailMessages: {
@@ -88,7 +88,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       auditValue: deal.auditValue?.toString() || null,
       arrExpansionPotential: deal.arrExpansionPotential?.toString() || null,
     })),
-    notes: person.notes.map((n) => ({
+    notes: person.noteRecords.map((n) => ({
       ...n,
       createdAt: n.createdAt.toISOString(),
       updatedAt: n.updatedAt.toISOString(),

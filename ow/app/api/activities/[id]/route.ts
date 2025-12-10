@@ -14,7 +14,7 @@ export async function PATCH(
     const body = await request.json();
     const { subject, note, type, status, dueDate, dueTime, duration, assignedTo } = body;
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     
     if (subject !== undefined) updateData.subject = subject.trim();
     if (note !== undefined) updateData.note = note?.trim() || null;

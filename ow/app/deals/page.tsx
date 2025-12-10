@@ -86,7 +86,7 @@ export default async function DealsPage({
   const deals = await prisma.deal.findMany({
     where: {
       pipelineId: pipeline.id,
-      status: statusFilter as any,
+      status: statusFilter as "open" | "won" | "lost",
       ...whereOwner,
     },
     include: {

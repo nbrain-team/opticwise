@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
     const organizationId = searchParams.get("organizationId");
     const status = searchParams.get("status");
 
-    const where: any = {};
+    const where: Record<string, unknown> = {};
     if (dealId) where.dealId = dealId;
     if (personId) where.personId = personId;
     if (organizationId) where.organizationId = organizationId;

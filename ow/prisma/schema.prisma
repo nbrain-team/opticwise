@@ -94,7 +94,7 @@ model Organization {
   gmailMessages GmailMessage[]
   calendarEvents CalendarEvent[]
   driveFiles DriveFile[]
-  notes Note[]
+  noteRecords Note[]
   activities Activity[]
 }
 
@@ -166,7 +166,7 @@ model Person {
   gmailMessages GmailMessage[]
   calendarEvents CalendarEvent[]
   driveFiles DriveFile[]
-  notes Note[]
+  noteRecords Note[]
   activities Activity[]
 }
 
@@ -266,7 +266,7 @@ model Deal {
   gmailMessages GmailMessage[]
   calendarEvents CalendarEvent[]
   driveFiles DriveFile[]
-  notes Note[]
+  noteRecords Note[]
   activities Activity[]
 
   @@index([pipelineId, stageId])

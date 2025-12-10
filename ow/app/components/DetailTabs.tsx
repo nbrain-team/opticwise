@@ -15,8 +15,6 @@ interface DetailTabsProps {
 }
 
 export function DetailTabs({
-  entityType,
-  entityId,
   notesContent,
   emailsContent,
   filesContent,

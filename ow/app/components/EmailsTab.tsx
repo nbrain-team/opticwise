@@ -11,7 +11,7 @@ type GmailMessage = {
   to: string | null;
   date: string;
   body: string | null;
-  attachments: any;
+  attachments: unknown;
 };
 
 interface EmailsTabProps {
@@ -20,14 +20,14 @@ interface EmailsTabProps {
   emails: GmailMessage[];
 }
 
-export function EmailsTab({ entityType, entityId, emails }: EmailsTabProps) {
+export function EmailsTab({ entityType, emails }: EmailsTabProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  const getAttachmentCount = (attachments: any): number => {
+  const getAttachmentCount = (attachments: unknown): number => {
     if (!attachments) return 0;
     if (Array.isArray(attachments)) return attachments.length;
     return 0;
@@ -151,7 +151,7 @@ export function EmailsTab({ entityType, entityId, emails }: EmailsTabProps) {
                           Attachments ({attachmentCount})
                         </div>
                         <div className="space-y-1">
-                          {email.attachments.map((attachment: any, idx: number) => (
+                          {(email.attachments as Array<{ filename?: string; name?: string; size?: number }>).map((attachment, idx: number) => (
                             <div
                               key={idx}
                               className="flex items-center gap-2 text-xs text-gray-600 bg-gray-50 rounded px-2 py-1"

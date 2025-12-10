@@ -19,7 +19,7 @@ interface FilesTabProps {
   files: DriveFile[];
 }
 
-export function FilesTab({ entityType, entityId, files }: FilesTabProps) {
+export function FilesTab({ entityType, files }: FilesTabProps) {
   const formatFileSize = (bytes: string | null): string => {
     if (!bytes) return "Unknown size";
     const size = parseInt(bytes);
@@ -108,6 +108,7 @@ export function FilesTab({ entityType, entityId, files }: FilesTabProps) {
                 {/* File Icon/Thumbnail */}
                 <div className="flex-shrink-0">
                   {file.thumbnailLink ? (
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={file.thumbnailLink}
                       alt={file.name}

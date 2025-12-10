@@ -18,7 +18,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       organization: true,
       person: true,
       owner: true,
-      notes: {
+      noteRecords: {
         orderBy: { createdAt: "desc" },
       },
       gmailMessages: {
@@ -82,7 +82,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     capexRom: deal.capexRom?.toString() || null,
     auditValue: deal.auditValue?.toString() || null,
     arrExpansionPotential: deal.arrExpansionPotential?.toString() || null,
-    notes: deal.notes.map((n) => ({
+    notes: deal.noteRecords.map((n) => ({
       ...n,
       createdAt: n.createdAt.toISOString(),
       updatedAt: n.updatedAt.toISOString(),
