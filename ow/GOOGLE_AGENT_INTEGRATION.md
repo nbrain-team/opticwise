@@ -291,3 +291,4 @@ Expected results after initial sync:
 - ✅ Vector search working in <100ms
 - ✅ Agent using Google context in responses
 
+

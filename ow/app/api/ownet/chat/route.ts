@@ -164,9 +164,10 @@ export async function POST(request: NextRequest) {
           if (calendarResults.rows.length > 0) {
             googleContext += '\n\n**Relevant Calendar Events:**\n\n';
             googleContext += calendarResults.rows.map((event, idx) => {
-              const attendeesList = event.attendees ? 
-                (Array.isArray(event.attendees) ? event.attendees : JSON.parse(event.attendees as any))
-                  .map((a: any) => a.name || a.email).join(', ') : '';
+              const attendeesData = event.attendees ? 
+                (Array.isArray(event.attendees) ? event.attendees : JSON.parse(event.attendees as string)) : [];
+              const attendeesList = attendeesData
+                  .map((a: { name?: string; email?: string }) => a.name || a.email).join(', ');
               return `${idx + 1}. **${event.summary}**
    - Time: ${new Date(event.startTime).toLocaleString()} - ${new Date(event.endTime).toLocaleTimeString()}
    - Location: ${event.location || 'No location'}

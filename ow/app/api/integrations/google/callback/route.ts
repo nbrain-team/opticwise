@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getOAuth2Client, getTokensFromCode } from '@/lib/google';
-import { prisma } from '@/lib/db';
 
 /**
  * Handles Google OAuth callback
@@ -10,7 +9,6 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const code = searchParams.get('code');
-    const state = searchParams.get('state');
     const error = searchParams.get('error');
 
     if (error) {
@@ -54,4 +52,5 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
 

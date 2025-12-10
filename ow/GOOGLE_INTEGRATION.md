@@ -191,3 +191,4 @@ The integration has access to:
 - Verify redirect URI matches: `https://opticwise-backend.onrender.com/api/integrations/google/callback`
 - Check Google Cloud Console OAuth settings
 
+

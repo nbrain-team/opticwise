@@ -50,22 +50,22 @@ export function getServiceAccountClient() {
 }
 
 // Get Gmail API client
-export async function getGmailClient(auth: any) {
+export async function getGmailClient(auth: ReturnType<typeof getServiceAccountClient> | ReturnType<typeof getOAuth2Client>) {
   return google.gmail({ version: 'v1', auth });
 }
 
 // Get Calendar API client
-export async function getCalendarClient(auth: any) {
+export async function getCalendarClient(auth: ReturnType<typeof getServiceAccountClient> | ReturnType<typeof getOAuth2Client>) {
   return google.calendar({ version: 'v3', auth });
 }
 
 // Get Drive API client
-export async function getDriveClient(auth: any) {
+export async function getDriveClient(auth: ReturnType<typeof getServiceAccountClient> | ReturnType<typeof getOAuth2Client>) {
   return google.drive({ version: 'v3', auth });
 }
 
 // Generate OAuth URL for user consent
-export function generateAuthUrl(oauth2Client: any, state?: string) {
+export function generateAuthUrl(oauth2Client: ReturnType<typeof getOAuth2Client>, state?: string) {
   const scopes = [
     'https://www.googleapis.com/auth/gmail.readonly',
     'https://www.googleapis.com/auth/gmail.send',
@@ -82,9 +82,10 @@ export function generateAuthUrl(oauth2Client: any, state?: string) {
 }
 
 // Exchange authorization code for tokens
-export async function getTokensFromCode(oauth2Client: any, code: string) {
+export async function getTokensFromCode(oauth2Client: ReturnType<typeof getOAuth2Client>, code: string) {
   const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);
   return tokens;
 }
+
 

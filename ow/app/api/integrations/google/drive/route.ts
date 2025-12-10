@@ -58,7 +58,9 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json(response.data);
     } else if (action === 'download') {
-      const response = await drive.files.get(
+      // For actual file download, you'd need to stream this properly
+      // This is a simplified version
+      await drive.files.get(
         {
           fileId,
           alt: 'media',
@@ -66,8 +68,6 @@ export async function POST(request: NextRequest) {
         { responseType: 'stream' }
       );
 
-      // For actual file download, you'd need to stream this properly
-      // This is a simplified version
       return NextResponse.json({
         message: 'File download would stream here',
         fileId,
@@ -83,4 +83,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 
