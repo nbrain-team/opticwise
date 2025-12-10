@@ -45,7 +45,7 @@ async function testGoogleAuth() {
   // Test 2: Test with Domain-Wide Delegation (impersonating a user)
   console.log('Test 2: Domain-Wide Delegation (with user impersonation)');
   console.log('-'.repeat(60));
-  const testEmails = ['bill@opticwise.com', 'navjeet@nucleus4d.com'];
+  const testEmails = ['bill@opticwise.com'];
   
   for (const email of testEmails) {
     try {
