@@ -55,6 +55,9 @@ export function getServiceAccountClient() {
       'https://www.googleapis.com/auth/calendar',
       'https://www.googleapis.com/auth/drive.readonly',
     ],
+    clientOptions: {
+      subject: process.env.GOOGLE_IMPERSONATE_USER || 'bill@opticwise.com',
+    },
   });
 
   return auth;
