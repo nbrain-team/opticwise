@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DealActions } from "@/app/components/DealActions";
 
 export default async function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -19,6 +20,46 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     return notFound();
   }
 
+  // Get data for edit dropdowns
+  const [stages, organizations, people] = await Promise.all([
+    prisma.stage.findMany({
+      where: { pipelineId: deal.pipelineId },
+      select: { id: true, name: true },
+      orderBy: { orderIndex: "asc" },
+    }),
+    prisma.organization.findMany({
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.person.findMany({
+      select: { id: true, firstName: true, lastName: true },
+      orderBy: { lastName: "asc" },
+    }),
+  ]);
+
+  // Serialize for client component
+  const serializedDeal = {
+    ...deal,
+    value: deal.value.toString(),
+    addTime: deal.addTime.toISOString(),
+    updateTime: deal.updateTime.toISOString(),
+    expectedCloseDate: deal.expectedCloseDate?.toISOString() || null,
+    wonTime: deal.wonTime?.toISOString() || null,
+    lostTime: deal.lostTime?.toISOString() || null,
+    nextActivityDate: deal.nextActivityDate?.toISOString() || null,
+    lastActivityDate: deal.lastActivityDate?.toISOString() || null,
+    lastEmailReceived: deal.lastEmailReceived?.toISOString() || null,
+    lastEmailSent: deal.lastEmailSent?.toISOString() || null,
+    productAmount: deal.productAmount?.toString() || null,
+    mrr: deal.mrr?.toString() || null,
+    arr: deal.arr?.toString() || null,
+    acv: deal.acv?.toString() || null,
+    arrForecast: deal.arrForecast?.toString() || null,
+    capexRom: deal.capexRom?.toString() || null,
+    auditValue: deal.auditValue?.toString() || null,
+    arrExpansionPotential: deal.arrExpansionPotential?.toString() || null,
+  };
+
   return (
     <div className="p-8 space-y-6">
       <div className="flex items-start justify-between">
@@ -28,9 +69,17 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
             {deal.pipeline.name} • {deal.stage.name}
           </div>
         </div>
-        <Link href="/deals" className="text-sm text-[#3B6B8F] hover:underline">
-          Back to Deals
-        </Link>
+        <div className="flex items-center gap-4">
+          <DealActions 
+            deal={serializedDeal} 
+            stages={stages}
+            organizations={organizations}
+            people={people}
+          />
+          <Link href="/deals" className="text-sm text-[#3B6B8F] hover:underline">
+            Back to Deals
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

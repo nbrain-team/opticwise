@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { OrganizationActions } from "@/app/components/OrganizationActions";
 
 export default async function OrganizationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,11 +29,51 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
   const wonDeals = org.deals.filter((d) => d.status === "won");
   const lostDeals = org.deals.filter((d) => d.status === "lost");
 
+  // Serialize for client component
+  const serializedOrg = {
+    ...org,
+    nextActivityDate: org.nextActivityDate?.toISOString() || null,
+    lastActivityDate: org.lastActivityDate?.toISOString() || null,
+    createdAt: org.createdAt.toISOString(),
+    updatedAt: org.updatedAt.toISOString(),
+    people: org.people.map(p => ({
+      ...p,
+      birthday: p.birthday?.toISOString() || null,
+      nextActivityDate: p.nextActivityDate?.toISOString() || null,
+      lastActivityDate: p.lastActivityDate?.toISOString() || null,
+      lastEmailReceived: p.lastEmailReceived?.toISOString() || null,
+      lastEmailSent: p.lastEmailSent?.toISOString() || null,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+    })),
+    deals: org.deals.map(deal => ({
+      ...deal,
+      value: deal.value.toString(),
+      addTime: deal.addTime.toISOString(),
+      updateTime: deal.updateTime.toISOString(),
+      expectedCloseDate: deal.expectedCloseDate?.toISOString() || null,
+      wonTime: deal.wonTime?.toISOString() || null,
+      lostTime: deal.lostTime?.toISOString() || null,
+      nextActivityDate: deal.nextActivityDate?.toISOString() || null,
+      lastActivityDate: deal.lastActivityDate?.toISOString() || null,
+      lastEmailReceived: deal.lastEmailReceived?.toISOString() || null,
+      lastEmailSent: deal.lastEmailSent?.toISOString() || null,
+      productAmount: deal.productAmount?.toString() || null,
+      mrr: deal.mrr?.toString() || null,
+      arr: deal.arr?.toString() || null,
+      acv: deal.acv?.toString() || null,
+      arrForecast: deal.arrForecast?.toString() || null,
+      capexRom: deal.capexRom?.toString() || null,
+      auditValue: deal.auditValue?.toString() || null,
+      arrExpansionPotential: deal.arrExpansionPotential?.toString() || null,
+    })),
+  };
+
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-light text-[#50555C] mb-2">{org.name}</h1>
           {org.industry && (
             <div className="text-sm text-gray-500 mb-1">{org.industry}</div>
@@ -49,9 +90,12 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
             )}
           </div>
         </div>
-        <Link href="/organizations" className="text-sm text-[#3B6B8F] hover:underline">
-          ← Back to Organizations
-        </Link>
+        <div className="flex items-center gap-4">
+          <OrganizationActions organization={serializedOrg} />
+          <Link href="/organizations" className="text-sm text-[#3B6B8F] hover:underline">
+            ← Back to Organizations
+          </Link>
+        </div>
       </div>
 
       {/* Quick Stats */}

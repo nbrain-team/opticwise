@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PersonActions } from "@/app/components/PersonActions";
 
 export default async function PersonDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,15 +23,54 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
     return notFound();
   }
 
+  // Get all organizations for the edit dropdown
+  const organizations = await prisma.organization.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+
   const openDeals = person.deals.filter((d) => d.status === "open");
   const wonDeals = person.deals.filter((d) => d.status === "won");
   const lostDeals = person.deals.filter((d) => d.status === "lost");
+
+  // Serialize for client component
+  const serializedPerson = {
+    ...person,
+    birthday: person.birthday?.toISOString() || null,
+    nextActivityDate: person.nextActivityDate?.toISOString() || null,
+    lastActivityDate: person.lastActivityDate?.toISOString() || null,
+    lastEmailReceived: person.lastEmailReceived?.toISOString() || null,
+    lastEmailSent: person.lastEmailSent?.toISOString() || null,
+    createdAt: person.createdAt.toISOString(),
+    updatedAt: person.updatedAt.toISOString(),
+    deals: person.deals.map(deal => ({
+      ...deal,
+      value: deal.value.toString(),
+      addTime: deal.addTime.toISOString(),
+      updateTime: deal.updateTime.toISOString(),
+      expectedCloseDate: deal.expectedCloseDate?.toISOString() || null,
+      wonTime: deal.wonTime?.toISOString() || null,
+      lostTime: deal.lostTime?.toISOString() || null,
+      nextActivityDate: deal.nextActivityDate?.toISOString() || null,
+      lastActivityDate: deal.lastActivityDate?.toISOString() || null,
+      lastEmailReceived: deal.lastEmailReceived?.toISOString() || null,
+      lastEmailSent: deal.lastEmailSent?.toISOString() || null,
+      productAmount: deal.productAmount?.toString() || null,
+      mrr: deal.mrr?.toString() || null,
+      arr: deal.arr?.toString() || null,
+      acv: deal.acv?.toString() || null,
+      arrForecast: deal.arrForecast?.toString() || null,
+      capexRom: deal.capexRom?.toString() || null,
+      auditValue: deal.auditValue?.toString() || null,
+      arrExpansionPotential: deal.arrExpansionPotential?.toString() || null,
+    })),
+  };
 
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-light text-[#50555C] mb-2">
             {person.firstName} {person.lastName}
           </h1>
@@ -46,9 +86,12 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
             </Link>
           )}
         </div>
-        <Link href="/contacts" className="text-sm text-[#3B6B8F] hover:underline">
-          ← Back to Contacts
-        </Link>
+        <div className="flex items-center gap-4">
+          <PersonActions person={serializedPerson} organizations={organizations} />
+          <Link href="/contacts" className="text-sm text-[#3B6B8F] hover:underline">
+            ← Back to Contacts
+          </Link>
+        </div>
       </div>
 
       {/* Quick Stats */}
