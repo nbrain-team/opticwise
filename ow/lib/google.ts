@@ -17,23 +17,34 @@ export function getOAuth2Client() {
 
 // Initialize service account client for server-to-server authentication
 export function getServiceAccountClient() {
-  // Try to load from secret file location first
-  const secretPath = '/etc/secrets/google-service-account.json';
-  const workspacePath = path.join(process.cwd(), 'google-service-account.json');
-  
   let credentials;
   
-  try {
-    if (fs.existsSync(secretPath)) {
-      credentials = JSON.parse(fs.readFileSync(secretPath, 'utf8'));
-    } else if (fs.existsSync(workspacePath)) {
-      credentials = JSON.parse(fs.readFileSync(workspacePath, 'utf8'));
-    } else {
-      throw new Error('Service account credentials file not found');
+  // Option 1: Try environment variable first (easiest for Render)
+  if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+    try {
+      credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+    } catch (error) {
+      console.error('Error parsing GOOGLE_SERVICE_ACCOUNT_JSON:', error);
+      throw new Error('Invalid GOOGLE_SERVICE_ACCOUNT_JSON format');
     }
-  } catch (error) {
-    console.error('Error loading service account credentials:', error);
-    throw error;
+  }
+  // Option 2: Try secret file locations
+  else {
+    const secretPath = '/etc/secrets/google-service-account.json';
+    const workspacePath = path.join(process.cwd(), 'google-service-account.json');
+    
+    try {
+      if (fs.existsSync(secretPath)) {
+        credentials = JSON.parse(fs.readFileSync(secretPath, 'utf8'));
+      } else if (fs.existsSync(workspacePath)) {
+        credentials = JSON.parse(fs.readFileSync(workspacePath, 'utf8'));
+      } else {
+        throw new Error('Service account credentials not found. Set GOOGLE_SERVICE_ACCOUNT_JSON env var or upload google-service-account.json to /etc/secrets/');
+      }
+    } catch (error) {
+      console.error('Error loading service account credentials:', error);
+      throw error;
+    }
   }
 
   const auth = new google.auth.GoogleAuth({
