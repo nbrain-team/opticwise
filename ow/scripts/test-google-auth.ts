@@ -12,14 +12,23 @@ async function testGoogleAuth() {
   console.log('='.repeat(60));
 
   // Load service account credentials
+  const secretPath = '/etc/secrets/google-service-account.json';
   const workspacePath = path.join(process.cwd(), 'google-service-account.json');
   
-  if (!fs.existsSync(workspacePath)) {
-    console.error('❌ Service account file not found at:', workspacePath);
+  let credentialsPath;
+  if (fs.existsSync(secretPath)) {
+    credentialsPath = secretPath;
+  } else if (fs.existsSync(workspacePath)) {
+    credentialsPath = workspacePath;
+  } else {
+    console.error('❌ Service account file not found');
+    console.error('   Checked:', secretPath);
+    console.error('   Checked:', workspacePath);
     return;
   }
 
-  const credentials = JSON.parse(fs.readFileSync(workspacePath, 'utf8'));
+  const credentials = JSON.parse(fs.readFileSync(credentialsPath, 'utf8'));
+  console.log('✓ Service account file loaded from:', credentialsPath);
   console.log('✓ Service account file loaded');
   console.log('  - Project ID:', credentials.project_id);
   console.log('  - Client Email:', credentials.client_email);
