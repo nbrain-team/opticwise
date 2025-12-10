@@ -26,22 +26,48 @@ export default async function ContactsPage({
       }
     : {};
 
-  const [people, totalCount] = await Promise.all([
+  // Fetch people with last names first, then those without
+  // Split into two queries to ensure proper ordering
+  const whereWithLastName = {
+    ...where,
+    lastName: { not: '' },
+  };
+  
+  const whereWithoutLastName = {
+    ...where,
+    lastName: '',
+  };
+
+  const [peopleWithLastName, peopleWithoutLastName, totalCount] = await Promise.all([
     prisma.person.findMany({
-      where,
+      where: whereWithLastName,
       include: {
         organization: true,
         deals: {
           where: { status: "open" },
         },
       },
-      orderBy: { lastName: "asc" },
-      take: perPage,
-      skip,
+      orderBy: [
+        { lastName: "asc" },
+        { firstName: "asc" },
+      ],
+    }),
+    prisma.person.findMany({
+      where: whereWithoutLastName,
+      include: {
+        organization: true,
+        deals: {
+          where: { status: "open" },
+        },
+      },
+      orderBy: { firstName: "asc" },
     }),
     prisma.person.count({ where }),
   ]);
 
+  // Combine and apply pagination
+  const allPeople = [...peopleWithLastName, ...peopleWithoutLastName];
+  const people = allPeople.slice(skip, skip + perPage);
   const totalPages = Math.ceil(totalCount / perPage);
 
   // Serialize the data for client component
