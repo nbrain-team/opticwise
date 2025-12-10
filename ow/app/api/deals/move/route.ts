@@ -18,13 +18,26 @@ export async function POST(request: Request) {
   });
   const nextPos = (maxPos._max.position ?? 0) + 1;
 
+  // Get current deal to check if stage is changing
+  const currentDeal = await prisma.deal.findUnique({
+    where: { id: dealId },
+    select: { stageId: true },
+  });
+
+  const updateData: any = {
+    stageId: toStageId,
+    position: nextPos,
+    updateTime: new Date(),
+  };
+
+  // If stage is actually changing, update stageChangeTime
+  if (currentDeal && currentDeal.stageId !== toStageId) {
+    updateData.stageChangeTime = new Date();
+  }
+
   await prisma.deal.update({
     where: { id: dealId },
-    data: {
-      stageId: toStageId,
-      position: nextPos,
-      updateTime: new Date(),
-    },
+    data: updateData,
   });
 
   return NextResponse.json({ ok: true });

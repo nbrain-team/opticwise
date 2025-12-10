@@ -18,6 +18,7 @@ type Deal = {
   value: string | number;
   currency: string;
   position: number;
+  stageChangeTime: string;
   organization?: { name: string | null } | null;
   person?: { firstName: string | null; lastName: string | null } | null;
 };
@@ -129,6 +130,12 @@ function DealCard({ stageId, deal }: { stageId: string; deal: Deal }) {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
       }
     : {};
+  
+  // Calculate days in current stage
+  const daysInStage = Math.floor(
+    (new Date().getTime() - new Date(deal.stageChangeTime).getTime()) / (1000 * 60 * 60 * 24)
+  );
+  
   return (
     <div
       ref={setNodeRef}
@@ -150,10 +157,15 @@ function DealCard({ stageId, deal }: { stageId: string; deal: Deal }) {
       
       {/* Clickable Content */}
       <Link href={`/deal/${deal.id}`} className="block p-4 hover:bg-gray-50 transition-colors">
-        <div className="font-medium text-[#2E2E2F] hover:text-[#3B6B8F] transition-colors">
-          {deal.title}
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <div className="font-medium text-[#2E2E2F] hover:text-[#3B6B8F] transition-colors flex-1">
+            {deal.title}
+          </div>
+          <div className="flex-shrink-0 px-2 py-0.5 bg-gray-100 rounded text-xs font-medium text-gray-600">
+            {daysInStage}d
+          </div>
         </div>
-        <div className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+        <div className="text-xs text-gray-500 flex items-center gap-1">
           <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
           </svg>

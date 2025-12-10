@@ -2,6 +2,11 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { OrganizationActions } from "@/app/components/OrganizationActions";
+import { DetailTabs } from "@/app/components/DetailTabs";
+import { NotesTab } from "@/app/components/NotesTab";
+import { EmailsTab } from "@/app/components/EmailsTab";
+import { FilesTab } from "@/app/components/FilesTab";
+import { ActivitiesTab } from "@/app/components/ActivitiesTab";
 
 export default async function OrganizationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -17,6 +22,24 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
           owner: true,
         },
         orderBy: { updateTime: "desc" },
+      },
+      notes: {
+        orderBy: { createdAt: "desc" },
+      },
+      gmailMessages: {
+        orderBy: { date: "desc" },
+        take: 50,
+      },
+      driveFiles: {
+        orderBy: { modifiedTime: "desc" },
+        take: 50,
+      },
+      activities: {
+        orderBy: [
+          { status: "asc" },
+          { dueDate: "asc" },
+          { createdAt: "desc" },
+        ],
       },
     },
   });
@@ -51,6 +74,7 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
       value: deal.value.toString(),
       addTime: deal.addTime.toISOString(),
       updateTime: deal.updateTime.toISOString(),
+      stageChangeTime: deal.stageChangeTime.toISOString(),
       expectedCloseDate: deal.expectedCloseDate?.toISOString() || null,
       wonTime: deal.wonTime?.toISOString() || null,
       lostTime: deal.lostTime?.toISOString() || null,
@@ -66,6 +90,33 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
       capexRom: deal.capexRom?.toString() || null,
       auditValue: deal.auditValue?.toString() || null,
       arrExpansionPotential: deal.arrExpansionPotential?.toString() || null,
+    })),
+    notes: org.notes.map((n) => ({
+      ...n,
+      createdAt: n.createdAt.toISOString(),
+      updatedAt: n.updatedAt.toISOString(),
+    })),
+    gmailMessages: org.gmailMessages.map((e) => ({
+      ...e,
+      date: e.date.toISOString(),
+      createdAt: e.createdAt.toISOString(),
+      updatedAt: e.updatedAt.toISOString(),
+    })),
+    driveFiles: org.driveFiles.map((f) => ({
+      ...f,
+      size: f.size?.toString() || null,
+      createdTime: f.createdTime?.toISOString() || null,
+      modifiedTime: f.modifiedTime?.toISOString() || null,
+      viewedTime: f.viewedTime?.toISOString() || null,
+      createdAt: f.createdAt.toISOString(),
+      updatedAt: f.updatedAt.toISOString(),
+    })),
+    activities: org.activities.map((a) => ({
+      ...a,
+      dueDate: a.dueDate?.toISOString() || null,
+      doneTime: a.doneTime?.toISOString() || null,
+      createdAt: a.createdAt.toISOString(),
+      updatedAt: a.updatedAt.toISOString(),
     })),
   };
 
@@ -393,6 +444,42 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Tabs Section */}
+      <div className="mt-6">
+        <DetailTabs
+          entityType="organization"
+          entityId={org.id}
+          notesContent={
+            <NotesTab
+              entityType="organization"
+              entityId={org.id}
+              notes={serializedOrg.notes}
+            />
+          }
+          emailsContent={
+            <EmailsTab
+              entityType="organization"
+              entityId={org.id}
+              emails={serializedOrg.gmailMessages}
+            />
+          }
+          filesContent={
+            <FilesTab
+              entityType="organization"
+              entityId={org.id}
+              files={serializedOrg.driveFiles}
+            />
+          }
+          activitiesContent={
+            <ActivitiesTab
+              entityType="organization"
+              entityId={org.id}
+              activities={serializedOrg.activities}
+            />
+          }
+        />
       </div>
     </div>
   );

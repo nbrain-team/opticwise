@@ -94,6 +94,8 @@ model Organization {
   gmailMessages GmailMessage[]
   calendarEvents CalendarEvent[]
   driveFiles DriveFile[]
+  notes Note[]
+  activities Activity[]
 }
 
 model Person {
@@ -164,6 +166,8 @@ model Person {
   gmailMessages GmailMessage[]
   calendarEvents CalendarEvent[]
   driveFiles DriveFile[]
+  notes Note[]
+  activities Activity[]
 }
 
 enum DealStatus {
@@ -241,6 +245,7 @@ model Deal {
   
   addTime           DateTime    @default(now())
   updateTime        DateTime    @updatedAt
+  stageChangeTime   DateTime    @default(now()) // When deal entered current stage
   position          Int         @default(0) // ordering within a stage
   customFields      Json?       // For any additional dynamic fields
 
@@ -261,6 +266,8 @@ model Deal {
   gmailMessages GmailMessage[]
   calendarEvents CalendarEvent[]
   driveFiles DriveFile[]
+  notes Note[]
+  activities Activity[]
 
   @@index([pipelineId, stageId])
   @@index([ownerId])
@@ -498,6 +505,88 @@ model DriveFile {
   @@index([personId])
   @@index([organizationId])
   @@index([vectorized])
+}
+
+// Notes - Manual notes added to deals, people, organizations
+model Note {
+  id              String   @id @default(cuid())
+  content         String   @db.Text
+  
+  // Linking to CRM entities
+  dealId          String?
+  personId        String?
+  organizationId  String?
+  
+  // Author tracking
+  createdBy       String?  // User email or name
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  @@index([dealId])
+  @@index([personId])
+  @@index([organizationId])
+  @@index([createdAt])
+}
+
+// Activities - To-dos and tasks
+enum ActivityType {
+  call
+  meeting
+  task
+  deadline
+  email
+  lunch
+}
+
+enum ActivityStatus {
+  pending
+  done
+  cancelled
+}
+
+model Activity {
+  id              String         @id @default(cuid())
+  subject         String
+  note            String?        @db.Text
+  type            ActivityType   @default(task)
+  status          ActivityStatus @default(pending)
+  
+  // Scheduling
+  dueDate         DateTime?
+  dueTime         String?        // Time in HH:MM format
+  duration        Int?           // Duration in minutes
+  
+  // Linking to CRM entities
+  dealId          String?
+  personId        String?
+  organizationId  String?
+  
+  // Assignment
+  assignedTo      String?        // User email or name
+  createdBy       String?        // User email or name
+  
+  // Completion tracking
+  doneTime        DateTime?
+  markedAsDoneBy  String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: Cascade)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  
+  @@index([dealId])
+  @@index([personId])
+  @@index([organizationId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([createdAt])
 }
 
 
