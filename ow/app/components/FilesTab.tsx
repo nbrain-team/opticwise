@@ -176,3 +176,4 @@ export function FilesTab({ entityType, files }: FilesTabProps) {
     </div>
   );
 }
+

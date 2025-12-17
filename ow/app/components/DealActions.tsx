@@ -84,3 +84,4 @@ export function DealActions({ deal, stages, organizations, people }: DealActions
     </>
   );
 }
+

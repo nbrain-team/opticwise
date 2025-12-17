@@ -54,7 +54,17 @@ export default function RootLayout({
             </form>
           </div>
         </header>
-        <main className="mx-auto max-w-7xl">{children}</main>
+        <main className="mx-auto max-w-7xl min-h-[calc(100vh-8rem)]">{children}</main>
+        <footer className="border-t bg-white mt-12">
+          <div className="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between text-sm text-gray-500">
+            <p>© {new Date().getFullYear()} OpticWise. All rights reserved.</p>
+            <div className="flex items-center gap-6">
+              <Link href="/knowledge-base" className="hover:text-[#3B6B8F] transition-colors">
+                AI Knowledge Base
+              </Link>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );

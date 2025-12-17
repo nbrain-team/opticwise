@@ -149,3 +149,4 @@ The 1,365 contacts with problematic last names are accurate to the source Pipedr
 ✅ **ISSUE RESOLVED** - Contacts page now displays properly sorted contacts with alphabetic last names appearing first, and edge cases (symbols, numbers, corrupted data) appearing at the end of the list.
 
 No data re-import necessary. The sorting logic handles all edge cases gracefully.
+

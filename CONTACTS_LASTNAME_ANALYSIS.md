@@ -58,3 +58,4 @@ Update the ContactsTable component to handle edge cases better:
 **The database import is working correctly**. The missing last names are present in the source CSV file itself. This is a data quality issue from Pipedrive, not an import problem.
 
 **Recommendation**: Accept the current state OR implement Option 3 (backend smart display) to improve UX without changing data.
+

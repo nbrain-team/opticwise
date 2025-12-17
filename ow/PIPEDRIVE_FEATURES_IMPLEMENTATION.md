@@ -187,3 +187,4 @@ For questions or issues with these features, refer to:
 - Database schema: `/prisma/schema.prisma`
 - API routes: `/app/api/notes/` and `/app/api/activities/`
 - Components: `/app/components/DetailTabs.tsx` and related tab components
+

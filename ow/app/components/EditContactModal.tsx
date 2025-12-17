@@ -432,3 +432,4 @@ export function EditContactModal({ isOpen, onClose, contact, organizations }: Ed
     </div>
   );
 }
+

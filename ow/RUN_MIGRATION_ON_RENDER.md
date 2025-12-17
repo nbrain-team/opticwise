@@ -75,3 +75,4 @@ npx prisma migrate deploy
 ```
 
 This will apply all pending migrations in the `prisma/migrations` folder.
+

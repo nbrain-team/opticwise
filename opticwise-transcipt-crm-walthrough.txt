@@ -1,0 +1,427 @@
+OpticWise CRM Walk Through - December 10
+VIEW RECORDING - 31 mins (No highlights): https://fathom.video/share/1xwVNMd7W694GiCyaxjNoL_HZz1bpLz2
+
+---
+
+0:00 - Bill Douglas (OpticWise)
+  So, there are no invoices. We don't need that. I'm not invoicing. I'm sorry.
+
+0:06 - Danny DeMichele
+  Cary, is there a reason why I don't see read AI in here?
+
+0:09 - Cary Johnson
+  You know, it's so funny. I was just thinking the exact same thing because I don't know who scheduled this, but usually mine shows up for both of our show up.  That's so strange.
+
+0:18 - Danny DeMichele
+  Well, you know what? I have bills. I have the Fathom ones. I'll use that. We use this transcript to update the platform, so I didn't want to make sure it was being recorded.  We already have yours in here, so we're good. Yeah, it's running now.
+
+0:30 - Bill Douglas (OpticWise)
+  I started it, and you're, yeah, you can grab it for sure. And I have probably recorded another dozen since the last grab, Danny.  Oh, no, yeah.
+
+0:38 - Danny DeMichele
+  We have, we're fully integrated into Fathom now. I know you're going to pull Read AI, so eventually we'll get rid of Fathom, but.  Yeah.
+
+0:45 - Cary Johnson
+  Yeah, we're learning a lot about Fathom across the different clients who are using it and licenses. Pair in the .
+
+0:52 - Danny DeMichele
+  I'm sorry. That's just the one I used No, it's fantastic. No, they just, everybody is restricting their API. Because.  Because they don't want to make it easy to do the very job. taking a transcript is one thing. Everybody takes transcripts same way.  It's using Whisper, OpenAI, right? It's analyzing the transcript is what these companies exist for, Fathom and stuff. Our transcript interpretations are like a thousand times better.  Because we can have it, like, our, when I take this transcript, right, this raw transcript, my rules for, my templated rule is I'm using this to update the platform.  We just had a walkthrough with the company. Fathom just simply can't, you can't use Fathom for that. It's great for note-taking.  That's it. Like, here's the follow-ups. I'm taking this raw transcript, dumping it into our platform. It's going to, it's going to find everything you said about how you use Pipedrive.  And it's going to update the platform accordingly. And so these companies know that, that their general note-taking is kind of like, okay.  And the transcript side. Part what they do is not their technology. Everybody uses the same tech. And so they are making it harder and harder to pull from it via API.  That's the only pay-in-the- part. So they're all the same problem. That's why we're paying you the big bucks.
+
+2:14 - Bill Douglas (OpticWise)
+  Exactly. figured this out.
+
+2:16 - Danny DeMichele
+  Okay.
+
+2:16 - Bill Douglas (OpticWise)
+  Well, if I go left to right, you know, notes I rely heavily on, whether it's transcript or, you know, I talk to this person or, you know, I would like text to be in here, but text was such a pain in the  on Pipedrive.  I bailed. I never got it implemented. It was too much work. Activities, I don't, yeah, activities are more like to-do's.
+
+2:37 - Danny DeMichele
+  I guess I could use those. I just never have. Okay. Emails all the time.
+
+2:42 - Bill Douglas (OpticWise)
+  The fact that an email shows up in here relative to the pipe is great.
+
+2:48 - Danny DeMichele
+  Files.
+
+2:49 - Bill Douglas (OpticWise)
+  I don't have to load the files in here. Documents is for that. So I don't want documents, but files is just a way to search what emails have I sent that had things attached.
+
+2:57 - Danny DeMichele
+  Okay.
+
+2:58 - Bill Douglas (OpticWise)
+  So if I'm looking for the last time, like- And I sent this guy a proposal, right, Aaron? Roxy, this is the dude that stood me up last week, by the way.  I could just go look, when did I send it to him? And there it is, right? Here's the proposal.
+
+3:11 - Danny DeMichele
+  Well, here's the proposal. This document.
+
+3:14 - Bill Douglas (OpticWise)
+  So that is helpful. Invoices, no, we're not going to integrate our accounting system to our CRM system. Once they become a customer, I want to hand them off.  Maybe, you know, we put them in Asana and turn it into a project. So maybe we change that process later, but I don't want accounting to be paying in CRM.  It's useless for us. We invoice once a month on the 15th in their recurring revenue expenses. So if a salesperson needs to know what's going on as far as what was billed, they can always just ask for now.  Or we will build a query tool in. So now O-Net can just tell them in the future, but I don't think it needs to be in CRM ever.  Okay.
+
+3:58 - Danny DeMichele
+  And I, change log is not something I would.
+
+4:00 - Bill Douglas (OpticWise)
+  Yeah. Okay.
+
+4:03 - Danny DeMichele
+  All right. Cool. So that's, let me see up here on here. So up at the top, you have zero days, nine days, 69 days.  What is that? That is the number of days it's spent there.
+
+4:15 - Bill Douglas (OpticWise)
+  Okay.
+
+4:15 - Danny DeMichele
+  So that's not fixed. it's page, right?
+
+4:18 - Bill Douglas (OpticWise)
+  That's just the stage. Okay. All right. Like we, I entered this on discovery and qualification. Now I was on a podcast and the guy said, Hey, let's talk about it.  So we skipped SQL. never had him as a prospect. Yeah. I mean that we were combing. He immediately became sales qualified because he put his hand up and then we've been dealing with him for 89 days.
+
+4:40 - Danny DeMichele
+  Okay.
+
+4:41 - Bill Douglas (OpticWise)
+  So I go back to deals. These turn color after 15 or 30 or whatever it is. That's just a setting.  But I, since I let the sales guy go, this is probably a little antiquated, but I just take it and drag it over and then it becomes fresh, you know?
+
+4:56 - Danny DeMichele
+  Yeah.
+
+4:57 - Bill Douglas (OpticWise)
+  that would look like it. Yeah. So do you want the color codes, like if it goes past, what, 15 days?
+
+5:05 - Danny DeMichele
+  Doesn't matter.
+
+5:05 - Bill Douglas (OpticWise)
+  No, I don't think so. I don't know that it matters. Don't spend any time on that.
+
+5:10 - Danny DeMichele
+  These are all little things that after we have it going, like, totally must advise it to you.
+
+5:15 - Bill Douglas (OpticWise)
+  I mean, this is, I don't mind if this is long and not touched, really, because these are people we're just, maybe we'll cross or we know something about or somebody referred us.
+
+5:23 - Danny DeMichele
+  These people are conversations.
+
+5:25 - Bill Douglas (OpticWise)
+  These are ones that are asking the right, like, hey, you know, data and digital infrastructure review. Let's talk about this.  How much is it? You know, whatever. Yeah. So I might change some of this audit a little bit, and we might skip this step and go right to recurring revenue opportunities.  And then this would be where, if I gave them a proposal, they'd be in this column. And then contracting would be in the process of, you know, like when you sent me the contract and it took three or four days to sign, they would sit in this queue.  And once it was signed, I would move it to, I would just close it. Right. But maybe.
+
+6:00 - Danny DeMichele
+  In our own system, we don't close it.
+
+6:01 - Bill Douglas (OpticWise)
+  Maybe we move it to customers. Yeah, it's up to you.
+
+6:04 - Danny DeMichele
+  Yeah, closing it or one or whatever can go to one deals section. Yeah, a whole new pipeline is just one deals.
+
+6:13 - Bill Douglas (OpticWise)
+  Yeah. Yeah. And then what about lost?
+
+6:16 - Danny DeMichele
+  How should we handle lost deals? There are lost deals in here.
+
+6:22 - Bill Douglas (OpticWise)
+  I have to run a report for it. Gosh. But basically, you just want it to go somewhere and then you have access to seeing it if you need to.
+
+6:29 - Danny DeMichele
+  Yeah, it gets archived so it doesn't show up in here.
+
+6:32 - Bill Douglas (OpticWise)
+  never gets deleted because there are some that get archived in that, you know, lost, for instance. Customer, the prospect goes to another company and then they say, hey, let's talk about that one, you know, or we bought this project.  Can we talk about that again? We didn't do it then. Or if they tell us it's a year out, well, I'll just make it lost.  I won't leave it open for that long.
+
+6:54 - Danny DeMichele
+  Yeah. But all the lost ones in there were really valuable.
+
+6:57 - Bill Douglas (OpticWise)
+  Like I ran a lot of information on lost. And try to figure out why. Like, when we did market research a year and a half ago, we pulled a lot of information out of the Lost.  It was good. I don't ever want to delete them.
+
+7:08 - Danny DeMichele
+  Archive in Lost is great. Yeah, you'll be able to get that, some really fun data moving forward on that kind of stuff.  You'll be shocked. Yeah, once we have all the stuff.
+
+7:18 - Bill Douglas (OpticWise)
+  when the conversations are in there, you know, especially when these, like, are in there. Like, when we're recording the transcripts and the email integration actually works and maybe the text is in there.  Mm-hmm.
+
+7:28 - Danny DeMichele
+  Yeah.
+
+7:30 - Bill Douglas (OpticWise)
+  And we manually enter these if they come through LinkedIn. You know, like, this one, literally, not this one, but this one came through LinkedIn.  Like, I manually entered it. Mm-hmm. That's why it went right to DDI. He was like, hey, can you help us solve this?  Like, we have two properties we'd like for you to do. Okay, let's start.
+
+7:52 - Danny DeMichele
+  Yeah.
+
+7:54 - Bill Douglas (OpticWise)
+  But it doesn't just show up. It's like, there's not a way to take a LinkedIn with. about manually doing it, so.  What do you mean by that?
+
+8:04 - Danny DeMichele
+  Right now, like the way it is.
+
+8:06 - Bill Douglas (OpticWise)
+  Yeah, no, but like how would you like that to work? We have a company that's able to somehow, like they're soliciting our guests for the podcast.  They're really good at generating leads through LinkedIn. If we were able to get them to generate other leads for us, and that, you know, came from Roxy.  Do those come in as messages in my inbox? How do they come in? Do they come in as a, how does Mint Leads track that?  I don't know how they do it.
+
+8:39 - Roxana Obertti
+  They showed up in your inbox in LinkedIn. All right, let me. But I don't know what system are they using?  They're using.
+
+8:51 - Danny DeMichele
+  Yeah, we can, once we get through this, it wouldn't be a whole lot. To, you know, we've created some.  Crazy B2B modules. And we'll see, you know, we'll see how that could fit into this. It would be a natural inclusion into it.
+
+9:14 - Bill Douglas (OpticWise)
+  Yeah, this is their spreadsheet, but they, you somehow they're getting these people to say, interested in client takeover means, you know, Roxy starts a conversation in my inbox and then we engage with them.  Okay.
+
+9:30 - Danny DeMichele
+  And then, so then, okay, so the, call it the deals and the contacts are going to, you know, they'll share sort of similar tabs.  Anything else you're using Pipedrive for?
+
+9:43 - Bill Douglas (OpticWise)
+  No. I don't write emails from there. Honestly, it was a pain. I use, I just use the interface, my web interface for email.
+
+9:52 - Danny DeMichele
+  We will, we do have a spot for them to come in. You could choose if you're going to use it or not.  I'll show you the same format. might, but I, it's, it was.
+
+10:00 - Bill Douglas (OpticWise)
+  When it was integrated, it was easier to just hop over here and write the email. The signature was better.  The tracking was better. PipeDrive just missed a little bit of that. So if I click my inbox or my sent, for instance, I would have to go in.  It syncs all of them, but I have to manually say, do you want to make this shared to everybody?  I should because that's an email that's from 4 Mile Capital. So if we had salespeople, they'd want to know that, okay, I didn't want to see that, but I don't want them to see, you know, this one, for instance, the 401k plan.  They don't need to see that.
+
+10:38 - Danny DeMichele
+  Yeah, we, um, but I don't click that one.
+
+10:40 - Bill Douglas (OpticWise)
+  I leave it private. That's a manual process. It should know that this person is in the leads and, you know, human interest is not.  And just link the ones that are, like you said, that would work much better.
+
+10:55 - Danny DeMichele
+  Yeah, I want to show, um, you want me to stop sharing. Yeah, almost. Or do you need something else in here?
+
+11:05 - Bill Douglas (OpticWise)
+  Reporting was pretty rough in here. I did not use campaigns. I tried. It was rough.
+
+11:09 - Danny DeMichele
+  Like, it was just hard to use. Yeah.
+
+11:12 - Bill Douglas (OpticWise)
+  Products, marketplace never touched, insights occasionally, and contacts. Contacts and leads always confuse me. Like, why are they different? Yeah.
+
+11:23 - Danny DeMichele
+  I never understood that.
+
+11:25 - Bill Douglas (OpticWise)
+  Like, there's a list of leads, but, you know. They kind of went away, I crammed a lot of those leads into this old pipe, this old pipeline.  The old sales pipeline had a lot of MQLs, because I didn't know what else to do with those leads.  They're not actually, they're in this market qualified, but they're a people, right? I just shoved them into MQL years ago, because I wanted to keep track of them.  Yeah.
+
+11:56 - Danny DeMichele
+  And that's where, like, we want to, like... ... We want to do as much as we can on the – I know why I couldn't find this.  I was going to show something, but I'm still bugging it out a little bit. But, yeah, we want to trap anything in because it's not just the dashboards.  Like, right now we're just trying to, you know, kind of come up with a quick fix to replicate Pipe Drive.  That's probably just phase one type thing. But ultimately, we want all the data in there because using the AI agent to mine for opportunities, you know, things like maybe you have a new widgety-woo that you're offering or an upgraded version or something that – a new case study that's relevant to medical buildings where you can literally just, hey, AI agent, go back in time, find any prospect that had a medical building, and let's create an audit.  Automation to those people, that's what, call it CRM AI, is, and that's what we're building. And so we want to dump everything in that we can.  Now, some of it you might care about seeing in a dashboard view like you would Pipedrive or something, but some of them, you know, it's just there for the AI agent to be able to help support.  And that's where, once we get this into Roxy's hands, where you can really use it for all sorts of capabilities that you're probably not using now.  That's the whole idea. Okay, so let me, I'm trying to think what I wanted to... I don't have anything else that I use it for.  That is it. Okay, I was going to show, what was I going to show? No, I'm not going to show that right now, because that's next steps.  But there was a piece that I wanted to go... oh yeah that's right how much traffic do you get because this would be a relevant one to do now do you get what do you get good amount of website traffic it's still thin it's going up drastically but it's still not much it's very light but like what's not much i'd have to pull i mean 50 a day no not even no gosh i wish um this is the reason why i ask is this is something from a b2b standpoint i think is probably the best money spent so this is a pixel that we put on the site and what it does is it traps you know without a lead form it traps the with about an 80 accuracy um the person and linkedin profile of visitors that come to your site um and you could use it for a lot of things one is you can use it um where let's say aaron was in your uh  And she's in some stage of sales. Well, we can see when Erin comes to the site and it's like, maybe that helps you trigger an outreach to her because you know, she, for some reason, you haven't seen her in a while.  Now you see, she's on the website. The other thing it does is it can load up a LinkedIn marketing campaign downstream.  And because basically what we do is we, anybody that comes in and we can capture their LinkedIn profile again, without them submitting it.  Then in like two weeks, it's not too creepy. We could start a LinkedIn drip sequence to them because we know they're on the website for some reason.  Maybe they hit their, they hit your target audience the right way. There's a lot that could be done with this.  And I think it's like, I think it's a hundred bucks a month. I'm going to see what the minimum threshold of visits are, but it is the lowest cost per lead.
+  ACTION ITEM: Send GA metrics (last 4–5 mo) to Danny re: LinkedIn pixel - WATCH: https://fathom.video/share/1xwVNMd7W694GiCyaxjNoL_HZz1bpLz2?timestamp=949.9999  I think that you could possibly get, but there's a threshold that you have to hit for anonymous, anonymization rules.
+
+16:00 - Bill Douglas (OpticWise)
+  Well, let me pull the Google Analytics metrics and send them to you for the last four or five months worth of average visits.  Yeah.
+
+16:09 - Danny DeMichele
+  And then what we do is with an API call that basically anytime someone, let's say you're not using it for marketing automation, we pull it from an API just to update the CRM.  The person comes to the website six times and maybe there's an alert system. It's like, okay, maybe a reach out is due to this person.  It can refresh existing leads in the CRM that you've forgotten about, things like that, because it's just an indication that they're interested again, because why else are they going look at your website?  So very powerful integration. It's super easy. I bring it up now with anybody doing B2B because we've integrated it on a couple of platforms.  Super easy to integrate. You just got to care about, you just got to not care about the $100 a month fee.  And we've just got to make sure there's enough traffic to make it worthwhile. It wouldn't be worth it if you're netting out at like 10 new.  Leads coming out of that, more activities, but you know, maybe there's enough in there, but one lead is worth a hundred bucks.
+  ACTION ITEM: Finalize Pipedrive module; send cutover email to Bill (cc Roxy) - WATCH: https://fathom.video/share/1xwVNMd7W694GiCyaxjNoL_HZz1bpLz2?timestamp=1023.9999
+
+17:06 - Bill Douglas (OpticWise)
+  Exactly. Yeah.
+
+17:08 - Danny DeMichele
+  Yeah. And, okay, cool. So, yeah, so we're, I'm going to finalize these, this call session onto the Pipedrive module that you have access to.
+  ACTION ITEM: Export Pipedrive Deals/Orgs/People/Activities/Notes/Files (CSV, plain text) to Danny - WATCH: https://fathom.video/share/1xwVNMd7W694GiCyaxjNoL_HZz1bpLz2?timestamp=1037.9999  Oh, that's, oh, we have one last thing. Yeah. Re-share your screen. I'm to have you do a fresh export, um, for me.  And then we will, um, I shared my login with you, but I have NFA on there, so I don't know.  that's fine. Go down, uh, go to your, your profile. I think it's your profile icon. Top right.
+
+17:48 - Bill Douglas (OpticWise)
+  Let me, yeah, it's just, I gotta get this one out of the way because I'm sharing it, but it took over.  So there.
+
+17:56 - Danny DeMichele
+  Uh, go to, um, tools. I think tools. tools. The NAPS, export data, and then click X, go to, yeah, so leads you're not using, right?  No, I never quite understood, looks like zero. Yeah, go to deals, tab. Deals tab? Right there, on the top, right in that page, above the green export button.  Oh, okay. And then click export. Okay. And then go to organizations and people and do the same thing. And then send you those?  Yeah, and then actually activities and notes and files.
+
+18:40 - Bill Douglas (OpticWise)
+  Any dates, notes. You want Excel or CSV on these?
+
+18:47 - Danny DeMichele
+  This is going to be HTML or plain text, which one?
+
+18:51 - Bill Douglas (OpticWise)
+  Plain text.
+
+18:53 - Danny DeMichele
+  All right.
+
+18:54 - Bill Douglas (OpticWise)
+  Excel or CSV? CSV, sorry, I didn't tell you that on the last one.
+
+18:58 - Danny DeMichele
+  And then file, CSV. Let's see.
+
+19:01 - Bill Douglas (OpticWise)
+  Okay. So just send me those over and I'll re-update.
+
+19:06 - Danny DeMichele
+  How often are you updating? Like, are you super active today, tomorrow? No, I'm not. I'm just not. So just take a note.
+  ACTION ITEM: Log Pipedrive changes until cutover; re-enter if needed - WATCH: https://fathom.video/share/1xwVNMd7W694GiCyaxjNoL_HZz1bpLz2?timestamp=1155.9999  Basically, we're going to call this the clean line. I'm going to get it exported. And then probably by the end of the day, it'll be clean and updated.  Then you can, I'll shoot you a note. it might be tomorrow. So just anything that you're changing between that export we just did for now until you get it and you're using it, just take note of it so that we don't have to go through an export again.  And we, you know, so you might have a couple of records you have to re-enter if a lead comes in later today.  So just think about that.
+
+19:48 - Bill Douglas (OpticWise)
+  When do you want to set up to where you can start scraping those custom GPTs? Let me know when you need that.  Actually, because you're in training mode and there's a lot of, there's the, you know, there's. Let's set it up now that we're on the call.
+
+20:01 - Danny DeMichele
+  Let's just, let's see about getting me access. It's been a while since I got off it. Let's see. see.
+
+20:09 - Bill Douglas (OpticWise)
+  Let me get to the right tab. had too many open, as you can tell. Yeah. It's that one. So what do you need?  Like, if want me to go to... It's on the agenda today.
+
+20:36 - Danny DeMichele
+  Let's see. Let's find out. I'm going ask AI right now. Let's explore.
+
+20:52 - Bill Douglas (OpticWise)
+  I think you would benefit. I think the whole system would benefit because there's a whole lot of energy put into this brand script.  Let's see. We have. To sales assistant and to the Bill GPT. The pricing engine's rough. I don't want to do that yet.  I'll rebuild that.
+
+21:09 - Danny DeMichele
+  Okay, here it is. So are you on Teams? You're on Teams plan, right? Yep. Okay. So open the custom GPT.
+
+21:19 - Bill Douglas (OpticWise)
+  Does Teams and Fathom work the same?
+
+21:25 - Danny DeMichele
+  Does Teams and Fathom both work the same?
+
+21:28 - Cary Johnson
+  I don't know what you mean.
+
+21:29 - Bill Douglas (OpticWise)
+  He talked about a Teams subscription in ChatGPT is what he meant.
+
+21:35 - Danny DeMichele
+  Click on, okay, so go to the little three dots of the one, let's say you want to share. You'll probably do all of them and just do that.  Yeah, I think you want this one. Let's see here. Click on it. And then where is the share link?  Yeah, that's weird. So go to my GPTs.
+
+21:58 - Bill Douglas (OpticWise)
+  And then I have to do this. That's That's why. And in edit, I share.
+
+22:02 - Danny DeMichele
+  Yeah, then there's an add collaborator after you click that. And just add me, Danny at inbrain.ai. I like that.  Let's see here.
+
+22:18 - Bill Douglas (OpticWise)
+  Is that going to be, is it collaborator? Yeah. Anyone with the link?
+
+22:26 - Danny DeMichele
+  Keep that one in there. Keep that invite only. I'm going to push save, and I'll look and see if I, if I have it.
+
+22:36 - Bill Douglas (OpticWise)
+  Yeah, I'm going to be surprised if it shared it with you inside of the, I mean, outside of the teams.  So let me see if you got it.
+
+22:46 - Danny DeMichele
+  That's a good point, actually. Hopefully, I don't have to be out of those teams. Share it with me. No GPTs shared.
+
+22:59 - Bill Douglas (OpticWise)
+  Yeah, it does. It doesn't show invites, only shows acceptance, so I won't.
+
+23:04 - Danny DeMichele
+  Oh, maybe I have to go.
+  ACTION ITEM: Share Drew GPT w/ Tim - WATCH: https://fathom.video/share/1xwVNMd7W694GiCyaxjNoL_HZz1bpLz2?timestamp=1390.9999
+
+23:05 - Bill Douglas (OpticWise)
+  Yeah, you might have to check your email or check your account. So I'll share the Drew GPT with you, Tim, because you can, you have access to Drew's emails a lot more than I do.  So that, and same thing with mine, this is how Roxy answers our LinkedIns very accurately and does posts and things like that, is these two.  So I think you'll get a lot out of that.
+
+23:45 - Danny DeMichele
+  I don't know why. Put the link of the GPT in this chat, in this meet. There's a copy link right there.  Right there says copy link. Put that in the chat window.
+
+24:06 - Bill Douglas (OpticWise)
+  Hold on. I'm getting to the... There it is.
+
+24:17 - Danny DeMichele
+  You see that? Yeah. see if I can get it. My problem is I think it's between our team's account.  Let's see if that works. It keeps... It's basically saying... Let me see what my workplace... Do I need to add you to the workplace things?
+
+24:52 - Bill Douglas (OpticWise)
+  That would be a commercial choice by chat.
+
+24:55 - Danny DeMichele
+  Yeah. I don't know. I, I'm the owner, PPTs, only workspaces here.
+
+25:21 - Bill Douglas (OpticWise)
+  Yeah, we're on OpticWise, we're on workspace.
+  ACTION ITEM: Mine 4 OpticWise GPTs; then Bill revert links to invite-only - WATCH: https://fathom.video/share/1xwVNMd7W694GiCyaxjNoL_HZz1bpLz2?timestamp=1531.9999
+
+25:27 - Danny DeMichele
+  Yeah, I suspect it's something on my, on my account is set up. Actually, why don't we do this? Real quick, open up one of them to full share.  I'm not going to just pull these, like, over the next half hour and we don't have to worry about this.  If not, I'll figure out. What do what do want me to do?
+
+25:53 - Bill Douglas (OpticWise)
+  Share how? Share and do, um, and access.
+
+25:56 - Danny DeMichele
+  What, what are the options? Anyone in OpticWise workspace? OpticWise. Anyone want the link? You want the link? Can you leave the link just for a second here, and I'm going to see if I quickly have to pull this down.
+
+26:09 - Bill Douglas (OpticWise)
+  In chat. Alright.
+
+26:14 - Danny DeMichele
+  Is that the same link you just did the other one with? I assume so.
+
+26:19 - Bill Douglas (OpticWise)
+  Let me put it in here again and see. Yeah, it's the same one. Okay.
+
+26:27 - Danny DeMichele
+  I'll paste it anyway, but it looks like the same one.
+
+26:30 - Bill Douglas (OpticWise)
+  Yeah, it's the same one. Okay. Just destroy the link when you're done, of course. Yeah.
+
+26:43 - Danny DeMichele
+  Or I can... have you change the permission setting. I'll change it back. just put on this one, and...
+
+26:48 - Bill Douglas (OpticWise)
+  There's four in there I think you need.
+
+26:50 - Danny DeMichele
+  Yeah, I'm going to just get one done, so then we can... I want to see how quick it is for me to pull as much as I can out of it.  Um... And... Um... And then I'll have you, and then based on that, I'll have you shut down the previous one, and then we'll, it might be like where we want a day to be mining it, each one, but yeah, but just keep this one open for now.  I'm going to start messing around with this today.
+
+27:17 - Bill Douglas (OpticWise)
+  Well, brand script is, you know, it's the story. It's the marketing story. The brand script's an old way to tell a marketing story.  Sales assistant is more like in the trenches, work with a, I have somebody engaged in a pipeline. And they're asking questions about a 200-unit apartment complex or a 400,000 square foot building.  And, you know, that's sales, just like they say. And then there's ones from me, Andrew. The other ones I use, I don't, they don't need to be public.  Okay.
+
+27:43 - Danny DeMichele
+  Unless this, our chat is going to go away, then we'll talk about that.
+
+27:46 - Bill Douglas (OpticWise)
+  But for the, right now, let's do all these four in there.
+
+27:48 - Danny DeMichele
+  Yeah. Okay, cool. Awesome. Okay. What else do you need from me? No, nothing right now. I think I've got one I need.  Okay. Roxy, you have any questions? Uh, not right now.
+
+28:03 - Roxana Obertti
+  Okay.
+
+28:04 - Danny DeMichele
+  Yeah, Roxy, I'll, I'll, CC you, uh, well, actually, do you already see Bill's emails, or should I CC Roxy separate?  He'd CC me too. Okay, cool. She's, she's not going to answer that, Danny.
+
+28:16 - Bill Douglas (OpticWise)
+  She, she, I don't see an email until she sees it first to answer your question. Okay, cool.
+
+28:22 - Danny DeMichele
+  But she, uh, she responds to ones that you copy her on.
+
+28:25 - Bill Douglas (OpticWise)
+  Yeah, okay.
+
+28:27 - Danny DeMichele
+  I'll send over the, um, when you can, when I think that you can cut over on Pipedrive, then when you can't, when you play around with it, see if there's any errors or bugs or anything that's drastically missing.  The only thing that's probably not going to be loaded because it just takes a long time to sync from Google is all the emails that are connected might not be showing up for a couple of days.  Just going to be, depending on how long that sync takes and how many emails are in there. Um, some of, some of them are a few hours.  I've had a couple of go for a couple of days. So, um. So you can decide if it's ready to cut over.  If it's not, or if there's something I need to change, just let me know. But we will, you'll see an email later today on that.  Maybe tomorrow morning, but probably.
+
+29:17 - Bill Douglas (OpticWise)
+  I like the idea of everybody in the company having a license to it, and we at least use it for contacts.  And then we take Pipedrive and move it into, like when they become a customer, move it into a different pipeline.  And maybe we build our own Asana later, maybe we don't. But I don't want to get rid of Slack, but Asana might become cumbersome if we can keep all this in-house.  Yeah.
+
+29:40 - Danny DeMichele
+  And Asana, you know, we connect really well with, but there is a $20 a month per user fee if we, if you want to do the API for Asana and us tapping into.  So that's the only. To keep it on, to keep it all on one platform, you mean?
+
+29:58 - Bill Douglas (OpticWise)
+  No, like if we wanted to, if we want.
+
+30:00 - Danny DeMichele
+  If you wanted to tap into Asana and you maintain Asana, then there's going to be an increased cost for you on Asana.  If not, depending on how you use Asana, we use our own task manager and stuff. I think we could just have a call.  You could tell me how you use it, and I could tell you what the practicality of that functionality is or how hard it is.  Yeah, let's do that after we get through with this initial phase that we have scoped already. Yeah, absolutely.
+
+30:24 - Bill Douglas (OpticWise)
+  Yeah, so we'll leave Asana alone for now. Yeah. Okay. Awesome. Deal.
+
+30:28 - Danny DeMichele
+  All right, guys.
+
+30:29 - Bill Douglas (OpticWise)
+  Well, you'll see the notes, and you can pull them. So you just tell me what else you need, and we'll get it to you.  All right. Thanks.
+
+30:35 - Danny DeMichele
+  All right. Thank you, everyone. Thanks, guys.
+
+30:36 - Cary Johnson
+  Bye. Bye.

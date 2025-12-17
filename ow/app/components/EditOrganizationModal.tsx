@@ -300,3 +300,4 @@ export function EditOrganizationModal({ isOpen, onClose, organization }: EditOrg
     </div>
   );
 }
+
