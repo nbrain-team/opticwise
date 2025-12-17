@@ -62,6 +62,9 @@ export default function RootLayout({
               <Link href="/knowledge-base" className="hover:text-[#3B6B8F] transition-colors">
                 AI Knowledge Base
               </Link>
+              <a href="/platform-report.html" target="_blank" className="hover:text-[#3B6B8F] transition-colors">
+                Platform Report
+              </a>
             </div>
           </div>
         </footer>
