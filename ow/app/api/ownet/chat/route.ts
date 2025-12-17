@@ -361,16 +361,60 @@ ${googleContext || ''}
       [sessionId, 'user', message]
     );
 
-    await db.query(
-      'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3)',
+    const assistantMsgResult = await db.query(
+      'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3) RETURNING id',
       [sessionId, 'assistant', responseText]
     );
+    
+    const assistantMessageId = assistantMsgResult.rows[0]?.id;
 
-    // 6. Update session timestamp
-    await db.query(
-      'UPDATE "AgentChatSession" SET "updatedAt" = NOW() WHERE id = $1',
+    // 6. Update session timestamp and potentially generate title
+    // Check if this is the first message in the session (title generation)
+    const messageCountResult = await db.query(
+      'SELECT COUNT(*) as count, title FROM "AgentChatSession" WHERE id = $1 GROUP BY id, title',
       [sessionId]
     );
+    
+    const sessionData = messageCountResult.rows[0];
+    const isFirstResponse = sessionData?.title === 'New Chat';
+    
+    if (isFirstResponse) {
+      // Generate a descriptive title from the conversation
+      try {
+        const titlePrompt = `Based on this conversation, generate a short, descriptive title (max 6 words) that captures the main topic. Return ONLY the title, nothing else.
+
+User question: ${message}
+
+AI response summary: ${responseText.slice(0, 300)}`;
+
+        const titleResponse = await ai.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 50,
+          temperature: 0.3,
+          messages: [{ role: 'user', content: titlePrompt }],
+        });
+
+        const generatedTitle = titleResponse.content[0].type === 'text' 
+          ? titleResponse.content[0].text.replace(/["']/g, '').trim()
+          : 'Chat';
+
+        await db.query(
+          'UPDATE "AgentChatSession" SET "updatedAt" = NOW(), title = $2 WHERE id = $1',
+          [sessionId, generatedTitle.slice(0, 100)]
+        );
+      } catch (titleError) {
+        console.log('[OWnet] Title generation error:', titleError);
+        await db.query(
+          'UPDATE "AgentChatSession" SET "updatedAt" = NOW() WHERE id = $1',
+          [sessionId]
+        );
+      }
+    } else {
+      await db.query(
+        'UPDATE "AgentChatSession" SET "updatedAt" = NOW() WHERE id = $1',
+        [sessionId]
+      );
+    }
 
     // Determine sources used
     const sources = [];
@@ -385,6 +429,7 @@ ${googleContext || ''}
     return NextResponse.json({
       success: true,
       response: responseText,
+      messageId: assistantMessageId,
       sources,
     });
 

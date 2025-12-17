@@ -1,3 +1,4 @@
 *.csv
 .playwright-mcp/
 OpticWise-Integration-OAuth/
+ow/google-service-account.json
