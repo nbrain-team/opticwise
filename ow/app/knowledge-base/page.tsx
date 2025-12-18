@@ -19,6 +19,7 @@ interface Stats {
   emails: { total: number; vectorized: number };
   transcripts: { total: number; vectorized: number };
   calendar: { total: number; vectorized: number };
+  webPages: { total: number; vectorized: number };
 }
 
 export default function KnowledgeBasePage() {
@@ -79,7 +80,30 @@ export default function KnowledgeBasePage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-10">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-5 mb-10">
+        {/* Website Pages Card */}
+        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center">
+              <svg className="w-5 h-5 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+            </div>
+            <span className={`px-2.5 py-1 text-xs font-medium rounded-full ${getStatusBadge(stats?.webPages?.vectorized || 0, stats?.webPages?.total || 0).color}`}>
+              {getStatusBadge(stats?.webPages?.vectorized || 0, stats?.webPages?.total || 0).text}
+            </span>
+          </div>
+          <h3 className="text-sm font-medium text-gray-500 mb-1">Website Pages</h3>
+          <p className="text-2xl font-bold text-gray-900">{stats?.webPages?.vectorized?.toLocaleString() || 0}</p>
+          <p className="text-sm text-gray-500">of {stats?.webPages?.total?.toLocaleString() || 0} vectorized</p>
+          <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-cyan-500 rounded-full transition-all" 
+              style={{ width: `${getProgressPercent(stats?.webPages?.vectorized || 0, stats?.webPages?.total || 0)}%` }}
+            />
+          </div>
+        </div>
+
         {/* Emails Card */}
         <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
@@ -243,7 +267,26 @@ export default function KnowledgeBasePage() {
       </div>
 
       {/* Data Sources Info */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="bg-gradient-to-br from-cyan-50 to-cyan-100/50 rounded-xl p-6 border border-cyan-200">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-cyan-500 flex items-center justify-center">
+              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-cyan-900">Website Pages</h3>
+          </div>
+          <p className="text-sm text-cyan-800 mb-3">
+            Pages scraped from opticwise.com sitemap. Full content vectorized for AI-powered search.
+          </p>
+          <ul className="text-sm text-cyan-700 space-y-1">
+            <li>• Blog posts & articles</li>
+            <li>• Service pages</li>
+            <li>• Company information</li>
+          </ul>
+        </div>
+
         <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-xl p-6 border border-blue-200">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-blue-500 flex items-center justify-center">

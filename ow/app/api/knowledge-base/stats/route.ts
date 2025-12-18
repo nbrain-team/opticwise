@@ -42,6 +42,14 @@ export async function GET() {
       FROM "CalendarEvent"
     `;
 
+    // Get web pages stats
+    const webPagesStats = await prisma.$queryRaw<{ total: bigint; vectorized: bigint }[]>`
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN vectorized = true THEN 1 ELSE 0 END) as vectorized
+      FROM "WebPage"
+    `;
+
     // Define vectorizable types
     const vectorizableTypes = [
       'application/pdf',
@@ -83,6 +91,10 @@ export async function GET() {
       calendar: {
         total: Number(calendarStats[0]?.total || 0),
         vectorized: Number(calendarStats[0]?.vectorized || 0),
+      },
+      webPages: {
+        total: Number(webPagesStats[0]?.total || 0),
+        vectorized: Number(webPagesStats[0]?.vectorized || 0),
       },
     });
   } catch (error) {

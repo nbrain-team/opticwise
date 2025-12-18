@@ -589,4 +589,38 @@ model Activity {
   @@index([createdAt])
 }
 
+// Website Pages - Scraped and vectorized web pages from sitemap
+model WebPage {
+  id              String   @id @default(cuid())
+  url             String   @unique  // Full URL of the page
+  slug            String?           // Path/slug portion of URL
+  title           String?           // Page title from <title> tag
+  metaDescription String?  @db.Text  // Meta description
+  
+  // Content
+  content         String?  @db.Text  // Extracted text content from page
+  headings        Json?              // Array of headings [{level, text}]
+  
+  // Metadata
+  lastModified    DateTime?          // From sitemap lastmod
+  changeFreq      String?            // From sitemap changefreq
+  
+  // Vectorization for AI search
+  vectorized      Boolean  @default(false)
+  embedding       String?  @db.Text  // JSON array of embedding vector
+  
+  // Scraping metadata
+  scrapedAt       DateTime?
+  scrapeStatus    String?  @default("pending")  // pending, success, failed
+  scrapeError     String?  @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([url])
+  @@index([vectorized])
+  @@index([scrapeStatus])
+  @@index([scrapedAt])
+}
+
 
