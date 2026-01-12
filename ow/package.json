@@ -11,6 +11,7 @@
     "prisma:push": "prisma db push",
     "prisma:seed": "prisma db seed",
     "init:db": "tsx scripts/init-database.ts",
+    "init:marketing": "tsx scripts/init-marketing-tables.ts",
     "sync:google": "tsx scripts/sync-google-workspace.ts",
     "sync:gmail": "tsx scripts/sync-gmail.ts",
     "sync:calendar": "tsx scripts/sync-calendar.ts",
