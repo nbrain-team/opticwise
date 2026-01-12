@@ -24,7 +24,6 @@ interface CampaignListItemProps {
 }
 
 export default function CampaignListItem({ campaign }: CampaignListItemProps) {
-  const router = useRouter();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleDeleteClick = (e: React.MouseEvent) => {
