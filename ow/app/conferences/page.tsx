@@ -28,27 +28,7 @@ export default async function ConferencesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-[#3B6B8F] rounded"></div>
-                <span className="text-xl font-semibold text-[#50555C]">OpticWise</span>
-              </Link>
-              <nav className="flex space-x-4">
-                <Link href="/campaigns" className="text-gray-600 hover:text-gray-900 px-3 py-2">
-                  Campaigns
-                </Link>
-                <Link href="/conferences" className="text-[#3B6B8F] font-medium px-3 py-2 border-b-2 border-[#3B6B8F]">
-                  Conferences
-                </Link>
-              </nav>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Note: Using layout.tsx navigation */}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -37,6 +37,12 @@ export default function RootLayout({
               <Link href="/organizations" className="nav-link hover:text-[#3B6B8F] transition-colors">
                 Organizations
               </Link>
+              <Link href="/campaigns" className="nav-link hover:text-[#3B6B8F] transition-colors">
+                Campaigns
+              </Link>
+              <Link href="/conferences" className="nav-link hover:text-[#3B6B8F] transition-colors">
+                Conferences
+              </Link>
               <Link href="/sales-inbox" className="nav-link hover:text-[#3B6B8F] transition-colors">
                 Sales Inbox
               </Link>
@@ -64,6 +70,9 @@ export default function RootLayout({
               </Link>
               <a href="/platform-report.html" target="_blank" className="hover:text-[#3B6B8F] transition-colors">
                 Platform Report
+              </a>
+              <a href="/proposal-status-report.html" target="_blank" className="hover:text-[#3B6B8F] transition-colors">
+                Status Report
               </a>
             </div>
           </div>
