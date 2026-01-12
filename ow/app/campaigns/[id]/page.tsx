@@ -3,6 +3,7 @@ import { getSession } from '@/lib/session';
 import Link from 'next/link';
 import { prisma } from '@/lib/db';
 import CampaignDetailTabs from './CampaignDetailTabs';
+import { CampaignActions } from '@/app/components/CampaignActions';
 
 export default async function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -107,13 +108,12 @@ export default async function CampaignDetailPage({ params }: { params: Promise<{
                 )}
               </div>
             </div>
-            <div className="flex space-x-3">
-              <Link
-                href={`/campaigns/${campaign.id}/edit`}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium text-gray-700"
-              >
-                Edit
-              </Link>
+            <div className="flex-shrink-0">
+              <CampaignActions
+                campaignId={campaign.id}
+                campaignName={campaign.name}
+                campaignStatus={campaign.status}
+              />
             </div>
           </div>
         </div>
