@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import Link from 'next/link';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import { format } from 'date-fns';
 
 export default async function ConferencesPage() {
@@ -25,7 +25,6 @@ export default async function ConferencesPage() {
 
   const upcomingConferences = conferences.filter(c => c.status === 'upcoming');
   const activeConferences = conferences.filter(c => c.status === 'active');
-  const completedConferences = conferences.filter(c => c.status === 'completed');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -184,8 +183,8 @@ export default async function ConferencesPage() {
             <div>
               <div className="text-sm font-semibold text-green-900 mb-2">3. Post-Conference (1-2 weeks after)</div>
               <ul className="text-sm text-green-800 space-y-1">
-                <li>• "Nice to meet you" emails</li>
-                <li>• "Didn't connect" outreach</li>
+                <li>• &quot;Nice to meet you&quot; emails</li>
+                <li>• &quot;Didn&apos;t connect&quot; outreach</li>
                 <li>• Book follow-up sequence</li>
                 <li>• Schedule demos/audits</li>
               </ul>

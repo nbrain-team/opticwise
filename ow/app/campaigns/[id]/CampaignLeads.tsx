@@ -2,21 +2,22 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Campaign, CampaignLead } from '../types';
 
-export default function CampaignLeads({ campaign }: { campaign: any }) {
+export default function CampaignLeads({ campaign }: { campaign: Campaign }) {
   const [filter, setFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('score');
 
   const leads = campaign.leads || [];
 
   // Filter leads
-  const filteredLeads = leads.filter((lead: any) => {
+  const filteredLeads = leads.filter((lead: CampaignLead) => {
     if (filter === 'all') return true;
     return lead.status === filter;
   });
 
   // Sort leads
-  const sortedLeads = [...filteredLeads].sort((a: any, b: any) => {
+  const sortedLeads = [...filteredLeads].sort((a: CampaignLead, b: CampaignLead) => {
     if (sortBy === 'score') return b.leadScore - a.leadScore;
     if (sortBy === 'recent') return new Date(b.enrolledAt).getTime() - new Date(a.enrolledAt).getTime();
     if (sortBy === 'engagement') return (b.emailsOpened + b.emailsClicked) - (a.emailsOpened + a.emailsClicked);
@@ -56,11 +57,11 @@ export default function CampaignLeads({ campaign }: { campaign: any }) {
               className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
             >
               <option value="all">All Leads ({leads.length})</option>
-              <option value="new">New ({leads.filter((l: any) => l.status === 'new').length})</option>
-              <option value="contacted">Contacted ({leads.filter((l: any) => l.status === 'contacted').length})</option>
-              <option value="engaged">Engaged ({leads.filter((l: any) => l.status === 'engaged').length})</option>
-              <option value="qualified">Qualified ({leads.filter((l: any) => l.status === 'qualified').length})</option>
-              <option value="converted">Converted ({leads.filter((l: any) => l.status === 'converted').length})</option>
+              <option value="new">New ({leads.filter((l: CampaignLead) => l.status === 'new').length})</option>
+              <option value="contacted">Contacted ({leads.filter((l: CampaignLead) => l.status === 'contacted').length})</option>
+              <option value="engaged">Engaged ({leads.filter((l: CampaignLead) => l.status === 'engaged').length})</option>
+              <option value="qualified">Qualified ({leads.filter((l: CampaignLead) => l.status === 'qualified').length})</option>
+              <option value="converted">Converted ({leads.filter((l: CampaignLead) => l.status === 'converted').length})</option>
             </select>
           </div>
           <div>
@@ -122,7 +123,7 @@ export default function CampaignLeads({ campaign }: { campaign: any }) {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {sortedLeads.map((lead: any) => (
+                {sortedLeads.map((lead: CampaignLead) => (
                   <tr key={lead.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">

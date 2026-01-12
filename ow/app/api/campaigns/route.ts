@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 // GET /api/campaigns - List all campaigns
 export async function GET(request: NextRequest) {
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const type = searchParams.get('type');
 
-    const where: any = {};
+    const where: { status?: string; type?: string } = {};
     if (status) where.status = status;
     if (type) where.type = type;
 

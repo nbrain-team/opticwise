@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import Anthropic from '@anthropic-ai/sdk';
 
 const anthropic = new Anthropic({
@@ -183,7 +183,7 @@ If the lead score is above 40 and you have their email, offer to book the free a
 }
 
 // Helper function to calculate lead score
-function calculateLeadScore(history: any[], latestMessage: string): number {
+function calculateLeadScore(history: { content: string }[], latestMessage: string): number {
   let score = 0;
 
   const conversationText = history.map(m => m.content).join(' ').toLowerCase();
@@ -233,7 +233,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const where: any = {};
+    const where: { id?: string; visitorId?: string } = {};
     if (conversationId) where.id = conversationId;
     else if (visitorId) where.visitorId = visitorId;
 

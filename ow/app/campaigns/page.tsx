@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import Link from 'next/link';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 export default async function CampaignsPage() {
   const session = await getSession();

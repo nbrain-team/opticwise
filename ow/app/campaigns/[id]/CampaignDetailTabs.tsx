@@ -4,10 +4,11 @@ import { useState } from 'react';
 import WorkflowBuilder from './WorkflowBuilder';
 import CampaignAnalytics from './CampaignAnalytics';
 import CampaignLeads from './CampaignLeads';
+import { Campaign } from '../types';
 
 type Tab = 'workflow' | 'leads' | 'analytics' | 'settings';
 
-export default function CampaignDetailTabs({ campaign }: { campaign: any }) {
+export default function CampaignDetailTabs({ campaign }: { campaign: Campaign }) {
   const [activeTab, setActiveTab] = useState<Tab>('workflow');
 
   const tabs = [

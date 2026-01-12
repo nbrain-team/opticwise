@@ -3,10 +3,20 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
+type BookRequestResult = {
+  success: boolean;
+  bookRequest: {
+    id: string;
+    type: string;
+  };
+  downloadLink: string | null;
+  message: string;
+};
+
 export default function BookRequestPage() {
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<BookRequestResult | null>(null);
   
   const [formData, setFormData] = useState({
     email: '',
@@ -99,7 +109,7 @@ export default function BookRequestPage() {
 
             <div className="space-y-4">
               <p className="text-gray-600">
-                We'll send you an email with additional resources and information about OpticWise.
+                We&apos;ll send you an email with additional resources and information about OpticWise.
               </p>
               <div className="flex justify-center space-x-4">
                 <Link
@@ -134,15 +144,15 @@ export default function BookRequestPage() {
             Get Your Free Book
           </h1>
           <p className="text-xl text-gray-600">
-            "Who Owns Your Data?" - The Essential Guide to Commercial Real Estate Digital Infrastructure
+            &quot;Who Owns Your Data?&quot; - The Essential Guide to Commercial Real Estate Digital Infrastructure
           </p>
         </div>
 
         {/* Book Benefits */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-          <h3 className="font-semibold text-blue-900 mb-3">What You'll Learn:</h3>
+          <h3 className="font-semibold text-blue-900 mb-3">What You&apos;ll Learn:</h3>
           <ul className="text-blue-800 space-y-2">
-            <li>✓ How to take control of your building's digital infrastructure</li>
+            <li>✓ How to take control of your building&apos;s digital infrastructure</li>
             <li>✓ Save 10%+ on utility costs through system consolidation</li>
             <li>✓ Generate $6-12 per door in recurring revenue</li>
             <li>✓ Avoid vendor lock-in and reduce operational complexity</li>
@@ -372,7 +382,7 @@ export default function BookRequestPage() {
         {/* Trust Indicators */}
         <div className="mt-8 text-center text-sm text-gray-600">
           <p>🔒 Your information is secure and will never be shared</p>
-          <p className="mt-2">📧 We'll send you helpful resources about digital infrastructure</p>
+          <p className="mt-2">📧 We&apos;ll send you helpful resources about digital infrastructure</p>
         </div>
       </div>
     </div>

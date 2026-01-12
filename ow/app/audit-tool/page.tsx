@@ -5,10 +5,25 @@ import Link from 'next/link';
 
 type Step = 'welcome' | 'property-type' | 'size' | 'systems' | 'pain-points' | 'contact' | 'results';
 
+type AuditResults = {
+  auditRequest: {
+    id: string;
+    score: number;
+    qualification: string;
+  };
+  insights: Array<{
+    title: string;
+    description: string;
+    potentialSavings: string;
+  }>;
+  bookingUrl: string;
+  message: string;
+};
+
 export default function AuditToolPage() {
   const [step, setStep] = useState<Step>('welcome');
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<AuditResults | null>(null);
   
   const [formData, setFormData] = useState({
     email: '',
@@ -79,7 +94,7 @@ export default function AuditToolPage() {
             </div>
 
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
-              <h3 className="font-semibold text-blue-900 mb-3">What You'll Get:</h3>
+              <h3 className="font-semibold text-blue-900 mb-3">What You&apos;ll Get:</h3>
               <ul className="text-left text-blue-800 space-y-2">
                 <li>✓ Detailed analysis of your current infrastructure</li>
                 <li>✓ Potential savings estimate (typically 10%+ on utilities)</li>
@@ -405,7 +420,7 @@ export default function AuditToolPage() {
                 Your Infrastructure Audit Results
               </h1>
               <p className="text-gray-600">
-                Based on your responses, we've identified several opportunities
+                Based on your responses, we&apos;ve identified several opportunities
               </p>
             </div>
 
@@ -425,7 +440,7 @@ export default function AuditToolPage() {
 
             {/* Insights */}
             <div className="space-y-4 mb-8">
-              {results?.insights?.map((insight: any, index: number) => (
+              {results?.insights?.map((insight, index: number) => (
                 <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-semibold text-gray-900">{insight.title}</h3>

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 // GET /api/campaigns/[id] - Get campaign details
 export async function GET(

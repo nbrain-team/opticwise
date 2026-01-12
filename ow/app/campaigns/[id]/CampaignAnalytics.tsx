@@ -2,35 +2,36 @@
 
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
+import { Campaign, CampaignLead } from '../types';
 
-export default function CampaignAnalytics({ campaign }: { campaign: any }) {
+export default function CampaignAnalytics({ campaign }: { campaign: Campaign }) {
   // Calculate metrics from campaign data
   const leads = campaign.leads || [];
   const analytics = campaign.analytics || [];
 
   // Lead Status Distribution
   const statusData = [
-    { name: 'New', value: leads.filter((l: any) => l.status === 'new').length, color: '#3B82F6' },
-    { name: 'Contacted', value: leads.filter((l: any) => l.status === 'contacted').length, color: '#8B5CF6' },
-    { name: 'Engaged', value: leads.filter((l: any) => l.status === 'engaged').length, color: '#F59E0B' },
-    { name: 'Qualified', value: leads.filter((l: any) => l.status === 'qualified').length, color: '#10B981' },
-    { name: 'Converted', value: leads.filter((l: any) => l.status === 'converted').length, color: '#3B6B8F' },
+    { name: 'New', value: leads.filter((l: CampaignLead) => l.status === 'new').length, color: '#3B82F6' },
+    { name: 'Contacted', value: leads.filter((l: CampaignLead) => l.status === 'contacted').length, color: '#8B5CF6' },
+    { name: 'Engaged', value: leads.filter((l: CampaignLead) => l.status === 'engaged').length, color: '#F59E0B' },
+    { name: 'Qualified', value: leads.filter((l: CampaignLead) => l.status === 'qualified').length, color: '#10B981' },
+    { name: 'Converted', value: leads.filter((l: CampaignLead) => l.status === 'converted').length, color: '#3B6B8F' },
   ];
 
   // Lead Score Distribution
   const scoreRanges = [
-    { name: '0-20', count: leads.filter((l: any) => l.leadScore >= 0 && l.leadScore < 20).length },
-    { name: '20-40', count: leads.filter((l: any) => l.leadScore >= 20 && l.leadScore < 40).length },
-    { name: '40-60', count: leads.filter((l: any) => l.leadScore >= 40 && l.leadScore < 60).length },
-    { name: '60-80', count: leads.filter((l: any) => l.leadScore >= 60 && l.leadScore < 80).length },
-    { name: '80-100', count: leads.filter((l: any) => l.leadScore >= 80 && l.leadScore <= 100).length },
+    { name: '0-20', count: leads.filter((l: CampaignLead) => l.leadScore >= 0 && l.leadScore < 20).length },
+    { name: '20-40', count: leads.filter((l: CampaignLead) => l.leadScore >= 20 && l.leadScore < 40).length },
+    { name: '40-60', count: leads.filter((l: CampaignLead) => l.leadScore >= 40 && l.leadScore < 60).length },
+    { name: '60-80', count: leads.filter((l: CampaignLead) => l.leadScore >= 60 && l.leadScore < 80).length },
+    { name: '80-100', count: leads.filter((l: CampaignLead) => l.leadScore >= 80 && l.leadScore <= 100).length },
   ];
 
   // Email Performance
-  const totalEmailsSent = leads.reduce((sum: number, l: any) => sum + (l.emailsSent || 0), 0);
-  const totalEmailsOpened = leads.reduce((sum: number, l: any) => sum + (l.emailsOpened || 0), 0);
-  const totalEmailsClicked = leads.reduce((sum: number, l: any) => sum + (l.emailsClicked || 0), 0);
-  const totalEmailsReplied = leads.reduce((sum: number, l: any) => sum + (l.emailsReplied || 0), 0);
+  const totalEmailsSent = leads.reduce((sum: number, l: CampaignLead) => sum + (l.emailsSent || 0), 0);
+  const totalEmailsOpened = leads.reduce((sum: number, l: CampaignLead) => sum + (l.emailsOpened || 0), 0);
+  const totalEmailsClicked = leads.reduce((sum: number, l: CampaignLead) => sum + (l.emailsClicked || 0), 0);
+  const totalEmailsReplied = leads.reduce((sum: number, l: CampaignLead) => sum + (l.emailsReplied || 0), 0);
 
   const openRate = totalEmailsSent > 0 ? ((totalEmailsOpened / totalEmailsSent) * 100).toFixed(1) : '0';
   const clickRate = totalEmailsSent > 0 ? ((totalEmailsClicked / totalEmailsSent) * 100).toFixed(1) : '0';
@@ -39,14 +40,14 @@ export default function CampaignAnalytics({ campaign }: { campaign: any }) {
   // Conversion Funnel
   const funnelData = [
     { stage: 'Total Leads', count: leads.length },
-    { stage: 'Contacted', count: leads.filter((l: any) => l.status !== 'new').length },
-    { stage: 'Engaged', count: leads.filter((l: any) => ['engaged', 'qualified', 'converted'].includes(l.status)).length },
-    { stage: 'Qualified', count: leads.filter((l: any) => ['qualified', 'converted'].includes(l.status)).length },
-    { stage: 'Converted', count: leads.filter((l: any) => l.status === 'converted').length },
+    { stage: 'Contacted', count: leads.filter((l: CampaignLead) => l.status !== 'new').length },
+    { stage: 'Engaged', count: leads.filter((l: CampaignLead) => ['engaged', 'qualified', 'converted'].includes(l.status)).length },
+    { stage: 'Qualified', count: leads.filter((l: CampaignLead) => ['qualified', 'converted'].includes(l.status)).length },
+    { stage: 'Converted', count: leads.filter((l: CampaignLead) => l.status === 'converted').length },
   ];
 
   // Time series data (if analytics exist)
-  const timeSeriesData = analytics.slice(0, 30).reverse().map((a: any) => ({
+  const timeSeriesData = analytics.slice(0, 30).reverse().map((a) => ({
     date: format(new Date(a.date), 'MMM dd'),
     leads: a.leadsAdded || 0,
     qualified: a.qualified || 0,
@@ -75,10 +76,10 @@ export default function CampaignAnalytics({ campaign }: { campaign: any }) {
         <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg border border-orange-200">
           <div className="text-sm text-orange-600 font-medium mb-1">Conversion Rate</div>
           <div className="text-3xl font-bold text-orange-900">
-            {leads.length > 0 ? ((leads.filter((l: any) => l.status === 'converted').length / leads.length) * 100).toFixed(1) : '0'}%
+            {leads.length > 0 ? ((leads.filter((l: CampaignLead) => l.status === 'converted').length / leads.length) * 100).toFixed(1) : '0'}%
           </div>
           <div className="text-xs text-orange-600 mt-1">
-            {leads.filter((l: any) => l.status === 'converted').length} / {leads.length} leads
+            {leads.filter((l: CampaignLead) => l.status === 'converted').length} / {leads.length} leads
           </div>
         </div>
       </div>

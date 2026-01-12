@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
 import Link from 'next/link';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import CampaignDetailTabs from './CampaignDetailTabs';
 
 export default async function CampaignDetailPage({ params }: { params: Promise<{ id: string }> }) {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 // POST /api/book-requests - Submit book request (public endpoint)
 export async function POST(request: NextRequest) {
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type');
     const limit = parseInt(searchParams.get('limit') || '100');
 
-    const where: any = {};
+    const where: { status?: string; type?: string } = {};
     if (status) where.status = status;
     if (type) where.type = type;
 

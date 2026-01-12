@@ -32,14 +32,19 @@ const initialNodes: Node[] = [
 
 const initialEdges: Edge[] = [];
 
-export default function WorkflowBuilder({ campaign }: { campaign: any }) {
+type WorkflowData = {
+  nodes?: Node[];
+  edges?: Edge[];
+};
+
+export default function WorkflowBuilder({ campaign }: { campaign: { id: string; workflow: unknown } }) {
+  const workflowData = campaign.workflow as WorkflowData | null;
   const [nodes, setNodes, onNodesChange] = useNodesState(
-    campaign.workflow?.nodes || initialNodes
+    workflowData?.nodes || initialNodes
   );
   const [edges, setEdges, onEdgesChange] = useEdgesState(
-    campaign.workflow?.edges || initialEdges
+    workflowData?.edges || initialEdges
   );
-  const [selectedNodeType, setSelectedNodeType] = useState<string>('email');
   const [saving, setSaving] = useState(false);
 
   const onConnect = useCallback(
@@ -88,7 +93,7 @@ export default function WorkflowBuilder({ campaign }: { campaign: any }) {
   };
 
   const getNodeStyle = (type: string) => {
-    const styles: Record<string, any> = {
+    const styles: Record<string, Record<string, string | number>> = {
       email: { background: '#3B82F6', color: 'white', border: '2px solid #2563EB' },
       wait: { background: '#F59E0B', color: 'white', border: '2px solid #D97706' },
       condition: { background: '#8B5CF6', color: 'white', border: '2px solid #7C3AED' },
@@ -103,7 +108,7 @@ export default function WorkflowBuilder({ campaign }: { campaign: any }) {
       borderRadius: '8px',
       padding: '10px',
       minWidth: '150px',
-      textAlign: 'center',
+      textAlign: 'center' as const,
     };
   };
 
@@ -186,12 +191,12 @@ export default function WorkflowBuilder({ campaign }: { campaign: any }) {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-blue-900 mb-2">💡 How to Build Your Workflow:</h3>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Click buttons above to add nodes to your workflow</li>
-          <li>• Drag nodes to position them</li>
-          <li>• Click and drag from one node to another to connect them</li>
-          <li>• Use Email nodes to send messages, Wait nodes for delays, Conditions for branching</li>
-          <li>• Add a Goal node to track when leads achieve campaign objectives</li>
-          <li>• Click "Save Workflow" when done</li>
+            <li>• Click buttons above to add nodes to your workflow</li>
+            <li>• Drag nodes to position them</li>
+            <li>• Click and drag from one node to another to connect them</li>
+            <li>• Use Email nodes to send messages, Wait nodes for delays, Conditions for branching</li>
+            <li>• Add a Goal node to track when leads achieve campaign objectives</li>
+            <li>• Click &quot;Save Workflow&quot; when done</li>
         </ul>
       </div>
 

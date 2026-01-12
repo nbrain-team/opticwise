@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 
 // POST /api/audit-tool - Submit audit request (public endpoint)
 export async function POST(request: NextRequest) {
@@ -171,7 +171,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '50');
 
-    const where: any = {};
+    const where: { status?: string } = {};
     if (status) where.status = status;
 
     const auditRequests = await prisma.auditRequest.findMany({
@@ -216,10 +216,16 @@ export async function GET(request: NextRequest) {
 }
 
 // Helper function to generate insights
-function generateInsights(data: any) {
+function generateInsights(data: {
+  propertyType?: string;
+  numberOfUnits?: number;
+  independentSystems?: number;
+  physicalNetworks?: number;
+  painPoints?: string;
+}) {
   const insights = [];
 
-  if (data.independentSystems >= 5) {
+  if (data.independentSystems && data.independentSystems >= 5) {
     insights.push({
       title: 'System Consolidation Opportunity',
       description: `With ${data.independentSystems} independent systems, you could save 30-40% on maintenance costs through consolidation.`,
@@ -227,7 +233,7 @@ function generateInsights(data: any) {
     });
   }
 
-  if (data.physicalNetworks >= 3) {
+  if (data.physicalNetworks && data.physicalNetworks >= 3) {
     insights.push({
       title: 'Network Optimization',
       description: `Multiple physical networks increase complexity and cost. A unified digital infrastructure could reduce operational overhead by 25%.`,
@@ -235,7 +241,7 @@ function generateInsights(data: any) {
     });
   }
 
-  if (data.numberOfUnits >= 100) {
+  if (data.numberOfUnits && data.numberOfUnits >= 100) {
     insights.push({
       title: 'Scale Advantage',
       description: `Properties of your size typically see $6-12 per door in additional revenue through tenant services and 10%+ utility savings.`,
@@ -254,7 +260,7 @@ function generateInsights(data: any) {
   if (insights.length === 0) {
     insights.push({
       title: 'Infrastructure Assessment',
-      description: 'We\'ve identified opportunities to optimize your property\'s digital infrastructure. Let\'s discuss your specific needs.',
+      description: 'We have identified opportunities to optimize your property digital infrastructure. Let us discuss your specific needs.',
       potentialSavings: 'To Be Determined',
     });
   }
