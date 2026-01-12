@@ -59,3 +59,5 @@ Update the ContactsTable component to handle edge cases better:
 
 **Recommendation**: Accept the current state OR implement Option 3 (backend smart display) to improve UX without changing data.
 
+
+

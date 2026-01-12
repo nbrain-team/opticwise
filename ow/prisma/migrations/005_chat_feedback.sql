@@ -17,3 +17,5 @@ CREATE INDEX IF NOT EXISTS "ChatFeedback_sessionId_idx" ON "ChatFeedback"("sessi
 CREATE INDEX IF NOT EXISTS "ChatFeedback_userId_idx" ON "ChatFeedback"("userId");
 CREATE INDEX IF NOT EXISTS "ChatFeedback_createdAt_idx" ON "ChatFeedback"("createdAt");
 
+
+

@@ -68,3 +68,5 @@ ALTER TABLE "Activity" ADD CONSTRAINT "Activity_organizationId_fkey" FOREIGN KEY
 -- Add stageChangeTime column to Deal table
 ALTER TABLE "Deal" ADD COLUMN "stageChangeTime" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
+
+

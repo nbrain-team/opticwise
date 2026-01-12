@@ -27,3 +27,5 @@ CREATE INDEX IF NOT EXISTS "WebPage_vectorized_idx" ON "WebPage"("vectorized");
 CREATE INDEX IF NOT EXISTS "WebPage_scrapeStatus_idx" ON "WebPage"("scrapeStatus");
 CREATE INDEX IF NOT EXISTS "WebPage_scrapedAt_idx" ON "WebPage"("scrapedAt");
 
+
+

@@ -309,3 +309,5 @@ Content: ${pageData.content}
 // Run the script
 scrapeAndVectorize().catch(console.error);
 
+
+
