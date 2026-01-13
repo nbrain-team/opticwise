@@ -169,3 +169,4 @@ psql $DATABASE_URL -c "SELECT COUNT(*) FROM \"Campaign\""
 **Risk:** Low (migration is idempotent)  
 **Impact:** Enables all marketing automation features
 
+

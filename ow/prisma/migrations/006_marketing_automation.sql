@@ -453,3 +453,4 @@ CREATE TABLE "ChatbotMessage" (
 CREATE INDEX "ChatbotMessage_conversationId_idx" ON "ChatbotMessage"("conversationId");
 CREATE INDEX "ChatbotMessage_timestamp_idx" ON "ChatbotMessage"("timestamp");
 
+

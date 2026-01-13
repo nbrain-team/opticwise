@@ -4,11 +4,11 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Seed user
-  const passwordHash = await bcrypt.hash("123456", 10);
+  // Seed user with secure password
+  const passwordHash = await bcrypt.hash("opt!c!3493", 10);
   const user = await prisma.user.upsert({
     where: { email: "bill@opticwise.com" },
-    update: {},
+    update: { passwordHash }, // Update password if user already exists
     create: {
       email: "bill@opticwise.com",
       name: "Bill",

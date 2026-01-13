@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 function LoginForm() {
-  const [email, setEmail] = useState("bill@opticwise.com");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -68,7 +68,7 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               type="email"
-              autoComplete="email"
+              autoComplete="off"
               required
             />
           </div>
@@ -79,7 +79,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type="password"
-              autoComplete="current-password"
+              autoComplete="off"
               required
             />
           </div>
