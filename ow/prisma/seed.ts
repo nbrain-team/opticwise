@@ -5,10 +5,12 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Seed user with secure password
-  const passwordHash = await bcrypt.hash("opt!c!3493", 10);
+  // Use environment variable or generate a temporary password
+  const defaultPassword = process.env.SEED_PASSWORD || "TempPassword123!ChangeMe";
+  const passwordHash = await bcrypt.hash(defaultPassword, 10);
   const user = await prisma.user.upsert({
     where: { email: "bill@opticwise.com" },
-    update: { passwordHash }, // Update password if user already exists
+    update: {}, // Don't update password if user already exists
     create: {
       email: "bill@opticwise.com",
       name: "Bill",

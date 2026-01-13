@@ -32,9 +32,9 @@ production
 3. Wait 3-5 minutes for build to complete
 4. Test at: https://opticwise-frontend.onrender.com/login
 
-## Test Login Credentials
+## Login Credentials
 - Email: bill@opticwise.com
-- Password: 123456
+- Password: opt!c!3493
 
 ## Current Deploy Status
 Build started at: 2025-11-18T19:32:29Z
