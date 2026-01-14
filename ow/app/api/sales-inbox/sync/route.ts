@@ -164,7 +164,13 @@ export async function POST(request: NextRequest) {
         let body = '';
         let bodyHtml = '';
         
-        const extractBody = (part: { mimeType?: string; body?: { data?: string }; parts?: unknown[] }) => {
+        type MessagePart = {
+          mimeType?: string;
+          body?: { data?: string };
+          parts?: MessagePart[];
+        };
+        
+        const extractBody = (part: MessagePart): void => {
           if (part.mimeType === 'text/plain' && part.body?.data) {
             body = Buffer.from(part.body.data, 'base64').toString('utf-8');
           }
@@ -177,7 +183,7 @@ export async function POST(request: NextRequest) {
         };
         
         if (fullMessage.data.payload) {
-          extractBody(fullMessage.data.payload);
+          extractBody(fullMessage.data.payload as MessagePart);
         }
         
         // Generate embedding
@@ -185,18 +191,26 @@ export async function POST(request: NextRequest) {
         const embedding = await generateEmbedding(textForEmbedding);
         
         // Extract attachments
+        type AttachmentPart = {
+          filename?: string;
+          mimeType?: string;
+          body?: { size?: number; attachmentId?: string };
+          parts?: AttachmentPart[];
+        };
+        
         const attachments: Array<{
           filename: string;
           mimeType: string;
           size: number;
           attachmentId: string;
         }> = [];
-        const extractAttachments = (part: { filename?: string; mimeType?: string; body?: { size?: number; attachmentId?: string }; parts?: unknown[] }) => {
+        
+        const extractAttachments = (part: AttachmentPart): void => {
           if (part.filename && part.body?.attachmentId) {
             attachments.push({
               filename: part.filename,
-              mimeType: part.mimeType,
-              size: part.body.size,
+              mimeType: part.mimeType || '',
+              size: part.body.size || 0,
               attachmentId: part.body.attachmentId,
             });
           }
@@ -206,7 +220,7 @@ export async function POST(request: NextRequest) {
         };
         
         if (fullMessage.data.payload) {
-          extractAttachments(fullMessage.data.payload);
+          extractAttachments(fullMessage.data.payload as AttachmentPart);
         }
         
         // Determine if this is incoming or outgoing
