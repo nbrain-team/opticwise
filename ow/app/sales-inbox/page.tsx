@@ -92,7 +92,6 @@ export default async function SalesInboxPage() {
             <ul>
               {threads.map((t) => {
                 const lastMessage = t.messages[0];
-                const unreadCount = t.messages.filter(m => m.direction === 'INCOMING').length;
                 
                 return (
                   <li 

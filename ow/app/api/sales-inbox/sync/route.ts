@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
         let body = '';
         let bodyHtml = '';
         
-        const extractBody = (part: any) => {
+        const extractBody = (part: { mimeType?: string; body?: { data?: string }; parts?: unknown[] }) => {
           if (part.mimeType === 'text/plain' && part.body?.data) {
             body = Buffer.from(part.body.data, 'base64').toString('utf-8');
           }
@@ -185,8 +185,13 @@ export async function POST(request: NextRequest) {
         const embedding = await generateEmbedding(textForEmbedding);
         
         // Extract attachments
-        const attachments: any[] = [];
-        const extractAttachments = (part: any) => {
+        const attachments: Array<{
+          filename: string;
+          mimeType: string;
+          size: number;
+          attachmentId: string;
+        }> = [];
+        const extractAttachments = (part: { filename?: string; mimeType?: string; body?: { size?: number; attachmentId?: string }; parts?: unknown[] }) => {
           if (part.filename && part.body?.attachmentId) {
             attachments.push({
               filename: part.filename,
@@ -208,7 +213,7 @@ export async function POST(request: NextRequest) {
         const isOutgoing = from.toLowerCase().includes('bill@opticwise.com');
         
         // Save GmailMessage
-        const gmailMessage = await prisma.gmailMessage.create({
+        await prisma.gmailMessage.create({
           data: {
             gmailMessageId: message.id,
             threadId: fullMessage.data.threadId || '',
@@ -276,9 +281,10 @@ export async function POST(request: NextRequest) {
         // Rate limiting
         await new Promise(resolve => setTimeout(resolve, 100));
         
-      } catch (err: any) {
+      } catch (err) {
         errors++;
-        console.error(`❌ Error processing message ${message.id}:`, err.message);
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error(`❌ Error processing message ${message.id}:`, errorMessage);
       }
     }
     
