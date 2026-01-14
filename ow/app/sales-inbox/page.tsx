@@ -51,6 +51,7 @@ export default function SalesInboxPage() {
   const [aiReply, setAiReply] = useState('');
   const [generatingAI, setGeneratingAI] = useState(false);
   const [manualReply, setManualReply] = useState('');
+  const [creatingDeal, setCreatingDeal] = useState(false);
 
   useEffect(() => {
     fetchThreads();
@@ -130,6 +131,62 @@ export default function SalesInboxPage() {
     setManualReply('');
   };
 
+  const handleCreateDeal = async () => {
+    if (!selectedThread) return;
+    
+    // Simple confirmation
+    const dealTitle = selectedThread.subject || 'Email Thread Deal';
+    const contactName = selectedThread.person 
+      ? `${selectedThread.person.firstName} ${selectedThread.person.lastName}`
+      : selectedThread.organization?.name || 'Unknown Contact';
+    
+    if (!confirm(`Create deal "${dealTitle}" for ${contactName}?`)) {
+      return;
+    }
+    
+    setCreatingDeal(true);
+    try {
+      // Create deal - the API will use the first pipeline/stage automatically
+      const dealData = {
+        title: dealTitle,
+        value: 0,
+        currency: 'USD',
+        organizationName: selectedThread.organization?.name,
+        personFirstName: selectedThread.person?.firstName,
+        personLastName: selectedThread.person?.lastName,
+      };
+      
+      const response = await fetch('/api/deals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dealData),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Link the thread to the new deal
+        await fetch(`/api/sales-inbox/threads/${selectedThread.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dealId: data.deal.id }),
+        });
+        
+        // Refresh threads and redirect to deal
+        await fetchThreads();
+        window.location.href = `/deal/${data.deal.id}`;
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to create deal: ${errorData.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error creating deal:', error);
+      alert('Failed to create deal. Please try again.');
+    } finally {
+      setCreatingDeal(false);
+    }
+  };
+
   const totalMessages = threads.reduce((sum, t) => sum + t.messages.length, 0);
 
   if (loading) {
@@ -180,7 +237,7 @@ export default function SalesInboxPage() {
           ) : (
             <ul>
               {threads.map((t) => {
-                const lastMessage = t.messages[t.messages.length - 1];
+                const lastMessage = t.messages[0]; // Messages are ordered DESC, so first is newest
                 const isSelected = selectedThread?.id === t.id;
 
                 return (
@@ -301,9 +358,11 @@ export default function SalesInboxPage() {
                     </Link>
                   ) : (
                     <button
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm font-medium"
+                      onClick={handleCreateDeal}
+                      disabled={creatingDeal}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                     >
-                      Create Deal
+                      {creatingDeal ? 'Creating...' : 'Create Deal'}
                     </button>
                   )}
                 </div>

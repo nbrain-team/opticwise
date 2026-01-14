@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const {
+  let {
     title,
     value,
     currency = "USD",
@@ -20,8 +20,23 @@ export async function POST(request: Request) {
     probability,
   } = body || {};
 
-  if (!title || !pipelineId || !stageId) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  if (!title) {
+    return NextResponse.json({ error: "Title is required" }, { status: 400 });
+  }
+
+  // If pipelineId or stageId not provided, get the first pipeline and first stage
+  if (!pipelineId || !stageId) {
+    const pipeline = await prisma.pipeline.findFirst({
+      include: { stages: { orderBy: { orderIndex: "asc" } } },
+      orderBy: { createdAt: "asc" },
+    });
+    
+    if (!pipeline || pipeline.stages.length === 0) {
+      return NextResponse.json({ error: "No pipeline found. Please run seed." }, { status: 400 });
+    }
+    
+    pipelineId = pipeline.id;
+    stageId = pipeline.stages[0].id;
   }
 
   let organizationId: string | undefined = undefined;
@@ -36,14 +51,28 @@ export async function POST(request: Request) {
 
   let personId: string | undefined = undefined;
   if (personFirstName || personLastName) {
-    const p = await prisma.person.create({
-      data: {
+    // Try to find existing person first
+    const existingPerson = await prisma.person.findFirst({
+      where: {
         firstName: personFirstName || "",
         lastName: personLastName || "",
-        organizationId,
+        organizationId: organizationId || undefined,
       },
     });
-    personId = p.id;
+    
+    if (existingPerson) {
+      personId = existingPerson.id;
+    } else {
+      // Create new person if not found
+      const p = await prisma.person.create({
+        data: {
+          firstName: personFirstName || "",
+          lastName: personLastName || "",
+          organizationId,
+        },
+      });
+      personId = p.id;
+    }
   }
 
   const maxPos = await prisma.deal.aggregate({
