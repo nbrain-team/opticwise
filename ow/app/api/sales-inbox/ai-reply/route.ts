@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     
     // Build conversation history
     const conversationHistory = thread.messages.map(m => ({
-      role: m.direction === 'OUTGOING' ? 'assistant' : 'user',
+      role: (m.direction === 'OUTGOING' ? 'assistant' : 'user') as 'assistant' | 'user',
       content: `${m.sender}: ${m.body.replace(/<[^>]*>/g, '')}`,
     }));
     
