@@ -81,7 +81,7 @@ export default function DealsBoard({
 
   return (
     <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4 items-start">
         {optimistic.map(({ stage, deals }) => (
           <StageColumn key={stage.id} stageId={stage.id} name={stage.name} dealCount={deals.length}>
             {deals.map((deal) => (
@@ -110,13 +110,13 @@ function StageColumn({
   return (
     <div 
       ref={setNodeRef} 
-      className={`bg-white rounded-lg border border-gray-200 shadow-sm transition-all ${isOver ? "ring-2 ring-[#3B6B8F] bg-blue-50" : ""}`}
+      className={`bg-white rounded-lg border border-gray-200 shadow-sm transition-all flex flex-col ${isOver ? "ring-2 ring-[#3B6B8F] bg-blue-50" : ""}`}
     >
-      <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-b from-gray-50 to-white">
+      <div className="px-4 py-3 border-b border-gray-200 bg-gradient-to-b from-gray-50 to-white flex-shrink-0">
         <div className="font-semibold text-[#2E2E2F] text-sm">{name}</div>
         <div className="text-xs text-gray-500 mt-0.5">{dealCount} deals</div>
       </div>
-      <div className="p-3 space-y-2 min-h-[200px]">{children}</div>
+      <div className="p-3 space-y-2 min-h-[200px] flex-1">{children}</div>
     </div>
   );
 }
