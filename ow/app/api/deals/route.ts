@@ -7,18 +7,18 @@ export async function POST(request: Request) {
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  let {
+  const {
     title,
     value,
     currency = "USD",
-    pipelineId,
-    stageId,
     organizationName,
     personFirstName,
     personLastName,
     expectedCloseDate,
     probability,
   } = body || {};
+  
+  let { pipelineId, stageId } = body || {};
 
   if (!title) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
