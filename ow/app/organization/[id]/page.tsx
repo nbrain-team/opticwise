@@ -73,7 +73,11 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
       })
     : [];
   
-  (org as any).gmailMessages = gmailMessages;
+  // Attach to org object with proper typing
+  const orgWithEmails = {
+    ...org,
+    gmailMessages,
+  };
 
   const openDeals = org.deals.filter((d) => d.status === "open");
   const wonDeals = org.deals.filter((d) => d.status === "won");
@@ -81,7 +85,7 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
 
   // Serialize for client component
   const serializedOrg = {
-    ...org,
+    ...orgWithEmails,
     nextActivityDate: org.nextActivityDate?.toISOString() || null,
     lastActivityDate: org.lastActivityDate?.toISOString() || null,
     createdAt: org.createdAt.toISOString(),
@@ -123,7 +127,7 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
       createdAt: n.createdAt.toISOString(),
       updatedAt: n.updatedAt.toISOString(),
     })),
-    gmailMessages: org.gmailMessages.map((e) => ({
+    gmailMessages: gmailMessages.map((e) => ({
       ...e,
       date: e.date.toISOString(),
       createdAt: e.createdAt.toISOString(),

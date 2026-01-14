@@ -40,20 +40,11 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
   }
 
   // Fetch emails based on person and organization email addresses
-  const emailAddresses: string[] = [];
+  let gmailMessages = [];
   
-  // Add person email if exists
-  if (deal.person?.email) {
-    emailAddresses.push(deal.person.email.toLowerCase());
-  }
-  
-  // Add organization domain emails if exists
   if (deal.organization?.domain) {
-    // We'll search for emails containing the domain
-    const domainPattern = `%@${deal.organization.domain}%`;
-    
     // Get emails that match person email or organization domain
-    const gmailMessages = await prisma.gmailMessage.findMany({
+    gmailMessages = await prisma.gmailMessage.findMany({
       where: {
         OR: [
           // Emails from the person
@@ -69,12 +60,9 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       orderBy: { date: "desc" },
       take: 50,
     });
-    
-    // Attach to deal object
-    (deal as any).gmailMessages = gmailMessages;
   } else if (deal.person?.email) {
     // If no organization domain, just search by person email
-    const gmailMessages = await prisma.gmailMessage.findMany({
+    gmailMessages = await prisma.gmailMessage.findMany({
       where: {
         OR: [
           { from: { contains: deal.person.email, mode: 'insensitive' } },
@@ -84,12 +72,13 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       orderBy: { date: "desc" },
       take: 50,
     });
-    
-    (deal as any).gmailMessages = gmailMessages;
-  } else {
-    // No email addresses to search, return empty array
-    (deal as any).gmailMessages = [];
   }
+  
+  // Attach to deal object with proper typing
+  const dealWithEmails = {
+    ...deal,
+    gmailMessages,
+  };
 
   // Get data for edit dropdowns
   const [stages, organizations, people] = await Promise.all([
@@ -110,7 +99,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
   // Serialize for client component
   const serializedDeal = {
-    ...deal,
+    ...dealWithEmails,
     value: deal.value.toString(),
     addTime: deal.addTime.toISOString(),
     updateTime: deal.updateTime.toISOString(),
@@ -135,7 +124,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       createdAt: n.createdAt.toISOString(),
       updatedAt: n.updatedAt.toISOString(),
     })),
-    gmailMessages: deal.gmailMessages.map((e) => ({
+    gmailMessages: gmailMessages.map((e) => ({
       ...e,
       date: e.date.toISOString(),
       createdAt: e.createdAt.toISOString(),

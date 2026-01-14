@@ -57,7 +57,11 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       })
     : [];
   
-  (person as any).gmailMessages = gmailMessages;
+  // Attach to person object with proper typing
+  const personWithEmails = {
+    ...person,
+    gmailMessages,
+  };
 
   // Get all organizations for the edit dropdown
   const organizations = await prisma.organization.findMany({
@@ -71,7 +75,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
 
   // Serialize for client component
   const serializedPerson = {
-    ...person,
+    ...personWithEmails,
     birthday: person.birthday?.toISOString() || null,
     nextActivityDate: person.nextActivityDate?.toISOString() || null,
     lastActivityDate: person.lastActivityDate?.toISOString() || null,
@@ -106,7 +110,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       createdAt: n.createdAt.toISOString(),
       updatedAt: n.updatedAt.toISOString(),
     })),
-    gmailMessages: person.gmailMessages.map((e) => ({
+    gmailMessages: gmailMessages.map((e) => ({
       ...e,
       date: e.date.toISOString(),
       createdAt: e.createdAt.toISOString(),
