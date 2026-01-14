@@ -287,8 +287,54 @@ export async function POST(request: NextRequest) {
     );
     const history = historyResult.rows.reverse();
 
+    // Detect if this is a deep analysis request
+    const deepAnalysisKeywords = [
+      'deep dive',
+      'deep analysis',
+      'detailed analysis',
+      'comprehensive analysis',
+      'in-depth',
+      'thorough analysis',
+      'detailed report',
+      'comprehensive report',
+      'activity report',
+      'full analysis',
+    ];
+    
+    const isDeepAnalysis = deepAnalysisKeywords.some(keyword => 
+      message.toLowerCase().includes(keyword)
+    );
+
     // 4. Build context-aware prompt
-    const systemPrompt = `You are OWnet, a knowledgeable sales assistant who has deep familiarity with the Opticwise business. You speak naturally and conversationally, like a trusted colleague who's been working alongside the team for years.
+    const baseSystemPrompt = `You are OWnet, a knowledgeable sales assistant who has deep familiarity with the Opticwise business. You speak naturally and conversationally, like a trusted colleague who's been working alongside the team for years.`;
+    
+    const deepAnalysisPrompt = isDeepAnalysis ? `
+
+**🔍 DEEP ANALYSIS MODE ACTIVATED**
+
+The user has requested a deep dive or comprehensive analysis. This requires:
+
+1. **Extensive Detail** - Go deep into every aspect, don't summarize
+2. **Multiple Perspectives** - Look at trends, patterns, anomalies, opportunities
+3. **Specific Examples** - Use actual names, dates, numbers, quotes from data
+4. **Actionable Insights** - Provide strategic recommendations with reasoning
+5. **Comprehensive Coverage** - Cover all relevant angles thoroughly
+6. **Data-Driven** - Reference specific emails, calls, deals, activities
+7. **Timeline Analysis** - Show progression over time
+8. **Comparative Analysis** - Compare periods, people, deals, etc.
+
+**Structure for Deep Analysis:**
+- Start with executive summary
+- Break down into detailed sections
+- Use specific data points and examples
+- Identify patterns and trends
+- Highlight what's working and what needs attention
+- Provide strategic recommendations
+- Include next steps with priorities
+
+**Be thorough and comprehensive** - this is not a quick answer, it's a detailed report.` : '';
+    
+    const systemPrompt = baseSystemPrompt + deepAnalysisPrompt + `
 
 **Available Information:**
 ${crmContext || ''}
@@ -357,10 +403,17 @@ I have analyzed your pipeline and identified the following opportunities based o
     ];
 
     const ai = getAnthropic();
+    
+    // Adjust parameters based on analysis depth
+    const maxTokens = isDeepAnalysis ? 8000 : 4096;
+    const temperature = isDeepAnalysis ? 0.8 : 0.7;
+    
+    console.log(`[OWnet] Analysis mode: ${isDeepAnalysis ? 'DEEP ANALYSIS' : 'standard'} (${maxTokens} tokens)`);
+    
     const response = await ai.messages.create({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
-      temperature: 0.7,
+      max_tokens: maxTokens,
+      temperature: temperature,
       system: systemPrompt,
       messages,
     });
