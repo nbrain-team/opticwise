@@ -32,16 +32,33 @@ export default async function DealsPage({
   const sort = ((params.sort as SortKey) || "title") as SortKey;
   const statusFilter = (params.status as string) || "open";
 
+  // Get Sales Pipeline (where imported deals are)
   const pipeline = await prisma.pipeline.findFirst({
+    where: {
+      name: "Sales Pipeline",
+    },
     include: {
       stages: {
         orderBy: { orderIndex: "asc" },
       },
     },
-    orderBy: { createdAt: "asc" },
   });
 
-  if (!pipeline) {
+  // Fallback to first pipeline if Sales Pipeline doesn't exist
+  const fallbackPipeline = !pipeline
+    ? await prisma.pipeline.findFirst({
+        include: {
+          stages: {
+            orderBy: { orderIndex: "asc" },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      })
+    : null;
+
+  const activePipeline = pipeline || fallbackPipeline;
+
+  if (!activePipeline) {
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold">Deals</h1>
@@ -85,7 +102,7 @@ export default async function DealsPage({
 
   const deals = await prisma.deal.findMany({
     where: {
-      pipelineId: pipeline.id,
+      pipelineId: activePipeline.id,
       status: statusFilter as "open" | "won" | "lost",
       ...whereOwner,
     },
@@ -103,7 +120,7 @@ export default async function DealsPage({
     orderBy: { email: "asc" },
   });
 
-  const grouped = pipeline.stages.map((s) => ({
+  const grouped = activePipeline.stages.map((s) => ({
     stage: s,
     deals: deals
       .filter((d) => d.stageId === s.id)
@@ -120,13 +137,13 @@ export default async function DealsPage({
 
   // Count deals by status
   const openCount = await prisma.deal.count({
-    where: { pipelineId: pipeline.id, status: "open", ...whereOwner },
+    where: { pipelineId: activePipeline.id, status: "open", ...whereOwner },
   });
   const wonCount = await prisma.deal.count({
-    where: { pipelineId: pipeline.id, status: "won", ...whereOwner },
+    where: { pipelineId: activePipeline.id, status: "won", ...whereOwner },
   });
   const lostCount = await prisma.deal.count({
-    where: { pipelineId: pipeline.id, status: "lost", ...whereOwner },
+    where: { pipelineId: activePipeline.id, status: "lost", ...whereOwner },
   });
 
   return (
@@ -178,7 +195,7 @@ export default async function DealsPage({
 
       {/* Show board for open deals, list for won/lost */}
       {statusFilter === "open" ? (
-        <DealsBoard pipelineId={pipeline.id} columns={grouped} />
+        <DealsBoard pipelineId={activePipeline.id} columns={grouped} />
       ) : (
         <div className="space-y-2">
           {deals.length === 0 ? (
