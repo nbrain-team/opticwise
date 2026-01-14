@@ -26,10 +26,6 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
       noteRecords: {
         orderBy: { createdAt: "desc" },
       },
-      gmailMessages: {
-        orderBy: { date: "desc" },
-        take: 50,
-      },
       driveFiles: {
         orderBy: { modifiedTime: "desc" },
         take: 50,
@@ -47,6 +43,37 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
   if (!org) {
     return notFound();
   }
+
+  // Fetch emails based on organization domain or people's email addresses
+  const emailConditions = [];
+  
+  // Add organization domain search if available
+  if (org.domain) {
+    emailConditions.push(
+      { from: { contains: `@${org.domain}`, mode: 'insensitive' as const } },
+      { to: { contains: `@${org.domain}`, mode: 'insensitive' as const } },
+    );
+  }
+  
+  // Add email searches for all people in the organization
+  org.people.forEach(person => {
+    if (person.email) {
+      emailConditions.push(
+        { from: { contains: person.email, mode: 'insensitive' as const } },
+        { to: { contains: person.email, mode: 'insensitive' as const } },
+      );
+    }
+  });
+  
+  const gmailMessages = emailConditions.length > 0
+    ? await prisma.gmailMessage.findMany({
+        where: { OR: emailConditions },
+        orderBy: { date: "desc" },
+        take: 50,
+      })
+    : [];
+  
+  (org as any).gmailMessages = gmailMessages;
 
   const openDeals = org.deals.filter((d) => d.status === "open");
   const wonDeals = org.deals.filter((d) => d.status === "won");

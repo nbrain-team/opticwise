@@ -24,10 +24,6 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
       noteRecords: {
         orderBy: { createdAt: "desc" },
       },
-      gmailMessages: {
-        orderBy: { date: "desc" },
-        take: 50,
-      },
       driveFiles: {
         orderBy: { modifiedTime: "desc" },
         take: 50,
@@ -45,6 +41,23 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
   if (!person) {
     return notFound();
   }
+
+  // Fetch emails based on person's email address
+  const gmailMessages = person.email 
+    ? await prisma.gmailMessage.findMany({
+        where: {
+          OR: [
+            { from: { contains: person.email, mode: 'insensitive' } },
+            { to: { contains: person.email, mode: 'insensitive' } },
+            { cc: { contains: person.email, mode: 'insensitive' } },
+          ],
+        },
+        orderBy: { date: "desc" },
+        take: 50,
+      })
+    : [];
+  
+  (person as any).gmailMessages = gmailMessages;
 
   // Get all organizations for the edit dropdown
   const organizations = await prisma.organization.findMany({

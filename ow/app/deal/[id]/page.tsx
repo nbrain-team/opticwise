@@ -21,10 +21,6 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       noteRecords: {
         orderBy: { createdAt: "desc" },
       },
-      gmailMessages: {
-        orderBy: { date: "desc" },
-        take: 50,
-      },
       driveFiles: {
         orderBy: { modifiedTime: "desc" },
         take: 50,
@@ -41,6 +37,58 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
   if (!deal) {
     return notFound();
+  }
+
+  // Fetch emails based on person and organization email addresses
+  const emailAddresses: string[] = [];
+  
+  // Add person email if exists
+  if (deal.person?.email) {
+    emailAddresses.push(deal.person.email.toLowerCase());
+  }
+  
+  // Add organization domain emails if exists
+  if (deal.organization?.domain) {
+    // We'll search for emails containing the domain
+    const domainPattern = `%@${deal.organization.domain}%`;
+    
+    // Get emails that match person email or organization domain
+    const gmailMessages = await prisma.gmailMessage.findMany({
+      where: {
+        OR: [
+          // Emails from the person
+          deal.person?.email ? { from: { contains: deal.person.email, mode: 'insensitive' } } : {},
+          // Emails to the person
+          deal.person?.email ? { to: { contains: deal.person.email, mode: 'insensitive' } } : {},
+          // Emails from organization domain
+          deal.organization?.domain ? { from: { contains: `@${deal.organization.domain}`, mode: 'insensitive' } } : {},
+          // Emails to organization domain
+          deal.organization?.domain ? { to: { contains: `@${deal.organization.domain}`, mode: 'insensitive' } } : {},
+        ].filter(condition => Object.keys(condition).length > 0), // Remove empty conditions
+      },
+      orderBy: { date: "desc" },
+      take: 50,
+    });
+    
+    // Attach to deal object
+    (deal as any).gmailMessages = gmailMessages;
+  } else if (deal.person?.email) {
+    // If no organization domain, just search by person email
+    const gmailMessages = await prisma.gmailMessage.findMany({
+      where: {
+        OR: [
+          { from: { contains: deal.person.email, mode: 'insensitive' } },
+          { to: { contains: deal.person.email, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: { date: "desc" },
+      take: 50,
+    });
+    
+    (deal as any).gmailMessages = gmailMessages;
+  } else {
+    // No email addresses to search, return empty array
+    (deal as any).gmailMessages = [];
   }
 
   // Get data for edit dropdowns
