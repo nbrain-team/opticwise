@@ -1,0 +1,131 @@
+
+████████████████████████████████████████████████████████████████████████████████
+█                                                                              █
+█  PIPEDRIVE DATA IMPORT - OpticWise Platform                                   █
+█                                                                              █
+████████████████████████████████████████████████████████████████████████████████
+
+
+================================================================================
+📊 IMPORTING ORGANIZATIONS
+================================================================================
+
+Total organizations to import: 4859
+
+Progress: 500/4859 organizations imported...
+Progress: 1000/4859 organizations imported...
+Progress: 1500/4859 organizations imported...
+Progress: 2000/4859 organizations imported...
+Progress: 2500/4859 organizations imported...
+Progress: 3000/4859 organizations imported...
+Progress: 3500/4859 organizations imported...
+Progress: 4000/4859 organizations imported...
+Progress: 4500/4859 organizations imported...
+
+✅ Organizations imported: 4859/4859
+❌ Failed: 0
+
+
+================================================================================
+👥 IMPORTING PEOPLE
+================================================================================
+
+Total people to import: 11568
+
+Progress: 1000/11568 people imported...
+Progress: 2000/11568 people imported...
+Progress: 3000/11568 people imported...
+Progress: 4000/11568 people imported...
+Progress: 5000/11568 people imported...
+Progress: 6000/11568 people imported...
+Progress: 7000/11568 people imported...
+Progress: 8000/11568 people imported...
+Progress: 9000/11568 people imported...
+Progress: 10000/11568 people imported...
+Progress: 11000/11568 people imported...
+
+✅ People imported: 11568/11568
+❌ Failed: 0
+
+
+================================================================================
+💼 IMPORTING DEALS
+================================================================================
+
+Total deals to import: 175
+
+Creating pipeline: Sales Pipeline
+Creating 17 unique stages...
+
+Creating stage: MSA Under Review by Prospect (order: 0)
+Creating stage: MQL (order: 1)
+Creating stage: MSA Queue to Issue (order: 2)
+Creating stage: SQL - Sales Qualified Lead (order: 3)
+Creating stage: SAL - Engaged Conversations (order: 4)
+Creating stage: Projects on Hold (order: 5)
+Creating stage: Proposal Issued (order: 6)
+Creating stage: Pre-proposal Docs (order: 7)
+Creating stage: Proposal Requested by Prospect (order: 8)
+Creating stage: Proposal Made (order: 9)
+Creating stage: Negotiations Started (order: 10)
+Creating stage: Contacted (order: 11)
+Creating stage: Discovery & Qualification (order: 12)
+Creating stage: SQL (order: 13)
+Creating stage: DDI Review Proposed (order: 14)
+Creating stage: Solution Defined (order: 15)
+Creating stage: Tenant Identified (order: 16)
+
+Importing deals...
+
+Progress: 50/175 deals imported...
+Progress: 100/175 deals imported...
+Progress: 150/175 deals imported...
+
+✅ Deals imported: 175/175
+❌ Failed: 0
+
+
+================================================================================
+📋 IMPORT SUMMARY REPORT
+================================================================================
+
+ORGANIZATIONS:
+  Total: 4859
+  ✅ Success: 4859
+  ❌ Failed: 0
+  ⏭️  Skipped: 0
+
+PEOPLE:
+  Total: 11568
+  ✅ Success: 11568
+  ❌ Failed: 0
+  ⏭️  Skipped: 0
+
+DEALS:
+  Total: 175
+  ✅ Success: 175
+  ❌ Failed: 0
+  ⏭️  Skipped: 0
+
+OVERALL:
+  Total records: 16602
+  ✅ Successfully imported: 16602
+  ❌ Failed: 0
+  Success rate: 100.00%
+
+
+================================================================================
+🔗 RELATIONSHIP VERIFICATION
+================================================================================
+
+People linked to organizations: 9195/11568
+Deals linked to organizations: 169/175
+Deals linked to people: 153/175
+
+
+████████████████████████████████████████████████████████████████████████████████
+█                                                                              █
+█  ✅ IMPORT COMPLETE!                                                           █
+█                                                                              █
+████████████████████████████████████████████████████████████████████████████████
+

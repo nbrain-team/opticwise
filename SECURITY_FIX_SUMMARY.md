@@ -95,3 +95,4 @@ DATABASE_URL="postgresql://..." npx tsx scripts/update-password-security.ts
 
 Then update the password in the script file and commit changes.
 
+

@@ -637,3 +637,4 @@ Campaign Start → Send Email → Wait 3 Days → Condition (Opened?)
 **Estimated Phase 3 Timeline:** 4-6 weeks
 
 
+
