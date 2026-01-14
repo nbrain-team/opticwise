@@ -240,7 +240,7 @@ export async function POST(request: NextRequest) {
             cc,
             date: date ? new Date(date) : new Date(),
             labels: JSON.stringify(fullMessage.data.labelIds || []),
-            attachments: attachments.length > 0 ? attachments : null,
+            attachments: attachments.length > 0 ? attachments : undefined,
             vectorized: true,
             embedding: `[${embedding.join(',')}]`,
             personId: matchedContact?.id,
