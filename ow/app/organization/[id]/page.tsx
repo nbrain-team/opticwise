@@ -45,7 +45,8 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
   }
 
   // Fetch emails based on organization domain or people's email addresses
-  const emailConditions = [];
+  type EmailCondition = { from: { contains: string; mode: 'insensitive' } } | { to: { contains: string; mode: 'insensitive' } };
+  const emailConditions: EmailCondition[] = [];
   
   // Add organization domain search if available
   if (org.domain) {

@@ -40,7 +40,8 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
   }
 
   // Fetch emails based on person and organization email addresses
-  let gmailMessages = [];
+  type GmailMessage = Awaited<ReturnType<typeof prisma.gmailMessage.findMany>>[number];
+  let gmailMessages: GmailMessage[] = [];
   
   if (deal.organization?.domain) {
     // Get emails that match person email or organization domain
