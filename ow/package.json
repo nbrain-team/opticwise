@@ -14,6 +14,7 @@
     "init:marketing": "tsx scripts/init-marketing-tables.ts",
     "sync:google": "tsx scripts/sync-google-workspace.ts",
     "sync:gmail": "tsx scripts/sync-gmail.ts",
+    "sync:gmail:30days": "tsx scripts/sync-gmail-30days.ts",
     "sync:calendar": "tsx scripts/sync-calendar.ts",
     "sync:drive": "tsx scripts/sync-drive.ts",
     "scrape:sitemap": "tsx scripts/scrape-and-vectorize-sitemap.ts"
