@@ -47,9 +47,9 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
     ? await prisma.gmailMessage.findMany({
         where: {
           OR: [
-            { from: { contains: person.email, mode: 'insensitive' } },
-            { to: { contains: person.email, mode: 'insensitive' } },
-            { cc: { contains: person.email, mode: 'insensitive' } },
+            { from: { contains: person.email, mode: 'insensitive' as const } },
+            { to: { contains: person.email, mode: 'insensitive' as const } },
+            { cc: { contains: person.email, mode: 'insensitive' as const } },
           ],
         },
         orderBy: { date: "desc" },

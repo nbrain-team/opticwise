@@ -49,13 +49,13 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       where: {
         OR: [
           // Emails from the person
-          deal.person?.email ? { from: { contains: deal.person.email, mode: 'insensitive' } } : {},
+          deal.person?.email ? { from: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
           // Emails to the person
-          deal.person?.email ? { to: { contains: deal.person.email, mode: 'insensitive' } } : {},
+          deal.person?.email ? { to: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
           // Emails from organization domain
-          deal.organization?.domain ? { from: { contains: `@${deal.organization.domain}`, mode: 'insensitive' } } : {},
+          deal.organization?.domain ? { from: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
           // Emails to organization domain
-          deal.organization?.domain ? { to: { contains: `@${deal.organization.domain}`, mode: 'insensitive' } } : {},
+          deal.organization?.domain ? { to: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
         ].filter(condition => Object.keys(condition).length > 0), // Remove empty conditions
       },
       orderBy: { date: "desc" },
@@ -66,8 +66,8 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     gmailMessages = await prisma.gmailMessage.findMany({
       where: {
         OR: [
-          { from: { contains: deal.person.email, mode: 'insensitive' } },
-          { to: { contains: deal.person.email, mode: 'insensitive' } },
+          { from: { contains: deal.person.email, mode: 'insensitive' as const } },
+          { to: { contains: deal.person.email, mode: 'insensitive' as const } },
         ],
       },
       orderBy: { date: "desc" },
