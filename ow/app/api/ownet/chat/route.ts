@@ -1,6 +1,7 @@
 /**
- * OWnet Agent - Chat API
- * Simple, working implementation for Next.js serverless
+ * OWnet Agent - Advanced Chat API
+ * Enterprise-grade AI agent with enhanced RAG, query expansion, semantic search,
+ * intelligent context management, and continuous learning capabilities
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -8,6 +9,15 @@ import { Pool } from 'pg';
 import Anthropic from '@anthropic-ai/sdk';
 import { Pinecone } from '@pinecone-database/pinecone';
 import { getSession } from '@/lib/session';
+import {
+  classifyQuery,
+  expandQuery,
+  loadContextWithinBudget,
+  detectDataSourceIntent,
+  checkSemanticCache,
+  saveToSemanticCache,
+  estimateTokens
+} from '@/lib/ai-agent-utils';
 
 // Initialize on first use to avoid build-time errors
 let pool: Pool | null = null;
@@ -43,6 +53,8 @@ function getPinecone() {
 }
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
     const session = await getSession();
     if (!session) {
@@ -59,7 +71,76 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Search transcripts using Pinecone with OpenAI embeddings
+    const db = getPool();
+    const ai = getAnthropic();
+    const openai = new (await import('openai')).default({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+    const pc = getPinecone();
+
+    console.log('[OWnet] Processing query:', message);
+    
+    // Step 1: Check semantic cache for similar recent queries
+    const cachedResponse = await checkSemanticCache(message, db, openai, 0.95);
+    if (cachedResponse) {
+      console.log('[OWnet] Cache hit! Returning cached response');
+      
+      // Still save the user message
+      await db.query(
+        'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3)',
+        [sessionId, 'user', message]
+      );
+      
+      const assistantMsgResult = await db.query(
+        'INSERT INTO "AgentChatMessage" ("sessionId", role, content, sources) VALUES ($1, $2, $3, $4) RETURNING id',
+        [sessionId, 'assistant', cachedResponse.response, JSON.stringify(cachedResponse.sources)]
+      );
+      
+      return NextResponse.json({
+        success: true,
+        response: cachedResponse.response,
+        messageId: assistantMsgResult.rows[0]?.id,
+        sources: cachedResponse.sources,
+        cached: true,
+        responseTime: Date.now() - startTime
+      });
+    }
+    
+    // Step 2: Classify query intent
+    const intent = classifyQuery(message);
+    console.log('[OWnet] Query classification:', intent.type, `(${intent.confidence * 100}% confidence)`);
+    
+    // Step 3: Expand query for better search coverage (for research/deep analysis)
+    let expandedQuery = null;
+    if (intent.requiresDeepSearch) {
+      expandedQuery = await expandQuery(message, openai);
+      console.log('[OWnet] Query expanded with', expandedQuery.variations.length, 'variations');
+    }
+    
+    // Step 4: Detect which data sources are needed
+    const dataSourceIntent = detectDataSourceIntent(message);
+    console.log('[OWnet] Data sources needed:', dataSourceIntent);
+    
+    // Step 5: Load context intelligently within token budget
+    const contextWindow = intent.type === 'deep_analysis' ? 180000 : 
+                          intent.type === 'research' ? 150000 : 100000;
+    
+    const { contexts, totalTokens, budget } = await loadContextWithinBudget(
+      message,
+      db,
+      openai,
+      pc,
+      sessionId,
+      contextWindow
+    );
+    
+    console.log('[OWnet] Loaded context:', {
+      sources: contexts.map(c => c.type),
+      totalTokens,
+      budget
+    });
+
+    // 1. Search transcripts using Pinecone with OpenAI embeddings (ENHANCED)
     console.log('[OWnet] Searching transcripts for:', message);
     
     let transcriptContext = '';
@@ -280,30 +361,27 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 3. Get conversation history
-    const historyResult = await db.query<{ role: string; content: string }>(
-      'SELECT role, content FROM "AgentChatMessage" WHERE "sessionId" = $1 ORDER BY "createdAt" DESC LIMIT 10',
-      [sessionId]
-    );
-    const history = historyResult.rows.reverse();
-
-    // Detect if this is a deep analysis request
-    const deepAnalysisKeywords = [
-      'deep dive',
-      'deep analysis',
-      'detailed analysis',
-      'comprehensive analysis',
-      'in-depth',
-      'thorough analysis',
-      'detailed report',
-      'comprehensive report',
-      'activity report',
-      'full analysis',
-    ];
+    // 3. Get conversation history (ENHANCED - already loaded in contexts)
+    const historyContext = contexts.find(c => c.type === 'chat_history');
+    const history: Array<{ role: string; content: string }> = [];
     
-    const isDeepAnalysis = deepAnalysisKeywords.some(keyword => 
-      message.toLowerCase().includes(keyword)
-    );
+    if (historyContext) {
+      // Parse history from context
+      const historyMessages = historyContext.content.split('\n\n');
+      for (const msg of historyMessages) {
+        const [role, ...contentParts] = msg.split(': ');
+        if (role && contentParts.length > 0) {
+          history.push({
+            role: role as 'user' | 'assistant',
+            content: contentParts.join(': ')
+          });
+        }
+      }
+    }
+
+    // Use intent classification instead of keyword matching
+    const isDeepAnalysis = intent.type === 'deep_analysis';
+    const isResearch = intent.type === 'research';
 
     // 4. Build context-aware prompt
     const baseSystemPrompt = `You are OWnet, a knowledgeable sales assistant who has deep familiarity with the Opticwise business. You speak naturally and conversationally, like a trusted colleague who's been working alongside the team for years.`;
@@ -393,7 +471,7 @@ I have analyzed your pipeline and identified the following opportunities based o
 
 **Remember:** You're a colleague who happens to know everything about the business, not an AI assistant reporting findings. Talk naturally!`;
 
-    // 4. Call Claude
+    // 4. Call Claude with enhanced parameters
     const messages: Anthropic.MessageParam[] = [
       ...history.map((h) => ({
         role: h.role as 'user' | 'assistant',
@@ -401,14 +479,12 @@ I have analyzed your pipeline and identified the following opportunities based o
       })),
       { role: 'user', content: message },
     ];
-
-    const ai = getAnthropic();
     
-    // Adjust parameters based on analysis depth
-    const maxTokens = isDeepAnalysis ? 8000 : 4096;
-    const temperature = isDeepAnalysis ? 0.8 : 0.7;
+    // Use intelligent token allocation based on intent
+    const maxTokens = intent.suggestedMaxTokens;
+    const temperature = intent.suggestedTemperature;
     
-    console.log(`[OWnet] Analysis mode: ${isDeepAnalysis ? 'DEEP ANALYSIS' : 'standard'} (${maxTokens} tokens)`);
+    console.log(`[OWnet] Mode: ${intent.type} | Max tokens: ${maxTokens} | Temperature: ${temperature} | Context: ${totalTokens} tokens`);
     
     const response = await ai.messages.create({
       model: 'claude-sonnet-4-20250514',
@@ -484,20 +560,62 @@ AI response summary: ${responseText.slice(0, 300)}`;
     }
 
     // Determine sources used
-    const sources = [];
-    if (transcriptContext) sources.push('transcripts');
-    if (googleContext) {
-      if (needsEmail) sources.push('gmail');
-      if (needsCalendar) sources.push('calendar');
-      if (needsDrive) sources.push('drive');
+    const sources = contexts.map(c => c.type);
+    const sourcesMetadata = {
+      sources: contexts.map(c => ({
+        type: c.type,
+        tokenCount: c.tokenCount,
+        itemCount: c.metadata
+      })),
+      totalContextTokens: totalTokens,
+      queryClassification: intent.type,
+      confidence: intent.confidence
+    };
+    
+    // Save to cache for future similar queries
+    await saveToSemanticCache(message, responseText, sourcesMetadata, db, openai, 24);
+    
+    // Track query analytics
+    const tokensUsed = estimateTokens(message) + estimateTokens(responseText) + totalTokens;
+    const responseTime = Date.now() - startTime;
+    
+    try {
+      await db.query(
+        `INSERT INTO "QueryAnalytics" 
+         ("sessionId", query, "queryType", "sourcesUsed", "sourcesCount", 
+          "responseLength", "responseTime", "tokensUsed", model, temperature, 
+          "maxTokens", "contextWindowUsed")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        [
+          sessionId,
+          message,
+          intent.type,
+          JSON.stringify(sourcesMetadata.sources),
+          sources.length,
+          responseText.length,
+          responseTime,
+          tokensUsed,
+          'claude-sonnet-4-20250514',
+          temperature,
+          maxTokens,
+          totalTokens
+        ]
+      );
+    } catch (error) {
+      console.error('[OWnet] Error saving analytics:', error);
     }
-    if (crmContext) sources.push('crm');
     
     return NextResponse.json({
       success: true,
       response: responseText,
       messageId: assistantMessageId,
-      sources,
+      sources: sourcesMetadata,
+      performance: {
+        responseTime,
+        tokensUsed,
+        contextTokens: totalTokens,
+        queryType: intent.type
+      }
     });
 
   } catch (error) {
