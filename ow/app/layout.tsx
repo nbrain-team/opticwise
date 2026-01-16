@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
+import { logout } from "./actions/auth";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -50,11 +51,11 @@ export default function RootLayout({
                 OWnet Agent
               </Link>
             </nav>
-            <form className="ml-auto" action={async () => {
-              "use server";
-              await fetch(`${process.env.NEXT_PUBLIC_BASE_URL ?? ""}/api/auth/logout`, { method: "POST" });
-            }}>
-              <button className="text-sm border border-gray-300 rounded-full px-4 py-1.5 bg-white hover:bg-gray-50 transition-colors">
+            <form className="ml-auto" action={logout}>
+              <button 
+                type="submit"
+                className="text-sm border border-gray-300 rounded-full px-4 py-1.5 bg-white hover:bg-gray-50 transition-colors"
+              >
                 Logout
               </button>
             </form>
