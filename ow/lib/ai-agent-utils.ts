@@ -196,7 +196,7 @@ Return as JSON:
 export interface ContextSource {
   type: 'transcript' | 'email' | 'calendar' | 'drive' | 'crm' | 'chat_history';
   content: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
   relevanceScore?: number;
   tokenCount: number;
 }
@@ -416,12 +416,8 @@ export async function searchChatHistory(
   topK: number = 5
 ): Promise<Array<{ content: string; role: string; createdAt: Date; relevance: number }>> {
   try {
-    // Generate embedding for query
-    const embedding = await openai.embeddings.create({
-      model: 'text-embedding-3-large',
-      input: query,
-      dimensions: 1024
-    });
+    // Note: Full semantic search over chat history requires embedding column
+    // For now, using text search as placeholder
     
     // Search past messages in this session
     // Note: This requires adding embedding column to AgentChatMessage
@@ -457,7 +453,7 @@ export interface RankedResult {
   content: string;
   originalScore: number;
   rerankedScore: number;
-  metadata: any;
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -466,7 +462,7 @@ export interface RankedResult {
  */
 export async function rerankResults(
   query: string,
-  results: Array<{ content: string; score: number; metadata: any }>,
+  results: Array<{ content: string; score: number; metadata: Record<string, unknown> }>,
   openai: OpenAI,
   topK: number = 10
 ): Promise<RankedResult[]> {
@@ -562,7 +558,7 @@ export async function checkSemanticCache(
   db: Pool,
   openai: OpenAI,
   similarityThreshold: number = 0.95
-): Promise<{ response: string; sources: any } | null> {
+): Promise<{ response: string; sources: Record<string, unknown> } | null> {
   try {
     const embedding = await openai.embeddings.create({
       model: 'text-embedding-3-large',
@@ -607,7 +603,7 @@ export async function checkSemanticCache(
 export async function saveToSemanticCache(
   query: string,
   response: string,
-  sources: any,
+  sources: Record<string, unknown>,
   db: Pool,
   openai: OpenAI,
   ttlHours: number = 24

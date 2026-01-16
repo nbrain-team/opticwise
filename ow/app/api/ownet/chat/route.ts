@@ -377,7 +377,6 @@ export async function POST(request: NextRequest) {
 
     // Use intent classification instead of keyword matching
     const isDeepAnalysis = intent.type === 'deep_analysis';
-    const isResearch = intent.type === 'research';
 
     // 4. Build context-aware prompt
     const baseSystemPrompt = `You are OWnet, a knowledgeable sales assistant who has deep familiarity with the Opticwise business. You speak naturally and conversationally, like a trusted colleague who's been working alongside the team for years.`;
