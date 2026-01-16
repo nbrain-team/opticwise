@@ -209,7 +209,6 @@ export async function POST(request: NextRequest) {
         
         // Search Gmail if needed
         if (needsEmail) {
-          const db = getPool();
           const emailResults = await db.query(
             `SELECT id, subject, "from", "to", snippet, date, body
              FROM "GmailMessage"
@@ -232,7 +231,6 @@ export async function POST(request: NextRequest) {
         
         // Search Calendar if needed
         if (needsCalendar) {
-          const db = getPool();
           const calendarResults = await db.query(
             `SELECT id, summary, description, "startTime", "endTime", organizer, location, attendees
              FROM "CalendarEvent"
@@ -260,7 +258,6 @@ export async function POST(request: NextRequest) {
         
         // Search Drive if needed
         if (needsDrive) {
-          const db = getPool();
           const driveResults = await db.query(
             `SELECT id, name, "mimeType", description, content, "webViewLink", "modifiedTime"
              FROM "DriveFile"
@@ -288,7 +285,6 @@ export async function POST(request: NextRequest) {
     }
     
     // 3. Query CRM data based on user's question
-    const db = getPool();
     let crmContext = '';
     
     if (messageLower.includes('deal') || messageLower.includes('close') || messageLower.includes('pipeline') || messageLower.includes('opportunity')) {
