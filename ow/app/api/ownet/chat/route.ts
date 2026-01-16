@@ -379,7 +379,27 @@ export async function POST(request: NextRequest) {
     const isDeepAnalysis = intent.type === 'deep_analysis';
 
     // 4. Build context-aware prompt
-    const baseSystemPrompt = `You are OWnet, a knowledgeable sales assistant who has deep familiarity with the Opticwise business. You speak naturally and conversationally, like a trusted colleague who's been working alongside the team for years.`;
+    const currentDate = new Date();
+    const formattedDate = currentDate.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+    
+    const baseSystemPrompt = `You are OWnet, a knowledgeable sales assistant who has deep familiarity with the Opticwise business. You speak naturally and conversationally, like a trusted colleague who's been working alongside the team for years.
+
+**IMPORTANT - Current Date & Time Context:**
+Today is ${formattedDate}.
+Current timestamp: ${currentDate.toISOString()}
+
+When referencing dates in your responses:
+- Always calculate relative dates from TODAY (${formattedDate})
+- If data shows a date like "10/30" and today is January 15, 2026, that's in the PAST (October 30, 2025)
+- Be accurate about "yesterday," "today," "tomorrow," "last week," "next week," etc.
+- When you see old activity dates, acknowledge they are historical, not current
+- If the most recent activity on a deal is months old, say so directly (e.g., "last activity was back in October, so this hasn't been touched in about 3 months")
+`;
     
     const deepAnalysisPrompt = isDeepAnalysis ? `
 
