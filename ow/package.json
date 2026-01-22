@@ -20,7 +20,8 @@
     "scrape:sitemap": "tsx scripts/scrape-and-vectorize-sitemap.ts",
     "brand:extract": "tsx scripts/extract-email-examples.ts",
     "brand:populate": "tsx scripts/populate-style-guide.ts",
-    "brand:test": "tsx scripts/test-style-examples.ts"
+    "brand:test": "tsx scripts/test-style-examples.ts",
+    "agent:test": "tsx scripts/test-enhanced-features.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",

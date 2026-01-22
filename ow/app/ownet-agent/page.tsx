@@ -8,6 +8,8 @@ interface Message {
   content: string
   sources?: string[]
   messageId?: string
+  plan?: any
+  feedback?: { rating: number; comment?: string }
 }
 
 interface Session {
@@ -272,6 +274,18 @@ export default function OWnetAgentPage() {
                     }
                     return newMessages
                   })
+                } else if (data.type === 'plan') {
+                  // Show execution plan
+                  const planText = `**Execution Plan:**\n\n${data.plan.understanding}\n\n**Steps:**\n${data.plan.steps.map((s: any, i: number) => `${i + 1}. ${s.tool} - ${s.reason}`).join('\n')}\n\n*Estimated time: ${data.plan.estimated_time}*\n\n---\n\n`
+                  setMessages(prev => {
+                    const newMessages = [...prev]
+                    newMessages[assistantIndex] = {
+                      role: 'assistant',
+                      content: planText,
+                      plan: data.plan
+                    }
+                    return newMessages
+                  })
                 } else if (data.type === 'content') {
                   // Append content as it streams in
                   fullResponse += data.text
@@ -475,9 +489,72 @@ export default function OWnetAgentPage() {
                 }`}
               >
                 {msg.role === 'assistant' ? (
-                  <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown>{msg.content}</ReactMarkdown>
-                  </div>
+                  <>
+                    <div className="prose prose-sm max-w-none">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                    
+                    {/* Feedback buttons */}
+                    {msg.messageId && !msg.feedback && (
+                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                        <span className="text-xs text-gray-500">Was this helpful?</span>
+                        <button
+                          onClick={async () => {
+                            await fetch('/api/ownet/feedback', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                messageId: msg.messageId,
+                                rating: 5,
+                                category: 'helpful',
+                              }),
+                            });
+                            setMessages(prev => {
+                              const newMessages = [...prev];
+                              newMessages[idx] = { ...msg, feedback: { rating: 5 } };
+                              return newMessages;
+                            });
+                          }}
+                          className="p-1.5 rounded hover:bg-green-50 transition-colors"
+                          title="Thumbs up"
+                        >
+                          <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                          </svg>
+                        </button>
+                        <button
+                          onClick={async () => {
+                            await fetch('/api/ownet/feedback', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                messageId: msg.messageId,
+                                rating: 1,
+                                category: 'not_helpful',
+                              }),
+                            });
+                            setMessages(prev => {
+                              const newMessages = [...prev];
+                              newMessages[idx] = { ...msg, feedback: { rating: 1 } };
+                              return newMessages;
+                            });
+                          }}
+                          className="p-1.5 rounded hover:bg-red-50 transition-colors"
+                          title="Thumbs down"
+                        >
+                          <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
+                          </svg>
+                        </button>
+                      </div>
+                    )}
+                    
+                    {msg.feedback && (
+                      <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
+                        ✓ Feedback received
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <p className="text-sm">{msg.content}</p>
                 )}
