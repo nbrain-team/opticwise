@@ -937,6 +937,82 @@ section {
 }
 
 /* ===================================
+   THE INFINITE GAME SECTION
+   =================================== */
+
+.infinite-game-section {
+    background: linear-gradient(135deg, #0A1628 0%, #1E4E8C 100%);
+    padding: var(--spacing-5xl) 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.infinite-game-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 80px 80px;
+    opacity: 0.4;
+    z-index: 1;
+}
+
+.infinite-game-card {
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+    padding: var(--spacing-4xl) var(--spacing-3xl);
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-2xl);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    position: relative;
+    z-index: 2;
+}
+
+.infinite-game-title {
+    font-size: var(--font-size-3xl);
+    font-weight: 700;
+    color: var(--color-white);
+    margin-bottom: var(--spacing-2xl);
+    letter-spacing: -0.01em;
+}
+
+.infinite-game-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.infinite-game-text {
+    font-size: var(--font-size-xl);
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.8;
+    margin-bottom: var(--spacing-lg);
+}
+
+.infinite-game-tagline {
+    font-size: var(--font-size-xl);
+    color: var(--color-white);
+    margin-top: var(--spacing-2xl);
+    padding-top: var(--spacing-xl);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    line-height: 1.7;
+}
+
+.infinite-game-tagline strong {
+    font-weight: 700;
+    background: linear-gradient(135deg, #00D4FF 0%, #10B981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ===================================
    TESTIMONIAL SECTION
    =================================== */
 

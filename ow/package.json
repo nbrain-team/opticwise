@@ -17,7 +17,10 @@
     "sync:gmail:30days": "tsx scripts/sync-gmail-30days.ts",
     "sync:calendar": "tsx scripts/sync-calendar.ts",
     "sync:drive": "tsx scripts/sync-drive.ts",
-    "scrape:sitemap": "tsx scripts/scrape-and-vectorize-sitemap.ts"
+    "scrape:sitemap": "tsx scripts/scrape-and-vectorize-sitemap.ts",
+    "brand:extract": "tsx scripts/extract-email-examples.ts",
+    "brand:populate": "tsx scripts/populate-style-guide.ts",
+    "brand:test": "tsx scripts/test-style-examples.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.71.0",

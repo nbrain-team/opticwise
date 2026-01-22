@@ -1,4 +1,6 @@
 *.csv
+AGENT-EVALUATION-QUESTIONS-*.csv
 .playwright-mcp/
 OpticWise-Integration-OAuth/
 ow/google-service-account.json
+Opticwise-Backend (1).env

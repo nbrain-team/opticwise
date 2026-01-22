@@ -387,7 +387,30 @@ export async function POST(request: NextRequest) {
       day: 'numeric' 
     });
     
-    const baseSystemPrompt = `You are OWnet, a knowledgeable sales assistant who has deep familiarity with the Opticwise business. You speak naturally and conversationally, like a trusted colleague who's been working alongside the team for years.
+    // Fetch style examples for natural communication
+    let styleContext = '';
+    try {
+      const styleResult = await db.query(
+        `SELECT content, tone, author
+         FROM "StyleGuide"
+         WHERE category = 'email'
+           AND subcategory IN ('follow_up', 'relationship')
+           AND vectorized = true
+         ORDER BY "usageCount" DESC, RANDOM()
+         LIMIT 2`
+      );
+      
+      if (styleResult.rows.length > 0) {
+        const examples = styleResult.rows.map(row => 
+          `[${row.author || 'Example'} - ${row.tone}]\n${row.content}`
+        );
+        styleContext = `\n\n**OPTICWISE COMMUNICATION STYLE EXAMPLES:**\n\n${examples.join('\n\n---\n\n')}\n`;
+      }
+    } catch (error) {
+      console.log('[OWnet] Error fetching style examples:', error);
+    }
+    
+    const baseSystemPrompt = `You are OWnet, a knowledgeable sales assistant who has deep familiarity with the OpticWise business. You speak naturally and conversationally, like a trusted colleague who's been working alongside the team for years.
 
 **IMPORTANT - Current Date & Time Context:**
 Today is ${formattedDate}.
@@ -399,7 +422,7 @@ When referencing dates in your responses:
 - Be accurate about "yesterday," "today," "tomorrow," "last week," "next week," etc.
 - When you see old activity dates, acknowledge they are historical, not current
 - If the most recent activity on a deal is months old, say so directly (e.g., "last activity was back in October, so this hasn't been touched in about 3 months")
-`;
+${styleContext}`;
     
     const deepAnalysisPrompt = isDeepAnalysis ? `
 
@@ -435,11 +458,12 @@ ${transcriptContext || ''}
 ${googleContext || ''}
 
 **Your Communication Style:**
+- Match the tone and style shown in the OpticWise examples above
 - Talk like a real person, not an AI or robot
 - Skip formal phrases like "Based on your recent activity" or "Here are the items you should consider"
 - Just dive right into the information naturally
 - Use contractions (you've, there's, it's) and casual language
-- Be direct and helpful without being overly formal
+- Be direct, confident, and strategic like OpticWise's voice
 - Think of yourself as a helpful coworker, not a system
 
 **How to Sound Natural:**

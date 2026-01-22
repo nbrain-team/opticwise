@@ -2,9 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from 'openai';
+import { Pool } from 'pg';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
 
 /**
  * POST /api/sales-inbox/ai-reply
@@ -107,39 +112,100 @@ ${thread.person.deals && thread.person.deals.length > 0 ? `Open Deals: ${thread.
 `.trim();
     }
     
+    // Determine email subcategory based on thread context
+    let styleSubcategory = 'follow_up'; // Default
+    
+    if (thread.messages.length === 1) {
+      styleSubcategory = 'cold_outreach';
+    } else if (thread.deal) {
+      const dealStage = thread.deal.stage?.name?.toLowerCase() || '';
+      if (dealStage.includes('proposal') || dealStage.includes('pricing')) {
+        styleSubcategory = 'proposal';
+      } else if (dealStage.includes('technical') || dealStage.includes('implementation')) {
+        styleSubcategory = 'technical';
+      }
+    }
+    
+    // Fetch style examples from StyleGuide
+    let styleExamples: string[] = [];
+    try {
+      const styleResult = await pool.query(
+        `SELECT content, tone, author
+         FROM "StyleGuide"
+         WHERE category = 'email'
+           AND subcategory = $1
+           AND vectorized = true
+         ORDER BY "usageCount" DESC, RANDOM()
+         LIMIT 3`,
+        [styleSubcategory]
+      );
+      
+      styleExamples = styleResult.rows.map(row => 
+        `[${row.author || 'Example'} - ${row.tone}]\n${row.content}`
+      );
+      
+      // Track usage
+      if (styleResult.rows.length > 0) {
+        const ids = styleResult.rows.map((r: any) => r.id).filter(Boolean);
+        if (ids.length > 0) {
+          await pool.query(
+            `UPDATE "StyleGuide" 
+             SET "usageCount" = "usageCount" + 1
+             WHERE id = ANY($1)`,
+            [ids]
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching style examples:', error);
+    }
+    
     // Generate AI reply using latest OpenAI model
     const completion = await openai.chat.completions.create({
       model: 'gpt-4o', // Latest GPT-4o model (or use 'o1-preview' if available)
       messages: [
         {
           role: 'system',
-          content: `You are Bill from OpticWise, responding to a client email. 
+          content: `You are Bill from OpticWise, responding to a client email.
 
+${styleExamples.length > 0 ? `
+**BILL'S ACTUAL EMAIL EXAMPLES - MATCH THIS STYLE:**
+
+${styleExamples.join('\n\n---\n\n')}
+
+**INSTRUCTIONS:**
+1. Study the examples above carefully
+2. Match Bill's tone, structure, and language patterns
+3. Use similar sentence lengths and paragraph breaks
+4. Adopt the same level of directness and warmth
+5. Mirror the opening and closing styles
+6. Use similar vocabulary and phrasing
+7. Avoid robotic phrases like "Based on my knowledge" or "I hope this email finds you well"
+8. Be direct, confident, and strategic like the examples
+` : `
 BILL'S WRITING STYLE & TONE:
 - Professional but warm and personable
 - Direct and to-the-point, no fluff
 - Uses short paragraphs for readability
-- Confident and knowledgeable about data, AI, and business strategy
-- Focuses on practical solutions and ROI
-- Often references specific examples and case studies
+- Confident and knowledgeable about digital infrastructure and business strategy
+- Focuses on ownership, control, and long-term value
+- Often references specific examples
 - Ends with clear next steps or calls to action
 - Signs emails simply as "Bill"
+`}
 
 CONTEXT ABOUT THIS CONTACT:
 ${contactContext}
 
 ${transcriptContext ? `RELEVANT INFORMATION FROM PAST CALLS:\n${transcriptContext}` : ''}
 
-INSTRUCTIONS:
-1. Read the email conversation carefully
-2. Craft a response that sounds like Bill
-3. Be helpful, specific, and actionable
-4. Reference relevant context from past calls if applicable
-5. Keep it concise but thorough
-6. Include a clear next step
-7. Do NOT include a subject line
-8. Do NOT include "Dear [Name]" - start directly with the content
-9. End with just "Bill" (no last name, no signature block)`,
+CRITICAL RULES:
+1. Do NOT include a subject line
+2. Do NOT include "Dear [Name]" - start directly with content
+3. End with just "Bill" (no last name, no signature block)
+4. Keep it concise but thorough
+5. Include a clear next step
+6. Match the style examples if provided`,
         },
         ...conversationHistory,
       ],
