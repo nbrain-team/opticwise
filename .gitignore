@@ -4,3 +4,10 @@ AGENT-EVALUATION-QUESTIONS-*.csv
 OpticWise-Integration-OAuth/
 ow/google-service-account.json
 Opticwise-Backend (1).env
+
+# Large files
+ow/fathom-meetings-export.json
+*.xlsx
+**/hero-catalyst.jpg
+ow/vectorization-all-drives.log
+ow/style-examples-review/
