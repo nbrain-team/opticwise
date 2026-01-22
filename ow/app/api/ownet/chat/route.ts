@@ -525,136 +525,217 @@ I have analyzed your pipeline and identified the following opportunities based o
     
     console.log(`[OWnet] Mode: ${intent.type} | Max tokens: ${maxTokens} | Temperature: ${temperature} | Context: ${totalTokens} tokens`);
     
-    const response = await ai.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: maxTokens,
-      temperature: temperature,
-      system: systemPrompt,
-      messages,
-    });
+    // Create streaming response
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          // Send progress indicator: Starting analysis
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            type: 'progress',
+            message: '🔍 Analyzing your query...'
+          })}\n\n`));
+          
+          // Small delay for UX (let user see the progress)
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          // Send progress indicator: Searching transcripts
+          if (transcriptContext) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              type: 'progress',
+              message: '🎙️ Searching meeting transcripts...'
+            })}\n\n`));
+            await new Promise(resolve => setTimeout(resolve, 200));
+          }
+          
+          // Send progress indicator: Searching CRM
+          if (crmContext) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              type: 'progress',
+              message: '📇 Searching CRM data...'
+            })}\n\n`));
+            await new Promise(resolve => setTimeout(resolve, 200));
+          }
+          
+          // Send progress indicator: Searching Google Workspace
+          if (googleContext) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              type: 'progress',
+              message: '📧 Searching emails and documents...'
+            })}\n\n`));
+            await new Promise(resolve => setTimeout(resolve, 200));
+          }
+          
+          // Send progress indicator: Context loaded
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            type: 'progress',
+            message: `📊 Loaded ${contexts.length} data sources • ${totalTokens.toLocaleString()} tokens`
+          })}\n\n`));
+          
+          await new Promise(resolve => setTimeout(resolve, 300));
+          
+          // Send progress indicator: Generating response
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            type: 'progress',
+            message: '✨ Generating response...'
+          })}\n\n`));
+          
+          // Stream the actual response from Claude
+          const claudeStream = await ai.messages.stream({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: maxTokens,
+            temperature: temperature,
+            system: systemPrompt,
+            messages,
+          });
+          
+          let fullResponse = '';
+          
+          for await (const chunk of claudeStream) {
+            if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
+              const text = chunk.delta.text;
+              fullResponse += text;
+              
+              // Stream content to user
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+                type: 'content',
+                text: text
+              })}\n\n`));
+            }
+          }
+          
+          // Save messages to database
+          await db.query(
+            'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3)',
+            [sessionId, 'user', message]
+          );
 
-    const responseText = response.content[0].type === 'text' 
-      ? response.content[0].text 
-      : '';
-
-    // 5. Save messages to database
-    await db.query(
-      'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3)',
-      [sessionId, 'user', message]
-    );
-
-    const assistantMsgResult = await db.query(
-      'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3) RETURNING id',
-      [sessionId, 'assistant', responseText]
-    );
-    
-    const assistantMessageId = assistantMsgResult.rows[0]?.id;
-
-    // 6. Update session timestamp and potentially generate title
-    // Check if this is the first message in the session (title generation)
-    const messageCountResult = await db.query(
-      'SELECT COUNT(*) as count, title FROM "AgentChatSession" WHERE id = $1 GROUP BY id, title',
-      [sessionId]
-    );
-    
-    const sessionData = messageCountResult.rows[0];
-    const isFirstResponse = sessionData?.title === 'New Chat';
-    
-    if (isFirstResponse) {
-      // Generate a descriptive title from the conversation
-      try {
-        const titlePrompt = `Based on this conversation, generate a short, descriptive title (max 6 words) that captures the main topic. Return ONLY the title, nothing else.
+          const assistantMsgResult = await db.query(
+            'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3) RETURNING id',
+            [sessionId, 'assistant', fullResponse]
+          );
+          
+          const assistantMessageId = assistantMsgResult.rows[0]?.id;
+          
+          // Update session timestamp and title if needed
+          const messageCountResult = await db.query(
+            'SELECT COUNT(*) as count, title FROM "AgentChatSession" WHERE id = $1 GROUP BY id, title',
+            [sessionId]
+          );
+          
+          const sessionData = messageCountResult.rows[0];
+          const isFirstResponse = sessionData?.title === 'New Chat';
+          
+          if (isFirstResponse) {
+            try {
+              const titlePrompt = `Based on this conversation, generate a short, descriptive title (max 6 words) that captures the main topic. Return ONLY the title, nothing else.
 
 User question: ${message}
 
-AI response summary: ${responseText.slice(0, 300)}`;
+AI response summary: ${fullResponse.slice(0, 300)}`;
 
-        const titleResponse = await ai.messages.create({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 50,
-          temperature: 0.3,
-          messages: [{ role: 'user', content: titlePrompt }],
-        });
+              const titleResponse = await ai.messages.create({
+                model: 'claude-sonnet-4-20250514',
+                max_tokens: 50,
+                temperature: 0.3,
+                messages: [{ role: 'user', content: titlePrompt }],
+              });
 
-        const generatedTitle = titleResponse.content[0].type === 'text' 
-          ? titleResponse.content[0].text.replace(/["']/g, '').trim()
-          : 'Chat';
+              const generatedTitle = titleResponse.content[0].type === 'text' 
+                ? titleResponse.content[0].text.replace(/["']/g, '').trim()
+                : 'Chat';
 
-        await db.query(
-          'UPDATE "AgentChatSession" SET "updatedAt" = NOW(), title = $2 WHERE id = $1',
-          [sessionId, generatedTitle.slice(0, 100)]
-        );
-      } catch (titleError) {
-        console.log('[OWnet] Title generation error:', titleError);
-        await db.query(
-          'UPDATE "AgentChatSession" SET "updatedAt" = NOW() WHERE id = $1',
-          [sessionId]
-        );
+              await db.query(
+                'UPDATE "AgentChatSession" SET "updatedAt" = NOW(), title = $2 WHERE id = $1',
+                [sessionId, generatedTitle.slice(0, 100)]
+              );
+            } catch (titleError) {
+              console.log('[OWnet] Title generation error:', titleError);
+              await db.query(
+                'UPDATE "AgentChatSession" SET "updatedAt" = NOW() WHERE id = $1',
+                [sessionId]
+              );
+            }
+          } else {
+            await db.query(
+              'UPDATE "AgentChatSession" SET "updatedAt" = NOW() WHERE id = $1',
+              [sessionId]
+            );
+          }
+          
+          // Send completion message with metadata
+          const sourcesMetadata = {
+            sources: contexts.map(c => ({
+              type: c.type,
+              tokenCount: c.tokenCount,
+              itemCount: c.metadata
+            })),
+            totalContextTokens: totalTokens,
+            queryClassification: intent.type,
+            confidence: intent.confidence
+          };
+          
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            type: 'complete',
+            messageId: assistantMessageId,
+            sources: sourcesMetadata,
+            performance: {
+              responseTime: Date.now() - startTime,
+              tokensUsed: estimateTokens(message) + estimateTokens(fullResponse) + totalTokens,
+              contextTokens: totalTokens,
+              queryType: intent.type
+            }
+          })}\n\n`));
+          
+          // Save to cache
+          await saveToSemanticCache(message, fullResponse, sourcesMetadata, db, openai, 24);
+          
+          // Track analytics
+          try {
+            await db.query(
+              `INSERT INTO "QueryAnalytics" 
+               ("sessionId", query, "queryType", "sourcesUsed", "sourcesCount", 
+                "responseLength", "responseTime", "tokensUsed", model, temperature, 
+                "maxTokens", "contextWindowUsed")
+               VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+              [
+                sessionId,
+                message,
+                intent.type,
+                JSON.stringify(sourcesMetadata.sources),
+                contexts.length,
+                fullResponse.length,
+                Date.now() - startTime,
+                estimateTokens(message) + estimateTokens(fullResponse) + totalTokens,
+                'claude-sonnet-4-20250514',
+                temperature,
+                maxTokens,
+                totalTokens
+              ]
+            );
+          } catch (error) {
+            console.error('[OWnet] Error saving analytics:', error);
+          }
+          
+          controller.close();
+        } catch (error) {
+          console.error('[OWnet] Streaming error:', error);
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            type: 'error',
+            error: 'Failed to process message',
+            details: error instanceof Error ? error.message : 'Unknown error'
+          })}\n\n`));
+          controller.close();
+        }
       }
-    } else {
-      await db.query(
-        'UPDATE "AgentChatSession" SET "updatedAt" = NOW() WHERE id = $1',
-        [sessionId]
-      );
-    }
-
-    // Determine sources used
-    const sources = contexts.map(c => c.type);
-    const sourcesMetadata = {
-      sources: contexts.map(c => ({
-        type: c.type,
-        tokenCount: c.tokenCount,
-        itemCount: c.metadata
-      })),
-      totalContextTokens: totalTokens,
-      queryClassification: intent.type,
-      confidence: intent.confidence
-    };
+    });
     
-    // Save to cache for future similar queries
-    await saveToSemanticCache(message, responseText, sourcesMetadata, db, openai, 24);
-    
-    // Track query analytics
-    const tokensUsed = estimateTokens(message) + estimateTokens(responseText) + totalTokens;
-    const responseTime = Date.now() - startTime;
-    
-    try {
-      await db.query(
-        `INSERT INTO "QueryAnalytics" 
-         ("sessionId", query, "queryType", "sourcesUsed", "sourcesCount", 
-          "responseLength", "responseTime", "tokensUsed", model, temperature, 
-          "maxTokens", "contextWindowUsed")
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-        [
-          sessionId,
-          message,
-          intent.type,
-          JSON.stringify(sourcesMetadata.sources),
-          sources.length,
-          responseText.length,
-          responseTime,
-          tokensUsed,
-          'claude-sonnet-4-20250514',
-          temperature,
-          maxTokens,
-          totalTokens
-        ]
-      );
-    } catch (error) {
-      console.error('[OWnet] Error saving analytics:', error);
-    }
-    
-    return NextResponse.json({
-      success: true,
-      response: responseText,
-      messageId: assistantMessageId,
-      sources: sourcesMetadata,
-      performance: {
-        responseTime,
-        tokensUsed,
-        contextTokens: totalTokens,
-        queryType: intent.type
-      }
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
     });
 
   } catch (error) {

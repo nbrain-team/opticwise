@@ -221,6 +221,10 @@ export default function OWnetAgentPage() {
     // Add user message to UI immediately
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
 
+    // Add placeholder for assistant response
+    const assistantIndex = messages.length + 1
+    setMessages(prev => [...prev, { role: 'assistant', content: '' }])
+
     try {
       const res = await fetch('/api/ownet/chat', {
         method: 'POST',
@@ -231,31 +235,92 @@ export default function OWnetAgentPage() {
         }),
       })
 
-      const data = await res.json()
-      
-      if (data.success) {
-        setMessages(prev => [
-          ...prev,
-          { 
-            role: 'assistant', 
-            content: data.response,
-            sources: data.sources,
-            messageId: data.messageId,
+      if (!res.ok) {
+        throw new Error('Network response was not ok')
+      }
+
+      // Handle streaming response
+      const reader = res.body?.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let fullResponse = ''
+      let messageId = ''
+      let sources: any = null
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read()
+          
+          if (done) break
+
+          buffer += decoder.decode(value, { stream: true })
+          const lines = buffer.split('\n\n')
+          buffer = lines.pop() || ''
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6))
+                
+                if (data.type === 'progress') {
+                  // Update assistant message with progress indicator
+                  setMessages(prev => {
+                    const newMessages = [...prev]
+                    newMessages[assistantIndex] = {
+                      role: 'assistant',
+                      content: `*${data.message}*`
+                    }
+                    return newMessages
+                  })
+                } else if (data.type === 'content') {
+                  // Append content as it streams in
+                  fullResponse += data.text
+                  setMessages(prev => {
+                    const newMessages = [...prev]
+                    newMessages[assistantIndex] = {
+                      role: 'assistant',
+                      content: fullResponse
+                    }
+                    return newMessages
+                  })
+                } else if (data.type === 'complete') {
+                  // Store metadata
+                  messageId = data.messageId
+                  sources = data.sources
+                  
+                  // Update final message with metadata
+                  setMessages(prev => {
+                    const newMessages = [...prev]
+                    newMessages[assistantIndex] = {
+                      role: 'assistant',
+                      content: fullResponse,
+                      sources: sources,
+                      messageId: messageId
+                    }
+                    return newMessages
+                  })
+                  
+                  loadSessions() // Refresh session list
+                } else if (data.type === 'error') {
+                  throw new Error(data.details || data.error)
+                }
+              } catch (parseError) {
+                console.error('Error parsing SSE data:', parseError)
+              }
+            }
           }
-        ])
-        loadSessions() // Refresh session list to update timestamps and titles
-      } else {
-        setMessages(prev => [
-          ...prev,
-          { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }
-        ])
+        }
       }
     } catch (error) {
       console.error('Error sending message:', error)
-      setMessages(prev => [
-        ...prev,
-        { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }
-      ])
+      setMessages(prev => {
+        const newMessages = [...prev]
+        newMessages[assistantIndex] = {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error. Please try again.'
+        }
+        return newMessages
+      })
     } finally {
       setIsLoading(false)
     }
