@@ -24,94 +24,135 @@ async function generateEmbedding(text: string): Promise<number[]> {
   return response.data[0].embedding;
 }
 
-async function vectorizeGmailMessages() {
+async function vectorizeGmailMessages(batchSize: number = 2000) {
   console.log('\n📧 Vectorizing Gmail Messages...');
   
-  const result = await pool.query(
-    `SELECT id, subject, body, snippet 
-     FROM "GmailMessage" 
-     WHERE embedding IS NULL 
-     ORDER BY date DESC 
-     LIMIT 1000`
+  // Get total count
+  const countResult = await pool.query(
+    `SELECT COUNT(*) as total FROM "GmailMessage" WHERE embedding IS NULL`
   );
+  const total = parseInt(countResult.rows[0].total);
+  console.log(`Total emails to vectorize: ${total}`);
   
-  console.log(`Found ${result.rows.length} emails to vectorize`);
-  
-  let processed = 0;
-  let errors = 0;
-  
-  for (const email of result.rows) {
-    try {
-      const text = `${email.subject || ''}\n\n${email.body || email.snippet || ''}`;
-      const embedding = await generateEmbedding(text);
-      
-      await pool.query(
-        `UPDATE "GmailMessage" 
-         SET embedding = $1, vectorized = true 
-         WHERE id = $2`,
-        [`[${embedding.join(',')}]`, email.id]
-      );
-      
-      processed++;
-      if (processed % 50 === 0) {
-        console.log(`  ✅ Processed ${processed}/${result.rows.length} emails`);
-      }
-      
-      // Rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100));
-    } catch (error) {
-      errors++;
-      console.error(`  ❌ Error processing email ${email.id}:`, error);
-    }
+  if (total === 0) {
+    console.log('✅ All emails already vectorized!');
+    return { processed: 0, errors: 0 };
   }
   
-  console.log(`✅ Gmail: ${processed} vectorized, ${errors} errors`);
-  return { processed, errors };
+  let totalProcessed = 0;
+  let totalErrors = 0;
+  let offset = 0;
+  
+  while (offset < total) {
+    const result = await pool.query(
+      `SELECT id, subject, body, snippet 
+       FROM "GmailMessage" 
+       WHERE embedding IS NULL 
+       ORDER BY date DESC 
+       LIMIT $1 OFFSET $2`,
+      [batchSize, offset]
+    );
+    
+    if (result.rows.length === 0) break;
+    
+    console.log(`\nProcessing batch ${Math.floor(offset / batchSize) + 1} (${result.rows.length} emails)...`);
+    
+    for (const email of result.rows) {
+      try {
+        const text = `${email.subject || ''}\n\n${email.body || email.snippet || ''}`;
+        const embedding = await generateEmbedding(text);
+        
+        await pool.query(
+          `UPDATE "GmailMessage" 
+           SET embedding = $1, vectorized = true 
+           WHERE id = $2`,
+          [`[${embedding.join(',')}]`, email.id]
+        );
+        
+        totalProcessed++;
+        if (totalProcessed % 100 === 0) {
+          console.log(`  ✅ Progress: ${totalProcessed}/${total} emails (${((totalProcessed/total)*100).toFixed(1)}%)`);
+        }
+        
+        // Rate limiting
+        await new Promise(resolve => setTimeout(resolve, 50));
+      } catch (error) {
+        totalErrors++;
+        console.error(`  ❌ Error processing email ${email.id}:`, error);
+      }
+    }
+    
+    offset += batchSize;
+  }
+  
+  console.log(`✅ Gmail: ${totalProcessed} vectorized, ${totalErrors} errors`);
+  return { processed: totalProcessed, errors: totalErrors };
 }
 
-async function vectorizeDriveFiles() {
+async function vectorizeDriveFiles(batchSize: number = 1000) {
   console.log('\n📁 Vectorizing Drive Files...');
   
-  const result = await pool.query(
-    `SELECT id, name, content, description 
-     FROM "DriveFile" 
+  const countResult = await pool.query(
+    `SELECT COUNT(*) as total FROM "DriveFile" 
      WHERE embedding IS NULL 
-     AND (content IS NOT NULL OR description IS NOT NULL)
-     ORDER BY "modifiedTime" DESC 
-     LIMIT 500`
+     AND (content IS NOT NULL OR description IS NOT NULL)`
   );
+  const total = parseInt(countResult.rows[0].total);
+  console.log(`Total drive files to vectorize: ${total}`);
   
-  console.log(`Found ${result.rows.length} drive files to vectorize`);
-  
-  let processed = 0;
-  let errors = 0;
-  
-  for (const file of result.rows) {
-    try {
-      const text = `${file.name}\n\n${file.description || ''}\n\n${file.content || ''}`;
-      const embedding = await generateEmbedding(text);
-      
-      await pool.query(
-        `UPDATE "DriveFile" 
-         SET embedding = $1, vectorized = true 
-         WHERE id = $2`,
-        [`[${embedding.join(',')}]`, file.id]
-      );
-      
-      processed++;
-      if (processed % 25 === 0) {
-        console.log(`  ✅ Processed ${processed}/${result.rows.length} files`);
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 100));
-    } catch (error) {
-      errors++;
-      console.error(`  ❌ Error processing file ${file.id}:`, error);
-    }
+  if (total === 0) {
+    console.log('✅ All drive files already vectorized!');
+    return { processed: 0, errors: 0 };
   }
   
-  console.log(`✅ Drive Files: ${processed} vectorized, ${errors} errors`);
-  return { processed, errors };
+  let totalProcessed = 0;
+  let totalErrors = 0;
+  let offset = 0;
+  
+  while (offset < total) {
+    const result = await pool.query(
+      `SELECT id, name, content, description 
+       FROM "DriveFile" 
+       WHERE embedding IS NULL 
+       AND (content IS NOT NULL OR description IS NOT NULL)
+       ORDER BY "modifiedTime" DESC 
+       LIMIT $1 OFFSET $2`,
+      [batchSize, offset]
+    );
+    
+    if (result.rows.length === 0) break;
+    
+    console.log(`\nProcessing batch ${Math.floor(offset / batchSize) + 1} (${result.rows.length} files)...`);
+    
+    for (const file of result.rows) {
+      try {
+        const text = `${file.name}\n\n${file.description || ''}\n\n${file.content || ''}`;
+        const embedding = await generateEmbedding(text);
+        
+        await pool.query(
+          `UPDATE "DriveFile" 
+           SET embedding = $1, vectorized = true 
+           WHERE id = $2`,
+          [`[${embedding.join(',')}]`, file.id]
+        );
+        
+        totalProcessed++;
+        if (totalProcessed % 50 === 0) {
+          console.log(`  ✅ Progress: ${totalProcessed}/${total} files (${((totalProcessed/total)*100).toFixed(1)}%)`);
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 50));
+      } catch (error) {
+        totalErrors++;
+        console.error(`  ❌ Error processing file ${file.id}:`, error);
+      }
+    }
+    
+    offset += batchSize;
+  }
+  
+  console.log(`✅ Drive Files: ${totalProcessed} vectorized, ${totalErrors} errors`);
+  return { processed: totalProcessed, errors: totalErrors };
 }
 
 async function vectorizeWebPages() {
