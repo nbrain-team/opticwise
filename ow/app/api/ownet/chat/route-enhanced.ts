@@ -23,6 +23,7 @@ import {
 } from '@/lib/ai-agent-utils';
 import { toolRegistry, registerAllTools } from '@/tools';
 import { ExecutionPlanner } from '@/lib/execution-planner';
+import { EmailVoiceAnalyzer } from '@/lib/email-voice-analyzer';
 
 // Initialize on first use
 let pool: Pool | null = null;
