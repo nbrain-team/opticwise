@@ -47,7 +47,11 @@ export async function POST(request: NextRequest) {
             },
           },
         },
-        deal: true,
+        deal: {
+          include: {
+            stage: true,
+          },
+        },
       },
     });
     
