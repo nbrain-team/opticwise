@@ -191,7 +191,10 @@ Return JSON:
   } = {}): Promise<{
     total_examples: number;
     average_rating: number;
-    formatted_data: Array<{ query: string; response: string; rating: number }>;
+    formatted_data: Array<{
+      messages: Array<{ role: string; content: unknown }>;
+      metadata: { rating: unknown; feedback: unknown };
+    }>;
     collected_at: string;
   }> {
     const { min_rating = 4, limit = 500, days_back = 90 } = params;
