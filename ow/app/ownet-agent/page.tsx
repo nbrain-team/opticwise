@@ -247,7 +247,7 @@ export default function OWnetAgentPage() {
       let buffer = ''
       let fullResponse = ''
       let messageId = ''
-      let sources: string[] | null = null
+      let sources: string[] | undefined = undefined
 
       if (reader) {
         while (true) {
