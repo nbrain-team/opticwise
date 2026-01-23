@@ -405,7 +405,9 @@ export async function loadContextWithinBudget(
     const emailContents: string[] = [];
     
     for (const email of emailResult.rows) {
-      const emailText = `Subject: ${email.subject}\nFrom: ${email.from}\nDate: ${new Date(email.date).toLocaleDateString()}\n${email.snippet || email.body?.slice(0, 500)}`;
+      // Include full email body (up to 3000 chars per email for better context)
+      const emailBody = email.body ? email.body.slice(0, 3000) : email.snippet || '';
+      const emailText = `Subject: ${email.subject}\nFrom: ${email.from}\nDate: ${new Date(email.date).toLocaleDateString()}\nContent: ${emailBody}`;
       const tokens = estimateTokens(emailText);
       
       if (emailTokens + tokens > 40000 || usedTokens + emailTokens + tokens > availableForContext) break;
