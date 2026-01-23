@@ -24,6 +24,7 @@ import {
 import { toolRegistry, registerAllTools } from '@/tools';
 import { ExecutionPlanner } from '@/lib/execution-planner';
 import { EmailVoiceAnalyzer } from '@/lib/email-voice-analyzer';
+import type { ToolResult } from '@/lib/tool-registry';
 
 // Initialize on first use
 let pool: Pool | null = null;
@@ -211,7 +212,7 @@ export async function POST(request: NextRequest) {
           await new Promise(resolve => setTimeout(resolve, 500));
 
           // Step 4: Execute tools
-          const toolResults: Array<{ tool: string; result: unknown }> = [];
+          const toolResults: Array<{ tool: string; result: ToolResult }> = [];
 
           for (const step of plan.steps) {
             controller.enqueue(
