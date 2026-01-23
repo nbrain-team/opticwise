@@ -15,7 +15,7 @@ export interface ToolParameter {
   type: 'string' | 'number' | 'boolean' | 'object' | 'array';
   required: boolean;
   description: string;
-  default?: any;
+  default?: unknown;
 }
 
 export interface ToolDefinition {
@@ -24,7 +24,7 @@ export interface ToolDefinition {
   category: 'knowledge' | 'crm' | 'email' | 'calendar' | 'analysis' | 'general';
   requiresApproval: boolean;
   parameters: Record<string, ToolParameter>;
-  execute: (params: any, context: ToolContext) => Promise<ToolResult>;
+  execute: (params: Record<string, unknown>, context: ToolContext) => Promise<ToolResult>;
 }
 
 export interface ToolContext {
@@ -37,11 +37,11 @@ export interface ToolContext {
 
 export interface ToolResult {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   confidence?: number;
   source_type?: string;
-  data_points?: any[];
+  data_points?: unknown[];
 }
 
 export class ToolRegistry {
@@ -82,7 +82,7 @@ export class ToolRegistry {
     }));
   }
 
-  validateParameters(toolName: string, params: any): boolean {
+  validateParameters(toolName: string, params: Record<string, unknown>): boolean {
     const tool = this.getTool(toolName);
 
     if (!tool) {
@@ -102,7 +102,7 @@ export class ToolRegistry {
 
   async executeTool(
     toolName: string,
-    params: any,
+    params: Record<string, unknown>,
     context: ToolContext
   ): Promise<ToolResult> {
     const tool = this.getTool(toolName);

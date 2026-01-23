@@ -106,7 +106,7 @@ export class FeedbackLearningService {
     };
   }
 
-  private async identifyFailurePatterns(feedbackData: any[]): Promise<{
+  private async identifyFailurePatterns(feedbackData: Array<{ rating: number; comment?: string; query?: string }>): Promise<{
     patterns: FeedbackPattern[];
     root_causes: string[];
     priority_fixes: string[];
@@ -184,7 +184,7 @@ Return JSON:
   } = {}): Promise<{
     total_examples: number;
     average_rating: number;
-    formatted_data: any[];
+    formatted_data: Array<{ query: string; response: string; rating: number }>;
     collected_at: string;
   }> {
     const { min_rating = 4, limit = 500, days_back = 90 } = params;
@@ -256,8 +256,8 @@ Return JSON:
   private async saveAnalysisResults(params: {
     analysis_type: string;
     total_analyzed: number;
-    patterns: any;
-    recommendations: any;
+    patterns: unknown;
+    recommendations: unknown;
   }): Promise<void> {
     try {
       await this.dbPool.query(

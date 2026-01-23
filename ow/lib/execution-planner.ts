@@ -12,7 +12,7 @@ import { ToolRegistry } from './tool-registry';
 
 interface ExecutionStep {
   tool: string;
-  params: Record<string, any>;
+  params: Record<string, unknown>;
   reason: string;
   confidence: number;
 }

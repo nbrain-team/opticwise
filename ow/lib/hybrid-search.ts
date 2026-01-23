@@ -23,7 +23,7 @@ interface SearchResult {
   rrf_score?: number;
   vector_rank?: number;
   keyword_rank?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export class HybridSearchService {

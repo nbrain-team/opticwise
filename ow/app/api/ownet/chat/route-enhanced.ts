@@ -20,11 +20,8 @@ import {
   classifyQuery,
   checkSemanticCache,
   saveToSemanticCache,
-  estimateTokens,
 } from '@/lib/ai-agent-utils';
 import { toolRegistry, registerAllTools } from '@/tools';
-import { HybridSearchService } from '@/lib/hybrid-search';
-import { EmailVoiceAnalyzer } from '@/lib/email-voice-analyzer';
 import { ExecutionPlanner } from '@/lib/execution-planner';
 
 // Initialize on first use
@@ -213,7 +210,7 @@ export async function POST(request: NextRequest) {
           await new Promise(resolve => setTimeout(resolve, 500));
 
           // Step 4: Execute tools
-          const toolResults: any[] = [];
+          const toolResults: Array<{ tool: string; result: unknown }> = [];
 
           for (const step of plan.steps) {
             controller.enqueue(

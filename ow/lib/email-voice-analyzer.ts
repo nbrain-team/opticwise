@@ -125,7 +125,7 @@ export class EmailVoiceAnalyzer {
     };
   }
 
-  private async extractEmailPatternsAI(emails: any[]): Promise<EmailVoicePatterns> {
+  private async extractEmailPatternsAI(emails: Array<{ subject?: string; body?: string; sender_email?: string }>): Promise<EmailVoicePatterns> {
     const sampleEmails = emails.slice(0, 25).map(e => ({
       subject: e.subject,
       body: e.body?.substring(0, 600) || '',
@@ -179,7 +179,7 @@ Return JSON:
     }
   }
 
-  private extractEmailPatternsBasic(emails: any[]): EmailVoicePatterns {
+  private extractEmailPatternsBasic(emails: Array<{ body?: string }>): EmailVoicePatterns {
     // Fallback basic analysis
     const avgLength = emails.reduce((sum, e) => sum + (e.body?.length || 0), 0) / emails.length;
 

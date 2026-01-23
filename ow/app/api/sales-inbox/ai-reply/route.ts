@@ -146,7 +146,7 @@ ${thread.person.deals && thread.person.deals.length > 0 ? `Open Deals: ${thread.
       
       // Track usage
       if (styleResult.rows.length > 0) {
-        const ids = styleResult.rows.map((r: any) => r.id).filter(Boolean);
+        const ids = styleResult.rows.map((r: { id?: number }) => r.id).filter(Boolean);
         if (ids.length > 0) {
           await pool.query(
             `UPDATE "StyleGuide" 

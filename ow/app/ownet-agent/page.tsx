@@ -8,7 +8,7 @@ interface Message {
   content: string
   sources?: string[]
   messageId?: string
-  plan?: any
+  plan?: { understanding: string; steps: Array<{ tool: string; reason: string }>; estimated_time: string }
   feedback?: { rating: number; comment?: string }
 }
 
@@ -247,7 +247,7 @@ export default function OWnetAgentPage() {
       let buffer = ''
       let fullResponse = ''
       let messageId = ''
-      let sources: any = null
+      let sources: string[] | null = null
 
       if (reader) {
         while (true) {
@@ -276,7 +276,7 @@ export default function OWnetAgentPage() {
                   })
                 } else if (data.type === 'plan') {
                   // Show execution plan
-                  const planText = `**Execution Plan:**\n\n${data.plan.understanding}\n\n**Steps:**\n${data.plan.steps.map((s: any, i: number) => `${i + 1}. ${s.tool} - ${s.reason}`).join('\n')}\n\n*Estimated time: ${data.plan.estimated_time}*\n\n---\n\n`
+                  const planText = `**Execution Plan:**\n\n${data.plan.understanding}\n\n**Steps:**\n${data.plan.steps.map((s: { tool: string; reason: string }, i: number) => `${i + 1}. ${s.tool} - ${s.reason}`).join('\n')}\n\n*Estimated time: ${data.plan.estimated_time}*\n\n---\n\n`
                   setMessages(prev => {
                     const newMessages = [...prev]
                     newMessages[assistantIndex] = {
