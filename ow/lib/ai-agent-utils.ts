@@ -350,28 +350,57 @@ export async function loadContextWithinBudget(
   const queryEmbedding = embedding.data[0].embedding;
   const vectorString = `[${queryEmbedding.join(',')}]`;
   
-  // Priority 2: Relevant transcripts (up to 60K tokens) - PINECONE (TESTING)
+  // Priority 2: Relevant transcripts (up to 60K tokens) - CHUNKED SEARCH (Newbury Style)
   try {
-    const index = pinecone.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
-    const searchResults = await index.query({
-      topK: 20,
-      vector: queryEmbedding,
-      includeMetadata: true
-    });
+    // Search chunks first for precision
+    const chunkResult = await db.query(
+      `SELECT 
+        c."chunkText",
+        c."chunkIndex",
+        c."wordCount",
+        t.title,
+        t."startTime",
+        t.summary,
+        1 - (c.embedding <=> $1::vector) as similarity
+       FROM "CallTranscriptChunk" c
+       JOIN "CallTranscript" t ON c."transcriptId" = t.id
+       WHERE c.embedding IS NOT NULL
+       ORDER BY c.embedding <=> $1::vector
+       LIMIT 20`,
+      [vectorString]
+    );
     
     let transcriptTokens = 0;
     const transcriptChunks: string[] = [];
     
-    if (searchResults.matches) {
-      for (const match of searchResults.matches) {
+    for (const chunk of chunkResult.rows) {
+      if (transcriptTokens > 60000) break;
+      
+      const chunkTokens = estimateTokens(chunk.chunkText);
+      if (usedTokens + transcriptTokens + chunkTokens > availableForContext) break;
+      
+      transcriptChunks.push(`[${chunk.title} - ${new Date(chunk.startTime).toLocaleDateString()}]\n${chunk.chunkText}`);
+      transcriptTokens += chunkTokens;
+    }
+    
+    // If no chunks found, fallback to full transcripts (backward compatibility)
+    if (transcriptChunks.length === 0) {
+      const fullTranscriptResult = await db.query(
+        `SELECT id, title, transcript, summary, "startTime"
+         FROM "CallTranscript"
+         WHERE vectorized = true AND embedding IS NOT NULL
+         ORDER BY embedding <=> $1::vector
+         LIMIT 5`,
+        [vectorString]
+      );
+      
+      for (const transcript of fullTranscriptResult.rows) {
         if (transcriptTokens > 60000) break;
-        const chunk = match.metadata?.text_chunk as string || '';
-        const chunkTokens = estimateTokens(chunk);
-        
-        if (usedTokens + transcriptTokens + chunkTokens > availableForContext) break;
-        
-        transcriptChunks.push(`[${match.metadata?.title || 'Call'} - ${new Date(match.metadata?.date as string || '').toLocaleDateString()}]\n${chunk}`);
-        transcriptTokens += chunkTokens;
+        const text = transcript.summary || transcript.transcript.substring(0, 2000);
+        const tokens = estimateTokens(text);
+        if (usedTokens + transcriptTokens + tokens > availableForContext) break;
+        transcriptChunks.push(`[${transcript.title} - ${new Date(transcript.startTime).toLocaleDateString()}]\n${text}`);
+        transcriptTokens += tokens;
       }
     }
     
