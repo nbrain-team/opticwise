@@ -286,36 +286,38 @@ export async function loadContextWithinBudget(
   const queryEmbedding = embedding.data[0].embedding;
   const vectorString = `[${queryEmbedding.join(',')}]`;
   
-  // Priority 2: Relevant transcripts (up to 60K tokens)
+  // Priority 2: Relevant transcripts (up to 60K tokens) - PostgreSQL pgvector
   try {
-    const index = pinecone.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
-    const searchResults = await index.query({
-      topK: 20,
-      vector: queryEmbedding,
-      includeMetadata: true
-    });
+    const transcriptResult = await db.query(
+      `SELECT id, "fathomCallId", title, transcript, summary, "startTime"
+       FROM "CallTranscript"
+       WHERE vectorized = true AND embedding IS NOT NULL
+       ORDER BY embedding <=> $1::vector
+       LIMIT 10`,
+      [vectorString]
+    );
     
     let transcriptTokens = 0;
-    const transcriptChunks: string[] = [];
+    const transcriptContents: string[] = [];
     
-    if (searchResults.matches) {
-      for (const match of searchResults.matches) {
-        if (transcriptTokens > 60000) break;
-        const chunk = match.metadata?.text_chunk as string || '';
-        const chunkTokens = estimateTokens(chunk);
-        
-        if (usedTokens + transcriptTokens + chunkTokens > availableForContext) break;
-        
-        transcriptChunks.push(`[${match.metadata?.title || 'Call'} - ${new Date(match.metadata?.date as string || '').toLocaleDateString()}]\n${chunk}`);
-        transcriptTokens += chunkTokens;
-      }
+    for (const transcript of transcriptResult.rows) {
+      if (transcriptTokens > 60000) break;
+      
+      // Use summary if available, otherwise truncate transcript
+      const text = transcript.summary || transcript.transcript.substring(0, 2000);
+      const tokens = estimateTokens(text);
+      
+      if (usedTokens + transcriptTokens + tokens > availableForContext) break;
+      
+      transcriptContents.push(`[${transcript.title} - ${new Date(transcript.startTime).toLocaleDateString()}]\n${text}`);
+      transcriptTokens += tokens;
     }
     
-    if (transcriptChunks.length > 0) {
+    if (transcriptContents.length > 0) {
       contexts.push({
         type: 'transcript',
-        content: transcriptChunks.join('\n\n---\n\n'),
-        metadata: { chunkCount: transcriptChunks.length },
+        content: transcriptContents.join('\n\n---\n\n'),
+        metadata: { count: transcriptContents.length },
         tokenCount: transcriptTokens
       });
       usedTokens += transcriptTokens;
