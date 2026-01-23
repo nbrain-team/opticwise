@@ -207,28 +207,30 @@ export async function expandQuery(
 ): Promise<ExpandedQuery> {
   try {
     const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini', // Fast, cheap model for this task
+      model: 'gpt-4o-mini',
       messages: [{
         role: 'user',
         content: `Given this search query: "${query}"
 
-Generate:
-1. 3-5 alternative phrasings that capture the same intent
-2. Key entities mentioned (people, companies, concepts)
-3. Important keywords
+Generate 3-5 alternative phrasings, key entities, and keywords.
 
-Return as JSON:
+Return ONLY valid JSON (no markdown, no code blocks):
 {
-  "variations": ["variation 1", "variation 2", ...],
-  "entities": ["entity1", "entity2", ...],
-  "keywords": ["keyword1", "keyword2", ...]
+  "variations": ["variation 1", "variation 2"],
+  "entities": ["entity1", "entity2"],
+  "keywords": ["keyword1", "keyword2"]
 }`
       }],
       temperature: 0.3,
-      max_tokens: 500
+      max_tokens: 500,
+      response_format: { type: "json_object" }
     });
     
-    const content = response.choices[0]?.message?.content || '{}';
+    let content = response.choices[0]?.message?.content || '{}';
+    
+    // Strip markdown code blocks if GPT added them
+    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    
     const parsed = JSON.parse(content);
     
     return {
