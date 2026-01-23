@@ -391,13 +391,23 @@ export async function loadContextWithinBudget(
   }
   
   // Priority 3: Emails (up to 40K tokens)
+  // Prioritize customer/prospect emails over automated notifications
   try {
     const emailResult = await db.query(
       `SELECT subject, "from", "to", snippet, body, date
        FROM "GmailMessage"
        WHERE vectorized = true AND embedding IS NOT NULL
+         AND "from" NOT ILIKE '%noreply%'
+         AND "from" NOT ILIKE '%no-reply%'
+         AND "from" NOT ILIKE '%@ingram%'
+         AND "from" NOT ILIKE '%@fathom%'
+         AND "from" NOT ILIKE '%invoic%'
+         AND "from" NOT ILIKE '%receipt%'
+         AND subject NOT ILIKE '%invoice%'
+         AND subject NOT ILIKE '%receipt%'
+         AND subject NOT ILIKE '%build failed%'
        ORDER BY embedding <=> $1::vector
-       LIMIT 15`,
+       LIMIT 20`,
       [vectorString]
     );
     
