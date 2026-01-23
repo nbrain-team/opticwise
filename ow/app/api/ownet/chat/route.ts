@@ -527,46 +527,19 @@ You MUST use clean, organized markdown formatting:
 
 **How to Structure Responses:**
 
-For lists/examples:
-```
-## [Main Topic]
+For lists/examples, use this structure:
+- Start with ## header for main topic
+- Use **bold** with numbers for each item
+- Bullet points for details under each item
+- Horizontal rule (---) before summary
+- ### header for summary section
 
-**1. [Item Name]**
-- Key detail 1
-- Key detail 2
-- Key detail 3
-
-**2. [Item Name]**
-- Key detail 1
-- Key detail 2
-
----
-
-### Summary
-[Brief takeaway]
-```
-
-For analysis:
-```
-## Executive Summary
-[2-3 sentence overview]
-
-## Detailed Findings
-
-### Section 1: [Topic]
-- Finding 1
-- Finding 2
-
-### Section 2: [Topic]
-- Finding 1
-- Finding 2
-
----
-
-## Recommendations
-1. [Action item with reasoning]
-2. [Action item with reasoning]
-```
+For analysis, use this structure:
+- ## Executive Summary at top
+- ## Detailed Findings with ### subsections
+- Bullet points for each finding
+- Horizontal rule (---) before recommendations
+- ## Recommendations with numbered list
 
 **Formatting Rules:**
 1. Always use **bold** for names, numbers, and key terms
