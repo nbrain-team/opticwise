@@ -122,7 +122,11 @@ export async function POST(request: NextRequest) {
     console.log('[OWnet] Data sources needed:', dataSourceIntent);
     
     // Step 5: Load context intelligently within token budget
-    const contextWindow = intent.type === 'deep_analysis' ? 180000 : 
+    // Check if user requested max tokens
+    const hasMaxCommand = /\b(max_tokens|max|maximum|exhaustive|ultra-detailed)\b/i.test(message);
+    
+    const contextWindow = hasMaxCommand ? 200000 :
+                          intent.type === 'deep_analysis' ? 180000 : 
                           intent.type === 'research' ? 150000 : 100000;
     
     const { contexts, totalTokens, budget } = await loadContextWithinBudget(

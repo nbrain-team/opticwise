@@ -86,6 +86,21 @@ export function classifyQuery(query: string): QueryIntent {
   const hasContextRequest = needsDetailSignals.some(signal => lowerQuery.includes(signal));
   const isFollowUp = /\b(no|not|more|better|different|instead|actually)\b/.test(lowerQuery) && query.length < 150;
   
+  // SPECIAL COMMANDS - Override with maximum tokens
+  const maxTokensCommand = /\b(max_tokens|max|maximum|exhaustive|ultra-detailed)\b/.test(lowerQuery);
+  
+  // If user explicitly requests maximum detail
+  if (maxTokensCommand) {
+    return {
+      type: 'deep_analysis',
+      confidence: 1.0,
+      keywords: ['max_tokens', 'maximum_detail'],
+      requiresDeepSearch: true,
+      suggestedMaxTokens: 32768, // Maximum for Claude Sonnet
+      suggestedTemperature: 0.7
+    };
+  }
+  
   // Check for deep analysis
   if (deepAnalysisKeywords.some(kw => lowerQuery.includes(kw))) {
     return {
