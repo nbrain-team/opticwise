@@ -209,23 +209,47 @@ export async function POST(request: NextRequest) {
         
         // Search Gmail if needed
         if (needsEmail) {
-          const emailResults = await db.query(
-            `SELECT id, subject, "from", "to", snippet, date, body
-             FROM "GmailMessage"
-             WHERE vectorized = true AND embedding IS NOT NULL
-             ORDER BY embedding <=> $1::vector
-             LIMIT 5`,
-            [`[${queryVector.join(',')}]`]
-          );
-          
-          if (emailResults.rows.length > 0) {
-            googleContext += '\n\n**Relevant Emails:**\n\n';
-            googleContext += emailResults.rows.map((email, idx) => {
-              return `${idx + 1}. **${email.subject}**
+          try {
+            const emailResults = await db.query(
+              `SELECT id, subject, "from", "to", snippet, date, body
+               FROM "GmailMessage"
+               WHERE vectorized = true AND embedding IS NOT NULL
+               ORDER BY embedding <=> $1::vector
+               LIMIT 5`,
+              [`[${queryVector.join(',')}]`]
+            );
+            
+            if (emailResults.rows.length > 0) {
+              googleContext += '\n\n**Relevant Emails:**\n\n';
+              googleContext += emailResults.rows.map((email, idx) => {
+                return `${idx + 1}. **${email.subject}**
    - From: ${email.from}
    - Date: ${new Date(email.date).toLocaleDateString()}
    - Preview: ${email.snippet || email.body?.slice(0, 200)}`;
-            }).join('\n\n');
+              }).join('\n\n');
+            }
+          } catch (vectorError) {
+            // Fallback: Use keyword search if vector extension not available
+            console.log('[OWnet] Vector search unavailable, using keyword fallback for emails');
+            const keywords = message.toLowerCase().split(/\s+/).slice(0, 5).join('|');
+            const emailResults = await db.query(
+              `SELECT id, subject, "from", "to", snippet, date, body
+               FROM "GmailMessage"
+               WHERE (subject ILIKE $1 OR body ILIKE $1 OR snippet ILIKE $1)
+               ORDER BY date DESC
+               LIMIT 5`,
+              [`%${keywords}%`]
+            );
+            
+            if (emailResults.rows.length > 0) {
+              googleContext += '\n\n**Relevant Emails (keyword search):**\n\n';
+              googleContext += emailResults.rows.map((email, idx) => {
+                return `${idx + 1}. **${email.subject}**
+   - From: ${email.from}
+   - Date: ${new Date(email.date).toLocaleDateString()}
+   - Preview: ${email.snippet || email.body?.slice(0, 200)}`;
+              }).join('\n\n');
+            }
           }
         }
         
