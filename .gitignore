@@ -14,3 +14,6 @@ Website Project/
 # Node modules
 **/node_modules/
 opticwise/
+# System files
+.DS_Store
+**/.DS_Store
