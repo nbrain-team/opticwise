@@ -391,39 +391,76 @@ export async function loadContextWithinBudget(
   }
   
   // Priority 3: Emails (up to 40K tokens)
-  // Prioritize customer/prospect emails over automated notifications
+  // Search both GmailMessage AND EmailMessage (Sales Inbox)
   try {
-    const emailResult = await db.query(
-      `SELECT subject, "from", "to", snippet, body, date
-       FROM "GmailMessage"
-       WHERE vectorized = true AND embedding IS NOT NULL
-         AND "from" NOT ILIKE '%noreply%'
-         AND "from" NOT ILIKE '%no-reply%'
-         AND "from" NOT ILIKE '%@ingram%'
-         AND "from" NOT ILIKE '%@fathom%'
-         AND "from" NOT ILIKE '%invoic%'
-         AND "from" NOT ILIKE '%receipt%'
-         AND subject NOT ILIKE '%invoice%'
-         AND subject NOT ILIKE '%receipt%'
-         AND subject NOT ILIKE '%build failed%'
-       ORDER BY embedding <=> $1::vector
-       LIMIT 20`,
-      [vectorString]
-    );
-    
     let emailTokens = 0;
     const emailContents: string[] = [];
     
-    for (const email of emailResult.rows) {
-      // Include full email body (up to 3000 chars per email for better context)
-      const emailBody = email.body ? email.body.slice(0, 3000) : email.snippet || '';
-      const emailText = `Subject: ${email.subject}\nFrom: ${email.from}\nDate: ${new Date(email.date).toLocaleDateString()}\nContent: ${emailBody}`;
-      const tokens = estimateTokens(emailText);
+    // First, search Sales Inbox EmailMessage (customer conversations)
+    try {
+      const salesInboxResult = await db.query(
+        `SELECT 
+          em.body,
+          em.sender,
+          em."sentAt",
+          et.subject,
+          p.name as person_name,
+          o.name as org_name
+         FROM "EmailMessage" em
+         JOIN "EmailThread" et ON em."threadId" = et.id
+         LEFT JOIN "Person" p ON et."personId" = p.id
+         LEFT JOIN "Organization" o ON p."organizationId" = o.id
+         WHERE em.vectorized = true AND em.embedding IS NOT NULL
+           AND p.name != 'Bill Douglas'
+         ORDER BY em.embedding <=> $1::vector
+         LIMIT 15`,
+        [vectorString]
+      );
       
-      if (emailTokens + tokens > 40000 || usedTokens + emailTokens + tokens > availableForContext) break;
+      for (const email of salesInboxResult.rows) {
+        const emailBody = email.body.slice(0, 3000);
+        const emailText = `[Sales Inbox]\nSubject: ${email.subject}\nFrom: ${email.sender}\nContact: ${email.person_name || 'Unknown'}\nCompany: ${email.org_name || 'N/A'}\nDate: ${new Date(email.sentAt).toLocaleDateString()}\nContent: ${emailBody}`;
+        const tokens = estimateTokens(emailText);
+        
+        if (emailTokens + tokens > 40000 || usedTokens + emailTokens + tokens > availableForContext) break;
+        
+        emailContents.push(emailText);
+        emailTokens += tokens;
+      }
+    } catch (salesError) {
+      console.log('[Context] Sales inbox search error:', salesError);
+    }
+    
+    // Then add GmailMessage emails if we have token budget left
+    if (emailTokens < 30000) {
+      const gmailResult = await db.query(
+        `SELECT subject, "from", "to", snippet, body, date
+         FROM "GmailMessage"
+         WHERE vectorized = true AND embedding IS NOT NULL
+           AND "from" NOT ILIKE '%noreply%'
+           AND "from" NOT ILIKE '%no-reply%'
+           AND "from" NOT ILIKE '%@ingram%'
+           AND "from" NOT ILIKE '%@fathom%'
+           AND "from" NOT ILIKE '%invoic%'
+           AND "from" NOT ILIKE '%receipt%'
+           AND subject NOT ILIKE '%invoice%'
+           AND subject NOT ILIKE '%receipt%'
+           AND subject NOT ILIKE '%build failed%'
+         ORDER BY embedding <=> $1::vector
+         LIMIT 10`,
+        [vectorString]
+      );
       
-      emailContents.push(emailText);
-      emailTokens += tokens;
+      for (const email of gmailResult.rows) {
+        const emailBody = email.body ? email.body.slice(0, 3000) : email.snippet || '';
+        const emailText = `[Gmail]\nSubject: ${email.subject}\nFrom: ${email.from}\nDate: ${new Date(email.date).toLocaleDateString()}\nContent: ${emailBody}`;
+        const tokens = estimateTokens(emailText);
+        
+        if (emailTokens + tokens > 40000 || usedTokens + emailTokens + tokens > availableForContext) break;
+        
+        emailContents.push(emailText);
+        emailTokens += tokens;
+      }
     }
     
     if (emailContents.length > 0) {
