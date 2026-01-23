@@ -4,6 +4,28 @@
 
 The OWnet agent uses intelligent token orchestration to provide optimal responses while managing Claude's context window efficiently.
 
+## 🚀 NEW: Maximum Detail Command
+
+**Use any of these keywords to get MAXIMUM tokens:**
+- `max_tokens`
+- `max`
+- `maximum`
+- `exhaustive`
+- `ultra-detailed`
+
+**What it gives you:**
+- **Output tokens: 32,768** (8x more than quick answer!)
+- **Context window: 200,000** (Claude's full capacity)
+- **Temperature: 0.7** (balanced)
+
+**Examples:**
+- "max_tokens: list customer questions"
+- "Give me an exhaustive analysis of pipeline"
+- "Show me maximum detail on Mass Equities"
+- "Ultra-detailed breakdown of Q4 activity"
+
+**Perfect for:** When you need the most comprehensive response possible!
+
 ---
 
 ## Query Classification System
