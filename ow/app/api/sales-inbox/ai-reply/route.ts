@@ -88,17 +88,24 @@ export async function POST(request: NextRequest) {
       });
       
       const queryEmbedding = embeddingResponse.data[0].embedding;
-      const index = pinecone.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
+      const vectorString = `[${queryEmbedding.join(',')}]`;
       
-      const searchResults = await index.query({
-        topK: 3,
-        vector: queryEmbedding,
-        includeMetadata: true,
-      });
+      // Search PostgreSQL pgvector for relevant transcripts
+      const searchResults = await pool.query(
+        `SELECT title, summary, transcript, "startTime"
+         FROM "CallTranscript"
+         WHERE vectorized = true AND embedding IS NOT NULL
+         ORDER BY embedding <=> $1::vector
+         LIMIT 3`,
+        [vectorString]
+      );
       
-      if (searchResults.matches && searchResults.matches.length > 0) {
-        transcriptContext = searchResults.matches
-          .map(m => m.metadata?.text_chunk || '')
+      if (searchResults.rows.length > 0) {
+        transcriptContext = searchResults.rows
+          .map(row => {
+            const text = row.summary || row.transcript.substring(0, 500);
+            return `[${row.title}]\n${text}`;
+          })
           .join('\n\n');
       }
     } catch (error) {
