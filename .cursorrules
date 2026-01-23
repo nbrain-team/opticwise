@@ -1,0 +1,41 @@
+# Opticwise Project Configuration
+
+## Git & GitHub Configuration
+- **Repository**: https://github.com/nbrain-team/opticwise
+- **Git Remote**: git@github-opticwise:nbrain-team/opticwise.git
+- **Deploy Key**: Opticwise Deploy (SHA256:h5XGFZPZFlbK3AnNsKnYGKr9iJVBR+2ofc1JMm8S1fA)
+- **SSH Key Location**: ~/.ssh/opticwise_deploy_key
+- **SSH Host Alias**: github-opticwise (configured in ~/.ssh/config)
+
+## SSH Configuration
+The SSH config at ~/.ssh/config should have:
+```
+Host github-opticwise
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/opticwise_deploy_key
+  IdentitiesOnly yes
+```
+
+## Project Structure
+- **Main Application**: `/ow` - This is the primary Next.js application deployed on Render
+- **New Website**: `/new-website` - Static HTML/CSS website files
+- **Unused Folders**: 
+  - `/opticwise` - Unused Next.js starter (gitignored)
+  - `/Website Project` - Large image files (gitignored)
+
+## Deployment
+- **Platform**: Render
+- **Environment**: Use `.env` file in root for exact Render environment settings
+- **Never modify**: Core architecture or workflows without explicit approval
+- **Always test**: Via Render shell and local `.env` before deployment
+
+## Git Workflow
+- **Before pushing**: Always check for large files (>50MB)
+- **Ignored patterns**: node_modules, *.xlsx, *.csv, large image files
+- **Push command**: `git push origin main` (uses github-opticwise host)
+
+## Important Notes
+- This project has NO relation to Paycile (only used as design inspiration for website)
+- Repository was cleaned of large files on Jan 23, 2026 (reduced from 568MB to 34MB)
+- Always use the Opticwise deploy key for GitHub operations
