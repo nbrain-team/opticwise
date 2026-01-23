@@ -38,42 +38,59 @@ export interface QueryIntent {
 export function classifyQuery(query: string): QueryIntent {
   const lowerQuery = query.toLowerCase();
   
-  // Deep analysis keywords
+  // DEEP ANALYSIS - Comprehensive reports requiring extensive detail
   const deepAnalysisKeywords = [
     'deep dive', 'deep analysis', 'detailed analysis', 'comprehensive',
     'in-depth', 'thorough', 'complete report', 'full analysis',
-    'breakdown', 'detailed report', 'activity report'
+    'breakdown', 'detailed report', 'activity report', 'full breakdown',
+    'analyze everything', 'complete overview', 'detailed overview',
+    'give me everything', 'walk me through', 'explain in detail',
+    'comprehensive review'
   ];
   
-  // Research keywords
+  // RESEARCH - Finding and aggregating information
   const researchKeywords = [
     'research', 'find all', 'show me everything', 'search for',
-    'tell me about', 'what do we know', 'history of'
+    'tell me about', 'what do we know', 'history of', 'background on',
+    'all information', 'everything about', 'full context',
+    'what\'s the story', 'catch me up', 'fill me in'
   ];
   
-  // Quick answer keywords
+  // QUICK ANSWER - Simple factual queries (but could need detail)
   const quickKeywords = [
     'what is', 'who is', 'when', 'where', 'how many',
-    'count', 'list', 'show me', 'find'
+    'count', 'list', 'show me', 'find', 'which', 'status'
   ];
   
-  // Action keywords
+  // ACTION - Commands to do something
   const actionKeywords = [
     'create', 'send', 'schedule', 'update', 'delete',
-    'add', 'remove', 'modify', 'draft', 'compose'
+    'add', 'remove', 'modify', 'set', 'change'
   ];
   
-  // Creative keywords
+  // CREATIVE - Content generation
   const creativeKeywords = [
     'write', 'draft', 'compose', 'generate', 'suggest',
-    'brainstorm', 'come up with', 'ideas for'
+    'brainstorm', 'come up with', 'ideas for', 'help me write'
   ];
+  
+  // CONTEXT CLUES - Additional signals that indicate complexity
+  const needsDetailSignals = [
+    'more', 'better', 'realistic', 'context', 'examples',
+    'detailed', 'specific', 'actual', 'real', 'good to use',
+    'multiple', 'several', 'bunch of', 'variety',
+    'with context', 'with details', 'with examples'
+  ];
+  
+  const needsMultipleItems = /\b(\d+|multiple|several|bunch|variety|range)\b/.test(lowerQuery);
+  const hasContextRequest = needsDetailSignals.some(signal => lowerQuery.includes(signal));
+  const isFollowUp = /\b(no|not|more|better|different|instead|actually)\b/.test(lowerQuery) && query.length < 150;
   
   // Check for deep analysis
   if (deepAnalysisKeywords.some(kw => lowerQuery.includes(kw))) {
     return {
       type: 'deep_analysis',
-      confidence: 0.9,
+      confidence: 0.95,
       keywords: deepAnalysisKeywords.filter(kw => lowerQuery.includes(kw)),
       requiresDeepSearch: true,
       suggestedMaxTokens: 16384,
@@ -85,12 +102,27 @@ export function classifyQuery(query: string): QueryIntent {
   if (researchKeywords.some(kw => lowerQuery.includes(kw))) {
     return {
       type: 'research',
-      confidence: 0.8,
+      confidence: 0.85,
       keywords: researchKeywords.filter(kw => lowerQuery.includes(kw)),
       requiresDeepSearch: true,
       suggestedMaxTokens: 12288,
       suggestedTemperature: 0.6
     };
+  }
+  
+  // Upgrade quick_answer to research if it needs detail/multiple items
+  if (quickKeywords.some(kw => lowerQuery.includes(kw))) {
+    // If asking for multiple items with context/details, upgrade to research
+    if ((needsMultipleItems || hasContextRequest) && query.length > 50) {
+      return {
+        type: 'research',
+        confidence: 0.8,
+        keywords: [...quickKeywords.filter(kw => lowerQuery.includes(kw)), ...needsDetailSignals.filter(s => lowerQuery.includes(s))],
+        requiresDeepSearch: true,
+        suggestedMaxTokens: 12288,
+        suggestedTemperature: 0.6
+      };
+    }
   }
   
   // Check for action
@@ -114,6 +146,18 @@ export function classifyQuery(query: string): QueryIntent {
       requiresDeepSearch: false,
       suggestedMaxTokens: 8192,
       suggestedTemperature: 0.8
+    };
+  }
+  
+  // Follow-up questions: inherit context from previous but allow moderate tokens
+  if (isFollowUp) {
+    return {
+      type: 'quick_answer',
+      confidence: 0.7,
+      keywords: ['follow-up'],
+      requiresDeepSearch: false,
+      suggestedMaxTokens: 8192, // Higher for follow-ups
+      suggestedTemperature: 0.7
     };
   }
   
