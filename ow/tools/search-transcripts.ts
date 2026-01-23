@@ -31,7 +31,7 @@ export const searchTranscriptsTool: ToolDefinition = {
       // Generate embedding for the query
       const embeddingResponse = await openai.embeddings.create({
         model: 'text-embedding-3-large',
-        input: query,
+        input: String(query),
         dimensions: 1024,
       });
 
@@ -41,7 +41,7 @@ export const searchTranscriptsTool: ToolDefinition = {
       const index = pinecone.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
 
       const searchResults = await index.query({
-        topK: limit,
+        topK: Number(limit),
         vector: queryEmbedding,
         includeMetadata: true,
       });

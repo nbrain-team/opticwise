@@ -34,8 +34,8 @@ export const searchCRMTool: ToolDefinition = {
 
   async execute({ query, type = 'all', limit = 20 }, { dbPool }) {
     try {
-      const results: any = { deals: [], contacts: [], organizations: [] };
-      const queryLower = query.toLowerCase();
+      const results: { deals: unknown[]; contacts: unknown[]; organizations: unknown[] } = { deals: [], contacts: [], organizations: [] };
+      const queryLower = String(query).toLowerCase();
 
       // Search deals
       if (type === 'all' || type === 'deals') {
@@ -77,7 +77,7 @@ export const searchCRMTool: ToolDefinition = {
            WHERE p.email IS NOT NULL
            ORDER BY p."createdAt" DESC
            LIMIT $1`,
-          [Math.ceil(limit / 2)]
+          [Math.ceil(Number(limit) / 2)]
         );
         results.contacts = contactsResult.rows;
       }

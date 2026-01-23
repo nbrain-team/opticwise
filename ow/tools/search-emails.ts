@@ -31,7 +31,7 @@ export const searchEmailsTool: ToolDefinition = {
       // Generate embedding
       const embeddingResponse = await openai.embeddings.create({
         model: 'text-embedding-3-large',
-        input: query,
+        input: String(query),
         dimensions: 1024,
       });
 
