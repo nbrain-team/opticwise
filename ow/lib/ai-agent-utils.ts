@@ -259,15 +259,18 @@ export async function loadContextWithinBudget(
     for (const msg of history) {
       const msgTokens = estimateTokens(msg.content);
       if (historyTokens + msgTokens > 50000) break;
-      historyMessages.push(`${msg.role}: ${msg.content}`);
+      historyMessages.push(`<<<${msg.role}>>>${msg.content}`);
       historyTokens += msgTokens;
     }
     
     if (historyMessages.length > 0) {
       contexts.push({
         type: 'chat_history',
-        content: historyMessages.join('\n\n'),
-        metadata: { messageCount: historyMessages.length },
+        content: historyMessages.join('\n\n<<<END_MESSAGE>>>\n\n'),
+        metadata: { 
+          messageCount: historyMessages.length,
+          messages: history.slice(0, historyMessages.length).map(m => ({ role: m.role, content: m.content }))
+        },
         tokenCount: historyTokens
       });
       usedTokens += historyTokens;

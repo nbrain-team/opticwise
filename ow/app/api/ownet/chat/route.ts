@@ -385,18 +385,10 @@ export async function POST(request: NextRequest) {
     const historyContext = contexts.find(c => c.type === 'chat_history');
     const history: Array<{ role: string; content: string }> = [];
     
-    if (historyContext) {
-      // Parse history from context
-      const historyMessages = historyContext.content.split('\n\n');
-      for (const msg of historyMessages) {
-        const [role, ...contentParts] = msg.split(': ');
-        if (role && contentParts.length > 0) {
-          history.push({
-            role: role as 'user' | 'assistant',
-            content: contentParts.join(': ')
-          });
-        }
-      }
+    if (historyContext && historyContext.metadata?.messages) {
+      // Use the properly structured messages from metadata
+      const messages = historyContext.metadata.messages as Array<{ role: string; content: string }>;
+      history.push(...messages);
     }
 
     // Use intent classification instead of keyword matching
