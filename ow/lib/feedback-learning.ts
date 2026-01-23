@@ -106,7 +106,14 @@ export class FeedbackLearningService {
     };
   }
 
-  private async identifyFailurePatterns(feedbackData: Array<{ rating: number; comment?: string; query?: string }>): Promise<{
+  private async identifyFailurePatterns(feedbackData: Array<{ 
+    rating: number; 
+    comment?: string; 
+    query?: string;
+    user_message?: string;
+    assistant_response?: string;
+    text_feedback?: string;
+  }>): Promise<{
     patterns: FeedbackPattern[];
     root_causes: string[];
     priority_fixes: string[];
