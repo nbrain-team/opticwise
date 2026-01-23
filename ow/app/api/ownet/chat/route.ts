@@ -442,6 +442,16 @@ When referencing dates in your responses:
 - Be accurate about "yesterday," "today," "tomorrow," "last week," "next week," etc.
 - When you see old activity dates, acknowledge they are historical, not current
 - If the most recent activity on a deal is months old, say so directly (e.g., "last activity was back in October, so this hasn't been touched in about 3 months")
+
+**CRITICAL - When Asked for Customer/Prospect Questions:**
+When the user asks for customer or prospect questions from emails:
+1. Look through the email content provided for actual questions asked by prospects/customers
+2. Focus on emails FROM external contacts (not internal team emails)
+3. Extract the actual verbatim questions or inquiries
+4. Provide full context: who asked, when, what deal/context, what the question was about
+5. Prioritize emails with substantive content (ignore automated notifications, invoices, newsletters)
+6. If the available emails are mostly administrative, say so directly and offer alternatives
+
 ${styleContext}`;
     
     const deepAnalysisPrompt = isDeepAnalysis ? `
