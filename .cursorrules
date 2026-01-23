@@ -20,9 +20,9 @@ Host github-opticwise
 ## Project Structure
 - **Main Application**: `/ow` - This is the primary Next.js application deployed on Render
 - **New Website**: `/new-website` - Static HTML/CSS website files
-- **Unused Folders**: 
-  - `/opticwise` - Unused Next.js starter (gitignored)
-  - `/Website Project` - Large image files (gitignored)
+- **Unused Folders** (GITIGNORED - DO NOT COMMIT): 
+  - `/opticwise` - Unused Next.js starter (437MB node_modules)
+  - `/Website Project` - Large image files (717MB total)
 
 ## Deployment
 - **Platform**: Render
@@ -30,12 +30,63 @@ Host github-opticwise
 - **Never modify**: Core architecture or workflows without explicit approval
 - **Always test**: Via Render shell and local `.env` before deployment
 
-## Git Workflow
-- **Before pushing**: Always check for large files (>50MB)
-- **Ignored patterns**: node_modules, *.xlsx, *.csv, large image files
-- **Push command**: `git push origin main` (uses github-opticwise host)
+## Git Workflow & Large File Prevention
+
+### CRITICAL: Before ANY git commit or push:
+1. **Check for large files**: Run `find . -type f -size +10M -not -path "./.git/*" -not -path "*/node_modules/*"`
+2. **Check repository size**: Run `git count-objects -vH` (should stay under 100MB)
+3. **Verify gitignore**: Ensure all large files/folders are properly ignored
+
+### Files That Caused Push Failures (Jan 23, 2026):
+**NEVER commit these file types again:**
+- `.tif` files (80-88MB each)
+- `.zip` archives (especially 300MB+ files)
+- Large `.json` exports (>20MB)
+- `.xlsx` and `.csv` data files (>1MB)
+- High-res `.jpg` images (>20MB)
+
+**Specific problematic paths removed from history:**
+- `Website Project/Opticwise-images/Catalyst - Denver/Catalyst HTI-selected-assets.zip` (368MB)
+- `Website Project/Opticwise-images/Catalyst - Denver/*.tif` (4 files, 80-88MB each)
+- `ow/fathom-meetings-export.json` (27MB)
+- `people-*.csv` and `*.xlsx` files (3-5MB each)
+
+### GitHub Limits:
+- **File size limit**: 100MB per file
+- **Repository size warning**: 1GB
+- **Repository size limit**: 5GB (soft limit)
+- **Push size limit**: ~2GB
+
+### If Push Fails:
+1. Check for large files: `git ls-files | xargs ls -lh | sort -k5 -hr | head -20`
+2. Find largest objects in history: `git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($0,6)}' | sort -n -k 2 | tail -20`
+3. If large files in history, use: `git filter-repo --path "FOLDER_NAME/" --invert-paths --force`
+4. Re-add remote: `git remote add origin git@github-opticwise:nbrain-team/opticwise.git`
+5. Force push: `git push --force origin main`
+
+### Gitignore Patterns (Current):
+```
+*.csv
+*.xlsx
+*.env
+*.tif
+*.zip (for large archives)
+**/node_modules/
+Website Project/
+opticwise/
+ow/fathom-meetings-export.json
+ow/vectorization-all-drives.log
+```
+
+### Safe Push Command:
+```bash
+# Always use this command to push
+git push origin main
+```
 
 ## Important Notes
 - This project has NO relation to Paycile (only used as design inspiration for website)
 - Repository was cleaned of large files on Jan 23, 2026 (reduced from 568MB to 34MB)
 - Always use the Opticwise deploy key for GitHub operations
+- **NEVER** commit files over 10MB without explicit approval
+- **ALWAYS** check file sizes before committing large assets
