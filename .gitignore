@@ -11,3 +11,6 @@ ow/fathom-meetings-export.json
 ow/vectorization-all-drives.log
 ow/style-examples-review/
 Website Project/
+# Node modules
+**/node_modules/
+opticwise/
