@@ -161,10 +161,11 @@ async function syncGmailLast30Days() {
         }
         
         // Save to database using Pool to handle vector type correctly
+        const { randomUUID } = await import('crypto');
         await pool.query(
           `INSERT INTO "GmailMessage" 
-           ("gmailMessageId", "threadId", subject, snippet, body, "bodyHtml", "from", "to", cc, date, labels, attachments, vectorized, embedding)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::vector)
+           (id, "gmailMessageId", "threadId", subject, snippet, body, "bodyHtml", "from", "to", cc, date, labels, attachments, vectorized, embedding)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15::vector)
            ON CONFLICT ("gmailMessageId") DO UPDATE SET
              body = EXCLUDED.body,
              "bodyHtml" = EXCLUDED."bodyHtml",
@@ -172,6 +173,7 @@ async function syncGmailLast30Days() {
              embedding = EXCLUDED.embedding,
              vectorized = true`,
           [
+            `cm${randomUUID().replace(/-/g, '')}`, // Generate cuid-style ID
             message.id,
             fullMessage.data.threadId || '',
             subject,
