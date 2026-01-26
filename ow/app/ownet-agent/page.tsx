@@ -491,18 +491,20 @@ export default function OWnetAgentPage() {
                 {msg.role === 'assistant' ? (
                   <>
                     <div className="prose prose-sm max-w-none 
-                      [&>h1]:text-black [&>h1]:font-bold [&>h1]:mt-6 [&>h1]:mb-4
-                      [&>h2]:text-black [&>h2]:font-bold [&>h2]:mt-6 [&>h2]:mb-3
-                      [&>h3]:text-black [&>h3]:font-semibold [&>h3]:mt-4 [&>h3]:mb-2
-                      [&>h4]:text-gray-900 [&>h4]:font-semibold [&>h4]:mt-3 [&>h4]:mb-2
-                      [&>p]:text-gray-800 [&>p]:leading-relaxed [&>p]:my-3
-                      [&>ul]:my-3 [&>ul]:space-y-1
-                      [&>ol]:my-3 [&>ol]:space-y-1
-                      [&>li]:text-gray-800
-                      [&>strong]:text-gray-900 [&>strong]:font-semibold
-                      [&>hr]:my-6 [&>hr]:border-gray-300
-                      [&>blockquote]:border-l-4 [&>blockquote]:border-blue-500 [&>blockquote]:pl-4 [&>blockquote]:my-4
-                      [&>code]:bg-gray-100 [&>code]:px-1 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-sm
+                      [&>h1]:text-black [&>h1]:font-bold [&>h1]:text-xl [&>h1]:mt-8 [&>h1]:mb-4 [&>h1]:pb-2 [&>h1]:border-b [&>h1]:border-gray-200
+                      [&>h2]:text-black [&>h2]:font-bold [&>h2]:text-lg [&>h2]:mt-8 [&>h2]:mb-4
+                      [&>h3]:text-black [&>h3]:font-semibold [&>h3]:text-base [&>h3]:mt-6 [&>h3]:mb-3
+                      [&>h4]:text-gray-900 [&>h4]:font-semibold [&>h4]:mt-5 [&>h4]:mb-2
+                      [&>p]:text-gray-800 [&>p]:leading-7 [&>p]:my-4
+                      [&>ul]:my-4 [&>ul]:space-y-2 [&>ul]:ml-4
+                      [&>ol]:my-4 [&>ol]:space-y-2 [&>ol]:ml-4
+                      [&>li]:text-gray-800 [&>li]:leading-6
+                      [&>strong]:text-black [&>strong]:font-bold
+                      [&>hr]:my-8 [&>hr]:border-gray-300
+                      [&>blockquote]:border-l-4 [&>blockquote]:border-blue-500 [&>blockquote]:pl-4 [&>blockquote]:my-6 [&>blockquote]:py-2 [&>blockquote]:bg-blue-50/50
+                      [&>code]:bg-gray-100 [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-sm [&>code]:font-mono
+                      [&_ul_ul]:mt-2 [&_ul_ul]:mb-0
+                      [&_ol_ol]:mt-2 [&_ol_ol]:mb-0
                     ">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
