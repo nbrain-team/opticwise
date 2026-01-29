@@ -124,7 +124,15 @@ export async function getUserInfo(userId: string): Promise<{
     user: userId
   });
   
-  const user = result.user as Record<string, unknown>;
+  const user = result.user as {
+    id: string;
+    name: string;
+    real_name?: string;
+    profile?: {
+      email?: string;
+      real_name?: string;
+    };
+  };
   
   return {
     id: user.id,
@@ -136,8 +144,10 @@ export async function getUserInfo(userId: string): Promise<{
 
 /**
  * Post typing indicator (appears as "OWnet is typing...")
+ * Note: Slack doesn't have a direct typing indicator API
+ * We use emoji reactions instead
  */
-export async function sendTypingIndicator(_channel: string): Promise<void> {
+export async function sendTypingIndicator(): Promise<void> {
   // Slack doesn't have a direct typing indicator API
   // We can simulate it by posting and updating a message
   // Or just use emoji reactions
