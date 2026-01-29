@@ -43,8 +43,8 @@ export function markdownToSlack(markdown: string): string {
 /**
  * Create Slack blocks for rich formatting
  */
-export function createSlackBlocks(response: string): any[] {
-  const blocks: any[] = [];
+export function createSlackBlocks(response: string): Record<string, unknown>[] {
+  const blocks: Record<string, unknown>[] = [];
   
   // Split response into sections
   const sections = response.split(/\n\n+/);
@@ -125,7 +125,7 @@ export function createSlackBlocks(response: string): any[] {
 /**
  * Format source citations for Slack
  */
-export function formatSourcesForSlack(sources: any): string {
+export function formatSourcesForSlack(sources: Record<string, unknown>): string {
   if (!sources || !sources.sources || sources.sources.length === 0) {
     return '';
   }
@@ -134,8 +134,8 @@ export function formatSourcesForSlack(sources: any): string {
   formatted += `📚 *Sources* (${sources.sources.length} total)\n\n`;
   
   // Group by type
-  const grouped: Record<string, any[]> = {};
-  sources.sources.forEach((source: any) => {
+  const grouped: Record<string, Record<string, unknown>[]> = {};
+  (sources.sources as Record<string, unknown>[]).forEach((source: Record<string, unknown>) => {
     const type = source.type || 'other';
     if (!grouped[type]) grouped[type] = [];
     grouped[type].push(source);
@@ -162,7 +162,7 @@ export function formatSourcesForSlack(sources: any): string {
 /**
  * Create progress message blocks
  */
-export function createProgressBlocks(message: string): any[] {
+export function createProgressBlocks(message: string): Record<string, unknown>[] {
   return [
     {
       type: 'section',
@@ -177,7 +177,7 @@ export function createProgressBlocks(message: string): any[] {
 /**
  * Create error message blocks
  */
-export function createErrorBlocks(error: string): any[] {
+export function createErrorBlocks(error: string): Record<string, unknown>[] {
   return [
     {
       type: 'section',

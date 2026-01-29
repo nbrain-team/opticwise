@@ -116,7 +116,7 @@ async function getOrCreateSession(
  */
 async function callOWnetAgent(message: string, sessionId: string): Promise<{
   response: string;
-  sources?: any;
+  sources?: Record<string, unknown>;
   error?: string;
 }> {
   try {
@@ -145,7 +145,7 @@ async function callOWnetAgent(message: string, sessionId: string): Promise<{
     }
     
     let fullResponse = '';
-    let sources: any = null;
+    let sources: Record<string, unknown> | null = null;
     const decoder = new TextDecoder();
     
     while (true) {
@@ -165,7 +165,7 @@ async function callOWnetAgent(message: string, sessionId: string): Promise<{
             } else if (data.type === 'complete') {
               sources = data.sources;
             }
-          } catch (e) {
+          } catch {
             // Skip invalid JSON
           }
         }
@@ -222,7 +222,7 @@ export async function handleAppMention(event: {
     const sessionId = await getOrCreateSession(slackUserId, channel, thread_ts || ts);
     
     // Post initial "thinking" message
-    const thinkingMsg = await postMessage(
+    await postMessage(
       channel,
       '🔍 Analyzing your question...',
       thread_ts || ts
