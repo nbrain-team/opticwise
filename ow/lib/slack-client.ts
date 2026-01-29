@@ -165,22 +165,20 @@ export async function uploadFile(
 ): Promise<void> {
   const client = getSlackClient();
   
-  const uploadOptions: {
-    channel_id: string;
-    file: Buffer;
-    filename: string;
-    title: string;
-    thread_ts?: string;
-  } = {
-    channel_id: channel,
-    file: Buffer.from(content, 'utf-8'),
-    filename,
-    title
-  };
-  
   if (threadTs) {
-    uploadOptions.thread_ts = threadTs;
+    await client.files.uploadV2({
+      channel_id: channel,
+      file: Buffer.from(content, 'utf-8'),
+      filename,
+      title,
+      thread_ts: threadTs
+    });
+  } else {
+    await client.files.uploadV2({
+      channel_id: channel,
+      file: Buffer.from(content, 'utf-8'),
+      filename,
+      title
+    });
   }
-  
-  await client.files.uploadV2(uploadOptions);
 }
