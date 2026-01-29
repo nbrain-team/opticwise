@@ -785,6 +785,40 @@ export function detectDataSourceIntent(query: string): DataSourceIntent {
 }
 
 // ============================================
+// BRAND TERMINOLOGY ENFORCEMENT
+// ============================================
+
+/**
+ * Enforce OpticWise brand terminology rules
+ * CRITICAL: "infrastructure" must always be "digital infrastructure"
+ */
+export function enforceBrandTerminology(text: string): string {
+  // Replace standalone "infrastructure" with "digital infrastructure"
+  // But preserve cases where "digital" already precedes it
+  
+  // Pattern explanation:
+  // (?<!digital\s) - Negative lookbehind: not preceded by "digital "
+  // (?<!Digital\s) - Negative lookbehind: not preceded by "Digital "
+  // \b - Word boundary
+  // ([Ii]nfrastructure) - Match "infrastructure" or "Infrastructure" (case-insensitive)
+  // \b - Word boundary
+  
+  let corrected = text.replace(
+    /(?<!digital\s)(?<!Digital\s)\b([Ii]nfrastructure)\b/g,
+    (match, p1) => {
+      // Preserve capitalization
+      if (p1[0] === 'I') {
+        return 'Digital Infrastructure';
+      } else {
+        return 'digital infrastructure';
+      }
+    }
+  );
+  
+  return corrected;
+}
+
+// ============================================
 // SOURCE CITATION FORMATTING
 // ============================================
 

@@ -22,6 +22,7 @@ import {
   checkSemanticCache,
   saveToSemanticCache,
   formatSourceCitations,
+  enforceBrandTerminology,
 } from '@/lib/ai-agent-utils';
 import { toolRegistry, registerAllTools } from '@/tools';
 import { ExecutionPlanner } from '@/lib/execution-planner';

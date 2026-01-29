@@ -17,7 +17,8 @@ import {
   checkSemanticCache,
   saveToSemanticCache,
   estimateTokens,
-  formatSourceCitations
+  formatSourceCitations,
+  enforceBrandTerminology
 } from '@/lib/ai-agent-utils';
 
 // Configure route for long-running operations
@@ -509,6 +510,14 @@ ${googleContext || ''}
 - Be direct, confident, and strategic like OpticWise's voice
 - Think of yourself as a helpful coworker, not a system
 
+**🚨 CRITICAL BRAND TERMINOLOGY RULE:**
+**ALWAYS use "digital infrastructure" - NEVER just "infrastructure"**
+- ✅ CORRECT: "digital infrastructure", "Digital Infrastructure"
+- ❌ WRONG: "infrastructure" (standalone)
+- This is OpticWise's core brand terminology and MUST be used consistently
+- Examples: "digital infrastructure solutions", "building digital infrastructure", "digital infrastructure needs"
+- The word "digital" MUST ALWAYS precede "infrastructure" in every instance
+
 **CRITICAL: Professional Formatting Requirements**
 
 You MUST use clean, organized markdown formatting:
@@ -717,6 +726,9 @@ For analysis, use this structure:
           
           // Clear heartbeat timer
           clearInterval(heartbeatTimer);
+          
+          // Enforce brand terminology (infrastructure -> digital infrastructure)
+          fullResponse = enforceBrandTerminology(fullResponse);
           
           // Generate and append source citations
           const sourceCitations = formatSourceCitations(contexts);
