@@ -83,7 +83,7 @@ function enforcePPP5COrder(text: string): string {
   const correctOrderLower = correctOrder.map(c => c.toLowerCase());
   
   // If we find a numbered list with these terms, ensure they're in order
-  const fiveCPattern = /1[.)]\s*(Clarify|Connect|Collect|Coordinate|Control).*?2[.)]\s*(Clarify|Connect|Collect|Coordinate|Control).*?3[.)]\s*(Clarify|Connect|Collect|Coordinate|Control).*?4[.)]\s*(Clarify|Connect|Collect|Coordinate|Control).*?5[.)]\s*(Clarify|Connect|Collect|Coordinate|Control)/is;
+  const fiveCPattern = /1[.)]\s*(Clarify|Connect|Collect|Coordinate|Control)[\s\S]*?2[.)]\s*(Clarify|Connect|Collect|Coordinate|Control)[\s\S]*?3[.)]\s*(Clarify|Connect|Collect|Coordinate|Control)[\s\S]*?4[.)]\s*(Clarify|Connect|Collect|Coordinate|Control)[\s\S]*?5[.)]\s*(Clarify|Connect|Collect|Coordinate|Control)/i;
   
   const match = text.match(fiveCPattern);
   if (match) {

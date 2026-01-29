@@ -419,12 +419,6 @@ export async function POST(request: NextRequest) {
 
     // 4. Build context-aware prompt
     const currentDate = new Date();
-    const formattedDate = currentDate.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
     
     // Fetch style examples for natural communication
     let styleContext = '';
