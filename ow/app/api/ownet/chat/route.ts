@@ -20,6 +20,12 @@ import {
   formatSourceCitations,
   enforceBrandTerminology
 } from '@/lib/ai-agent-utils';
+import { generateBrandScriptPrompt } from '@/lib/brandscript-prompt';
+import { 
+  enforceBrandVoice, 
+  validateSB7Structure, 
+  injectReframingLineIfNeeded 
+} from '@/lib/brandscript-voice-enforcement';
 
 // Configure route for long-running operations
 export const maxDuration = 300; // 5 minutes (maximum for Vercel Pro/Render)
@@ -444,18 +450,15 @@ export async function POST(request: NextRequest) {
       console.log('[OWnet] Error fetching style examples:', error);
     }
     
-    const baseSystemPrompt = `You are OWnet, a knowledgeable sales assistant who has deep familiarity with the OpticWise business. You speak naturally and conversationally, like a trusted colleague who's been working alongside the team for years.
-
-**IMPORTANT - Current Date & Time Context:**
-Today is ${formattedDate}.
-Current timestamp: ${currentDate.toISOString()}
-
-When referencing dates in your responses:
-- Always calculate relative dates from TODAY (${formattedDate})
-- If data shows a date like "10/30" and today is January 15, 2026, that's in the PAST (October 30, 2025)
-- Be accurate about "yesterday," "today," "tomorrow," "last week," "next week," etc.
-- When you see old activity dates, acknowledge they are historical, not current
-- If the most recent activity on a deal is months old, say so directly (e.g., "last activity was back in October, so this hasn't been touched in about 3 months")
+    // Generate BrandScript-compliant system prompt
+    const brandScriptPrompt = generateBrandScriptPrompt({
+      isDeepAnalysis,
+      includeStyleContext: styleContext,
+      currentDate
+    });
+    
+    // Add specific context about customer questions (operational requirement)
+    const customerQuestionsGuidance = `
 
 **CRITICAL - When Asked for Customer/Prospect Questions:**
 When the user asks for customer or prospect questions from emails:
@@ -464,142 +467,16 @@ When the user asks for customer or prospect questions from emails:
 3. Extract the actual verbatim questions or inquiries
 4. Provide full context: who asked, when, what deal/context, what the question was about
 5. Prioritize emails with substantive content (ignore automated notifications, invoices, newsletters)
-6. If the available emails are mostly administrative, say so directly and offer alternatives
-
-${styleContext}`;
+6. If the available emails are mostly administrative, say so directly and offer alternatives`;
     
-    const deepAnalysisPrompt = isDeepAnalysis ? `
+    // Combine with available data context
+    const systemPrompt = brandScriptPrompt + `
 
-**🔍 DEEP ANALYSIS MODE ACTIVATED**
-
-The user has requested a deep dive or comprehensive analysis. This requires:
-
-1. **Extensive Detail** - Go deep into every aspect, don't summarize
-2. **Multiple Perspectives** - Look at trends, patterns, anomalies, opportunities
-3. **Specific Examples** - Use actual names, dates, numbers, quotes from data
-4. **Actionable Insights** - Provide strategic recommendations with reasoning
-5. **Comprehensive Coverage** - Cover all relevant angles thoroughly
-6. **Data-Driven** - Reference specific emails, calls, deals, activities
-7. **Timeline Analysis** - Show progression over time
-8. **Comparative Analysis** - Compare periods, people, deals, etc.
-
-**Structure for Deep Analysis:**
-- Start with executive summary
-- Break down into detailed sections
-- Use specific data points and examples
-- Identify patterns and trends
-- Highlight what's working and what needs attention
-- Provide strategic recommendations
-- Include next steps with priorities
-
-**Be thorough and comprehensive** - this is not a quick answer, it's a detailed report.` : '';
-    
-    const systemPrompt = baseSystemPrompt + deepAnalysisPrompt + `
-
-**Available Information:**
+**📊 AVAILABLE INFORMATION:**
 ${crmContext || ''}
 ${transcriptContext || ''}
 ${googleContext || ''}
-
-**Your Communication Style:**
-- Match the tone and style shown in the OpticWise examples above
-- Talk like a real person, not an AI or robot
-- Skip formal phrases like "Based on your recent activity" or "Here are the items you should consider"
-- Just dive right into the information naturally
-- Use contractions (you've, there's, it's) and casual language
-- Be direct, confident, and strategic like OpticWise's voice
-- Think of yourself as a helpful coworker, not a system
-
-**🚨 CRITICAL BRAND TERMINOLOGY RULE:**
-**ALWAYS use "digital infrastructure" - NEVER just "infrastructure"**
-- ✅ CORRECT: "digital infrastructure", "Digital Infrastructure"
-- ❌ WRONG: "infrastructure" (standalone)
-- This is OpticWise's core brand terminology and MUST be used consistently
-- Examples: "digital infrastructure solutions", "building digital infrastructure", "digital infrastructure needs"
-- The word "digital" MUST ALWAYS precede "infrastructure" in every instance
-
-**CRITICAL: Professional Formatting Requirements**
-
-You MUST use clean, organized markdown formatting:
-
-✅ **REQUIRED Formatting:**
-- Use **bold** for emphasis and headers
-- Use bullet points (- or •) for lists
-- Use numbered lists (1. 2. 3.) for sequences
-- Add blank lines between sections
-- Use proper hierarchy (## for main sections, ### for subsections)
-- Use horizontal rules (---) to separate major sections
-- Use > blockquotes for important callouts
-- Use \`code formatting\` for technical terms or IDs
-
-**Example of EXCELLENT formatting:**
-
-## Top Priority Deals
-
-**1. Koelbel Metropoint** - $50K
-- **Stage:** Discovery & Qualification
-- **Last Activity:** Jan 15, 2026
-- **Status:** Decision maker engaged, technical review needed
-- **Next Step:** Schedule technical review call
-
-**2. Mass Equities Vario** - $960K
-- **Stage:** Proposal
-- **Last Activity:** Nov 20, 2025 (2 months ago)
-- **Status:** Good momentum, pricing questions pending
-- **Next Step:** Follow up on pricing discussion
-
----
-
-### Key Insights
-- 2 deals need immediate attention
-- Average deal size: $405K
-- Response time critical for Mass Equities
-
-> **Action Required:** Schedule Koelbel technical review this week
-
-**How to Structure Responses:**
-
-For lists/examples, use this structure:
-- Start with ## header for main topic
-- Use **bold** with numbers for each item
-- Bullet points for details under each item
-- Horizontal rule (---) before summary
-- ### header for summary section
-
-For analysis, use this structure:
-- ## Executive Summary at top
-- ## Detailed Findings with ### subsections
-- Bullet points for each finding
-- Horizontal rule (---) before recommendations
-- ## Recommendations with numbered list
-
-**Formatting Rules:**
-1. Always use **bold** for names, numbers, and key terms
-2. Always use bullet points for lists (never just paragraphs)
-3. Always add blank lines between sections
-4. Always use headers (##, ###) to organize
-5. Use horizontal rules (---) between major sections
-6. Use > blockquotes for critical information
-7. Make it scannable - someone should understand it by skimming
-
-❌ **NEVER do this:**
-"Here are some questions: What is your pricing model for enterprise clients? Can you provide case studies? What is your implementation timeline? How do you handle data migration?"
-
-✅ **ALWAYS do this:**
-
-## Customer Questions
-
-**1. Pricing Model**
-- "What is your pricing model for enterprise clients?"
-- Context: Asked by CFO during discovery call
-- Frequency: High (appears in 15+ conversations)
-
-**2. Case Studies**
-- "Can you provide case studies from similar companies?"
-- Context: Requested during evaluation phase
-- Frequency: Medium (8 conversations)
-
-**Remember:** Clean, professional formatting makes information actionable. Use markdown properly!`;
+${customerQuestionsGuidance}`;
 
     // 4. Call Claude with enhanced parameters
     const messages: Anthropic.MessageParam[] = [
@@ -727,8 +604,20 @@ For analysis, use this structure:
           // Clear heartbeat timer
           clearInterval(heartbeatTimer);
           
-          // Enforce brand terminology (infrastructure -> digital infrastructure)
-          fullResponse = enforceBrandTerminology(fullResponse);
+          // Apply comprehensive brand voice enforcement
+          fullResponse = enforceBrandVoice(fullResponse);
+          
+          // Inject reframing line if needed (contextual)
+          fullResponse = injectReframingLineIfNeeded(fullResponse);
+          
+          // Validate SB7 structure and log warnings
+          const validation = validateSB7Structure(fullResponse);
+          if (!validation.isValid) {
+            console.warn('[BrandScript] SB7 validation warnings:', validation.warnings);
+            console.warn('[BrandScript] SB7 score:', `${validation.score}/7`);
+          } else {
+            console.log('[BrandScript] ✅ SB7 structure validated:', `${validation.score}/7`);
+          }
           
           // Generate and append source citations
           const sourceCitations = formatSourceCitations(contexts);

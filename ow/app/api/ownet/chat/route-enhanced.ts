@@ -24,6 +24,12 @@ import {
   formatSourceCitations,
   enforceBrandTerminology,
 } from '@/lib/ai-agent-utils';
+import { generateBrandScriptPrompt } from '@/lib/brandscript-prompt';
+import { 
+  enforceBrandVoice, 
+  validateSB7Structure, 
+  injectReframingLineIfNeeded 
+} from '@/lib/brandscript-voice-enforcement';
 import { toolRegistry, registerAllTools } from '@/tools';
 import { ExecutionPlanner } from '@/lib/execution-planner';
 import { EmailVoiceAnalyzer } from '@/lib/email-voice-analyzer';
