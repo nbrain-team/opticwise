@@ -145,7 +145,7 @@ async function callOWnetAgent(message: string, sessionId: string): Promise<{
     }
     
     let fullResponse = '';
-    let sources: Record<string, unknown> | null = null;
+    let sources: Record<string, unknown> | undefined = undefined;
     const decoder = new TextDecoder();
     
     while (true) {
