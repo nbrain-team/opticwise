@@ -96,6 +96,10 @@ export async function POST(request: NextRequest) {
     if (cachedResponse) {
       console.log('[OWnet] Cache hit! Returning cached response');
       
+      // Apply brand voice enforcement to cached responses too!
+      let cleanedResponse = enforceBrandVoice(cachedResponse.response);
+      cleanedResponse = injectReframingLineIfNeeded(cleanedResponse);
+      
       // Still save the user message
       await db.query(
         'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3)',
@@ -104,12 +108,12 @@ export async function POST(request: NextRequest) {
       
       const assistantMsgResult = await db.query(
         'INSERT INTO "AgentChatMessage" ("sessionId", role, content, sources) VALUES ($1, $2, $3, $4) RETURNING id',
-        [sessionId, 'assistant', cachedResponse.response, JSON.stringify(cachedResponse.sources)]
+        [sessionId, 'assistant', cleanedResponse, JSON.stringify(cachedResponse.sources)]
       );
       
       return NextResponse.json({
         success: true,
-        response: cachedResponse.response,
+        response: cleanedResponse,
         messageId: assistantMsgResult.rows[0]?.id,
         sources: cachedResponse.sources,
         cached: true,
