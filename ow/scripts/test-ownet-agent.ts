@@ -330,7 +330,7 @@ async function testAnthropicConnection() {
   console.log('\n🔍 Testing Anthropic Connection...');
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 50,
       messages: [{ role: 'user', content: 'Say "test successful"' }],
     });
@@ -340,7 +340,7 @@ async function testAnthropicConnection() {
       status: 'PASS',
       message: 'Anthropic API connected successfully',
       details: {
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         response: response.content[0].type === 'text' ? response.content[0].text : ''
       }
     });
@@ -396,7 +396,7 @@ async function testEndToEndQuery() {
     
     // 4. Generate AI response
     const aiResponse = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 500,
       messages: [
         {

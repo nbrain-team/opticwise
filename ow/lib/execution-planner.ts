@@ -88,7 +88,7 @@ ${conversationHistory.map(m => `${m.role}: ${m.content}`).join('\n')}`;
 
     try {
       const response = await this.anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 4000,
         temperature: 0.1,
         messages: [{ role: 'user', content: `${systemPrompt}\n\nUser query: ${userMessage}` }],

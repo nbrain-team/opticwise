@@ -164,7 +164,7 @@ Return JSON:
 
     try {
       const response = await this.anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 3000,
         temperature: 0.1,
         messages: [{ role: 'user', content: prompt }],

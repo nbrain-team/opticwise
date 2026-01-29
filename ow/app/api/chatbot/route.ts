@@ -127,7 +127,7 @@ If the lead score is above 40 and you have their email, offer to book the free a
 
     // Call Claude
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5-20250929',
       max_tokens: 1024,
       system: systemPrompt,
       messages,
