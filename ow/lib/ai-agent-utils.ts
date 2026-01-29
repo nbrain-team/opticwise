@@ -803,7 +803,7 @@ export function enforceBrandTerminology(text: string): string {
   // ([Ii]nfrastructure) - Match "infrastructure" or "Infrastructure" (case-insensitive)
   // \b - Word boundary
   
-  let corrected = text.replace(
+  const corrected = text.replace(
     /(?<!digital\s)(?<!Digital\s)\b([Ii]nfrastructure)\b/g,
     (match, p1) => {
       // Preserve capitalization

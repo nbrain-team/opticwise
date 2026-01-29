@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
-import { Pinecone } from '@pinecone-database/pinecone';
+// import { Pinecone } from '@pinecone-database/pinecone';
 import OpenAI from 'openai';
 import { Pool } from 'pg';
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
+// const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },

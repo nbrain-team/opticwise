@@ -17,8 +17,7 @@ import {
   checkSemanticCache,
   saveToSemanticCache,
   estimateTokens,
-  formatSourceCitations,
-  enforceBrandTerminology
+  formatSourceCitations
 } from '@/lib/ai-agent-utils';
 import { generateBrandScriptPrompt } from '@/lib/brandscript-prompt';
 import { 
@@ -252,9 +251,9 @@ export async function POST(request: NextRequest) {
    - Preview: ${email.snippet || email.body?.slice(0, 200)}`;
               }).join('\n\n');
             }
-          } catch (vectorError) {
+          } catch (error) {
             // Fallback: Use keyword search if vector extension not available
-            console.log('[OWnet] Vector search unavailable, using keyword fallback for emails');
+            console.log('[OWnet] Vector search unavailable, using keyword fallback for emails:', error);
             const keywords = message.toLowerCase().split(/\s+/).slice(0, 5).join('|');
             const emailResults = await db.query(
               `SELECT id, subject, "from", "to", snippet, date, body

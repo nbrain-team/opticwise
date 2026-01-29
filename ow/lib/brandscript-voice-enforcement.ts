@@ -95,10 +95,6 @@ function enforcePPP5COrder(text: string): string {
     
     if (isWrongOrder) {
       // Replace with correct order
-      const correctedList = correctOrder.map((term, index) => 
-        match[0].replace(new RegExp(`${index + 1}[.)]\s*${found[index]}`, 'i'), `${index + 1}. ${term}`)
-      );
-      
       // This is complex, so for now just log a warning
       console.warn('[BrandScript] PPP 5C order may be incorrect in response');
     }
@@ -164,7 +160,6 @@ export function validateSB7Structure(text: string): {
 } {
   const warnings: string[] = [];
   let score = 0;
-  const maxScore = 7;
   
   // Check for hero/problem framing
   const hasOwnerLanguage = /\byou\b/i.test(text) && /\byour\b/i.test(text);
