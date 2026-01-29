@@ -128,17 +128,19 @@ export function createSlackBlocks(response: string): (Block | KnownBlock)[] {
  * Format source citations for Slack
  */
 export function formatSourcesForSlack(sources: Record<string, unknown>): string {
-  if (!sources || !sources.sources || sources.sources.length === 0) {
+  const sourcesArray = sources.sources as Record<string, unknown>[] | undefined;
+  
+  if (!sources || !sourcesArray || !Array.isArray(sourcesArray) || sourcesArray.length === 0) {
     return '';
   }
   
   let formatted = '\n\n─'.repeat(20) + '\n\n';
-  formatted += `📚 *Sources* (${sources.sources.length} total)\n\n`;
+  formatted += `📚 *Sources* (${sourcesArray.length} total)\n\n`;
   
   // Group by type
   const grouped: Record<string, Record<string, unknown>[]> = {};
-  (sources.sources as Record<string, unknown>[]).forEach((source: Record<string, unknown>) => {
-    const type = source.type || 'other';
+  sourcesArray.forEach((source: Record<string, unknown>) => {
+    const type = (source.type as string) || 'other';
     if (!grouped[type]) grouped[type] = [];
     grouped[type].push(source);
   });
