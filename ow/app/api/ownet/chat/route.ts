@@ -16,7 +16,8 @@ import {
   detectDataSourceIntent,
   checkSemanticCache,
   saveToSemanticCache,
-  estimateTokens
+  estimateTokens,
+  formatSourceCitations
 } from '@/lib/ai-agent-utils';
 
 // Configure route for long-running operations
@@ -716,6 +717,18 @@ For analysis, use this structure:
           
           // Clear heartbeat timer
           clearInterval(heartbeatTimer);
+          
+          // Generate and append source citations
+          const sourceCitations = formatSourceCitations(contexts);
+          
+          // Stream the citations if we have any
+          if (sourceCitations) {
+            sendData({
+              type: 'content',
+              text: sourceCitations
+            });
+            fullResponse += sourceCitations;
+          }
           
           // Save messages to database
           await db.query(

@@ -264,6 +264,18 @@ export interface ContextSource {
   metadata: Record<string, unknown>;
   relevanceScore?: number;
   tokenCount: number;
+  sources?: SourceCitation[]; // Detailed source citations
+}
+
+export interface SourceCitation {
+  id: string;
+  type: 'transcript' | 'email' | 'calendar' | 'drive' | 'crm' | 'chat_history';
+  title: string;
+  date?: string;
+  author?: string;
+  confidence: number; // 0-1 similarity score
+  preview: string; // First 150 chars
+  metadata?: Record<string, unknown>;
 }
 
 export interface ContextBudget {
@@ -359,9 +371,11 @@ export async function loadContextWithinBudget(
     // Search chunks first for precision
     const chunkResult = await db.query(
       `SELECT 
+        c.id as chunk_id,
         c."chunkText",
         c."chunkIndex",
         c."wordCount",
+        t.id as transcript_id,
         t.title,
         t."startTime",
         t.summary,
@@ -376,6 +390,7 @@ export async function loadContextWithinBudget(
     
     let transcriptTokens = 0;
     const transcriptChunks: string[] = [];
+    const transcriptCitations: SourceCitation[] = [];
     
     for (const chunk of chunkResult.rows) {
       if (transcriptTokens > 60000) break;
@@ -385,12 +400,27 @@ export async function loadContextWithinBudget(
       
       transcriptChunks.push(`[${chunk.title} - ${new Date(chunk.startTime).toLocaleDateString()}]\n${chunk.chunkText}`);
       transcriptTokens += chunkTokens;
+      
+      // Add citation
+      transcriptCitations.push({
+        id: chunk.transcript_id || chunk.chunk_id,
+        type: 'transcript',
+        title: chunk.title,
+        date: new Date(chunk.startTime).toLocaleDateString(),
+        confidence: parseFloat(chunk.similarity),
+        preview: chunk.chunkText.substring(0, 150).trim() + '...',
+        metadata: {
+          chunkIndex: chunk.chunkIndex,
+          wordCount: chunk.wordCount
+        }
+      });
     }
     
     // If no chunks found, fallback to full transcripts (backward compatibility)
     if (transcriptChunks.length === 0) {
       const fullTranscriptResult = await db.query(
-        `SELECT id, title, transcript, summary, "startTime"
+        `SELECT id, title, transcript, summary, "startTime",
+         1 - (embedding <=> $1::vector) as similarity
          FROM "CallTranscript"
          WHERE vectorized = true AND embedding IS NOT NULL
          ORDER BY embedding <=> $1::vector
@@ -405,6 +435,16 @@ export async function loadContextWithinBudget(
         if (usedTokens + transcriptTokens + tokens > availableForContext) break;
         transcriptChunks.push(`[${transcript.title} - ${new Date(transcript.startTime).toLocaleDateString()}]\n${text}`);
         transcriptTokens += tokens;
+        
+        // Add citation
+        transcriptCitations.push({
+          id: transcript.id,
+          type: 'transcript',
+          title: transcript.title,
+          date: new Date(transcript.startTime).toLocaleDateString(),
+          confidence: parseFloat(transcript.similarity),
+          preview: text.substring(0, 150).trim() + '...'
+        });
       }
     }
     
@@ -413,7 +453,8 @@ export async function loadContextWithinBudget(
         type: 'transcript',
         content: transcriptChunks.join('\n\n---\n\n'),
         metadata: { chunkCount: transcriptChunks.length },
-        tokenCount: transcriptTokens
+        tokenCount: transcriptTokens,
+        sources: transcriptCitations
       });
       usedTokens += transcriptTokens;
     }
@@ -426,17 +467,20 @@ export async function loadContextWithinBudget(
   try {
     let emailTokens = 0;
     const emailContents: string[] = [];
+    const emailCitations: SourceCitation[] = [];
     
     // First, search Sales Inbox EmailMessage (customer conversations)
     try {
       const salesInboxResult = await db.query(
         `SELECT 
+          em.id,
           em.body,
           em.sender,
           em."sentAt",
           et.subject,
           p.name as person_name,
-          o.name as org_name
+          o.name as org_name,
+          1 - (em.embedding <=> $1::vector) as similarity
          FROM "EmailMessage" em
          JOIN "EmailThread" et ON em."threadId" = et.id
          LEFT JOIN "Person" p ON et."personId" = p.id
@@ -457,6 +501,21 @@ export async function loadContextWithinBudget(
         
         emailContents.push(emailText);
         emailTokens += tokens;
+        
+        // Add citation
+        emailCitations.push({
+          id: email.id,
+          type: 'email',
+          title: email.subject,
+          date: new Date(email.sentAt).toLocaleDateString(),
+          author: email.sender,
+          confidence: parseFloat(email.similarity),
+          preview: emailBody.substring(0, 150).trim() + '...',
+          metadata: {
+            contact: email.person_name,
+            company: email.org_name
+          }
+        });
       }
     } catch (salesError) {
       console.log('[Context] Sales inbox search error:', salesError);
@@ -465,7 +524,8 @@ export async function loadContextWithinBudget(
     // Then add GmailMessage emails if we have token budget left
     if (emailTokens < 30000) {
       const gmailResult = await db.query(
-        `SELECT subject, "from", "to", snippet, body, date
+        `SELECT id, subject, "from", "to", snippet, body, date,
+         1 - (embedding <=> $1::vector) as similarity
          FROM "GmailMessage"
          WHERE vectorized = true AND embedding IS NOT NULL
            AND "from" NOT ILIKE '%noreply%'
@@ -491,6 +551,17 @@ export async function loadContextWithinBudget(
         
         emailContents.push(emailText);
         emailTokens += tokens;
+        
+        // Add citation
+        emailCitations.push({
+          id: email.id,
+          type: 'email',
+          title: email.subject,
+          date: new Date(email.date).toLocaleDateString(),
+          author: email.from,
+          confidence: parseFloat(email.similarity),
+          preview: emailBody.substring(0, 150).trim() + '...'
+        });
       }
     }
     
@@ -499,7 +570,8 @@ export async function loadContextWithinBudget(
         type: 'email',
         content: emailContents.join('\n\n---\n\n'),
         metadata: { emailCount: emailContents.length },
-        tokenCount: emailTokens
+        tokenCount: emailTokens,
+        sources: emailCitations
       });
       usedTokens += emailTokens;
     }
@@ -512,7 +584,8 @@ export async function loadContextWithinBudget(
     const messageLower = query.toLowerCase();
     if (messageLower.includes('deal') || messageLower.includes('pipeline')) {
       const dealsResult = await db.query(
-        `SELECT d.title, d.value, d.currency, s.name as stage_name, 
+        `SELECT d.id, d.title, d.value, d.currency, d."updatedAt",
+                s.name as stage_name, 
                 o.name as org_name, p.name as person_name
          FROM "Deal" d
          LEFT JOIN "Stage" s ON d."stageId" = s.id
@@ -528,13 +601,29 @@ export async function loadContextWithinBudget(
       ).join('\n');
       
       const crmTokens = estimateTokens(crmText);
+      const crmCitations: SourceCitation[] = dealsResult.rows.map(d => ({
+        id: d.id,
+        type: 'crm',
+        title: d.title,
+        date: new Date(d.updatedAt).toLocaleDateString(),
+        confidence: 1.0, // CRM data is exact match, not semantic
+        preview: `${d.currency} ${Number(d.value).toLocaleString()} - ${d.stage_name}`,
+        metadata: {
+          value: d.value,
+          currency: d.currency,
+          stage: d.stage_name,
+          organization: d.org_name,
+          contact: d.person_name
+        }
+      }));
       
       if (usedTokens + crmTokens <= availableForContext) {
         contexts.push({
           type: 'crm',
           content: crmText,
           metadata: { dealCount: dealsResult.rows.length },
-          tokenCount: crmTokens
+          tokenCount: crmTokens,
+          sources: crmCitations
         });
         usedTokens += crmTokens;
       }
@@ -693,6 +782,94 @@ export function detectDataSourceIntent(query: string): DataSourceIntent {
     needsCRM: /deal|contact|person|company|organization|pipeline|stage/.test(lower),
     needsTranscripts: /call|transcript|conversation|discussion|meeting/.test(lower)
   };
+}
+
+// ============================================
+// SOURCE CITATION FORMATTING
+// ============================================
+
+/**
+ * Format source citations for display at end of response
+ */
+export function formatSourceCitations(contexts: ContextSource[]): string {
+  const allSources: SourceCitation[] = [];
+  
+  // Collect all sources from contexts
+  contexts.forEach(context => {
+    if (context.sources && context.sources.length > 0) {
+      allSources.push(...context.sources);
+    }
+  });
+  
+  if (allSources.length === 0) {
+    return '';
+  }
+  
+  // Sort by confidence score (highest first)
+  allSources.sort((a, b) => b.confidence - a.confidence);
+  
+  // Group by type
+  const grouped: Record<string, SourceCitation[]> = {};
+  allSources.forEach(source => {
+    if (!grouped[source.type]) {
+      grouped[source.type] = [];
+    }
+    grouped[source.type].push(source);
+  });
+  
+  // Format output
+  let output = '\n\n---\n\n## 📚 Sources\n\n';
+  output += `*This response was generated using ${allSources.length} source${allSources.length > 1 ? 's' : ''} from your data.*\n\n`;
+  
+  // Format each type
+  const typeLabels: Record<string, string> = {
+    transcript: '🎙️ Call Transcripts',
+    email: '📧 Emails',
+    crm: '📇 CRM Data',
+    calendar: '📅 Calendar Events',
+    drive: '📄 Documents',
+    chat_history: '💬 Chat History'
+  };
+  
+  Object.entries(grouped).forEach(([type, sources]) => {
+    output += `### ${typeLabels[type] || type}\n\n`;
+    
+    sources.forEach((source, index) => {
+      const confidencePercent = Math.round(source.confidence * 100);
+      const confidenceEmoji = confidencePercent >= 90 ? '🟢' : confidencePercent >= 70 ? '🟡' : '🟠';
+      
+      output += `**${index + 1}. ${source.title}**\n`;
+      output += `- ${confidenceEmoji} Relevance: ${confidencePercent}%\n`;
+      if (source.date) output += `- 📅 Date: ${source.date}\n`;
+      if (source.author) output += `- 👤 From: ${source.author}\n`;
+      if (source.preview) output += `- 📝 Preview: "${source.preview}"\n`;
+      
+      // Add type-specific metadata
+      if (source.metadata) {
+        if (source.type === 'email' && source.metadata.contact) {
+          output += `- 👥 Contact: ${source.metadata.contact}`;
+          if (source.metadata.company) output += ` (${source.metadata.company})`;
+          output += '\n';
+        } else if (source.type === 'crm' && source.metadata.value) {
+          output += `- 💰 Value: ${source.metadata.currency} ${Number(source.metadata.value).toLocaleString()}\n`;
+          output += `- 📊 Stage: ${source.metadata.stage}\n`;
+        } else if (source.type === 'transcript' && source.metadata.chunkIndex) {
+          output += `- 📍 Section: ${source.metadata.chunkIndex}\n`;
+        }
+      }
+      
+      output += '\n';
+    });
+  });
+  
+  // Add legend
+  output += '---\n\n';
+  output += '**Relevance Score Legend:**\n';
+  output += '- 🟢 90-100%: Highly relevant\n';
+  output += '- 🟡 70-89%: Moderately relevant\n';
+  output += '- 🟠 Below 70%: Contextually relevant\n';
+  
+  return output;
 }
 
 // ============================================
