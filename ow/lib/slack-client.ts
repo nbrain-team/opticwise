@@ -4,7 +4,7 @@
  * Handles Slack API interactions and message posting
  */
 
-import { WebClient } from '@slack/web-api';
+import { WebClient, Block, KnownBlock } from '@slack/web-api';
 
 let slackClient: WebClient | null = null;
 
@@ -49,7 +49,7 @@ export async function postMessage(
 export async function postMessageWithBlocks(
   channel: string,
   text: string,
-  blocks: Record<string, unknown>[],
+  blocks: (Block | KnownBlock)[],
   threadTs?: string
 ): Promise<{ ts: string; channel: string }> {
   const client = getSlackClient();
@@ -76,7 +76,7 @@ export async function updateMessage(
   channel: string,
   ts: string,
   text: string,
-  blocks?: Record<string, unknown>[]
+  blocks?: (Block | KnownBlock)[]
 ): Promise<void> {
   const client = getSlackClient();
   

@@ -4,6 +4,8 @@
  * Converts OWnet markdown responses to Slack-compatible format
  */
 
+import { Block, KnownBlock } from '@slack/web-api';
+
 /**
  * Convert markdown to Slack mrkdwn format
  */
@@ -43,8 +45,8 @@ export function markdownToSlack(markdown: string): string {
 /**
  * Create Slack blocks for rich formatting
  */
-export function createSlackBlocks(response: string): Record<string, unknown>[] {
-  const blocks: Record<string, unknown>[] = [];
+export function createSlackBlocks(response: string): (Block | KnownBlock)[] {
+  const blocks: (Block | KnownBlock)[] = [];
   
   // Split response into sections
   const sections = response.split(/\n\n+/);
@@ -162,7 +164,7 @@ export function formatSourcesForSlack(sources: Record<string, unknown>): string 
 /**
  * Create progress message blocks
  */
-export function createProgressBlocks(message: string): Record<string, unknown>[] {
+export function createProgressBlocks(message: string): (Block | KnownBlock)[] {
   return [
     {
       type: 'section',
@@ -177,7 +179,7 @@ export function createProgressBlocks(message: string): Record<string, unknown>[]
 /**
  * Create error message blocks
  */
-export function createErrorBlocks(error: string): Record<string, unknown>[] {
+export function createErrorBlocks(error: string): (Block | KnownBlock)[] {
   return [
     {
       type: 'section',
