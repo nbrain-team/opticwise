@@ -8,6 +8,7 @@
  * - Dynamic Voice Analysis (analyze actual emails)
  * - Streaming Responses (with progress indicators)
  * - Feedback Learning (continuous improvement)
+ * - Deep Analysis Mode (extended token limits and context)
  */
 
 import { NextRequest } from 'next/server';
@@ -25,6 +26,10 @@ import { toolRegistry, registerAllTools } from '@/tools';
 import { ExecutionPlanner } from '@/lib/execution-planner';
 import { EmailVoiceAnalyzer } from '@/lib/email-voice-analyzer';
 import type { ToolResult } from '@/lib/tool-registry';
+
+// Configure route for long-running operations
+export const maxDuration = 300; // 5 minutes (maximum for Vercel Pro/Render)
+export const dynamic = 'force-dynamic'; // Disable static optimization
 
 // Initialize on first use
 let pool: Pool | null = null;

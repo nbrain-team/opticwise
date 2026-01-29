@@ -19,6 +19,10 @@ import {
   estimateTokens
 } from '@/lib/ai-agent-utils';
 
+// Configure route for long-running operations
+export const maxDuration = 300; // 5 minutes (maximum for Vercel Pro/Render)
+export const dynamic = 'force-dynamic'; // Disable static optimization
+
 // Initialize on first use to avoid build-time errors
 let pool: Pool | null = null;
 let anthropic: Anthropic | null = null;
@@ -110,6 +114,13 @@ export async function POST(request: NextRequest) {
     const intent = classifyQuery(message);
     console.log('[OWnet] Query classification:', intent.type, `(${intent.confidence * 100}% confidence)`);
     
+    // Log deep analysis mode activation
+    if (intent.type === 'deep_analysis') {
+      console.log('[OWnet] 🔬 DEEP ANALYSIS MODE ACTIVATED');
+      console.log('[OWnet] Max tokens:', intent.suggestedMaxTokens);
+      console.log('[OWnet] Trigger keywords:', intent.keywords);
+    }
+    
     // Step 3: Expand query for better search coverage (for research/deep analysis)
     let expandedQuery = null;
     if (intent.requiresDeepSearch) {
@@ -122,12 +133,13 @@ export async function POST(request: NextRequest) {
     console.log('[OWnet] Data sources needed:', dataSourceIntent);
     
     // Step 5: Load context intelligently within token budget
-    // Check if user requested max tokens
-    const hasMaxCommand = /\b(max_tokens|max|maximum|exhaustive|ultra-detailed)\b/i.test(message);
+    // Check if user requested max tokens with enhanced detection
+    const hasMaxCommand = /\b(max[_\s]?tokens?|max|maximum|exhaustive|ultra[-\s]?detailed|analyze[_\s]all|all[_\s]of[_\s]them|provide[_\s]a?[_\s]deep|deep[_\s]analysis)\b/i.test(message);
     
+    // Significantly increase context window for deep analysis
     const contextWindow = hasMaxCommand ? 200000 :
-                          intent.type === 'deep_analysis' ? 180000 : 
-                          intent.type === 'research' ? 150000 : 100000;
+                          intent.type === 'deep_analysis' ? 200000 : 
+                          intent.type === 'research' ? 180000 : 120000;
     
     const { contexts, totalTokens, budget } = await loadContextWithinBudget(
       message,
@@ -594,60 +606,79 @@ For analysis, use this structure:
     
     console.log(`[OWnet] Mode: ${intent.type} | Max tokens: ${maxTokens} | Temperature: ${temperature} | Context: ${totalTokens} tokens`);
     
-    // Create streaming response
+    // Create streaming response with keep-alive mechanism
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
+        // Keep-alive heartbeat to prevent timeout during long operations
+        let lastActivityTime = Date.now();
+        const HEARTBEAT_INTERVAL = 15000; // Send heartbeat every 15 seconds
+        
+        const heartbeatTimer = setInterval(() => {
+          const timeSinceActivity = Date.now() - lastActivityTime;
+          if (timeSinceActivity >= HEARTBEAT_INTERVAL) {
+            // Send keep-alive comment (SSE standard)
+            controller.enqueue(encoder.encode(': heartbeat\n\n'));
+            lastActivityTime = Date.now();
+          }
+        }, HEARTBEAT_INTERVAL);
+        
         try {
+          // Helper to send data and update activity time
+          const sendData = (data: Record<string, unknown>) => {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+            lastActivityTime = Date.now();
+          };
+          
           // Send progress indicator: Starting analysis
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+          sendData({
             type: 'progress',
-            message: '🔍 Analyzing your query...'
-          })}\n\n`));
+            message: intent.type === 'deep_analysis' ? '🔍 Preparing deep analysis with maximum context...' : '🔍 Analyzing your query...'
+          });
           
           // Small delay for UX (let user see the progress)
           await new Promise(resolve => setTimeout(resolve, 300));
           
           // Send progress indicator: Searching transcripts
           if (transcriptContext) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            sendData({
               type: 'progress',
               message: '🎙️ Searching meeting transcripts...'
-            })}\n\n`));
+            });
             await new Promise(resolve => setTimeout(resolve, 200));
           }
           
           // Send progress indicator: Searching CRM
           if (crmContext) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            sendData({
               type: 'progress',
               message: '📇 Searching CRM data...'
-            })}\n\n`));
+            });
             await new Promise(resolve => setTimeout(resolve, 200));
           }
           
           // Send progress indicator: Searching Google Workspace
           if (googleContext) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            sendData({
               type: 'progress',
               message: '📧 Searching emails and documents...'
-            })}\n\n`));
+            });
             await new Promise(resolve => setTimeout(resolve, 200));
           }
           
           // Send progress indicator: Context loaded
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+          sendData({
             type: 'progress',
-            message: `📊 Loaded ${contexts.length} data sources • ${totalTokens.toLocaleString()} tokens`
-          })}\n\n`));
+            message: `📊 Loaded ${contexts.length} data sources • ${totalTokens.toLocaleString()} tokens • Max output: ${maxTokens.toLocaleString()} tokens`
+          });
           
           await new Promise(resolve => setTimeout(resolve, 300));
           
           // Send progress indicator: Generating response
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+          sendData({
             type: 'progress',
-            message: '✨ Generating response...'
-          })}\n\n`));
+            message: intent.type === 'deep_analysis' ? '✨ Generating comprehensive analysis (this may take a moment)...' : '✨ Generating response...'
+          });
           
           // Stream the actual response from Claude
           const claudeStream = await ai.messages.stream({
@@ -659,19 +690,32 @@ For analysis, use this structure:
           });
           
           let fullResponse = '';
+          let chunkCount = 0;
           
           for await (const chunk of claudeStream) {
             if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
               const text = chunk.delta.text;
               fullResponse += text;
+              chunkCount++;
               
               // Stream content to user
-              controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+              sendData({
                 type: 'content',
                 text: text
-              })}\n\n`));
+              });
+              
+              // For deep analysis, send periodic progress updates
+              if (intent.type === 'deep_analysis' && chunkCount % 100 === 0) {
+                sendData({
+                  type: 'meta',
+                  message: `Analyzing... (${fullResponse.length.toLocaleString()} characters generated)`
+                });
+              }
             }
           }
+          
+          // Clear heartbeat timer
+          clearInterval(heartbeatTimer);
           
           // Save messages to database
           await db.query(
@@ -788,6 +832,9 @@ AI response summary: ${fullResponse.slice(0, 300)}`;
           
           controller.close();
         } catch (error) {
+          // Clear heartbeat timer on error
+          clearInterval(heartbeatTimer);
+          
           console.error('[OWnet] Streaming error:', error);
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({
             type: 'error',

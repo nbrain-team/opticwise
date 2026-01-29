@@ -45,7 +45,10 @@ export function classifyQuery(query: string): QueryIntent {
     'breakdown', 'detailed report', 'activity report', 'full breakdown',
     'analyze everything', 'complete overview', 'detailed overview',
     'give me everything', 'walk me through', 'explain in detail',
-    'comprehensive review'
+    'comprehensive review', 'analyze all', 'full details', 'everything you know',
+    'all the data', 'complete analysis', 'exhaustive', 'extensive analysis',
+    'all information', 'total breakdown', 'full picture', 'entire history',
+    'complete history', 'all activity', 'every detail', 'full report'
   ];
   
   // RESEARCH - Finding and aggregating information
@@ -87,16 +90,17 @@ export function classifyQuery(query: string): QueryIntent {
   const isFollowUp = /\b(no|not|more|better|different|instead|actually)\b/.test(lowerQuery) && query.length < 150;
   
   // SPECIAL COMMANDS - Override with maximum tokens
-  const maxTokensCommand = /\b(max_tokens|max|maximum|exhaustive|ultra-detailed)\b/.test(lowerQuery);
+  // Enhanced detection for max token requests
+  const maxTokensCommand = /\b(max[_\s]?tokens?|max|maximum|exhaustive|ultra[-\s]?detailed|analyze[_\s]all|all[_\s]of[_\s]them|provide[_\s]a?[_\s]deep|deep[_\s]analysis)\b/i.test(lowerQuery);
   
   // If user explicitly requests maximum detail
   if (maxTokensCommand) {
     return {
       type: 'deep_analysis',
       confidence: 1.0,
-      keywords: ['max_tokens', 'maximum_detail'],
+      keywords: ['max_tokens', 'maximum_detail', 'deep_analysis'],
       requiresDeepSearch: true,
-      suggestedMaxTokens: 32768, // Maximum for Claude Sonnet
+      suggestedMaxTokens: 64000, // Increased from 32768 for ultra-deep analysis
       suggestedTemperature: 0.7
     };
   }
@@ -108,7 +112,7 @@ export function classifyQuery(query: string): QueryIntent {
       confidence: 0.95,
       keywords: deepAnalysisKeywords.filter(kw => lowerQuery.includes(kw)),
       requiresDeepSearch: true,
-      suggestedMaxTokens: 16384,
+      suggestedMaxTokens: 32000, // Increased from 16384 for comprehensive analysis
       suggestedTemperature: 0.7
     };
   }
