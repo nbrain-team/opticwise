@@ -297,6 +297,9 @@ export default function OWnetAgentPage() {
                     }
                     return newMessages
                   })
+                } else if (data.type === 'meta') {
+                  // Handle meta messages (progress updates during deep analysis)
+                  console.log('[OWnet] Meta:', data.message)
                 } else if (data.type === 'complete') {
                   // Store metadata
                   messageId = data.messageId
@@ -313,6 +316,13 @@ export default function OWnetAgentPage() {
                     }
                     return newMessages
                   })
+                  
+                  // Force scroll to bottom
+                  setTimeout(() => {
+                    if (chatContainerRef.current) {
+                      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+                    }
+                  }, 100)
                   
                   loadSessions() // Refresh session list
                 } else if (data.type === 'error') {
