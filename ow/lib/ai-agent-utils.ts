@@ -851,57 +851,59 @@ export function formatSourceCitations(contexts: ContextSource[]): string {
     grouped[source.type].push(source);
   });
   
-  // Format output
-  let output = '\n\n---\n\n## 📚 Sources\n\n';
+  // Format output with collapsible dropdown
+  let output = '\n\n---\n\n## Sources\n\n';
   output += `*This response was generated using ${allSources.length} source${allSources.length > 1 ? 's' : ''} from your data.*\n\n`;
   
-  // Format each type
+  // Format each type with collapsible details
   const typeLabels: Record<string, string> = {
-    transcript: '🎙️ Call Transcripts',
-    email: '📧 Emails',
-    crm: '📇 CRM Data',
-    calendar: '📅 Calendar Events',
-    drive: '📄 Documents',
-    chat_history: '💬 Chat History'
+    transcript: 'Call Transcripts',
+    email: 'Emails',
+    crm: 'CRM Data',
+    calendar: 'Calendar Events',
+    drive: 'Documents',
+    chat_history: 'Chat History'
   };
   
   Object.entries(grouped).forEach(([type, sources]) => {
-    output += `### ${typeLabels[type] || type}\n\n`;
+    output += `<details>\n<summary><strong>${typeLabels[type] || type} (${sources.length})</strong></summary>\n\n`;
     
     sources.forEach((source, index) => {
       const confidencePercent = Math.round(source.confidence * 100);
-      const confidenceEmoji = confidencePercent >= 90 ? '🟢' : confidencePercent >= 70 ? '🟡' : '🟠';
+      const relevanceLabel = confidencePercent >= 90 ? 'High' : confidencePercent >= 70 ? 'Medium' : 'Moderate';
       
       output += `**${index + 1}. ${source.title}**\n`;
-      output += `- ${confidenceEmoji} Relevance: ${confidencePercent}%\n`;
-      if (source.date) output += `- 📅 Date: ${source.date}\n`;
-      if (source.author) output += `- 👤 From: ${source.author}\n`;
-      if (source.preview) output += `- 📝 Preview: "${source.preview}"\n`;
+      output += `- Relevance: ${confidencePercent}% (${relevanceLabel})\n`;
+      if (source.date) output += `- Date: ${source.date}\n`;
+      if (source.author) output += `- From: ${source.author}\n`;
+      if (source.preview) output += `- Preview: "${source.preview}"\n`;
       
       // Add type-specific metadata
       if (source.metadata) {
         if (source.type === 'email' && source.metadata.contact) {
-          output += `- 👥 Contact: ${source.metadata.contact}`;
+          output += `- Contact: ${source.metadata.contact}`;
           if (source.metadata.company) output += ` (${source.metadata.company})`;
           output += '\n';
         } else if (source.type === 'crm' && source.metadata.value) {
-          output += `- 💰 Value: ${source.metadata.currency} ${Number(source.metadata.value).toLocaleString()}\n`;
-          output += `- 📊 Stage: ${source.metadata.stage}\n`;
+          output += `- Value: ${source.metadata.currency} ${Number(source.metadata.value).toLocaleString()}\n`;
+          output += `- Stage: ${source.metadata.stage}\n`;
         } else if (source.type === 'transcript' && source.metadata.chunkIndex) {
-          output += `- 📍 Section: ${source.metadata.chunkIndex}\n`;
+          output += `- Section: ${source.metadata.chunkIndex}\n`;
         }
       }
       
       output += '\n';
     });
+    
+    output += `</details>\n\n`;
   });
   
-  // Add legend
-  output += '---\n\n';
-  output += '**Relevance Score Legend:**\n';
-  output += '- 🟢 90-100%: Highly relevant\n';
-  output += '- 🟡 70-89%: Moderately relevant\n';
-  output += '- 🟠 Below 70%: Contextually relevant\n';
+  // Add legend (collapsed by default)
+  output += '<details>\n<summary><strong>Relevance Score Legend</strong></summary>\n\n';
+  output += '- **High (90-100%)**: Highly relevant to your query\n';
+  output += '- **Medium (70-89%)**: Moderately relevant\n';
+  output += '- **Moderate (Below 70%)**: Contextually relevant\n';
+  output += '\n</details>\n';
   
   return output;
 }

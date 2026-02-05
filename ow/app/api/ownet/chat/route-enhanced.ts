@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
             encoder.encode(
               `data: ${JSON.stringify({
                 type: 'progress',
-                message: '🔍 Checking cache...',
+                message: 'Checking cache...',
               })}\n\n`
             )
           );
@@ -184,7 +184,7 @@ export async function POST(request: NextRequest) {
             encoder.encode(
               `data: ${JSON.stringify({
                 type: 'progress',
-                message: '🧠 Analyzing query intent...',
+                message: 'Analyzing query intent...',
               })}\n\n`
             )
           );
@@ -305,7 +305,7 @@ export async function POST(request: NextRequest) {
             encoder.encode(
               `data: ${JSON.stringify({
                 type: 'progress',
-                message: '✨ Generating response...',
+                message: 'Generating response...',
               })}\n\n`
             )
           );

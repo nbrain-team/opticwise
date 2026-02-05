@@ -135,7 +135,7 @@ export function formatSourcesForSlack(sources: Record<string, unknown>): string 
   }
   
   let formatted = '\n\n─'.repeat(20) + '\n\n';
-  formatted += `📚 *Sources* (${sourcesArray.length} total)\n\n`;
+  formatted += `*Sources* (${sourcesArray.length} total)\n\n`;
   
   // Group by type
   const grouped: Record<string, Record<string, unknown>[]> = {};
@@ -145,17 +145,18 @@ export function formatSourcesForSlack(sources: Record<string, unknown>): string 
     grouped[type].push(source);
   });
   
-  // Format each type
-  const typeEmojis: Record<string, string> = {
-    transcript: '🎙️',
-    email: '📧',
-    crm: '📇',
-    calendar: '📅',
-    drive: '📄'
+  // Format each type (no emojis)
+  const typeLabels: Record<string, string> = {
+    transcript: 'Transcript',
+    email: 'Email',
+    crm: 'CRM',
+    calendar: 'Calendar',
+    drive: 'Document'
   };
   
   Object.entries(grouped).forEach(([type, items]) => {
-    formatted += `${typeEmojis[type] || '📄'} *${type.charAt(0).toUpperCase() + type.slice(1)}s:* ${items.length}\n`;
+    const label = typeLabels[type] || type.charAt(0).toUpperCase() + type.slice(1);
+    formatted += `*${label}s:* ${items.length}\n`;
   });
   
   formatted += `\n_Query type: ${sources.queryClassification || 'general'}_`;

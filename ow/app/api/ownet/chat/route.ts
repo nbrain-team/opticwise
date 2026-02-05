@@ -469,7 +469,7 @@ When the user asks for customer or prospect questions from emails:
     // Combine with available data context
     const systemPrompt = brandScriptPrompt + `
 
-**📊 AVAILABLE INFORMATION:**
+**AVAILABLE INFORMATION:**
 ${crmContext || ''}
 ${transcriptContext || ''}
 ${googleContext || ''}
@@ -517,7 +517,7 @@ ${customerQuestionsGuidance}`;
           // Send progress indicator: Starting analysis
           sendData({
             type: 'progress',
-            message: intent.type === 'deep_analysis' ? '🔍 Preparing deep analysis with maximum context...' : '🔍 Analyzing your query...'
+            message: intent.type === 'deep_analysis' ? 'Preparing deep analysis with maximum context...' : 'Analyzing your query...'
           });
           
           // Small delay for UX (let user see the progress)
@@ -527,7 +527,7 @@ ${customerQuestionsGuidance}`;
           if (transcriptContext) {
             sendData({
               type: 'progress',
-              message: '🎙️ Searching meeting transcripts...'
+              message: 'Searching meeting transcripts...'
             });
             await new Promise(resolve => setTimeout(resolve, 200));
           }
@@ -536,7 +536,7 @@ ${customerQuestionsGuidance}`;
           if (crmContext) {
             sendData({
               type: 'progress',
-              message: '📇 Searching CRM data...'
+              message: 'Searching CRM data...'
             });
             await new Promise(resolve => setTimeout(resolve, 200));
           }
@@ -545,7 +545,7 @@ ${customerQuestionsGuidance}`;
           if (googleContext) {
             sendData({
               type: 'progress',
-              message: '📧 Searching emails and documents...'
+              message: 'Searching emails and documents...'
             });
             await new Promise(resolve => setTimeout(resolve, 200));
           }
@@ -553,7 +553,7 @@ ${customerQuestionsGuidance}`;
           // Send progress indicator: Context loaded
           sendData({
             type: 'progress',
-            message: `📊 Loaded ${contexts.length} data sources • ${totalTokens.toLocaleString()} tokens • Max output: ${maxTokens.toLocaleString()} tokens`
+            message: `Loaded ${contexts.length} data sources • ${totalTokens.toLocaleString()} tokens • Max output: ${maxTokens.toLocaleString()} tokens`
           });
           
           await new Promise(resolve => setTimeout(resolve, 300));
@@ -561,7 +561,7 @@ ${customerQuestionsGuidance}`;
           // Send progress indicator: Generating response
           sendData({
             type: 'progress',
-            message: intent.type === 'deep_analysis' ? '✨ Generating comprehensive analysis (this may take a moment)...' : '✨ Generating response...'
+            message: intent.type === 'deep_analysis' ? 'Generating comprehensive analysis (this may take a moment)...' : 'Generating response...'
           });
           
           // Stream the actual response from Claude
