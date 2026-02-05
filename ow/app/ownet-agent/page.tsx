@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
+import rehypeRaw from 'rehype-raw'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -516,8 +517,13 @@ export default function OWnetAgentPage() {
                       [&>code]:bg-gray-100 [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-sm [&>code]:font-mono
                       [&_ul_ul]:mt-2 [&_ul_ul]:mb-0
                       [&_ol_ol]:mt-2 [&_ol_ol]:mb-0
+                      [&_details]:my-4
+                      [&_details>summary]:cursor-pointer [&_details>summary]:font-semibold [&_details>summary]:text-gray-900
+                      [&_details>summary]:hover:text-[#3B6B8F] [&_details>summary]:transition-colors
+                      [&_details>summary]:select-none [&_details>summary]:list-none
+                      [&_details[open]>summary]:mb-3
                     ">
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      <ReactMarkdown rehypePlugins={[rehypeRaw]}>{msg.content}</ReactMarkdown>
                     </div>
                     
                     {/* Feedback buttons */}
