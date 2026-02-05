@@ -1501,8 +1501,41 @@ section {
 
 .page-header {
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark-secondary) 100%);
-    padding: var(--spacing-4xl) 0 var(--spacing-3xl);
+    padding: var(--spacing-5xl) 0 var(--spacing-5xl);
     text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('hero-industry.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+    z-index: 0;
+}
+
+.page-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(10, 22, 40, 0.85) 0%, rgba(30, 78, 140, 0.85) 100%);
+    z-index: 1;
+}
+
+.page-header .container {
+    position: relative;
+    z-index: 2;
 }
 
 .page-title {
@@ -1511,6 +1544,15 @@ section {
     max-width: 900px;
     margin: 0 auto;
     line-height: 1.2;
+}
+
+.page-subtitle {
+    font-size: var(--font-size-xl);
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: var(--spacing-lg);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .content-section {
@@ -1868,7 +1910,40 @@ section {
 
 .blog-post-header {
     background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark-secondary) 100%);
-    padding: var(--spacing-4xl) 0;
+    padding: var(--spacing-5xl) 0 var(--spacing-5xl);
+    position: relative;
+    overflow: hidden;
+}
+
+.blog-post-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('testimonial-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15;
+    z-index: 0;
+}
+
+.blog-post-header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(10, 22, 40, 0.85) 0%, rgba(30, 78, 140, 0.85) 100%);
+    z-index: 1;
+}
+
+.blog-post-header .container {
+    position: relative;
+    z-index: 2;
 }
 
 .blog-post-meta {
@@ -2070,6 +2145,74 @@ section {
 
 .services-header-enhanced {
     padding: var(--spacing-5xl) 0 var(--spacing-5xl);
+}
+
+.services-header-enhanced::before {
+    background-image: url('solution-industry.jpg');
+}
+
+.about-header {
+    padding: var(--spacing-5xl) 0 var(--spacing-5xl);
+}
+
+.about-header::before {
+    background-image: url('project-industry.jpg');
+}
+
+/* Specific page header backgrounds */
+body:has([href="digital-infrastructure-noi-strategy.html"].active) .page-header::before,
+.page-header.noi-strategy::before {
+    background-image: url('hero-industry.jpg');
+}
+
+body:has([href="digital-infrastructure-noi-playbook.html"].active) .page-header::before,
+.page-header.noi-playbook::before {
+    background-image: url('solution-industry.jpg');
+}
+
+body:has([href="cre-ai-readiness.html"].active) .page-header::before,
+.page-header.ai-readiness::before {
+    background-image: url('project-catalyst.jpg');
+}
+
+body:has([href="ai-ready-commercial-real-estate.html"].active) .page-header::before,
+.page-header.ai-ready::before {
+    background-image: url('project-industry.jpg');
+}
+
+body:has([href="own-vs-lease-cre-building-data.html"].active) .page-header::before,
+.page-header.data-ownership::before {
+    background-image: url('project-tradecraft.jpg');
+}
+
+body:has([href="control-cre-digital-visibility.html"].active) .page-header::before,
+.page-header.visibility::before {
+    background-image: url('solution-industry.jpg');
+}
+
+body:has([href="how-we-operate-digital-infrastructure.html"].active) .page-header::before,
+.page-header.operations::before {
+    background-image: url('hero-industry.jpg');
+}
+
+body:has([href="bot-building-of-things.html"].active) .page-header::before,
+.page-header.bot::before {
+    background-image: url('project-catalyst.jpg');
+}
+
+body:has([href="5s-wireless-connectivity.html"].active) .page-header::before,
+.page-header.wireless::before {
+    background-image: url('project-industry.jpg');
+}
+
+body:has([href="ppp-audit.html"].active) .page-header::before,
+.page-header.ppp-audit::before {
+    background-image: url('project-tradecraft.jpg');
+}
+
+body:has([href="blog.html"].active) .page-header::before,
+.page-header.blog-index::before {
+    background-image: url('testimonial-bg.jpg');
 }
 
 .services-hero-enhanced {
