@@ -111,13 +111,39 @@ export async function POST(request: NextRequest) {
         [sessionId, 'assistant', cleanedResponse, JSON.stringify(cachedResponse.sources)]
       );
       
-      return NextResponse.json({
-        success: true,
-        response: cleanedResponse,
-        messageId: assistantMsgResult.rows[0]?.id,
-        sources: cachedResponse.sources,
-        cached: true,
-        responseTime: Date.now() - startTime
+      // Return cached response as SSE stream for frontend compatibility
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          // Send progress message
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'progress', message: 'Retrieving cached response...' })}\n\n`));
+          
+          // Stream the cached content in chunks (simulates typing)
+          const words = cleanedResponse.split(' ');
+          for (let i = 0; i < words.length; i += 10) {
+            const chunk = words.slice(i, i + 10).join(' ') + ' ';
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'content', text: chunk })}\n\n`));
+            await new Promise(resolve => setTimeout(resolve, 20)); // Small delay for smooth rendering
+          }
+          
+          // Send completion
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({
+            type: 'complete',
+            messageId: assistantMsgResult.rows[0]?.id,
+            sources: cachedResponse.sources,
+            cached: true
+          })}\n\n`));
+          
+          controller.close();
+        }
+      });
+      
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
       });
     }
     
