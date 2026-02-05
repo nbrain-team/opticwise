@@ -319,9 +319,7 @@ export default function OWnetAgentPage() {
                   
                   // Force scroll to bottom
                   setTimeout(() => {
-                    if (chatContainerRef.current) {
-                      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
-                    }
+                    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
                   }, 100)
                   
                   loadSessions() // Refresh session list
