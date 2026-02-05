@@ -322,7 +322,10 @@ export default function OWnetAgentPage() {
                     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
                   }, 100)
                   
-                  loadSessions() // Refresh session list
+                  // Refresh session list (with delay to allow DB update)
+                  setTimeout(() => {
+                    loadSessions()
+                  }, 500)
                 } else if (data.type === 'error') {
                   throw new Error(data.details || data.error)
                 }

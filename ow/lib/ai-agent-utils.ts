@@ -851,11 +851,12 @@ export function formatSourceCitations(contexts: ContextSource[]): string {
     grouped[source.type].push(source);
   });
   
-  // Format output with collapsible dropdown
-  let output = '\n\n---\n\n## Sources\n\n';
+  // Format output with collapsible dropdown - entire sources section collapsed
+  let output = '\n\n---\n\n';
+  output += `<details>\n<summary><strong>View Sources (${allSources.length})</strong></summary>\n\n`;
   output += `*This response was generated using ${allSources.length} source${allSources.length > 1 ? 's' : ''} from your data.*\n\n`;
   
-  // Format each type with collapsible details
+  // Format each type with nested collapsible details
   const typeLabels: Record<string, string> = {
     transcript: 'Call Transcripts',
     email: 'Emails',
@@ -903,7 +904,10 @@ export function formatSourceCitations(contexts: ContextSource[]): string {
   output += '- **High (90-100%)**: Highly relevant to your query\n';
   output += '- **Medium (70-89%)**: Moderately relevant\n';
   output += '- **Moderate (Below 70%)**: Contextually relevant\n';
-  output += '\n</details>\n';
+  output += '\n</details>\n\n';
+  
+  // Close the main sources details
+  output += '</details>\n';
   
   return output;
 }
