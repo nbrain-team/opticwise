@@ -2715,6 +2715,16 @@ section {
         padding-top: 8rem;
     }
     
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-2xl);
+    }
+    
+    .approach-grid,
+    .why-different-grid {
+        grid-template-columns: 1fr;
+    }
+    
     .hero-cta {
         flex-direction: column;
     }
