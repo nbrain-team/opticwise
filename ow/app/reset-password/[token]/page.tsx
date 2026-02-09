@@ -141,6 +141,7 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type="password"
+              autoComplete="new-password"
               placeholder="Minimum 8 characters"
               required
               minLength={8}
@@ -154,6 +155,7 @@ export default function ResetPasswordPage({ params }: { params: Promise<{ token:
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               type="password"
+              autoComplete="new-password"
               placeholder="Re-enter your password"
               required
               minLength={8}

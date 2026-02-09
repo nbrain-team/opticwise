@@ -72,8 +72,17 @@ export async function POST(req: NextRequest) {
       });
     } catch (emailError) {
       console.error('Error sending reset email:', emailError);
+      
+      // For debugging: log the full error
+      if (emailError instanceof Error) {
+        console.error('Email error details:', {
+          message: emailError.message,
+          stack: emailError.stack,
+        });
+      }
+      
       return NextResponse.json(
-        { error: "Failed to send reset email. Please try again later." },
+        { error: "Failed to send reset email. Please contact your administrator." },
         { status: 500 }
       );
     }
