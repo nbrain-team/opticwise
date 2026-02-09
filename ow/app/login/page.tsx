@@ -16,7 +16,7 @@ function LoginForm() {
   const [resetError, setResetError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/deals";
+  const next = searchParams.get("next") || "/ownet-agent";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
