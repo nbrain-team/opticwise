@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { UserManagement } from "./UserManagement";
+import { ChangePassword } from "./ChangePassword";
 
 export default async function SettingsPage() {
   const session = await getSession();
@@ -47,9 +48,15 @@ export default async function SettingsPage() {
               </div>
               <a
                 href="#profile"
-                className="block px-3 py-2 rounded-md text-gray-900 bg-gray-50 font-medium"
+                className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900"
               >
                 Profile
+              </a>
+              <a
+                href="#password"
+                className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+              >
+                Change Password
               </a>
               {currentUser.role === "admin" && (
                 <a
@@ -65,7 +72,7 @@ export default async function SettingsPage() {
           {/* Right Column - Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Profile Section */}
-            <div id="profile" className="bg-white rounded-lg border border-gray-200 p-6">
+            <div id="profile" className="bg-white rounded-lg border border-gray-200 p-6 scroll-mt-20">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Profile Information</h2>
               
               <div className="space-y-6">
@@ -121,9 +128,14 @@ export default async function SettingsPage() {
               </div>
             </div>
 
+            {/* Change Password Section */}
+            <div id="password" className="scroll-mt-20">
+              <ChangePassword />
+            </div>
+
             {/* Team Members Section - Admin Only */}
             {currentUser.role === "admin" && (
-              <div id="team" className="bg-white rounded-lg border border-gray-200 p-6">
+              <div id="team" className="bg-white rounded-lg border border-gray-200 p-6 scroll-mt-20">
                 <UserManagement currentUser={currentUser} users={allUsers} />
               </div>
             )}
