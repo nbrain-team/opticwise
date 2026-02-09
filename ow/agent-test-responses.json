@@ -1,0 +1,177 @@
+[
+  {
+    "questionNumber": 1,
+    "question": "We're spending $180K annually on managed Wi-Fi across our portfolio. How would OpticWise's approach be different from what we have now, and would it actually save us money?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.916Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 2,
+    "question": "Our residents keep complaining about Wi-Fi dead zones and slow speeds in their units. How does OpticWise solve connectivity issues that our current ISP can't seem to fix?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.921Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 3,
+    "question": "I keep hearing about \"digital infrastructure\" versus just having good internet. What's the actual difference, and why should I care as a building owner?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.922Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 4,
+    "question": "We have 8 different vendors managing different systems in our buildings - HVAC, access control, cameras, Wi-Fi. How does OpticWise help me get control over all of this?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.922Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 5,
+    "question": "What exactly is a PPP Audit, and what would you actually find if you did one at my property?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.923Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 6,
+    "question": "I don't understand the \"Building of Things\" concept. Can you explain it in plain English and tell me what problem it solves?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.923Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 7,
+    "question": "Our current ISP gave us free equipment and installation. Why would I pay OpticWise when I'm getting this for free?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.923Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 8,
+    "question": "How does OpticWise help me increase NOI? I need specifics, not just \"better tenant experience.\"",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.923Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 9,
+    "question": "We're a 250-unit multifamily property. What would implementation actually look like - timeline, disruption, cost?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.925Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 10,
+    "question": "My property management team is already overwhelmed. Are you adding another system they have to learn and manage?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.925Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 11,
+    "question": "What's the difference between what OpticWise does and what a typical PropTech vendor does?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.925Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 12,
+    "question": "You talk about \"data ownership.\" What data are you talking about, and why does it matter if I own it or not?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.925Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 13,
+    "question": "How does OpticWise make my building \"AI-ready\"? Everyone's talking about AI, but what does that actually mean for my property?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.926Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 14,
+    "question": "We're worried about cybersecurity and resident privacy. How does OpticWise handle security differently than our current setup?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.927Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 15,
+    "question": "What is ElasticISP and how is it different from just having multiple internet providers?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.927Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 16,
+    "question": "Can you explain the PPP 5C Framework? I see it mentioned but don't understand what each step means for my building.",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.927Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 17,
+    "question": "We have a bulk internet agreement with our ISP that gives us revenue share. Would we lose that money if we work with OpticWise?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.928Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 18,
+    "question": "What's the actual ROI timeline? When would I start seeing financial returns on this investment?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.928Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 19,
+    "question": "How does OpticWise help with tenant retention? What's the connection between infrastructure and keeping residents?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.928Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 20,
+    "question": "We're looking at ESG requirements and sustainability reporting. Does OpticWise help with that, and if so, how?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.928Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 21,
+    "question": "What's the difference between the 5S User Experience and just having \"good Wi-Fi\"?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.928Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 22,
+    "question": "I'm concerned about vendor lock-in. If I work with OpticWise, am I just trading one vendor dependency for another?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.928Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 23,
+    "question": "We have a Class B office building with 15 different tenants. Each has their own IT requirements. How does OpticWise handle that complexity?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.928Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 24,
+    "question": "What happens to my existing vendor contracts if I bring in OpticWise? Do I have to break agreements or can you work with what's already in place?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.928Z",
+    "category": "Error"
+  },
+  {
+    "questionNumber": 25,
+    "question": "I'm being told by consultants that I need to \"future-proof\" my building. What does OpticWise actually do that makes a building future-proof versus just having modern systems?",
+    "response": "ERROR: ANTHROPIC_API_KEY not found in environment",
+    "timestamp": "2026-02-05T19:14:43.928Z",
+    "category": "Error"
+  }
+]

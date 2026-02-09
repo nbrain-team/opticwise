@@ -1,0 +1,115 @@
+
+📧 CONTACT EXTRACTION FROM EMAIL ANALYSIS
+============================================================
+📅 Analyzing emails from: 2024-02-03
+🚫 Excluding domains: opticwise.com, nbrain.team
+
+
+📊 Analyzing email threads...
+   Found 589 threads with 4+ messages
+
+🔍 Fetching sent emails from Bill...
+   Found 4463 sent emails from Bill
+
+📝 Processing emails and extracting contacts...
+   Identified 1152 unique external email addresses
+
+✅ Qualifying contacts based on criteria...
+   ✓ 314 contacts qualified
+   ✗ 838 contacts did not meet criteria
+
+🔍 Enriching contacts with signature data (this may take a while)...
+   Processed 5/314 contacts
+   Processed 10/314 contacts
+   Processed 15/314 contacts
+   Processed 20/314 contacts
+   Processed 25/314 contacts
+   Processed 30/314 contacts
+   Processed 35/314 contacts
+   Processed 40/314 contacts
+   Processed 45/314 contacts
+   Processed 50/314 contacts
+   Processed 55/314 contacts
+   Processed 60/314 contacts
+   Processed 65/314 contacts
+   Processed 70/314 contacts
+   Processed 75/314 contacts
+   Processed 80/314 contacts
+   Processed 85/314 contacts
+   Processed 90/314 contacts
+   Processed 95/314 contacts
+   Processed 100/314 contacts
+   Processed 105/314 contacts
+   Processed 110/314 contacts
+   Processed 115/314 contacts
+   Processed 120/314 contacts
+   Processed 125/314 contacts
+   Processed 130/314 contacts
+   Processed 135/314 contacts
+   Processed 140/314 contacts
+   Processed 145/314 contacts
+   Processed 150/314 contacts
+   Processed 155/314 contacts
+   Processed 160/314 contacts
+   Processed 165/314 contacts
+   Processed 170/314 contacts
+   Processed 175/314 contacts
+   Processed 180/314 contacts
+   Processed 185/314 contacts
+   Processed 190/314 contacts
+   Processed 195/314 contacts
+   Processed 200/314 contacts
+   Processed 205/314 contacts
+   Processed 210/314 contacts
+   Processed 215/314 contacts
+   Processed 220/314 contacts
+   Processed 225/314 contacts
+   Processed 230/314 contacts
+   Processed 235/314 contacts
+   Processed 240/314 contacts
+   Processed 245/314 contacts
+   Processed 250/314 contacts
+   Processed 255/314 contacts
+   Processed 260/314 contacts
+   Processed 265/314 contacts
+   Processed 270/314 contacts
+   Processed 275/314 contacts
+   Processed 280/314 contacts
+   Processed 285/314 contacts
+   Processed 290/314 contacts
+   Processed 295/314 contacts
+   Processed 300/314 contacts
+   Processed 305/314 contacts
+   Processed 310/314 contacts
+   Processed 314/314 contacts
+   ✓ Enriched 260 contacts with signature data
+
+📄 Generating CSV report...
+
+📊 CONTACT EXTRACTION SUMMARY
+============================================================
+📧 Total emails analyzed: 4463
+👥 Unique external recipients: 1152
+✅ Qualified contacts: 314
+📝 Contacts with enriched data: 260
+
+QUALIFICATION BREAKDOWN:
+   • 2+ initiated emails: 250
+   • 1 initiated + 4+ thread: 64
+
+DATA COMPLETENESS:
+   • Full name: 240/314 (76%)
+   • Company: 172/314 (55%)
+   • Job title: 110/314 (35%)
+   • Phone: 112/314 (36%)
+   • LinkedIn: 20/314 (6%)
+
+ENGAGEMENT TIERS:
+   • VIP (10+ emails): 84
+   • Active (5-9 emails): 49
+   • Regular (2-4 emails): 158
+   • Minimal (1 email): 23
+
+📄 CSV exported to: /Users/dannydemichele/Opticwise/ow/extracted-contacts.csv
+============================================================
+

@@ -1,0 +1,243 @@
+🧪 Starting Bulk Agent Testing...
+
+Testing 25 questions
+
+================================================================================
+
+
+[1/25] Testing question...
+Q: We're spending $180K annually on managed Wi-Fi across our portfolio. How would OpticWise's approach ...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[2/25] Testing question...
+Q: Our residents keep complaining about Wi-Fi dead zones and slow speeds in their units. How does Optic...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[3/25] Testing question...
+Q: I keep hearing about "digital infrastructure" versus just having good internet. What's the actual di...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[4/25] Testing question...
+Q: We have 8 different vendors managing different systems in our buildings - HVAC, access control, came...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[5/25] Testing question...
+Q: What exactly is a PPP Audit, and what would you actually find if you did one at my property?
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[6/25] Testing question...
+Q: I don't understand the "Building of Things" concept. Can you explain it in plain English and tell me...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[7/25] Testing question...
+Q: Our current ISP gave us free equipment and installation. Why would I pay OpticWise when I'm getting ...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[8/25] Testing question...
+Q: How does OpticWise help me increase NOI? I need specifics, not just "better tenant experience."
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[9/25] Testing question...
+Q: We're a 250-unit multifamily property. What would implementation actually look like - timeline, disr...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[10/25] Testing question...
+Q: My property management team is already overwhelmed. Are you adding another system they have to learn...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[11/25] Testing question...
+Q: What's the difference between what OpticWise does and what a typical PropTech vendor does?
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[12/25] Testing question...
+Q: You talk about "data ownership." What data are you talking about, and why does it matter if I own it...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[13/25] Testing question...
+Q: How does OpticWise make my building "AI-ready"? Everyone's talking about AI, but what does that actu...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[14/25] Testing question...
+Q: We're worried about cybersecurity and resident privacy. How does OpticWise handle security different...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[15/25] Testing question...
+Q: What is ElasticISP and how is it different from just having multiple internet providers?
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[16/25] Testing question...
+Q: Can you explain the PPP 5C Framework? I see it mentioned but don't understand what each step means f...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[17/25] Testing question...
+Q: We have a bulk internet agreement with our ISP that gives us revenue share. Would we lose that money...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[18/25] Testing question...
+Q: What's the actual ROI timeline? When would I start seeing financial returns on this investment?
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[19/25] Testing question...
+Q: How does OpticWise help with tenant retention? What's the connection between infrastructure and keep...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[20/25] Testing question...
+Q: We're looking at ESG requirements and sustainability reporting. Does OpticWise help with that, and i...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[21/25] Testing question...
+Q: What's the difference between the 5S User Experience and just having "good Wi-Fi"?
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[22/25] Testing question...
+Q: I'm concerned about vendor lock-in. If I work with OpticWise, am I just trading one vendor dependenc...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[23/25] Testing question...
+Q: We have a Class B office building with 15 different tenants. Each has their own IT requirements. How...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[24/25] Testing question...
+Q: What happens to my existing vendor contracts if I bring in OpticWise? Do I have to break agreements ...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+[25/25] Testing question...
+Q: I'm being told by consultants that I need to "future-proof" my building. What does OpticWise actuall...
+
+Error calling OWnet agent: Error: API error: Not Found
+    at callOWnetAgent (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:62:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async runBulkTest (/Users/dannydemichele/Opticwise/ow/scripts/test-agent-bulk.ts:124:42)
+❌ Error: API error: Not Found
+
+================================================================================
+
+✅ Bulk testing complete!
+
+📝 Results saved to: ./bulk-test-results.json
+
+📊 Summary:
+  - Total questions: 25
+  - Successful: 0
+  - Errors: 25
+  - Avg response time: 94ms

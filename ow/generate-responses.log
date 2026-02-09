@@ -1,0 +1,100 @@
+🧪 Generating Agent Test Responses...
+
+Generating responses for 25 questions using BrandScript
+
+================================================================================
+
+❌ Error generating response 1: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+    at Anthropic (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:157:1)
+    at Object.<anonymous> (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:157:43)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14)
+    at Object.transformer (/Users/dannydemichele/Opticwise/ow/node_modules/tsx/dist/register-D46fvsV_.cjs:3:1104)
+    at Module.load (node:internal/modules/cjs/loader:1469:32)
+    at Function._load (node:internal/modules/cjs/loader:1286:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+❌ Error generating response 2: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 3: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 4: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 5: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 6: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 7: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 8: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 9: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 10: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 11: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 12: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 13: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 14: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 15: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 16: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 17: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 18: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 19: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 20: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 21: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 22: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 23: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 24: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+❌ Error generating response 25: Error: ANTHROPIC_API_KEY not found in environment
+    at generateResponse (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:50:11)
+    at generateAllResponses (/Users/dannydemichele/Opticwise/ow/scripts/generate-test-responses.ts:120:30)
+
+================================================================================
+
+✅ Response generation complete!
+
+📝 Responses saved to: ./agent-test-responses.json
+
+📊 Summary:
+  - Total questions: 25
+  - Successful: 0
+  - Categories: Error

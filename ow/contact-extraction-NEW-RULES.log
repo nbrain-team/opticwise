@@ -1,0 +1,96 @@
+
+📧 CONTACT EXTRACTION FROM EMAIL ANALYSIS
+============================================================
+📅 Analyzing emails from: 2025-02-05
+🚫 Excluding domains: opticwise.com, nbrain.team
+
+
+📊 Analyzing email threads...
+   Found 1259 threads with 2+ messages
+
+🔍 Fetching sent emails from Bill...
+   Found 4105 sent emails from Bill
+
+📝 Processing emails and extracting contacts...
+   Identified 1100 unique external email addresses
+
+✅ Qualifying contacts based on criteria...
+   ✓ 216 contacts qualified
+   ✗ 884 contacts did not meet criteria
+
+🔍 Enriching contacts with signature data (this may take a while)...
+   Processed 5/216 contacts
+   Processed 10/216 contacts
+   Processed 15/216 contacts
+   Processed 20/216 contacts
+   Processed 25/216 contacts
+   Processed 30/216 contacts
+   Processed 35/216 contacts
+   Processed 40/216 contacts
+   Processed 45/216 contacts
+   Processed 50/216 contacts
+   Processed 55/216 contacts
+   Processed 60/216 contacts
+   Processed 65/216 contacts
+   Processed 70/216 contacts
+   Processed 75/216 contacts
+   Processed 80/216 contacts
+   Processed 85/216 contacts
+   Processed 90/216 contacts
+   Processed 95/216 contacts
+   Processed 100/216 contacts
+   Processed 105/216 contacts
+   Processed 110/216 contacts
+   Processed 115/216 contacts
+   Processed 120/216 contacts
+   Processed 125/216 contacts
+   Processed 130/216 contacts
+   Processed 135/216 contacts
+   Processed 140/216 contacts
+   Processed 145/216 contacts
+   Processed 150/216 contacts
+   Processed 155/216 contacts
+   Processed 160/216 contacts
+   Processed 165/216 contacts
+   Processed 170/216 contacts
+   Processed 175/216 contacts
+   Processed 180/216 contacts
+   Processed 185/216 contacts
+   Processed 190/216 contacts
+   Processed 195/216 contacts
+   Processed 200/216 contacts
+   Processed 205/216 contacts
+   Processed 210/216 contacts
+   Processed 215/216 contacts
+   Processed 216/216 contacts
+   ✓ Enriched 188 contacts with signature data
+
+📄 Generating CSV report...
+
+📊 CONTACT EXTRACTION SUMMARY
+============================================================
+📧 Total emails analyzed: 4105
+👥 Unique external recipients: 1100
+✅ Qualified contacts: 216
+📝 Contacts with enriched data: 188
+
+QUALIFICATION BREAKDOWN:
+   • 2+ initiated emails: 125
+   • 1 initiated + 4+ thread: 51
+
+DATA COMPLETENESS:
+   • Full name: 169/216 (78%)
+   • Company: 138/216 (64%)
+   • Job title: 89/216 (41%)
+   • Phone: 94/216 (44%)
+   • LinkedIn: 19/216 (9%)
+
+ENGAGEMENT TIERS:
+   • VIP (10+ emails): 65
+   • Active (5-9 emails): 35
+   • Regular (2-4 emails): 75
+   • Minimal (1 email): 41
+
+📄 CSV exported to: /Users/dannydemichele/Opticwise/ow/extracted-contacts.csv
+============================================================
+

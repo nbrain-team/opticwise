@@ -1,0 +1,229 @@
+
+╔═══════════════════════════════════════════════════════════════╗
+║     BULK AGENT TESTING - LIVE PRODUCTION API                  ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Testing 25 questions against: https://opticwise-frontend.onrender.com
+
+══════════════════════════════════════════════════════════════════════
+
+
+[1/25] Category: Financial/ROI
+Question: We're spending $180K annually on managed Wi-Fi across our portfolio. How would O...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[2/25] Category: Technical/Infrastructure
+Question: Our residents keep complaining about Wi-Fi dead zones and slow speeds in their u...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[3/25] Category: Technical/Infrastructure
+Question: I keep hearing about "digital infrastructure" versus just having good internet. ...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[4/25] Category: Vendor Management
+Question: We have 8 different vendors managing different systems in our buildings - HVAC, ...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[5/25] Category: PPP/Framework
+Question: What exactly is a PPP Audit, and what would you actually find if you did one at ...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[6/25] Category: PPP/Framework
+Question: I don't understand the "Building of Things" concept. Can you explain it in plain...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[7/25] Category: Implementation/Operations
+Question: Our current ISP gave us free equipment and installation. Why would I pay OpticWi...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[8/25] Category: Financial/ROI
+Question: How does OpticWise help me increase NOI? I need specifics, not just "better tena...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[9/25] Category: Implementation/Operations
+Question: We're a 250-unit multifamily property. What would implementation actually look l...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[10/25] Category: Implementation/Operations
+Question: My property management team is already overwhelmed. Are you adding another syste...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[11/25] Category: Implementation/Operations
+Question: What's the difference between what OpticWise does and what a typical PropTech ve...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[12/25] Category: Data/AI
+Question: You talk about "data ownership." What data are you talking about, and why does i...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[13/25] Category: Data/AI
+Question: How does OpticWise make my building "AI-ready"? Everyone's talking about AI, but...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[14/25] Category: Security/Privacy
+Question: We're worried about cybersecurity and resident privacy. How does OpticWise handl...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[15/25] Category: Technical/Infrastructure
+Question: What is ElasticISP and how is it different from just having multiple internet pr...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[16/25] Category: PPP/Framework
+Question: Can you explain the PPP 5C Framework? I see it mentioned but don't understand wh...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[17/25] Category: Financial/ROI
+Question: We have a bulk internet agreement with our ISP that gives us revenue share. Woul...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[18/25] Category: Financial/ROI
+Question: What's the actual ROI timeline? When would I start seeing financial returns on t...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[19/25] Category: Tenant Experience
+Question: How does OpticWise help with tenant retention? What's the connection between inf...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[20/25] Category: Implementation/Operations
+Question: We're looking at ESG requirements and sustainability reporting. Does OpticWise h...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[21/25] Category: Technical/Infrastructure
+Question: What's the difference between the 5S User Experience and just having "good Wi-Fi...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[22/25] Category: Vendor Management
+Question: I'm concerned about vendor lock-in. If I work with OpticWise, am I just trading ...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[23/25] Category: Implementation/Operations
+Question: We have a Class B office building with 15 different tenants. Each has their own ...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[24/25] Category: Vendor Management
+Question: What happens to my existing vendor contracts if I bring in OpticWise? Do I have ...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+[25/25] Category: Data/AI
+Question: I'm being told by consultants that I need to "future-proof" my building. What do...
+  → Calling live agent API...
+  ✗ Error: API returned 404: Not Found
+  ✗ ERROR: API returned 404: Not Found
+
+══════════════════════════════════════════════════════════════════════
+
+✅ BULK TESTING COMPLETE
+
+📁 JSON results saved: /Users/dannydemichele/Opticwise/ow/bulk-test-results.json
+📊 CSV results saved: /Users/dannydemichele/Opticwise/ow/bulk-test-results.csv
+
+╔═══════════════════════════════════════════════════════════════╗
+║                      TEST SUMMARY                              ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📊 Overall Statistics:
+   Total Questions: 25
+   Successful: 0 (0%)
+   Errors: 25 (100%)
+   Avg Response Time: 94ms
+
+🎨 Formatting Check:
+   Emojis Found: 0 responses ✓
+   Sources Collapsed: 0/0 ✓
+
+📁 By Category:
+   Data/AI:
+      Success: 0/3 | Errors: 3
+   Financial/ROI:
+      Success: 0/4 | Errors: 4
+   Implementation/Operations:
+      Success: 0/6 | Errors: 6
+   PPP/Framework:
+      Success: 0/3 | Errors: 3
+   Security/Privacy:
+      Success: 0/1 | Errors: 1
+   Technical/Infrastructure:
+      Success: 0/4 | Errors: 4
+   Tenant Experience:
+      Success: 0/1 | Errors: 1
+   Vendor Management:
+      Success: 0/3 | Errors: 3
+
+══════════════════════════════════════════════════════════════════════
+
+⚠️  ERRORS DETECTED:
+   Q1: API returned 404: Not Found
+   Q2: API returned 404: Not Found
+   Q3: API returned 404: Not Found
+   Q4: API returned 404: Not Found
+   Q5: API returned 404: Not Found
+   Q6: API returned 404: Not Found
+   Q7: API returned 404: Not Found
+   Q8: API returned 404: Not Found
+   Q9: API returned 404: Not Found
+   Q10: API returned 404: Not Found
+   Q11: API returned 404: Not Found
+   Q12: API returned 404: Not Found
+   Q13: API returned 404: Not Found
+   Q14: API returned 404: Not Found
+   Q15: API returned 404: Not Found
+   Q16: API returned 404: Not Found
+   Q17: API returned 404: Not Found
+   Q18: API returned 404: Not Found
+   Q19: API returned 404: Not Found
+   Q20: API returned 404: Not Found
+   Q21: API returned 404: Not Found
+   Q22: API returned 404: Not Found
+   Q23: API returned 404: Not Found
+   Q24: API returned 404: Not Found
+   Q25: API returned 404: Not Found
+
+

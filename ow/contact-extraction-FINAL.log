@@ -1,0 +1,79 @@
+
+📧 CONTACT EXTRACTION FROM EMAIL ANALYSIS
+============================================================
+📅 Analyzing emails from: 2025-08-03
+🚫 Excluding domains: opticwise.com, nbrain.team
+
+
+📊 Analyzing email threads...
+   Found 219 threads with 4+ messages
+
+🔍 Fetching sent emails from Bill...
+   Found 1908 sent emails from Bill
+
+📝 Processing emails and extracting contacts...
+   Identified 661 unique external email addresses
+
+✅ Qualifying contacts based on criteria...
+   ✓ 135 contacts qualified
+   ✗ 526 contacts did not meet criteria
+
+🔍 Enriching contacts with signature data (this may take a while)...
+   Processed 5/135 contacts
+   Processed 10/135 contacts
+   Processed 15/135 contacts
+   Processed 20/135 contacts
+   Processed 25/135 contacts
+   Processed 30/135 contacts
+   Processed 35/135 contacts
+   Processed 40/135 contacts
+   Processed 45/135 contacts
+   Processed 50/135 contacts
+   Processed 55/135 contacts
+   Processed 60/135 contacts
+   Processed 65/135 contacts
+   Processed 70/135 contacts
+   Processed 75/135 contacts
+   Processed 80/135 contacts
+   Processed 85/135 contacts
+   Processed 90/135 contacts
+   Processed 95/135 contacts
+   Processed 100/135 contacts
+   Processed 105/135 contacts
+   Processed 110/135 contacts
+   Processed 115/135 contacts
+   Processed 120/135 contacts
+   Processed 125/135 contacts
+   Processed 130/135 contacts
+   Processed 135/135 contacts
+   ✓ Enriched 112 contacts with signature data
+
+📄 Generating CSV report...
+
+📊 CONTACT EXTRACTION SUMMARY
+============================================================
+📧 Total emails analyzed: 1908
+👥 Unique external recipients: 661
+✅ Qualified contacts: 135
+📝 Contacts with enriched data: 112
+
+QUALIFICATION BREAKDOWN:
+   • 2+ initiated emails: 104
+   • 1 initiated + 4+ thread: 31
+
+DATA COMPLETENESS:
+   • Full name: 100/135 (74%)
+   • Company: 84/135 (62%)
+   • Job title: 60/135 (44%)
+   • Phone: 57/135 (42%)
+   • LinkedIn: 13/135 (10%)
+
+ENGAGEMENT TIERS:
+   • VIP (10+ emails): 25
+   • Active (5-9 emails): 28
+   • Regular (2-4 emails): 70
+   • Minimal (1 email): 12
+
+📄 CSV exported to: /Users/dannydemichele/Opticwise/ow/extracted-contacts.csv
+============================================================
+

@@ -1,0 +1,298 @@
+
+╔═══════════════════════════════════════════════════════════════╗
+║     BULK AGENT TESTING - LIVE PRODUCTION API                  ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Testing 25 questions against: https://ownet.opticwise.com
+
+══════════════════════════════════════════════════════════════════════
+
+
+[1/25] Category: Financial/ROI
+Question: We're spending $180K annually on managed Wi-Fi across our portfolio. How would O...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 10144 chars, 37551ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[2/25] Category: Technical/Infrastructure
+Question: Our residents keep complaining about Wi-Fi dead zones and slow speeds in their u...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 7350 chars, 25455ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[3/25] Category: Technical/Infrastructure
+Question: I keep hearing about "digital infrastructure" versus just having good internet. ...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 12740 chars, 29430ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[4/25] Category: Vendor Management
+Question: We have 8 different vendors managing different systems in our buildings - HVAC, ...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 6705 chars, 25510ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[5/25] Category: PPP/Framework
+Question: What exactly is a PPP Audit, and what would you actually find if you did one at ...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 8102 chars, 34742ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[6/25] Category: PPP/Framework
+Question: I don't understand the "Building of Things" concept. Can you explain it in plain...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 3585 chars, 25588ms
+  ⚠ WARNING: Sources not collapsed!
+
+[7/25] Category: Implementation/Operations
+Question: Our current ISP gave us free equipment and installation. Why would I pay OpticWi...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 10077 chars, 29369ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[8/25] Category: Financial/ROI
+Question: How does OpticWise help me increase NOI? I need specifics, not just "better tena...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 12263 chars, 29023ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[9/25] Category: Implementation/Operations
+Question: We're a 250-unit multifamily property. What would implementation actually look l...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 9343 chars, 29995ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[10/25] Category: Implementation/Operations
+Question: My property management team is already overwhelmed. Are you adding another syste...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 7569 chars, 20815ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[11/25] Category: Implementation/Operations
+Question: What's the difference between what OpticWise does and what a typical PropTech ve...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 2967 chars, 24405ms
+  ⚠ WARNING: Sources not collapsed!
+
+[12/25] Category: Data/AI
+Question: You talk about "data ownership." What data are you talking about, and why does i...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 7750 chars, 30981ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[13/25] Category: Data/AI
+Question: How does OpticWise make my building "AI-ready"? Everyone's talking about AI, but...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 10279 chars, 35275ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[14/25] Category: Security/Privacy
+Question: We're worried about cybersecurity and resident privacy. How does OpticWise handl...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 6201 chars, 22844ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[15/25] Category: Technical/Infrastructure
+Question: What is ElasticISP and how is it different from just having multiple internet pr...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 5591 chars, 35874ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[16/25] Category: PPP/Framework
+Question: Can you explain the PPP 5C Framework? I see it mentioned but don't understand wh...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 7278 chars, 32732ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[17/25] Category: Financial/ROI
+Question: We have a bulk internet agreement with our ISP that gives us revenue share. Woul...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 8653 chars, 28912ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[18/25] Category: Financial/ROI
+Question: What's the actual ROI timeline? When would I start seeing financial returns on t...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 8386 chars, 27867ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[19/25] Category: Tenant Experience
+Question: How does OpticWise help with tenant retention? What's the connection between inf...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 4976 chars, 37154ms
+  ⚠ WARNING: Sources not collapsed!
+
+[20/25] Category: Implementation/Operations
+Question: We're looking at ESG requirements and sustainability reporting. Does OpticWise h...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 7438 chars, 26215ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[21/25] Category: Technical/Infrastructure
+Question: What's the difference between the 5S User Experience and just having "good Wi-Fi...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 3419 chars, 26893ms
+  ⚠ WARNING: Sources not collapsed!
+
+[22/25] Category: Vendor Management
+Question: I'm concerned about vendor lock-in. If I work with OpticWise, am I just trading ...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 11633 chars, 32249ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[23/25] Category: Implementation/Operations
+Question: We have a Class B office building with 15 different tenants. Each has their own ...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 13010 chars, 36605ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[24/25] Category: Vendor Management
+Question: What happens to my existing vendor contracts if I bring in OpticWise? Do I have ...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 8571 chars, 28381ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+[25/25] Category: Data/AI
+Question: I'm being told by consultants that I need to "future-proof" my building. What do...
+  → Calling live agent API...
+  → Streaming response...
+  ✓ Response received: 5367 chars, 33079ms
+  ⚠ WARNING: Emojis detected in response!
+  ⚠ WARNING: Sources not collapsed!
+
+══════════════════════════════════════════════════════════════════════
+
+✅ BULK TESTING COMPLETE
+
+📁 JSON results saved: /Users/dannydemichele/Opticwise/ow/bulk-test-results.json
+📊 CSV results saved: /Users/dannydemichele/Opticwise/ow/bulk-test-results.csv
+
+╔═══════════════════════════════════════════════════════════════╗
+║                      TEST SUMMARY                              ║
+╚═══════════════════════════════════════════════════════════════╝
+
+📊 Overall Statistics:
+   Total Questions: 25
+   Successful: 25 (100%)
+   Errors: 0 (0%)
+   Avg Response Time: 29878ms
+
+🎨 Formatting Check:
+   Emojis Found: 21 responses ⚠️  ISSUE!
+   Sources Collapsed: 0/25 ⚠️  ISSUE!
+
+📁 By Category:
+   Data/AI:
+      Success: 3/3 | Errors: 0
+   Financial/ROI:
+      Success: 4/4 | Errors: 0
+   Implementation/Operations:
+      Success: 6/6 | Errors: 0
+   PPP/Framework:
+      Success: 3/3 | Errors: 0
+   Security/Privacy:
+      Success: 1/1 | Errors: 0
+   Technical/Infrastructure:
+      Success: 4/4 | Errors: 0
+   Tenant Experience:
+      Success: 1/1 | Errors: 0
+   Vendor Management:
+      Success: 3/3 | Errors: 0
+
+══════════════════════════════════════════════════════════════════════
+
+⚠️  EMOJI ISSUES DETECTED:
+   Q1: Contains emoji icons (should be removed)
+   Q2: Contains emoji icons (should be removed)
+   Q3: Contains emoji icons (should be removed)
+   Q4: Contains emoji icons (should be removed)
+   Q5: Contains emoji icons (should be removed)
+   Q7: Contains emoji icons (should be removed)
+   Q8: Contains emoji icons (should be removed)
+   Q9: Contains emoji icons (should be removed)
+   Q10: Contains emoji icons (should be removed)
+   Q12: Contains emoji icons (should be removed)
+   Q13: Contains emoji icons (should be removed)
+   Q14: Contains emoji icons (should be removed)
+   Q15: Contains emoji icons (should be removed)
+   Q16: Contains emoji icons (should be removed)
+   Q17: Contains emoji icons (should be removed)
+   Q18: Contains emoji icons (should be removed)
+   Q20: Contains emoji icons (should be removed)
+   Q22: Contains emoji icons (should be removed)
+   Q23: Contains emoji icons (should be removed)
+   Q24: Contains emoji icons (should be removed)
+   Q25: Contains emoji icons (should be removed)
+
+⚠️  SOURCE FORMATTING ISSUES:
+   Q1: Sources not in collapsible format
+   Q2: Sources not in collapsible format
+   Q3: Sources not in collapsible format
+   Q4: Sources not in collapsible format
+   Q5: Sources not in collapsible format
+   Q6: Sources not in collapsible format
+   Q7: Sources not in collapsible format
+   Q8: Sources not in collapsible format
+   Q9: Sources not in collapsible format
+   Q10: Sources not in collapsible format
+   Q11: Sources not in collapsible format
+   Q12: Sources not in collapsible format
+   Q13: Sources not in collapsible format
+   Q14: Sources not in collapsible format
+   Q15: Sources not in collapsible format
+   Q16: Sources not in collapsible format
+   Q17: Sources not in collapsible format
+   Q18: Sources not in collapsible format
+   Q19: Sources not in collapsible format
+   Q20: Sources not in collapsible format
+   Q21: Sources not in collapsible format
+   Q22: Sources not in collapsible format
+   Q23: Sources not in collapsible format
+   Q24: Sources not in collapsible format
+   Q25: Sources not in collapsible format
+
+
