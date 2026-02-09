@@ -7,7 +7,6 @@ export async function sendEmail({
   to,
   subject,
   htmlBody,
-  textBody,
 }: {
   to: string;
   subject: string;

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
-import Link from "next/link";
 import { UserManagement } from "./UserManagement";
 import { ChangePassword } from "./ChangePassword";
 
