@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===================================
+   OPTICWISE v2 - GLOBAL STYLES
+   Blue SaaS aesthetic matching original design
+   =================================== */
+
+@layer base {
+  :root {
+    --ow-blue: #2B6CB0;
+    --ow-blue-dark: #1E4E8C;
+    --ow-blue-light: #4A90D9;
+    --ow-accent: #5BA3D0;
+    --ow-navy: #0A1628;
+    --ow-navy-light: #0F2847;
+    --ow-green: #10B981;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply font-sans text-gray-700 bg-white;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold leading-tight text-gray-900;
+  }
+
+  a {
+    @apply transition-all duration-200;
+  }
+}
+
+@layer components {
+  /* Container */
+  .ow-container {
+    @apply mx-auto max-w-[1280px] px-6 lg:px-8;
+  }
+
+  /* Section Spacing */
+  .ow-section {
+    @apply py-20 lg:py-28;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center font-semibold rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap;
+  }
+
+  .btn-primary {
+    @apply bg-ow-blue text-white px-8 py-3.5 shadow-glow hover:bg-ow-blue-dark hover:shadow-glow-lg hover:-translate-y-0.5;
+  }
+
+  .btn-outline {
+    @apply bg-white/10 text-white px-8 py-3.5 border-2 border-white/60 backdrop-blur-sm hover:bg-white hover:text-ow-blue hover:border-white;
+  }
+
+  .btn-white {
+    @apply bg-white text-ow-blue px-8 py-3.5 shadow-lg hover:bg-gray-50 hover:-translate-y-0.5 hover:shadow-xl;
+  }
+
+  .btn-secondary {
+    @apply bg-transparent text-gray-700 px-6 py-3 border border-gray-300 hover:bg-gray-50 hover:border-gray-400;
+  }
+
+  .btn-sm {
+    @apply px-5 py-2.5 text-sm;
+  }
+
+  /* Hero section styling */
+  .hero-gradient {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.85) 0%, rgba(15, 40, 71, 0.9) 100%);
+  }
+
+  .hero-grid-overlay {
+    background-image:
+      linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .text-gradient {
+    @apply inline-block;
+    background: linear-gradient(135deg, #00D4FF 0%, #10B981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Card styles */
+  .ow-card {
+    @apply bg-white rounded-2xl border border-gray-200 p-6 transition-all duration-200;
+  }
+
+  .ow-card-hover {
+    @apply hover:shadow-lg hover:-translate-y-1 hover:border-ow-blue/20;
+  }
+
+  .ow-card-dark {
+    @apply bg-ow-navy rounded-2xl border border-white/10 p-6 text-white;
+  }
+
+  /* Callout box */
+  .ow-callout {
+    @apply px-8 py-5 rounded-xl border-2 backdrop-blur-sm;
+    background: rgba(43, 108, 176, 0.08);
+    border-color: rgba(43, 108, 176, 0.2);
+  }
+
+  .ow-callout-green {
+    background: rgba(16, 185, 129, 0.08);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+
+  /* Feature icon */
+  .ow-icon-box {
+    @apply w-14 h-14 rounded-xl flex items-center justify-center text-white;
+    background: linear-gradient(135deg, var(--ow-blue) 0%, var(--ow-blue-dark) 100%);
+  }
+
+  /* Section titles */
+  .ow-section-title {
+    @apply text-3xl lg:text-4xl font-bold text-gray-900 mb-4;
+  }
+
+  .ow-section-subtitle {
+    @apply text-lg text-gray-600 max-w-2xl;
+  }
+
+  /* Prose overrides for content pages */
+  .prose-ow {
+    @apply prose prose-gray max-w-none;
+    @apply prose-headings:text-gray-900 prose-headings:font-bold;
+    @apply prose-p:text-gray-700 prose-p:leading-relaxed;
+    @apply prose-strong:text-gray-900 prose-strong:font-semibold;
+    @apply prose-li:text-gray-700;
+    @apply prose-blockquote:border-ow-blue/30 prose-blockquote:text-gray-600 prose-blockquote:font-medium prose-blockquote:italic;
+    @apply prose-a:text-ow-blue prose-a:no-underline hover:prose-a:underline;
+    @apply prose-h2:text-2xl prose-h2:lg:text-3xl prose-h2:mt-12 prose-h2:mb-4;
+    @apply prose-h3:text-xl prose-h3:lg:text-2xl prose-h3:mt-8 prose-h3:mb-3;
+  }
+
+  /* Dark section prose */
+  .prose-dark {
+    @apply prose prose-invert max-w-none;
+    @apply prose-headings:text-white;
+    @apply prose-p:text-white/90;
+    @apply prose-strong:text-white;
+    @apply prose-li:text-white/90;
+    @apply prose-blockquote:border-ow-accent/30 prose-blockquote:text-white/80;
+    @apply prose-a:text-ow-accent prose-a:no-underline hover:prose-a:underline;
+  }
+}
+
+@layer utilities {
+  /* Gradient text */
+  .gradient-text-blue {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, var(--ow-blue-light), var(--ow-accent));
+  }
+
+  /* Subtle divider */
+  .ow-divider {
+    @apply w-20 h-1 rounded-full;
+    background: linear-gradient(90deg, var(--ow-blue), var(--ow-accent));
+  }
+}
+
+/* Mobile menu animation */
+.mobile-menu-enter {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* FAQ Accordion */
+details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] .faq-chevron {
+  transform: rotate(180deg);
+}

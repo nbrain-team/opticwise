@@ -13,6 +13,8 @@ ow/style-examples-review/
 Website Project/
 # Node modules
 **/node_modules/
+# Next.js build output
+**/.next/
 opticwise/
 # System files
 .DS_Store
