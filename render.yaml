@@ -18,3 +18,18 @@ services:
         value: production
       - key: PORT
         value: 10000
+
+  - type: web
+    name: opticwise-website
+    runtime: node
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: website-v2
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
