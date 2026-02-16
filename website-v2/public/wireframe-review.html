@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpticWise Website — Content &amp; Structure Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: #f1f5f9; color: #334155; line-height: 1.6; }
+
+  /* Top header */
+  .review-header { background: #0f172a; color: #fff; padding: 40px 0; text-align: center; position: sticky; top: 0; z-index: 100; border-bottom: 3px solid #2563eb; }
+  .review-header h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.02em; }
+  .review-header p { color: #94a3b8; font-size: 0.875rem; margin-top: 6px; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+  /* TOC */
+  .toc { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 32px; margin: 32px auto; max-width: 960px; }
+  .toc h2 { font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 16px; border-bottom: 2px solid #2563eb; padding-bottom: 8px; display: inline-block; }
+  .toc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .toc a { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 500; color: #475569; text-decoration: none; transition: all 0.15s; }
+  .toc a:hover { background: #eff6ff; color: #2563eb; }
+  .toc .num { display: inline-flex; width: 24px; height: 24px; border-radius: 6px; background: #e2e8f0; color: #475569; font-size: 0.65rem; font-weight: 700; align-items: center; justify-content: center; flex-shrink: 0; }
+  .toc .type-tag { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-left: auto; flex-shrink: 0; }
+  .tag-home { background: #dbeafe; color: #1d4ed8; }
+  .tag-hub { background: #fef3c7; color: #92400e; }
+  .tag-pillar { background: #d1fae5; color: #065f46; }
+  .tag-product { background: #ede9fe; color: #5b21b6; }
+  .tag-ops { background: #fce7f3; color: #9d174d; }
+  .tag-content { background: #f1f5f9; color: #475569; }
+
+  /* Page wireframe card */
+  .page-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; margin: 24px auto; max-width: 960px; overflow: hidden; scroll-margin-top: 80px; }
+
+  /* Page header bar */
+  .page-bar { display: flex; align-items: center; gap: 12px; padding: 16px 24px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+  .page-bar .page-num { font-size: 0.7rem; font-weight: 800; color: #fff; background: #2563eb; width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .page-bar .page-title { font-size: 0.95rem; font-weight: 700; color: #0f172a; }
+  .page-bar .page-route { font-size: 0.7rem; color: #64748b; font-family: monospace; background: #f1f5f9; padding: 3px 8px; border-radius: 4px; margin-left: auto; }
+  .page-bar .page-type { font-size: 0.6rem; padding: 3px 8px; border-radius: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Wireframe visual */
+  .wireframe { padding: 24px; }
+
+  /* Section blocks inside wireframe */
+  .wf-section { border: 2px dashed #cbd5e1; border-radius: 10px; padding: 20px; margin-bottom: 16px; position: relative; }
+  .wf-section:last-child { margin-bottom: 0; }
+  .wf-section-label { position: absolute; top: -10px; left: 16px; background: #fff; padding: 0 8px; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2563eb; }
+  .wf-hero { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); border: none; border-radius: 10px; padding: 32px 24px; text-align: center; color: #fff; }
+  .wf-hero .wf-section-label { color: #60a5fa; background: #0f172a; }
+  .wf-hero h3 { font-size: 1.3rem; font-weight: 800; margin-bottom: 12px; line-height: 1.3; }
+  .wf-hero p { font-size: 0.85rem; color: #cbd5e1; line-height: 1.6; }
+  .wf-hero .callout { background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(96, 165, 250, 0.3); border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-weight: 600; font-size: 0.85rem; color: #93c5fd; }
+  .wf-cta { background: #eff6ff; border-color: #93c5fd; text-align: center; }
+  .wf-cta .wf-section-label { color: #1d4ed8; }
+  .wf-faq { background: #fefce8; border-color: #fcd34d; }
+  .wf-faq .wf-section-label { color: #92400e; }
+
+  /* Content within sections */
+  .wf-section h3 { font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+  .wf-section h4 { font-size: 0.85rem; font-weight: 700; color: #334155; margin: 12px 0 6px; }
+  .wf-section p, .wf-section li { font-size: 0.8rem; color: #475569; line-height: 1.65; }
+  .wf-section ul, .wf-section ol { padding-left: 20px; margin: 8px 0; }
+  .wf-section li { margin-bottom: 4px; }
+  .wf-section strong { color: #0f172a; }
+  .wf-section .faq-item { background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 10px 14px; margin-bottom: 8px; }
+  .wf-section .faq-q { font-weight: 700; font-size: 0.78rem; color: #0f172a; margin-bottom: 4px; }
+  .wf-section .faq-a { font-size: 0.75rem; color: #64748b; }
+  .wf-section .layer-box { border: 1px solid #bfdbfe; background: #eff6ff; border-radius: 8px; padding: 14px; margin: 8px 0; }
+  .wf-section .layer-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #2563eb; margin-bottom: 4px; }
+  .wf-section .ppp-step { display: inline-block; background: #e2e8f0; border-radius: 6px; padding: 4px 10px; font-size: 0.7rem; font-weight: 600; color: #334155; margin: 3px 4px 3px 0; }
+  .cta-btn-mock { display: inline-block; background: #2563eb; color: #fff; padding: 8px 20px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; margin-top: 8px; }
+  .wf-section .role-tab { display: inline-block; background: #e2e8f0; border-radius: 99px; padding: 4px 12px; font-size: 0.65rem; font-weight: 600; color: #475569; margin: 2px; }
+  .wf-section .role-tab.active { background: #2563eb; color: #fff; }
+  .wf-section .insight-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin: 6px 0; background: #fff; }
+  .wf-section .category-pill { display: inline-block; font-size: 0.6rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; margin: 2px; }
+
+  /* Divider between sections inside wireframe */
+  .wf-divider { border: none; border-top: 1px dashed #e2e8f0; margin: 16px 0; }
+
+  /* Summary section at the end */
+  .summary-card { background: #fff; border: 2px solid #2563eb; border-radius: 16px; margin: 40px auto; max-width: 960px; overflow: hidden; }
+  .summary-header { background: #2563eb; padding: 20px 24px; color: #fff; }
+  .summary-header h2 { font-size: 1.1rem; font-weight: 700; }
+  .summary-body { padding: 24px; }
+  .summary-body h3 { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin: 20px 0 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+  .summary-body h3:first-child { margin-top: 0; }
+  .summary-body p, .summary-body li { font-size: 0.8rem; color: #475569; line-height: 1.6; }
+  .summary-body ul { padding-left: 20px; margin: 8px 0; }
+  .summary-body li { margin-bottom: 4px; }
+  .summary-body strong { color: #0f172a; }
+  .summary-body .kv { display: grid; grid-template-columns: 160px 1fr; gap: 4px 12px; margin: 8px 0; font-size: 0.8rem; }
+  .summary-body .kv dt { color: #64748b; font-weight: 500; }
+  .summary-body .kv dd { color: #0f172a; font-weight: 600; }
+
+  /* Footer */
+  .review-footer { text-align: center; padding: 40px 24px; color: #94a3b8; font-size: 0.75rem; }
+
+  @media (max-width: 640px) {
+    .toc-grid { grid-template-columns: 1fr; }
+    .page-bar { flex-wrap: wrap; }
+    .page-bar .page-route { margin-left: 0; margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== HEADER ===================== -->
+<div class="review-header">
+  <h1>OpticWise Website &mdash; Content &amp; Structure Review</h1>
+  <p>Every page, every section, every word &mdash; from your proof build documents. Please confirm this is complete and accurate.</p>
+</div>
+
+<!-- ===================== TABLE OF CONTENTS ===================== -->
+<div class="toc container">
+  <h2>Site Map &mdash; 16 Pages Total</h2>
+  <div class="toc-grid">
+    <a href="#page-1"><span class="num">1</span> Homepage <span class="type-tag tag-home">Home</span></a>
+    <a href="#page-2"><span class="num">2</span> Category Hub: NOI &amp; AI <span class="type-tag tag-hub">Hub</span></a>
+    <a href="#page-3"><span class="num">3</span> NOI Strategy <span class="type-tag tag-pillar">Pillar</span></a>
+    <a href="#page-4"><span class="num">4</span> NOI Playbook <span class="type-tag tag-pillar">Pillar</span></a>
+    <a href="#page-5"><span class="num">5</span> CRE AI Readiness <span class="type-tag tag-pillar">Pillar</span></a>
+    <a href="#page-6"><span class="num">6</span> AI-Ready CRE <span class="type-tag tag-pillar">Pillar</span></a>
+    <a href="#page-7"><span class="num">7</span> Own vs Lease Data <span class="type-tag tag-pillar">Pillar</span></a>
+    <a href="#page-8"><span class="num">8</span> Digital Visibility <span class="type-tag tag-pillar">Pillar</span></a>
+    <a href="#page-9"><span class="num">9</span> PPP Audit&trade; <span class="type-tag tag-product">Product</span></a>
+    <a href="#page-10"><span class="num">10</span> BoT&reg; <span class="type-tag tag-product">Product</span></a>
+    <a href="#page-11"><span class="num">11</span> 5S&reg; Wireless <span class="type-tag tag-product">Product</span></a>
+    <a href="#page-12"><span class="num">12</span> How We Operate <span class="type-tag tag-ops">Operations</span></a>
+    <a href="#page-13"><span class="num">13</span> FAQ (Role-Based) <span class="type-tag tag-content">Content</span></a>
+    <a href="#page-14"><span class="num">14</span> Insights Index <span class="type-tag tag-content">Content</span></a>
+    <a href="#page-15"><span class="num">15</span> Insight Post (example) <span class="type-tag tag-content">Content</span></a>
+    <a href="#page-16"><span class="num">16</span> Insight Post (example) <span class="type-tag tag-content">Content</span></a>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGE 1: HOMEPAGE -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-1">
+  <div class="page-bar">
+    <span class="page-num">1</span>
+    <span class="page-title">Homepage</span>
+    <span class="page-type tag-home">Home</span>
+    <span class="page-route">/</span>
+  </div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero">
+      <span class="wf-section-label">Hero Section</span>
+      <h3>Own Your Data &amp; Digital Infrastructure. Build for the Long Game.</h3>
+      <p>Data &amp; digital infrastructure are no longer background utilities.</p>
+      <p>They determine who controls NOI, who owns operational and tenant data, and who shapes the future intelligence of commercial real estate assets.</p>
+      <p>For years, these decisions were delegated to vendors. That era is ending.</p>
+      <div class="callout">If you don&rsquo;t own your data &amp; digital infrastructure, your vendors do.</div>
+    </div>
+
+    <div class="wf-section">
+      <span class="wf-section-label">Section 2 &mdash; Problem</span>
+      <h3>The Owner Problem: Silent Loss of Control</h3>
+      <p>Most owners did not give up control intentionally. It happened quietly:</p>
+      <ul>
+        <li>Networks installed under vendor contracts</li>
+        <li>Wireless systems designed around revenue share</li>
+        <li>Data locked inside dashboards</li>
+        <li>Visibility defined by third-party platforms</li>
+      </ul>
+      <p>Each decision felt tactical. Together, they shifted control away from the asset.</p>
+    </div>
+
+    <div class="wf-section">
+      <span class="wf-section-label">Section 3 &mdash; Solution</span>
+      <h3>What Ownership Unlocks</h3>
+      <p>When you reclaim control of data &amp; digital infrastructure, outcomes change:</p>
+      <ul>
+        <li><strong>NOI improves</strong> through owner-controlled connectivity and operational efficiency</li>
+        <li><strong>Tenant experience outcomes improve</strong> through consistent, measurable performance</li>
+        <li><strong>Operations stabilize</strong> through coordination and reduced vendor friction</li>
+        <li><strong>AI readiness becomes real</strong>, not theoretical</li>
+        <li><strong>Assets future-proof</strong> as vendors and technologies change</li>
+      </ul>
+      <p>This is not about more technology. It is about who controls the economics.</p>
+    </div>
+
+    <div class="wf-section">
+      <span class="wf-section-label">Section 4 &mdash; Two-Layer Model</span>
+      <h3>How OpticWise Helps You Win the Long Game</h3>
+      <p>OpticWise is not a bolt-on vendor. We partner with you to design, implement, and operate <strong>managed data &amp; digital infrastructure</strong> services&mdash;and provide the <strong>owner-controlled intelligence layer</strong> that turns <strong>Property Intelligence &rarr; Portfolio Intelligence</strong>.</p>
+      <div class="layer-box">
+        <div class="layer-label">Layer 1: Managed data &amp; digital infrastructure (the foundation you own)</div>
+        <ul>
+          <li><strong>Design:</strong> repeatable standards across properties</li>
+          <li><strong>Implementation:</strong> governance baked in (segmentation, access rules, documentation)</li>
+          <li><strong>Operations:</strong> ongoing digital management to keep performance high and operational risk low&mdash;without taxing your on-site engineers or property managers</li>
+        </ul>
+      </div>
+      <div class="layer-box">
+        <div class="layer-label">Layer 2: Owner-controlled intelligence layer (OpticWise Brain)</div>
+        <p>A vendor- and LLM-agnostic <strong>Property Intelligence Layer</strong>: a governed <strong>data plane + trust plane</strong> enabling autonomous activities and intelligence&mdash;so you can plug in any systems and decision engines you want, and swap them over time.</p>
+      </div>
+    </div>
+
+    <div class="wf-section wf-cta">
+      <span class="wf-section-label">Section 5 &mdash; CTA</span>
+      <h3>Your Next Step</h3>
+      <p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p>
+      <p>One building. Map who owns what, where data lives, and where operational burden stacks up vs your KPIs.</p>
+      <span class="cta-btn-mock">Schedule Your Review</span>
+    </div>
+
+    <div class="wf-section wf-hero" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+      <span class="wf-section-label">Section 6 &mdash; Closing</span>
+      <h3>The Infinite Game</h3>
+      <p>Don&rsquo;t play for next quarter&mdash;build for the next decade.</p>
+      <p><strong>Own your data &amp; digital infrastructure. Operate with strategic foresight. Build for the long game.</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGE 2: CATEGORY HUB -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-2">
+  <div class="page-bar">
+    <span class="page-num">2</span>
+    <span class="page-title">Data &amp; Digital Infrastructure, NOI, and AI in Commercial Real Estate</span>
+    <span class="page-type tag-hub">Hub</span>
+    <span class="page-route">/digital-infrastructure-noi-ai/</span>
+  </div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero">
+      <span class="wf-section-label">Hero</span>
+      <h3>Data &amp; Digital Infrastructure, NOI, and AI in Commercial Real Estate</h3>
+      <p>Commercial real estate is entering a structural shift. Not a technology cycle. A control cycle.</p>
+      <div class="callout">If you don&rsquo;t own your data &amp; digital infrastructure, your vendors do.</div>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">Section &mdash; Why One Conversation</span>
+      <h3>Why These Topics Are Now One Conversation</h3>
+      <p>For years, owners treated these as separate:</p>
+      <ul>
+        <li><strong>NOI</strong> lived in finance</li>
+        <li><strong>Data &amp; digital infrastructure</strong> lived in IT and low-voltage decisions</li>
+        <li><strong>AI</strong> lived in innovation teams</li>
+        <li><strong>Visibility</strong> lived in marketing and leasing</li>
+      </ul>
+      <p>That separation no longer holds. Today, <strong>data &amp; digital infrastructure ownership</strong> sits upstream of: NOI performance and yield, Tenant experience outcomes, Operational control and resilience, AI readiness and future decision engines, Digital visibility across search and AI systems.</p>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">Section &mdash; Core Shift</span>
+      <h3>The Core Shift: From Vendor Convenience to Owner Control</h3>
+      <p>Most owners didn&rsquo;t give up control intentionally. It happened one contract, one &ldquo;smart&rdquo; system, one dashboard at a time: Shadow networks, Siloed integrations, Data trapped inside platforms, Low-voltage decisions locked without governance.</p>
+      <p>Each decision feels tactical. Together, they create a structural disadvantage across a portfolio.</p>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">Section &mdash; Two-Layer Model</span>
+      <h3>The Two-Layer Model (How You Build for the Next Decade)</h3>
+      <div class="layer-box"><div class="layer-label">Layer 1</div><p>Managed data &amp; digital infrastructure&mdash;design, implementation, and operation. Standardizes: Repeatable standards, Segmented access and documented governance, Reliable operations.</p></div>
+      <div class="layer-box"><div class="layer-label">Layer 2 (OpticWise Brain)</div><p>Vendor- and LLM-agnostic Property Intelligence Layer: governed data plane + trust plane. Enables: One standard intelligence substrate, Many decision engines, Portfolio compounding (Property Intelligence &rarr; Portfolio Intelligence).</p></div>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">Section &mdash; PPP 5C&trade;</span>
+      <h3>PPP 5C&trade; (The Owner Path)</h3>
+      <span class="ppp-step">Clarify (PPP Review/Audit)</span>
+      <span class="ppp-step">Connect</span>
+      <span class="ppp-step">Collect</span>
+      <span class="ppp-step">Coordinate</span>
+      <span class="ppp-step">Control</span>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">Section &mdash; Canonical Clarification</span>
+      <h3>Canonical Clarification: 5S&reg;</h3>
+      <p>5S&reg; is OpticWise&rsquo;s wireless connectivity product. It delivers a 5S&reg; user experience (UX) defined by <strong>Seamless Mobility, Security, Stability (resilience), Speed, and Service</strong>. It may be delivered over <strong>Wi-Fi, in-building cellular, DAS</strong>, and other present or future wireless protocols. 5S&reg; is a user experience (UX), not a strategy or framework.</p>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">Section &mdash; Pillars</span>
+      <h3>The Pillars (Explore by Outcome)</h3>
+      <ol>
+        <li><strong>Data &amp; Digital Infrastructure NOI Strategy</strong></li>
+        <li><strong>Data &amp; Digital Infrastructure NOI Playbook</strong></li>
+        <li><strong>CRE AI Readiness</strong></li>
+        <li><strong>AI-Ready Commercial Real Estate</strong></li>
+        <li><strong>Own vs Lease CRE Building Data</strong></li>
+        <li><strong>Control of CRE Digital Visibility</strong></li>
+      </ol>
+    </div>
+    <div class="wf-section wf-cta">
+      <span class="wf-section-label">CTA</span>
+      <p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p>
+      <p>One building. Map who owns what, where data lives, and where operational burden stacks up vs your KPIs.</p>
+      <p>Own your data &amp; digital infrastructure. Operate with strategic foresight. Build for the long game.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGES 3-8: PILLAR PAGES (same template pattern) -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-3">
+  <div class="page-bar">
+    <span class="page-num">3</span>
+    <span class="page-title">Data &amp; Digital Infrastructure NOI Strategy</span>
+    <span class="page-type tag-pillar">Pillar</span>
+    <span class="page-route">/digital-infrastructure-noi-strategy/</span>
+  </div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero">
+      <span class="wf-section-label">Hero</span>
+      <h3>Data &amp; Digital Infrastructure NOI Strategy</h3>
+      <p>Data &amp; digital infrastructure NOI strategy is the intentional design, ownership, and control of a property&rsquo;s networks, systems, and data to directly increase net operating income, reduce operational risk, and protect long-term asset value.</p>
+      <div class="callout">If you don&rsquo;t own your data &amp; digital infrastructure, your vendors do.</div>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">Why NOI Is Now a D&amp;DI Decision</span>
+      <h3>Why NOI Is Now a Data &amp; Digital Infrastructure Decision</h3>
+      <p>For years, owners treated networks and building systems like background utilities. But today, the foundation determines: Who controls connectivity economics, Whether operations are manual or coordinated, Whether data is usable or trapped, Whether new tools add capability or add silos.</p>
+      <p>When the foundation is vendor-controlled, NOI becomes fragile and inconsistent. When the foundation is owner-controlled, NOI becomes repeatable.</p>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">Where NOI Leaks</span>
+      <h3>Where NOI Leaks Today</h3>
+      <p>Most leakage isn&rsquo;t obvious on day one. It shows up quietly over time:</p>
+      <ul>
+        <li><strong>Revenue-share connectivity agreements</strong> that cap upside and limit flexibility</li>
+        <li><strong>Redundant infrastructure</strong> when each vendor builds their own network</li>
+        <li><strong>Data trapped in dashboards</strong> that can&rsquo;t be exported or governed</li>
+        <li><strong>Manual operations</strong> because systems don&rsquo;t coordinate</li>
+        <li><strong>Integration fragility</strong> that creates downtime, truck rolls, and escalations</li>
+        <li><strong>Portfolio inconsistency</strong> where each building becomes a one-off</li>
+      </ul>
+      <p>Each item feels manageable. Together, they erode NOI year after year.</p>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">Owner-Control Advantage</span>
+      <h3>The Owner-Control Advantage</h3>
+      <ul>
+        <li><strong>Higher effective revenue</strong> through owner-controlled connectivity and amenity economics</li>
+        <li><strong>Lower OpEx</strong> through standardization, coordination, and fewer failure points</li>
+        <li><strong>Reduced operational risk</strong> through governed access, documentation, and accountability</li>
+        <li><strong>Portfolio compounding</strong> because standards repeat and intelligence scales</li>
+      </ul>
+      <p>You&rsquo;re not upgrading tech. You&rsquo;re upgrading your business model.</p>
+    </div>
+    <div class="wf-section">
+      <span class="wf-section-label">PPP 5C&trade;</span>
+      <h3>The Path: PPP 5C&trade;</h3>
+      <span class="ppp-step">Clarify</span><span class="ppp-step">Connect</span><span class="ppp-step">Collect</span><span class="ppp-step">Coordinate</span><span class="ppp-step">Control</span>
+    </div>
+    <div class="wf-section wf-faq">
+      <span class="wf-section-label">FAQs</span>
+      <div class="faq-item"><div class="faq-q">FAQ: How does data &amp; digital infrastructure increase NOI?</div><div class="faq-a">By enabling owner-controlled revenue economics, reducing operating costs through coordination and standardization, lowering downtime and operational risk, and preserving long-term control so you can swap platforms without rewiring buildings.</div></div>
+      <div class="faq-item"><div class="faq-q">FAQ: Is this about adding more technology?</div><div class="faq-a">No. It&rsquo;s about changing who controls the economics by building an owner-controlled foundation.</div></div>
+      <div class="faq-item"><div class="faq-q">FAQ: What&rsquo;s the first step?</div><div class="faq-a">Start with Clarify (PPP Review/Audit): map what you own, where value leaks, who&rsquo;s accountable, and what data is trustworthy and portable&mdash;so you can standardize once and scale.</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p><p>One building. Map who owns what, where data lives, and where operational burden stacks up vs your KPIs.</p><p>Own your data &amp; digital infrastructure. Operate with strategic foresight. Build for the long game.</p></div>
+  </div>
+</div>
+
+<!-- NOTE: Pages 4-8 follow the EXACT same template as Page 3 (Hero + Content Sections + FAQs + CTA). -->
+<!-- For brevity in this review doc, I'll show them in a condensed format showing the unique content. -->
+
+<div class="page-card" id="page-4">
+  <div class="page-bar"><span class="page-num">4</span><span class="page-title">Data &amp; Digital Infrastructure NOI Playbook</span><span class="page-type tag-pillar">Pillar</span><span class="page-route">/digital-infrastructure-noi-playbook/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>Data &amp; Digital Infrastructure NOI Playbook</h3><p>A repeatable, owner-led framework that turns commercial real estate data &amp; digital infrastructure, systems, and data into <strong>predictable NOI</strong> instead of unmanaged operating costs.</p></div>
+    <div class="wf-section"><span class="wf-section-label">Sections</span>
+      <h4>Why a Playbook (Not a One-Off Project)</h4><p>Most &ldquo;smart building&rdquo; efforts fail for a simple reason: they&rsquo;re treated like implementations, not operating models. A playbook makes NOI performance <strong>repeatable</strong>: Across assets, Across vendors, Across renovations and refresh cycles, Across portfolio acquisitions and transitions. Don&rsquo;t play for next quarter&mdash;build for the next decade.</p>
+      <h4>The PPP 5C&trade; Owner Path (detailed)</h4>
+      <p><strong>1) Clarify</strong> &mdash; Ownership map, KPI alignment, data trustworthiness<br>
+      <strong>2) Connect</strong> &mdash; No shadow networks, segmented access, documented governance<br>
+      <strong>3) Collect</strong> &mdash; Consistent naming/metadata, reliable ingestion, exportable data<br>
+      <strong>4) Coordinate</strong> &mdash; Fewer manual escalations, standard workflows, vendor alignment<br>
+      <strong>5) Control</strong> &mdash; Swap platforms without rewiring, intelligence compounds, owner standards</p>
+      <h4>The Two-Layer Model (How NOI Compounds)</h4><p>Layer 1: Managed data &amp; digital infrastructure. Layer 2: OpticWise Brain. One standard intelligence substrate &rarr; many decision engines &rarr; scaled across many buildings.</p>
+    </div>
+    <div class="wf-section wf-faq"><span class="wf-section-label">FAQs (3 items)</span>
+      <div class="faq-item"><div class="faq-q">Is this about adding more technology?</div><div class="faq-a">No. It&rsquo;s about creating an owner-controlled foundation and operating model.</div></div>
+      <div class="faq-item"><div class="faq-q">What is PPP 5C&trade; (plain language)?</div><div class="faq-a">Clarify, Connect, Collect, Coordinate, Control&mdash;moving you from fragmented systems to an owner-controlled intelligence substrate that scales portfolio-wide.</div></div>
+      <div class="faq-item"><div class="faq-q">What&rsquo;s the business outcome?</div><div class="faq-a">One standard intelligence substrate, many decision engines, scaled across many buildings.</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<div class="page-card" id="page-5">
+  <div class="page-bar"><span class="page-num">5</span><span class="page-title">CRE AI Readiness</span><span class="page-type tag-pillar">Pillar</span><span class="page-route">/cre-ai-readiness/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>CRE AI Readiness</h3><p>CRE AI readiness is the condition in which a commercial real estate owner controls their <strong>data &amp; digital infrastructure</strong>, data access, and system integration well enough for AI to produce reliable, actionable insights&mdash;<strong>without vendor lock-in, data loss, or black-box dependencies</strong>.</p></div>
+    <div class="wf-section"><span class="wf-section-label">Sections</span>
+      <h4>What &ldquo;AI readiness&rdquo; really is</h4><p>Not &ldquo;we bought an AI tool.&rdquo; It means you have the owner-controlled foundation that makes AI outputs trustworthy, governed, and repeatable: Identity and permissions, Data access and export rights, Integration accountability, Documentation and standards, Portability. AI readiness is a <strong>data &amp; digital infrastructure ownership decision</strong>.</p>
+      <h4>Why AI fails in most buildings</h4><p>AI fails when the inputs are fragmented and ungoverned: Multiple vendor silos and shadow networks, &ldquo;Smart&rdquo; platforms that can&rsquo;t export clean data, Missing context, No clear rules for privacy/retention/use. AI can&rsquo;t fix a foundation you don&rsquo;t control.</p>
+      <h4>The two-layer model that makes AI practical</h4><p>Layer 1 + Layer 2 (same pattern). Standardize once and scale.</p>
+    </div>
+    <div class="wf-section wf-faq"><span class="wf-section-label">FAQs (3 items)</span>
+      <div class="faq-item"><div class="faq-q">Is AI readiness about buying AI tools?</div><div class="faq-a">No. Tools come and go; the foundation must remain yours.</div></div>
+      <div class="faq-item"><div class="faq-q">What is the OpticWise Brain?</div><div class="faq-a">A vendor- and LLM-agnostic Property Intelligence Layer: governed data plane + trust plane.</div></div>
+      <div class="faq-item"><div class="faq-q">What do &ldquo;data plane&rdquo; and &ldquo;trust plane&rdquo; mean?</div><div class="faq-a">Data plane organizes/carries usable data; trust plane governs identity, access, privacy, lineage, retention, and rules of use.</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<div class="page-card" id="page-6">
+  <div class="page-bar"><span class="page-num">6</span><span class="page-title">AI-Ready Commercial Real Estate</span><span class="page-type tag-pillar">Pillar</span><span class="page-route">/ai-ready-commercial-real-estate/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>AI-Ready Commercial Real Estate</h3><p>Properties designed and operated with <strong>owner-controlled data &amp; digital infrastructure</strong> and <strong>high-fidelity data</strong>, enabling <strong>predictive operations, resilience, and long-term competitive advantage</strong>.</p></div>
+    <div class="wf-section"><span class="wf-section-label">Sections</span>
+      <h4>What &ldquo;AI-ready&rdquo; Actually Means</h4><p>Foundation that makes AI outputs trustworthy and repeatable: Governed access and identity, Reliable data capture, Documented integration pathways, Portability.</p>
+      <h4>Why Most &ldquo;AI Projects&rdquo; Fail in Buildings</h4><p>Data fragmented, network not designed for reuse, visibility trapped, no governance.</p>
+      <h4>The Two-Layer Model That Makes AI Real</h4><p>Layer 1 + Layer 2 (standard pattern).</p>
+      <h4>What You Get When AI Readiness Is Done Right</h4><p>Fewer surprises, Faster decisions, Lower risk, Portfolio scalability. You&rsquo;re not upgrading tech. You&rsquo;re upgrading your business model.</p>
+    </div>
+    <div class="wf-section wf-faq"><span class="wf-section-label">FAQs (4 items)</span>
+      <div class="faq-item"><div class="faq-q">What does &ldquo;AI-ready commercial real estate&rdquo; mean?</div></div>
+      <div class="faq-item"><div class="faq-q">Is AI readiness about buying AI tools?</div></div>
+      <div class="faq-item"><div class="faq-q">What does &ldquo;vendor- and LLM-agnostic&mdash;forever&rdquo; mean?</div></div>
+      <div class="faq-item"><div class="faq-q">What do &ldquo;data plane&rdquo; and &ldquo;trust plane&rdquo; mean in plain language?</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<div class="page-card" id="page-7">
+  <div class="page-bar"><span class="page-num">7</span><span class="page-title">Own vs Lease CRE Building Data</span><span class="page-type tag-pillar">Pillar</span><span class="page-route">/own-vs-lease-cre-building-data/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>Own vs Lease CRE Building Data</h3><p>Owning CRE building data means the property owner retains full control, access, and decision rights over operational and tenant-generated data, while leasing data places those rights in the hands of vendors and platforms.</p></div>
+    <div class="wf-section"><span class="wf-section-label">Sections</span>
+      <h4>Why This Distinction Matters Now</h4><p>Data ownership is an <strong>economic control</strong> decision: Who can export the data, Who holds admin credentials, Who defines the &ldquo;truth&rdquo; about performance, Who can change platforms without rewiring the building. Across a portfolio, leased data becomes structural disadvantage.</p>
+      <h4>What It Looks Like to Lease Your Data</h4><p>Data accessible only through vendor dashboard, Exports limited/priced/blocked, Admin credentials held by third party, Integrations require custom work every time, Building&rsquo;s &ldquo;intelligence&rdquo; is someone else&rsquo;s asset.</p>
+      <h4>What It Looks Like to Own Your Data</h4><p>Export rights, Admin credentials, Governed identity and permissions, Repeatable standards, Portability. Owning data is not a dashboard. It&rsquo;s a durable capability.</p>
+      <h4>The Path to Ownership (PPP 5C&trade;)</h4><p>Standardize once &rarr; scale to portfolio &rarr; compounding outcomes.</p>
+    </div>
+    <div class="wf-section wf-faq"><span class="wf-section-label">FAQs (3 items)</span>
+      <div class="faq-item"><div class="faq-q">What does it mean to &ldquo;own&rdquo; building data?</div></div>
+      <div class="faq-item"><div class="faq-q">What&rsquo;s the risk of leasing data?</div></div>
+      <div class="faq-item"><div class="faq-q">What does &ldquo;vendor- and LLM-agnostic&mdash;forever&rdquo; mean?</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<div class="page-card" id="page-8">
+  <div class="page-bar"><span class="page-num">8</span><span class="page-title">Control of CRE Digital Visibility</span><span class="page-type tag-pillar">Pillar</span><span class="page-route">/control-cre-digital-visibility/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>Control of CRE Digital Visibility</h3><p>The ability of a commercial real estate owner to govern how their building, performance, and data context are represented across search engines, AI systems, and digital platforms&mdash;rather than allowing vendors to define that narrative.</p></div>
+    <div class="wf-section"><span class="wf-section-label">Sections</span>
+      <h4>What &ldquo;Digital Visibility&rdquo; Means Now</h4><p>Used to mean marketing (listings, reviews, SEO, traffic). Now also means how <strong>AI systems</strong> &ldquo;understand&rdquo; your assets: What&rsquo;s true, measurable, repeatable&mdash;and what gets recommended vs ignored. If your data is fragmented or vendor-controlled, AI will still generate an answer. It just won&rsquo;t be <em>your</em> answer.</p>
+      <h4>Why Owners Lose Control of Visibility</h4><p>Visibility is downstream of data &amp; digital infrastructure. Dashboards become the &ldquo;truth,&rdquo; Platforms become the default source, Building&rsquo;s intelligence becomes someone else&rsquo;s asset.</p>
+      <h4>What Owner-Controlled Visibility Enables</h4><p>1) One source of truth you control. 2) Portfolio-level consistency. 3) Platform flexibility. 4) Lower diligence and reputation risk.</p>
+      <h4>The Path to Control (PPP 5C&trade;)</h4><p>Control of visibility is not a marketing project. It&rsquo;s an ownership project.</p>
+    </div>
+    <div class="wf-section wf-faq"><span class="wf-section-label">FAQs (3 items)</span>
+      <div class="faq-item"><div class="faq-q">What is &ldquo;control of CRE digital visibility&rdquo;?</div></div>
+      <div class="faq-item"><div class="faq-q">Is this just SEO?</div></div>
+      <div class="faq-item"><div class="faq-q">Why does data &amp; digital infrastructure ownership matter for visibility?</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGE 9: PPP AUDIT -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-9">
+  <div class="page-bar"><span class="page-num">9</span><span class="page-title">PPP Audit&trade;</span><span class="page-type tag-product">Product</span><span class="page-route">/ppp-audit/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>PPP Audit&trade;</h3><p>Peak Property Performance&reg; (PPP&trade;) is OpticWise&rsquo;s owner-first operating model for turning data &amp; digital infrastructure into measurable outcomes&mdash;NOI growth, tenant experience outcomes, operational control, and future-proofing / AI readiness. It&rsquo;s also a best-selling book published by Fast Company Press.</p><p>PPP Audit&trade; is the Clarify entry point: it maps what you own, where value is leaking, and what data is trustworthy and portable&mdash;so you can standardize once and scale.</p></div>
+    <div class="wf-section"><span class="wf-section-label">What It Does</span>
+      <h3>What the PPP Audit&trade; Does</h3>
+      <ul><li><strong>What you own</strong> (and what you don&rsquo;t)</li><li><strong>Where value is leaking</strong> (NOI, OpEx, vendor friction, redundancy)</li><li><strong>Who is accountable</strong> for integration outcomes (not just installs)</li><li><strong>What data is trustworthy and portable</strong></li><li><strong>Where you have the least control</strong></li></ul>
+      <p>This is not a &ldquo;tech assessment.&rdquo; It&rsquo;s an ownership and operating model reset.</p>
+    </div>
+    <div class="wf-section"><span class="wf-section-label">What You Walk Away With</span>
+      <h4>1) Ownership + Control Map</h4><p>Admin credentials and access ownership, Export rights and portability status, Vendor boundaries and responsibilities, Shadow network detection and remediation plan.</p>
+      <h4>2) KPI Alignment (Scoreboard)</h4><p>NOI/yield, OpEx/O&amp;M, Tenant experience outcomes, Utilities, Insurance and risk narrative, Lease-up velocity, Investor story / diligence readiness.</p>
+      <h4>3) A Repeatable Standard (Not a One-Off Fix)</h4><p>The rules vendors must follow, The foundation you can scale across properties, The path from <strong>Property Intelligence &rarr; Portfolio Intelligence</strong>.</p>
+    </div>
+    <div class="wf-section"><span class="wf-section-label">PPP 5C&trade; Fit + Who It&rsquo;s For</span>
+      <p>PPP Audit&trade; is <strong>Clarify</strong>&mdash;the first step of PPP 5C&trade;.</p>
+      <p>Built for owners/operators who want: Operational control without adding burden, Portfolio repeatability, Reduced lock-in, AI readiness grounded in governance.</p>
+    </div>
+    <div class="wf-section wf-faq"><span class="wf-section-label">FAQs (3 items)</span>
+      <div class="faq-item"><div class="faq-q">What do we actually get out of a PPP Review/Audit?</div></div>
+      <div class="faq-item"><div class="faq-q">Is this an &ldquo;audit&rdquo; in the accounting sense?</div></div>
+      <div class="faq-item"><div class="faq-q">What happens after the PPP Audit&trade;?</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGE 10: BoT -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-10">
+  <div class="page-bar"><span class="page-num">10</span><span class="page-title">BoT&reg; (Building of Things&reg;)</span><span class="page-type tag-product">Product</span><span class="page-route">/bot-building-of-things/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>BoT&reg; (Building of Things&reg;)</h3><p>Strategic approach to consolidate all your property&rsquo;s networks onto the fewest possible physical networks&mdash;<strong>reducing build cost and operating cost while increasing control</strong>.</p></div>
+    <div class="wf-section"><span class="wf-section-label">Sections</span>
+      <h4>The Problem BoT&reg; Solves</h4><p>Most buildings don&rsquo;t have an &ldquo;IoT problem.&rdquo; They have a <strong>control problem</strong>: Networks built in silos, Low-voltage/OT decisions locked without governance, Data fragmented, Every new tool becomes another one-off. That&rsquo;s how you end up designing a building&hellip; and accidentally designing vendor lock-in.</p>
+      <h4>What BoT&reg; Changes</h4><p><strong>Consolidate</strong> &mdash; Fewer physical networks, lower CapEx/OpEx.<br><strong>Standardize</strong> &mdash; Repeatable standards across properties.<br><strong>Govern</strong> &mdash; Segmentation, access rules, documentation, accountability.<br><strong>Scale Intelligence</strong> &mdash; Property Intelligence &rarr; Portfolio Intelligence.</p>
+      <h4>How BoT&reg; Fits the Two-Layer Model</h4><p>Strengthens Layer 1 by reducing complexity. Makes Layer 2 scalable.</p>
+      <h4>What You Get When BoT&reg; Is Done Right</h4><p>Lower build costs, Lower operating costs, Higher operational control, Reduced lock-in, Portfolio compounding.</p>
+    </div>
+    <div class="wf-section wf-faq"><span class="wf-section-label">FAQs (2 items)</span>
+      <div class="faq-item"><div class="faq-q">What is Building of Things&reg; (BoT&reg;)?</div><div class="faq-a">Consolidate all your property&rsquo;s networks onto the fewest possible physical networks. Often saves hundreds of thousands in build costs and thousands per month in operating costs.</div></div>
+      <div class="faq-item"><div class="faq-q">SAQ: Are we designing a building&hellip; or designing vendor lock-in?</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGE 11: 5S WIRELESS -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-11">
+  <div class="page-bar"><span class="page-num">11</span><span class="page-title">5S&reg; Wireless Connectivity</span><span class="page-type tag-product">Product</span><span class="page-route">/5s-wireless-connectivity/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>5S&reg; Wireless Connectivity</h3><p>OpticWise&rsquo;s wireless connectivity product. It delivers the <strong>5S&reg; user experience (UX)</strong> over owner-controlled data &amp; digital infrastructure&mdash;so connectivity becomes a controllable asset, not a vendor dependency.</p></div>
+    <div class="wf-section"><span class="wf-section-label">Sections</span>
+      <h4>What 5S&reg; Delivers (5 outcomes)</h4>
+      <ul><li><strong>Seamless Mobility</strong> &mdash; reliable roaming, no dead zones</li><li><strong>Security</strong> &mdash; governed access and segmentation</li><li><strong>Stability (resilience)</strong> &mdash; engineered reliability</li><li><strong>Speed</strong> &mdash; performance designed for real behavior</li><li><strong>Service</strong> &mdash; support that doesn&rsquo;t turn your team into the help desk</li></ul>
+      <h4>How 5S&reg; Is Delivered</h4><p>Over Wi-Fi, in-building cellular, DAS, or other protocols. The point is <strong>owner control</strong>.</p>
+      <h4>Why Owners Choose 5S&reg;</h4><p>Higher retention, Lower on-site burden, Reduced operational risk, Portfolio repeatability.</p>
+      <h4>What This Looks Like in Operations</h4><p>Coverage matching building use, Capacity for today and next wave, Wi-Fi calling deep inside building, Support that doesn&rsquo;t land on your staff.</p>
+    </div>
+    <div class="wf-section wf-faq"><span class="wf-section-label">FAQs (5 items)</span>
+      <div class="faq-item"><div class="faq-q">What is 5S&reg;?</div></div>
+      <div class="faq-item"><div class="faq-q">Will the entire property be covered and strong?</div></div>
+      <div class="faq-item"><div class="faq-q">Can tenants/residents make calls deep inside the building?</div></div>
+      <div class="faq-item"><div class="faq-q">How many users/devices can it handle?</div></div>
+      <div class="faq-item"><div class="faq-q">Who supports tenants/residents?</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGE 12: HOW WE OPERATE -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-12">
+  <div class="page-bar"><span class="page-num">12</span><span class="page-title">How OpticWise Operates Data &amp; Digital Infrastructure</span><span class="page-type tag-ops">Operations</span><span class="page-route">/how-we-operate-digital-infrastructure/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>How OpticWise Operates Data &amp; Digital Infrastructure</h3><p>Most owners have an IT strategy. Almost nobody has an OT strategy. That&rsquo;s where control gets lost&mdash;quietly&mdash;through low-voltage decisions, vendor silos, and dashboards that trap your data.</p></div>
+    <div class="wf-section"><span class="wf-section-label">Layer 1: Managed D&amp;DI</span>
+      <h4>Design (standardize once)</h4><p>Network and wireless design aligned to building use, Coverage and capacity planning, Segmentation and access rules, Documentation standards.</p>
+      <h4>Implementation (go-live without chaos)</h4><p>Your low-voltage contractor installs to OpticWise specifications. OpticWise configures the in-building network. Retrofits &lt;1 quarter; new construction syncs with GC schedules.</p>
+      <h4>Operations (keep performance high)</h4><p>Monitoring and performance management, Maintenance coordination, Support orchestration, Documentation upkeep, Governance enforcement (no shadow networks). <strong>Outcome:</strong> performance stays high, risk stays low, your on-site team is not the digital help desk.</p>
+    </div>
+    <div class="wf-section"><span class="wf-section-label">Layer 2: OpticWise Brain</span>
+      <p>Vendor- and LLM-agnostic <strong>Property Intelligence Layer</strong> with governed <strong>data plane + trust plane</strong>. Data plane organizes/carries usable data; trust plane governs identity, access, privacy, lineage, retention, rules of use. <strong>Outcome:</strong> plug in any decision engines, swap them over time.</p>
+    </div>
+    <div class="wf-section"><span class="wf-section-label">Owner Outcomes</span>
+      <ul><li><strong>NOI growth</strong> through predictable connectivity economics</li><li><strong>Tenant experience outcomes</strong> through consistent performance</li><li><strong>Operational control</strong> because vendors follow owner rules</li><li><strong>Future-proofing / AI readiness</strong> grounded in governance, not hype</li></ul>
+      <p>You&rsquo;re not upgrading tech. You&rsquo;re upgrading your business model.</p>
+    </div>
+    <div class="wf-section wf-faq"><span class="wf-section-label">FAQs (3 items)</span>
+      <div class="faq-item"><div class="faq-q">What do you mean by &ldquo;managed data &amp; digital infrastructure&rdquo;?</div></div>
+      <div class="faq-item"><div class="faq-q">Who installs what&mdash;OpticWise or our low-voltage contractor?</div></div>
+      <div class="faq-item"><div class="faq-q">What do you operate day-to-day after install?</div></div>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGE 13: FAQ (ROLE-BASED) -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-13">
+  <div class="page-bar"><span class="page-num">13</span><span class="page-title">FAQ: Owning Your Data &amp; Digital Infrastructure</span><span class="page-type tag-content">Content</span><span class="page-route">/faq/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>FAQ: Owning Your Data &amp; Digital Infrastructure</h3><p>v2 website-ready FAQ/SAQ library, reorganized by role with Layer 1 / Layer 2 / Advisory subheaders (plus a General hub).</p></div>
+    <div class="wf-section"><span class="wf-section-label">Role-Based Tabs (6 roles)</span>
+      <p style="margin-bottom:8px;">Each role tab contains: Layer 1 Q&amp;As &bull; Layer 2 Q&amp;As &bull; Advisory Q&amp;As &bull; Role-specific CTA</p>
+      <span class="role-tab active">Developer</span>
+      <span class="role-tab">Owner</span>
+      <span class="role-tab">Operator</span>
+      <span class="role-tab">Property Manager</span>
+      <span class="role-tab">Asset Manager</span>
+      <span class="role-tab">ERTC</span>
+      <div style="margin-top:12px;">
+        <p><strong>Developer:</strong> 3 Layer 1 Qs + 2 Layer 2 Qs + 1 Advisory Q + CTA</p>
+        <p><strong>Owner:</strong> 3 Layer 1 Qs + 3 Layer 2 Qs + 1 Advisory Q + CTA</p>
+        <p><strong>Operator:</strong> 2 Layer 1 Qs + 2 Layer 2 Qs + 1 Advisory Q + CTA</p>
+        <p><strong>Property Manager:</strong> 3 Layer 1 Qs + 2 Layer 2 Qs + 1 Advisory Q + CTA</p>
+        <p><strong>Asset Manager:</strong> 2 Layer 1 Qs + 2 Layer 2 Qs + 1 Advisory Q + CTA</p>
+        <p><strong>ERTC:</strong> 1 Layer 1 Q + 2 Layer 2 Qs + 1 Advisory Q + CTA</p>
+      </div>
+    </div>
+    <div class="wf-section"><span class="wf-section-label">General FAQ Hub (SEO + AI retrieval)</span>
+      <h4>The &ldquo;What&rdquo; and the &ldquo;Why&rdquo;</h4><p>2 FAQs: What problem does OpticWise solve? + Property Intelligence &rarr; Portfolio Intelligence.</p>
+      <h4>Delivery &amp; Support</h4><p>3 FAQs: equipment support, ISP flexibility, dual-carrier redundancy.</p>
+      <h4>Economics, Liability, Billing</h4><p>2 FAQs: who bills tenants, liability for connectivity.</p>
+      <h4>Definitions</h4><p>3 FAQs: ElasticISP&reg;, Building of Things&reg; (BoT&reg;), Peak Property Performance&reg; (PPP&trade;).</p>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">Global CTA Block</span><p>Stop buying point solutions that trap your data inside a single building. Start building an intelligence layer that scales.</p><p><strong>Own your data &amp; digital infrastructure. Govern your data. Choose any &ldquo;brain&rdquo; you want. Build for the long game.</strong></p></div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGE 14: INSIGHTS INDEX -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-14">
+  <div class="page-bar"><span class="page-num">14</span><span class="page-title">Insights for Owners Who Want Control</span><span class="page-type tag-content">Content</span><span class="page-route">/insights/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>Insights for Owners Who Want Control</h3><p>This is where we publish the owner plays: how to reclaim control, reduce operational risk, and turn data &amp; digital infrastructure into a compounding portfolio asset.</p></div>
+    <div class="wf-section"><span class="wf-section-label">Featured Insights</span>
+      <p><strong>Start here if you&rsquo;re making decisions this quarter:</strong></p>
+      <div class="insight-card">Own vs lease your building&rsquo;s data (what changes when vendors control exports)</div>
+      <div class="insight-card">NOI isn&rsquo;t just finance anymore&mdash;it&rsquo;s data &amp; digital infrastructure</div>
+      <div class="insight-card">AI readiness is a data &amp; digital infrastructure ownership decision</div>
+    </div>
+    <div class="wf-section"><span class="wf-section-label">Most Read (Owner Plays)</span>
+      <p><strong>Recurring plays you can run without a data team:</strong></p>
+      <ul>
+        <li>The &ldquo;Admin Credentials&rdquo; play</li>
+        <li>The &ldquo;Export Rights&rdquo; play</li>
+        <li>The &ldquo;No Shadow Networks&rdquo; play</li>
+        <li>The &ldquo;Portfolio Standard&rdquo; play</li>
+        <li>The &ldquo;Connectivity Economics&rdquo; play</li>
+        <li>The &ldquo;Diligence Story&rdquo; play</li>
+      </ul>
+    </div>
+    <div class="wf-section"><span class="wf-section-label">Categories</span>
+      <p>Explore by outcomes (not tech):</p>
+      <span class="category-pill" style="background:#dbeafe;color:#1d4ed8;">NOI growth</span>
+      <span class="category-pill" style="background:#d1fae5;color:#065f46;">Tenant experience outcomes</span>
+      <span class="category-pill" style="background:#ede9fe;color:#5b21b6;">Operational control</span>
+      <span class="category-pill" style="background:#fef3c7;color:#92400e;">Future-proofing / AI readiness</span>
+    </div>
+    <div class="wf-section"><span class="wf-section-label">How to Use These Insights</span>
+      <p>Don&rsquo;t treat this as content. Treat it as an operating cadence.</p>
+      <p>If you had monthly &ldquo;plays&rdquo; (not dashboards), what 3 decisions would you want to make better?</p>
+    </div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- PAGES 15-16: INSIGHT POSTS -->
+<!-- ================================================================== -->
+<div class="page-card" id="page-15">
+  <div class="page-bar"><span class="page-num">15</span><span class="page-title">Owner Play: Stop letting vendors own your data &amp; digital infrastructure</span><span class="page-type tag-content">Insight Post</span><span class="page-route">/insights/owner-play-stop-vendor-control/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>Owner Play: Stop letting vendors own your data &amp; digital infrastructure</h3><p>A simple monthly play to reclaim control without adding burden to your on-site team.</p><p style="font-size:0.7rem;color:#94a3b8;">Category: Operational control &bull; Date: 2025-01-01</p></div>
+    <div class="wf-section"><span class="wf-section-label">Content</span><p>If you don&rsquo;t own your data &amp; digital infrastructure, your vendors do.</p></div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<div class="page-card" id="page-16">
+  <div class="page-bar"><span class="page-num">16</span><span class="page-title">NOI isn&rsquo;t just finance anymore &mdash; it&rsquo;s data &amp; digital infrastructure</span><span class="page-type tag-content">Insight Post</span><span class="page-route">/insights/noi-is-data-and-digital-infrastructure/</span></div>
+  <div class="wireframe">
+    <div class="wf-section wf-hero"><span class="wf-section-label">Hero</span><h3>NOI isn&rsquo;t just finance anymore &mdash; it&rsquo;s data &amp; digital infrastructure</h3><p>Where NOI leaks when connectivity and data rights are treated as vendor decisions.</p><p style="font-size:0.7rem;color:#94a3b8;">Category: NOI growth &bull; Date: 2025-01-15</p></div>
+    <div class="wf-section"><span class="wf-section-label">Content</span><h4>The shift</h4><p>Data &amp; digital infrastructure determine whether NOI becomes predictable&mdash;or leaks through fragmentation and lock-in.</p></div>
+    <div class="wf-section wf-cta"><span class="wf-section-label">CTA</span><p><strong>Complementary CRE Data &amp; Digital Review Session</strong></p></div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- SUMMARY: DESIGN & TEMPLATE NOTES -->
+<!-- ================================================================== -->
+<div class="summary-card" id="design-summary">
+  <div class="summary-header">
+    <h2>Design, Template &amp; Structural Notes from Your Documents</h2>
+  </div>
+  <div class="summary-body">
+    <h3>Global Elements (appear on every page)</h3>
+    <ul>
+      <li><strong>Reframing Line:</strong> &ldquo;If you don&rsquo;t own your data &amp; digital infrastructure, your vendors do.&rdquo;</li>
+      <li><strong>Closing Line:</strong> &ldquo;Own your data &amp; digital infrastructure. Operate with strategic foresight. Build for the long game.&rdquo;</li>
+      <li><strong>Primary CTA:</strong> &ldquo;Complementary CRE Data &amp; Digital Review Session&rdquo; &rarr; links to /ppp-audit/ (swap to Calendly/contact later)</li>
+      <li><strong>CTA Microcopy:</strong> &ldquo;One building. Map who owns what, where data lives, and where operational burden stacks up vs your KPIs.&rdquo;</li>
+    </ul>
+
+    <h3>Navigation Structure (from client&rsquo;s SiteHeader)</h3>
+    <dl class="kv">
+      <dt>Home</dt><dd>/</dd>
+      <dt>Category</dt><dd>/digital-infrastructure-noi-ai/</dd>
+      <dt>Insights</dt><dd>/insights/</dd>
+      <dt>FAQ</dt><dd>/faq/</dd>
+      <dt>Primary CTA button</dt><dd>&ldquo;Complementary CRE Data &amp; Digital Review Session&rdquo; &rarr; /ppp-audit/</dd>
+    </dl>
+
+    <h3>Architecture &amp; Technology (from client&rsquo;s proof build)</h3>
+    <ul>
+      <li><strong>Framework:</strong> Next.js 14 (App Router)</li>
+      <li><strong>Content management:</strong> Markdown files in <code>/content/pages/</code> and <code>/content/insights/</code></li>
+      <li><strong>Styling:</strong> Tailwind CSS</li>
+      <li><strong>SEO:</strong> Schema.org JSON-LD on every page (Organization, WebSite, WebPage, Article, FAQPage, Service, Product, Blog, BlogPosting)</li>
+      <li><strong>Insights/blog:</strong> Markdown with frontmatter (title, description, date, slug, category)</li>
+      <li><strong>Insight categories:</strong> NOI growth, Tenant experience outcomes, Operational control, Future-proofing / AI readiness</li>
+    </ul>
+
+    <h3>Visual Design Preference (from client&rsquo;s proof build)</h3>
+    <ul>
+      <li>Client&rsquo;s proof build used a <strong>dark theme</strong> (background #0b0f14, text #e7eef7)</li>
+      <li>Cards with <code>border-white/10</code> and <code>bg-white/5</code>, rounded corners (<code>rounded-3xl</code>)</li>
+      <li>Client stated: <em>&ldquo;I do like the look and feel of the one you first started creating&rdquo;</em></li>
+      <li>Our first website (<code>/new-website/</code>) used a <strong>blue SaaS theme</strong>: primary #2B6CB0, Inter font, light backgrounds, hero gradients</li>
+    </ul>
+    <p><strong>Direction:</strong> Client wants his content structure + the &ldquo;look and feel&rdquo; of the first website we built. Apply the blue SaaS visual design to his content framework.</p>
+
+    <h3>Recurring Content Patterns</h3>
+    <ul>
+      <li><strong>Two-Layer Model</strong> appears on: Homepage, Category Hub, NOI Playbook, CRE AI Readiness, AI-Ready CRE, BoT&reg;, How We Operate</li>
+      <li><strong>PPP 5C&trade;</strong> appears on: Homepage, Category Hub, NOI Strategy, NOI Playbook, Own vs Lease, Digital Visibility, PPP Audit</li>
+      <li><strong>FAQ/SAQ pairs</strong> appear at the bottom of every pillar + product page</li>
+      <li><strong>Every page ends</strong> with the standard CTA + closing line</li>
+    </ul>
+
+    <h3>Trademark/Registered Usage</h3>
+    <ul>
+      <li>PPP Audit&trade; &mdash; always with &trade;</li>
+      <li>Peak Property Performance&reg; (PPP&trade;) &mdash; &reg; on first mention of full name</li>
+      <li>BoT&reg; / Building of Things&reg; &mdash; always with &reg;</li>
+      <li>5S&reg; &mdash; always with &reg;</li>
+      <li>PPP 5C&trade; &mdash; always with &trade;</li>
+      <li>ElasticISP&reg; &mdash; always with &reg;</li>
+      <li>SIC&reg; &mdash; mentioned in General FAQ</li>
+    </ul>
+
+    <h3>Content Not Yet Written (placeholder/skeleton posts)</h3>
+    <ul>
+      <li>Insight posts are example stubs with minimal body content (just CTA). Real posts will need to be written.</li>
+      <li>&ldquo;Most Read (Owner Plays)&rdquo; section on Insights page lists 6 plays that don&rsquo;t have posts yet.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="review-footer">
+  <p>Generated from OpticWise proof build documents &mdash; Feb 2026</p>
+  <p>Please review and confirm: &ldquo;Yes, you&rsquo;ve captured everything exactly. Please go and design it now.&rdquo;</p>
+</div>
+
+</body>
+</html>
