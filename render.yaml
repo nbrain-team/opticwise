@@ -25,9 +25,8 @@ services:
     region: oregon
     plan: starter
     branch: main
-    rootDir: website-v2
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: cd website-v2 && npm install && npm run build
+    startCommand: cd website-v2 && npm start
     envVars:
       - key: NODE_ENV
         value: production
