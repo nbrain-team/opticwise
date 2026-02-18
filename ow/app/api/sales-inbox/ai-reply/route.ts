@@ -4,12 +4,19 @@ import { prisma } from '@/lib/db';
 import OpenAI from 'openai';
 import { Pool } from 'pg';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // const pinecone = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
-});
+
+let _openai: OpenAI | null = null;
+function getOpenAI() {
+  if (!_openai) _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return _openai;
+}
+
+let _pool: Pool | null = null;
+function getPool() {
+  if (!_pool) _pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
+  return _pool;
+}
 
 /**
  * POST /api/sales-inbox/ai-reply
@@ -81,7 +88,7 @@ export async function POST(request: NextRequest) {
     // Search for relevant context from call transcripts
     let transcriptContext = '';
     try {
-      const embeddingResponse = await openai.embeddings.create({
+      const embeddingResponse = await getOpenAI().embeddings.create({
         model: 'text-embedding-3-large',
         input: lastMessage.body.replace(/<[^>]*>/g, ''),
         dimensions: 1024,
@@ -91,7 +98,7 @@ export async function POST(request: NextRequest) {
       const vectorString = `[${queryEmbedding.join(',')}]`;
       
       // Search PostgreSQL pgvector for relevant transcripts
-      const searchResults = await pool.query(
+      const searchResults = await getPool().query(
         `SELECT title, summary, transcript, "startTime"
          FROM "CallTranscript"
          WHERE vectorized = true AND embedding IS NOT NULL
@@ -140,7 +147,7 @@ ${thread.person.deals && thread.person.deals.length > 0 ? `Open Deals: ${thread.
     // Fetch style examples from StyleGuide
     let styleExamples: string[] = [];
     try {
-      const styleResult = await pool.query(
+      const styleResult = await getPool().query(
         `SELECT content, tone, author
          FROM "StyleGuide"
          WHERE category = 'email'
@@ -159,7 +166,7 @@ ${thread.person.deals && thread.person.deals.length > 0 ? `Open Deals: ${thread.
       if (styleResult.rows.length > 0) {
         const ids = styleResult.rows.map((r: { id?: number }) => r.id).filter(Boolean);
         if (ids.length > 0) {
-          await pool.query(
+          await getPool().query(
             `UPDATE "StyleGuide" 
              SET "usageCount" = "usageCount" + 1
              WHERE id = ANY($1)`,
@@ -172,7 +179,7 @@ ${thread.person.deals && thread.person.deals.length > 0 ? `Open Deals: ${thread.
     }
     
     // Generate AI reply using latest OpenAI model
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: 'gpt-4o', // Latest GPT-4o model (or use 'o1-preview' if available)
       messages: [
         {
