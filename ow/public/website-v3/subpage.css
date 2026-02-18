@@ -1,0 +1,229 @@
+/* =========================================================
+   OpticWise v3 — Subpage Styles
+   Modules: Sub-Hero, Audit Cards, Deliverables, Timeline,
+            Audience Cards, FAQ Accordion, Callout Bar
+   ========================================================= */
+
+/* --- Sub-Hero --- */
+.sub-hero {
+  position: relative; overflow: hidden;
+  padding: 140px 0 80px;
+}
+.sub-hero-bg { position: absolute; inset: 0; z-index: 0; }
+.sub-hero-content {
+  position: relative; z-index: 3;
+  max-width: 760px;
+}
+.breadcrumb {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: .8rem; color: rgba(255,255,255,.5);
+  margin-bottom: 20px; transition: color .2s;
+}
+.breadcrumb:hover { color: rgba(255,255,255,.85); }
+.sub-hero-badge {
+  display: inline-block;
+  font-size: .65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .1em;
+  color: #60a5fa; background: rgba(96,165,250,.12);
+  padding: 5px 14px; border-radius: 99px;
+  margin-bottom: 16px;
+}
+.sub-hero-title {
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 800; color: #fff;
+  line-height: 1.15; letter-spacing: -.03em;
+  margin-bottom: 24px;
+}
+.sub-hero-lead {
+  font-size: 1.05rem; color: rgba(255,255,255,.88);
+  line-height: 1.7; margin-bottom: 16px;
+}
+.sub-hero-desc {
+  font-size: .95rem; color: rgba(255,255,255,.65);
+  line-height: 1.7; margin-bottom: 12px;
+}
+
+/* --- Audit Cards (What It Does) --- */
+.audit-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 20px; max-width: 960px; margin: 0 auto;
+}
+.audit-card {
+  background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 14px; padding: 28px 22px;
+  text-align: center; transition: all .25s;
+}
+.audit-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+  border-color: rgba(43,108,176,.2);
+}
+.audit-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: linear-gradient(135deg, #2B6CB0, #1E4E8C);
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 14px;
+}
+.audit-icon-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.audit-icon-amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.audit-icon-green { background: linear-gradient(135deg, #10B981, #059669); }
+.audit-icon-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+.audit-card h3 {
+  font-size: .9rem; font-weight: 700; color: #0f172a; margin-bottom: 6px;
+}
+.audit-card p { font-size: .8rem; color: #64748b; }
+
+/* --- Callout Bar --- */
+.callout-bar {
+  display: flex; align-items: center; gap: 12px;
+  max-width: 640px; margin: 40px auto 0;
+  padding: 18px 24px; border-radius: 12px;
+  background: #eff6ff; border: 1px solid #bfdbfe;
+  color: #1e40af; font-size: .9rem; font-weight: 500;
+}
+.callout-bar svg { flex-shrink: 0; color: #2B6CB0; }
+.callout-bar p { margin: 0; }
+
+/* --- Deliverables --- */
+.deliverables {
+  display: flex; flex-direction: column; gap: 24px;
+  max-width: 800px; margin: 0 auto;
+}
+.deliverable {
+  display: flex; gap: 24px;
+  background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 16px; padding: 32px;
+  transition: all .25s;
+}
+.deliverable:hover {
+  box-shadow: 0 8px 30px rgba(0,0,0,.06);
+  border-color: rgba(43,108,176,.15);
+}
+.deliverable-num {
+  font-size: 2.5rem; font-weight: 900;
+  color: rgba(43,108,176,.12); line-height: 1;
+  flex-shrink: 0; min-width: 56px;
+}
+.deliverable-body h3 {
+  font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 10px;
+}
+.deliverable-body .subtle { font-weight: 400; color: #94a3b8; }
+.deliverable-body p {
+  font-size: .88rem; color: #64748b; margin-bottom: 12px; line-height: 1.6;
+}
+.deliverable-body ul {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.deliverable-body li {
+  font-size: .88rem; color: #475569; line-height: 1.5;
+  padding-left: 18px; position: relative;
+}
+.deliverable-body li::before {
+  content: '';
+  position: absolute; left: 0; top: 8px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #2B6CB0;
+}
+
+@media (max-width: 640px) {
+  .deliverable { flex-direction: column; gap: 12px; }
+  .deliverable-num { font-size: 1.5rem; }
+}
+
+/* --- PPP 5C Timeline --- */
+.ppp-timeline {
+  max-width: 720px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 0;
+  position: relative;
+}
+.ppp-timeline::before {
+  content: '';
+  position: absolute; left: 23px; top: 24px; bottom: 24px;
+  width: 2px; background: #e2e8f0;
+}
+.ppp-step {
+  display: flex; align-items: flex-start; gap: 20px;
+  padding: 20px 0; position: relative;
+}
+.ppp-step-num {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: #f1f5f9; border: 2px solid #e2e8f0;
+  color: #64748b; font-size: .9rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; z-index: 1; transition: all .3s;
+}
+.ppp-step-active .ppp-step-num {
+  background: #2B6CB0; border-color: #2B6CB0; color: #fff;
+  box-shadow: 0 0 0 6px rgba(43,108,176,.15);
+}
+.ppp-step-body h3 {
+  font-size: 1rem; font-weight: 700; color: #0f172a; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.ppp-badge {
+  font-size: .6rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .08em;
+  background: #dbeafe; color: #1d4ed8;
+  padding: 3px 10px; border-radius: 6px;
+}
+.ppp-step-body p {
+  font-size: .88rem; color: #64748b; line-height: 1.6;
+}
+
+/* --- Audience Cards --- */
+.audience-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px; max-width: 960px; margin: 0 auto;
+}
+.audience-card {
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 14px; padding: 28px 24px;
+  text-align: center; transition: all .25s;
+}
+.audience-card:hover {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.2);
+  transform: translateY(-3px);
+}
+.audience-card svg {
+  color: #60a5fa; margin: 0 auto 14px; display: block;
+}
+.audience-card h3 {
+  font-size: .95rem; font-weight: 700; color: #fff; margin-bottom: 6px;
+}
+.audience-card p { font-size: .82rem; color: rgba(255,255,255,.6); }
+
+/* --- FAQ Accordion --- */
+.faq-list {
+  max-width: 720px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.faq-item {
+  background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 12px; overflow: hidden;
+  transition: border-color .2s;
+}
+.faq-item:hover, .faq-item[open] {
+  border-color: rgba(43,108,176,.25);
+}
+.faq-item summary {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 20px 24px;
+  cursor: pointer; list-style: none;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-q {
+  font-size: .92rem; font-weight: 600; color: #0f172a;
+}
+.faq-chevron {
+  color: #94a3b8; flex-shrink: 0;
+  transition: transform .2s;
+}
+.faq-item[open] .faq-chevron { transform: rotate(180deg); }
+.faq-a {
+  padding: 0 24px 20px;
+  font-size: .88rem; color: #64748b; line-height: 1.7;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 16px;
+}
