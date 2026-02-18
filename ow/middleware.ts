@@ -19,7 +19,10 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith("/api/auth/") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/public") ||
-    pathname.startsWith("/favicon.ico")
+    pathname.startsWith("/favicon.ico") ||
+    pathname.startsWith("/website-v3") ||
+    pathname.startsWith("/wireframe-review") ||
+    pathname.startsWith("/new-website")
   ) {
     return NextResponse.next();
   }
@@ -42,7 +45,7 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|.*\\.(?:png|jpg|jpeg|gif|svg|ico)).*)"],
+  matcher: ["/((?!api|_next/static|_next/image|.*\\.(?:png|jpg|jpeg|gif|svg|ico|css|js|html|webp)).*)"],
 };
 
 
