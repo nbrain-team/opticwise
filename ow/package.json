@@ -24,7 +24,7 @@
     "agent:test": "tsx scripts/test-enhanced-features.ts"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.71.0",
+    "@anthropic-ai/sdk": "^0.76.0",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/sortable": "10.0.0",
     "@pinecone-database/pinecone": "^6.1.3",

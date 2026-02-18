@@ -592,7 +592,7 @@ ${customerQuestionsGuidance}`;
           
           // Stream the actual response from Claude
           const claudeStream = await ai.messages.stream({
-            model: 'claude-sonnet-4-5-20250929',
+            model: 'claude-opus-4-6',
             max_tokens: maxTokens,
             temperature: temperature,
             system: systemPrompt,
@@ -685,7 +685,7 @@ User question: ${message}
 AI response summary: ${fullResponse.slice(0, 300)}`;
 
               const titleResponse = await ai.messages.create({
-                model: 'claude-sonnet-4-5-20250929',
+                model: 'claude-opus-4-6',
                 max_tokens: 50,
                 temperature: 0.3,
                 messages: [{ role: 'user', content: titlePrompt }],
@@ -757,7 +757,7 @@ AI response summary: ${fullResponse.slice(0, 300)}`;
                 fullResponse.length,
                 Date.now() - startTime,
                 estimateTokens(message) + estimateTokens(fullResponse) + totalTokens,
-                'claude-sonnet-4-5-20250929',
+                'claude-opus-4-6',
                 temperature,
                 maxTokens,
                 totalTokens

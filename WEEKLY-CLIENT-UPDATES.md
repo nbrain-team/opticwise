@@ -335,7 +335,7 @@ export function enforceBrandTerminology(text: string): string {
 ### 5. Claude Sonnet 4.5 Model Upgrade ✅
 
 **Completed**: January 29, 2026  
-**Model**: `claude-sonnet-4-5-20250929` (latest)  
+**Model**: `claude-opus-4-6` (latest)  
 **Status**: ✅ Deployed  
 **Client Impact**: Latest AI model with improved reasoning, better context understanding, and enhanced response quality
 

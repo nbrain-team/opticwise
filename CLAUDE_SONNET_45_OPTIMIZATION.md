@@ -1,9 +1,9 @@
-# Claude Sonnet 4.5 Optimization - Token Limits Update
+# Claude Opus 4.6 Optimization - Token Limits Update
 
-**Date:** January 29, 2026  
-**Model:** claude-sonnet-4-5-20250929  
+**Date:** February 18, 2026  
+**Model:** claude-opus-4-6  
 **Context Window:** 200K tokens / **1M tokens (beta)**  
-**Max Output:** **64K tokens**
+**Max Output:** **128K tokens**
 
 ---
 

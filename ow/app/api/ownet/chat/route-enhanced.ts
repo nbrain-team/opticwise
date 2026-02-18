@@ -344,7 +344,7 @@ ${contextFromTools}
 5. Use casual language`;
 
           const claudeStream = await ai.messages.stream({
-            model: 'claude-sonnet-4-5-20250929',
+            model: 'claude-opus-4-6',
             max_tokens: intent.suggestedMaxTokens || 16000,
             temperature: intent.suggestedTemperature || 0.3,
             system: systemPrompt,
