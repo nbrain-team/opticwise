@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule Your CRE Data &amp; Digital Infrastructure Review | OpticWise</title>
+  <meta name="description" content="Uncover hidden costs, broken tech stacks, and missed NOI opportunities. The PPP Data &amp; Digital Infrastructure Review gives you clarity, fast.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="subpage.css">
+
+  <style>
+    .review-form-section { padding: 80px 0; background: #f8fafc; }
+    .review-form-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 64px; align-items: start; max-width: 1100px; margin: 0 auto; }
+    .review-form-intro h2 { font-size: 1.8rem; font-weight: 800; color: #0f172a; line-height: 1.25; margin-bottom: 16px; }
+    .review-form-intro p { font-size: 1rem; color: #64748b; line-height: 1.7; margin-bottom: 8px; }
+    .form-card { background: #fff; border-radius: 20px; padding: 40px; box-shadow: 0 8px 40px rgba(0,0,0,.08); border: 1px solid #e2e8f0; }
+    .form-card h3 { font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 24px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: .8rem; font-weight: 600; color: #334155; margin-bottom: 6px; }
+    .form-label .req { color: #ef4444; }
+    .form-input, .form-textarea {
+      width: 100%; padding: 12px 16px; font-size: .9rem; font-family: inherit;
+      color: #0f172a; background: #f8fafc; border: 2px solid #e2e8f0;
+      border-radius: 10px; transition: all .2s; outline: none;
+    }
+    .form-input:focus, .form-textarea:focus { border-color: #2B6CB0; background: #fff; box-shadow: 0 0 0 3px rgba(43,108,176,.1); }
+    .form-textarea { resize: vertical; min-height: 100px; }
+    .form-submit {
+      width: 100%; padding: 16px; font-size: 1rem; font-weight: 700;
+      font-family: inherit; color: #fff; background: #2B6CB0;
+      border: none; border-radius: 12px; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(43,108,176,.35);
+      transition: all .25s; margin-top: 4px;
+    }
+    .form-submit:hover { background: #1E4E8C; box-shadow: 0 6px 20px rgba(43,108,176,.5); transform: translateY(-2px); }
+    .discover-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .discover-card {
+      background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+      padding: 28px 22px; text-align: center; transition: all .25s;
+    }
+    .discover-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.08); border-color: rgba(43,108,176,.2); }
+    .discover-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px;
+    }
+    .discover-icon-blue { background: linear-gradient(135deg, #2B6CB0, #1E4E8C); color: #fff; }
+    .discover-icon-green { background: linear-gradient(135deg, #10B981, #059669); color: #fff; }
+    .discover-icon-amber { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; }
+    .discover-icon-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
+    .discover-icon-teal { background: linear-gradient(135deg, #14b8a6, #0d9488); color: #fff; }
+    .discover-card h3 { font-size: .95rem; font-weight: 700; color: #0f172a; margin-bottom: 6px; }
+    .discover-card p { font-size: .82rem; color: #64748b; line-height: 1.6; }
+    .testimonial-block {
+      max-width: 720px; margin: 0 auto; padding: 40px;
+      background: #fff; border-radius: 20px;
+      border-left: 5px solid #2B6CB0; box-shadow: 0 4px 20px rgba(0,0,0,.06);
+    }
+    .testimonial-block blockquote {
+      font-size: 1.1rem; font-weight: 500; color: #334155;
+      line-height: 1.7; font-style: italic; margin: 0 0 16px;
+    }
+    .testimonial-author { font-size: .85rem; font-weight: 700; color: #0f172a; }
+    .testimonial-role { font-size: .8rem; color: #64748b; }
+    .trust-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 800px; margin: 0 auto; }
+    .trust-card { text-align: center; padding: 28px 20px; }
+    .trust-stat { font-size: 2rem; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .trust-label { font-size: .85rem; color: rgba(255,255,255,.7); line-height: 1.5; }
+    .form-success { display: none; text-align: center; padding: 48px 24px; }
+    .form-success.show { display: block; }
+    .form-success svg { color: #10B981; margin-bottom: 16px; }
+    .form-success h3 { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+    .form-success p { font-size: .95rem; color: #64748b; }
+    @media (max-width: 768px) {
+      .review-form-grid { grid-template-columns: 1fr; gap: 32px; }
+      .form-row { grid-template-columns: 1fr; }
+      .trust-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "PPP Data & Digital Infrastructure Review",
+    "provider": { "@type": "Organization", "name": "OpticWise" },
+    "description": "The PPP Review gives CRE owners clarity on infrastructure ownership, hidden costs, and NOI opportunities."
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ==================== NAVIGATION ==================== -->
+  <nav class="nav nav-scrolled" id="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo">
+        <img src="images/ow_logo.png" alt="OpticWise" class="nav-logo-img">
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html#how-it-works">How It Works</a></li>
+        <li><a href="digital-infrastructure-noi-ai.html">Pillars</a></li>
+        <li><a href="insights.html">Insights</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+      </ul>
+      <a href="schedule-review.html" class="btn btn-nav">Schedule Review</a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==================== HERO ==================== -->
+  <section class="sub-hero">
+    <div class="sub-hero-bg">
+      <img src="images/hero-industry.jpg" alt="" class="hero-bg-img">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-grid-lines"></div>
+    <div class="container sub-hero-content">
+      <a href="index.html" class="breadcrumb">&larr; Home</a>
+      <h1 class="sub-hero-title">Schedule Your CRE Data &amp; Digital Infrastructure Review</h1>
+      <p class="sub-hero-lead">Take back control. Uncover hidden costs, broken tech stacks, and missed NOI opportunities.</p>
+      <p class="sub-hero-desc">The PPP Data &amp; Digital Infrastructure Review gives you clarity, fast&mdash;so you can start monetizing your building&rsquo;s data &amp; digital infrastructure like the asset it is.</p>
+      <div class="hero-callout" style="margin-top: 28px;">
+        <p>If you don&rsquo;t own your data &amp; digital infrastructure, your vendors do.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== FORM SECTION ==================== -->
+  <section class="review-form-section">
+    <div class="container">
+      <div class="review-form-grid">
+        <div class="review-form-intro">
+          <span class="section-eyebrow">Your Next Step</span>
+          <h2>Schedule Your PPP Data &amp; Digital Infrastructure Review</h2>
+          <div class="accent-bar"></div>
+          <p>Take the first step toward maximizing your building&rsquo;s digital asset potential.</p>
+          <p>Share your challenges and learn about the comprehensive digital infrastructure audit that reveals hidden value and untapped potential in your commercial real estate portfolio.</p>
+          <p style="margin-top: 24px; font-size: .85rem; color: #94a3b8;">One building. One review. One clear path to owner control.</p>
+        </div>
+        <div class="form-card">
+          <h3>Request Your Complementary Review</h3>
+          <form id="review-form" onsubmit="handleSubmit(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">First Name <span class="req">*</span></label>
+                <input type="text" class="form-input" name="firstName" required placeholder="John">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Last Name <span class="req">*</span></label>
+                <input type="text" class="form-input" name="lastName" required placeholder="Smith">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Company</label>
+              <input type="text" class="form-input" name="company" placeholder="Your company name">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email <span class="req">*</span></label>
+              <input type="email" class="form-input" name="email" required placeholder="john@company.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Notes or Questions</label>
+              <textarea class="form-textarea" name="notes" placeholder="Tell us about your building, challenges, or questions..."></textarea>
+            </div>
+            <button type="submit" class="form-submit">Schedule My PPP Data &amp; Digital Infrastructure Review &rarr;</button>
+          </form>
+          <div class="form-success" id="form-success">
+            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <h3>Thank you!</h3>
+            <p>We&rsquo;ve received your request. A member of the OpticWise team will be in touch within one business day to schedule your review.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== WHAT YOU'LL DISCOVER ==================== -->
+  <section class="section section-white">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">What You&rsquo;ll Discover</span>
+        <h2 class="section-heading">Your Review Reveals Hidden Value</h2>
+        <div class="accent-bar accent-bar-center"></div>
+        <p class="section-subtitle">Share your challenges and learn all about the comprehensive digital infrastructure audit that reveals hidden value and untapped potential in your commercial real estate portfolio.</p>
+      </div>
+      <div class="discover-grid">
+        <div class="discover-card">
+          <div class="discover-icon discover-icon-blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          </div>
+          <h3>Infrastructure Ownership</h3>
+          <p>Discover which vendors own your infrastructure&mdash;and how to change that.</p>
+        </div>
+        <div class="discover-card">
+          <div class="discover-icon discover-icon-purple">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <h3>System Analysis</h3>
+          <p>Identify gaps, overlaps, and opportunities across all digital systems.</p>
+        </div>
+        <div class="discover-card">
+          <div class="discover-icon discover-icon-green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3>Readiness Score</h3>
+          <p>Calculate your Digital Asset Readiness Score&trade;.</p>
+        </div>
+        <div class="discover-card">
+          <div class="discover-icon discover-icon-amber">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          </div>
+          <h3>OpEx Savings</h3>
+          <p>See where predictive operations can unlock 5&ndash;15% in OpEx savings.</p>
+        </div>
+        <div class="discover-card">
+          <div class="discover-icon discover-icon-teal">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3>Future-Proof</h3>
+          <p>Future-proof for AI, ESG, tenant experience, and investor expectations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TESTIMONIAL ==================== -->
+  <section class="section section-light">
+    <div class="container">
+      <div class="testimonial-block">
+        <blockquote>&ldquo;This review opened our eyes. We&rsquo;ve always upgraded systems, but never saw how owning the infrastructure itself would change our NOI. Game-changing.&rdquo;</blockquote>
+        <p class="testimonial-author">Joe Fielden Jr.</p>
+        <p class="testimonial-role">Developer &amp; Operator</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TRUSTED BY ==================== -->
+  <section class="section section-dark">
+    <div class="container">
+      <div class="section-header section-header-light">
+        <span class="section-eyebrow section-eyebrow-light">Track Record</span>
+        <h2 class="section-heading section-heading-light">Trusted by Industry Leaders</h2>
+        <div class="accent-bar accent-bar-center"></div>
+        <p class="section-subtitle" style="color: rgba(255,255,255,.7);">Join commercial real estate owners who are already maximizing their digital assets.</p>
+      </div>
+      <div class="trust-grid">
+        <div class="trust-card">
+          <div class="trust-stat">18+</div>
+          <div class="trust-label">Years helping CRE owners generate NOI from digital infrastructure</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-stat">Global</div>
+          <div class="trust-label">Digital partners with global CRE companies</div>
+        </div>
+        <div class="trust-card">
+          <div class="trust-stat">PPP&trade;</div>
+          <div class="trust-label">Best-selling CRE digital strategy book by Fast Company Press</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CTA ==================== -->
+  <section class="section section-cta">
+    <div class="cta-bg">
+      <img src="images/testimonial-bg.jpg" alt="" class="cta-bg-img">
+    </div>
+    <div class="cta-overlay"></div>
+    <div class="container cta-content">
+      <span class="section-eyebrow section-eyebrow-light">Ready?</span>
+      <h2 class="cta-heading">Don&rsquo;t Play for Next Quarter&mdash;Build for the Next Decade</h2>
+      <p class="cta-sub">Own your data &amp; digital infrastructure. Operate with strategic foresight. Build for the long game.</p>
+      <a href="#" class="btn btn-white btn-lg" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">Schedule Your Review &uarr;</a>
+    </div>
+  </section>
+
+  <!-- ==================== CLOSING ==================== -->
+  <section class="section section-navy">
+    <div class="container infinite-content">
+      <p class="infinite-closing"><strong>Own your data &amp; digital infrastructure. Operate with strategic foresight. Build for the long game.</strong></p>
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <img src="images/ow_logo.png" alt="OpticWise" class="footer-logo">
+          <p>Owner-controlled data &amp; digital infrastructure for commercial real estate.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Explore</h4>
+          <ul>
+            <li><a href="digital-infrastructure-noi-strategy.html">NOI Strategy</a></li>
+            <li><a href="digital-infrastructure-noi-playbook.html">NOI Playbook</a></li>
+            <li><a href="cre-ai-readiness.html">CRE AI Readiness</a></li>
+            <li><a href="ai-ready-commercial-real-estate.html">AI-Ready CRE</a></li>
+            <li><a href="own-vs-lease-cre-building-data.html">Own vs Lease Data</a></li>
+            <li><a href="control-cre-digital-visibility.html">Digital Visibility</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Products &amp; Services</h4>
+          <ul>
+            <li><a href="ppp-audit.html">PPP Audit&trade;</a></li>
+            <li><a href="bot-building-of-things.html">BoT&reg;</a></li>
+            <li><a href="5s-wireless-connectivity.html">5S&reg; Wireless</a></li>
+            <li><a href="how-we-operate-digital-infrastructure.html">How We Operate</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="insights.html">Insights</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="digital-infrastructure-noi-ai.html">Category Hub</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 OpticWise. All rights reserved.</p>
+        <p class="footer-closing">Own your data &amp; digital infrastructure. Operate with strategic foresight. Build for the long game.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    function handleSubmit(e) {
+      e.preventDefault();
+      var form = document.getElementById('review-form');
+      var success = document.getElementById('form-success');
+      form.style.display = 'none';
+      success.classList.add('show');
+      window.scrollTo({ top: success.offsetTop - 200, behavior: 'smooth' });
+    }
+  </script>
+
+</body>
+</html>
