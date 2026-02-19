@@ -1,0 +1,26 @@
+{
+  "url": "http://localhost:10000",
+  "server": {
+    "port": 10000,
+    "host": "0.0.0.0"
+  },
+  "database": {
+    "client": "mysql",
+    "connection": {
+      "host": "mysql-db",
+      "port": 3306,
+      "user": "admin",
+      "password": "DATABASE_PASSWORD",
+      "database": "DATABASE_NAME"
+    }
+  },
+  "mail": {
+    "transport": "Direct"
+  },
+  "logging": {
+    "transports": ["stdout"]
+  },
+  "paths": {
+    "contentPath": "/var/lib/ghost/content"
+  }
+}

@@ -32,3 +32,54 @@ services:
         value: production
       - key: PORT
         value: 10000
+
+  - type: web
+    name: opticwise-ghost
+    env: docker
+    region: oregon
+    plan: starter
+    branch: main
+    rootDir: ghost-cms
+    autoDeploy: false
+    disk:
+      name: ghost-content
+      mountPath: /var/lib/ghost/content
+      sizeGB: 1
+    envVars:
+      - key: database__client
+        value: mysql
+      - key: database__connection__host
+        fromService:
+          type: pserv
+          name: ghost-mysql
+          property: host
+      - key: database__connection__database
+        value: ghostdb
+      - key: database__connection__user
+        value: ghost
+      - key: database__connection__password
+        fromService:
+          type: pserv
+          name: ghost-mysql
+          envVarKey: MYSQL_PASSWORD
+
+  - type: pserv
+    name: ghost-mysql
+    env: docker
+    region: oregon
+    plan: starter
+    repo: https://github.com/render-examples/mysql
+    autoDeploy: false
+    disk:
+      name: ghost-mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 1
+    envVars:
+      - key: MYSQL_DATABASE
+        value: ghostdb
+      - key: MYSQL_USER
+        value: ghost
+      - key: MYSQL_PASSWORD
+        generateValue: true
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
