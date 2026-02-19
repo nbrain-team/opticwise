@@ -49,7 +49,7 @@ services:
       - key: GHOST_URL
         value: https://opticwise-ghost.onrender.com
       - key: GHOST_CONTENT_KEY
-        value: placeholder_update_after_ghost_setup
+        value: fd55f30a689a1212fb14ab2ab1
       - key: GHOST_WEBHOOK_SECRET
         generateValue: true
 
