@@ -1,0 +1,15 @@
+{
+  "name": "ghost-cms",
+  "version": "1.0.0",
+  "main": "import-content.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "puppeteer": "^24.37.5"
+  }
+}
