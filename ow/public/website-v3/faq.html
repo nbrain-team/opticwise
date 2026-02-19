@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ: Owning Your Data &amp; Digital Infrastructure | OpticWise</title>
+  <meta name="description" content="Real questions from CRE professionals who are making the shift from vendor convenience to owner control.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="subpage.css">
+  <style>
+    .role-tabs { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 40px; }
+    .role-tab { padding: 10px 20px; border-radius: 999px; font-size: .85rem; font-weight: 600; background: #f1f5f9; color: #64748b; border: 2px solid #e2e8f0; cursor: pointer; transition: all .2s; }
+    .role-tab:hover { border-color: #2B6CB0; color: #2B6CB0; }
+    .role-tab.active { background: #2B6CB0; color: #fff; border-color: #2B6CB0; }
+    .role-panel { display: none; }
+    .role-panel.active { display: block; }
+    .faq-group-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #2B6CB0; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #2B6CB0; display: inline-block; }
+    .faq-group { margin-bottom: 40px; }
+    .general-hub { margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== NAVIGATION ==================== -->
+  <nav class="nav nav-scrolled" id="nav">
+    <div class="container nav-inner">
+      <a href="index.html" class="nav-logo"><img src="images/ow_logo.png" alt="OpticWise" class="nav-logo-img"></a>
+      <ul class="nav-links">
+        <li><a href="index.html#how-it-works">How It Works</a></li>
+        <li><a href="digital-infrastructure-noi-ai.html">Pillars</a></li>
+        <li><a href="insights.html">Insights</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+      </ul>
+      <a href="ppp-audit.html" class="btn btn-nav">Schedule Review</a>
+      <button class="nav-toggle" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <!-- ==================== SUBPAGE HERO ==================== -->
+  <section class="sub-hero">
+    <div class="sub-hero-bg">
+      <img src="images/project-catalyst.jpg" alt="" class="hero-bg-img">
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-grid-lines"></div>
+    <div class="container sub-hero-content">
+      <a href="index.html" class="breadcrumb">&larr; Home</a>
+      <span class="sub-hero-badge">Resources</span>
+      <h1 class="sub-hero-title">FAQ: Owning Your Data &amp; Digital Infrastructure</h1>
+      <p class="sub-hero-lead">Real questions from CRE professionals who are making the shift from vendor convenience to owner control.</p>
+    </div>
+  </section>
+
+  <!-- ==================== ROLE-BASED FAQ ==================== -->
+  <section class="section section-white">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">By Role</span>
+        <h2 class="section-heading">Find Answers for Your Role</h2>
+        <div class="accent-bar accent-bar-center"></div>
+      </div>
+
+      <div class="role-tabs">
+        <button class="role-tab active" data-role="developer">Developer</button>
+        <button class="role-tab" data-role="owner">Owner</button>
+        <button class="role-tab" data-role="operator">Operator</button>
+        <button class="role-tab" data-role="pm">Property Manager</button>
+        <button class="role-tab" data-role="am">Asset Manager</button>
+        <button class="role-tab" data-role="ertc">ERTC</button>
+      </div>
+
+      <!-- ===== DEVELOPER ===== -->
+      <div class="role-panel active" id="role-developer">
+        <div class="faq-list">
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 1 &mdash; Managed Data &amp; Digital Infrastructure</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How do we avoid designing vendor lock-in?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Specify owner-controlled pathways from day one&mdash;admin credentials, export rights, and open-standard cabling. If your spec doesn&rsquo;t include these, you&rsquo;re designing a building someone else will own operationally.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What should our low-voltage spec include?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">At minimum: owner-owned fiber backbone, dedicated riser space, conduit separation between vendor and owner pathways, and documented admin access for every connected system.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How does BoT&reg; reduce build costs?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">BoT&reg; consolidates vendor infrastructure onto a shared owner-controlled backbone, reducing redundant cabling, MDF/IDF buildouts, and ongoing maintenance contracts.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 2 &mdash; Owner-Controlled Intelligence</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What is the OpticWise Brain?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">It&rsquo;s the intelligence layer that sits on top of your managed infrastructure&mdash;aggregating data across systems so you can make portfolio-level decisions, not just building-level ones.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">Can we plug in our own AI tools later?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Yes. That&rsquo;s the point. When you own the data plane and the trust plane, you can swap AI engines without re-wiring your building or re-negotiating vendor contracts.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Advisory</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">When should we engage OpticWise?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Ideally during pre-construction or design development&mdash;before low-voltage specs are locked. The earlier we engage, the more cost you avoid and the more control you retain.</div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== OWNER ===== -->
+      <div class="role-panel" id="role-owner">
+        <div class="faq-list">
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 1 &mdash; Managed Data &amp; Digital Infrastructure</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How do I know if vendors own my infrastructure?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Ask three questions: Who holds admin credentials? Can you export clean data? Can you swap the platform without rewiring? If you can&rsquo;t answer all three, your vendors likely own more than you think.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What does managed D&amp;DI include?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Managed Data &amp; Digital Infrastructure covers connectivity backbone, access control pathways, network segmentation, credential governance, and ongoing operations&mdash;all under owner control.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">Will this replace our existing systems?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Not necessarily. The goal is to establish owner control over the foundation so your existing systems connect to something you own, rather than something a vendor controls.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 2 &mdash; Owner-Controlled Intelligence</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What is Property Intelligence &rarr; Portfolio Intelligence?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Property Intelligence gives you building-level visibility. Portfolio Intelligence aggregates that across assets so you can benchmark, standardize, and compound value at scale.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What does vendor-agnostic mean?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">It means your intelligence layer isn&rsquo;t locked to any single vendor&rsquo;s dashboard. You own the data plane, so you choose which tools consume it&mdash;and you can change them without disruption.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How does this affect asset value?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Owner-controlled infrastructure reduces diligence risk, strengthens the investor narrative, and creates a repeatable operating standard that compounds across the portfolio.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Advisory</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What&rsquo;s the first step?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Schedule a <a href="ppp-audit.html" style="color:#2B6CB0;font-weight:600;">PPP Audit&trade;</a>. It maps what you own, where value is leaking, and what data is trustworthy and portable&mdash;so you can standardize once and scale.</div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== OPERATOR ===== -->
+      <div class="role-panel" id="role-operator">
+        <div class="faq-list">
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 1 &mdash; Managed Data &amp; Digital Infrastructure</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How does this reduce on-site burden?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">By consolidating vendor management, eliminating shadow networks, and providing remote visibility into system health&mdash;your on-site team spends less time troubleshooting and more time operating.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What does &ldquo;no shadow networks&rdquo; mean?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Shadow networks are vendor-installed pathways that bypass your managed backbone. They create security gaps, compliance exposure, and operational blind spots. We eliminate them.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 2 &mdash; Owner-Controlled Intelligence</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How does the intelligence layer help daily ops?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">It aggregates data from disparate systems into a single owner-controlled view&mdash;so you can identify issues before they become tenant complaints and track performance against KPIs.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">Do we need to change workflows?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Not disruptively. The intelligence layer works with your existing workflows&mdash;it adds visibility and automation on top of what you already do, not a wholesale replacement.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Advisory</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How quickly can we see improvement?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Most teams see measurable reduction in vendor escalations and troubleshooting time within the first 90 days of Layer 1 deployment.</div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PROPERTY MANAGER ===== -->
+      <div class="role-panel" id="role-pm">
+        <div class="faq-list">
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 1 &mdash; Managed Data &amp; Digital Infrastructure</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">Does this mean I&rsquo;m responsible for IT?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">No. OpticWise manages the infrastructure. You get visibility and control without becoming the help desk. Your role stays operational&mdash;with better tools and fewer vendor headaches.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What happens with tenant connectivity issues?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">With a managed backbone, connectivity issues route through a governed support path&mdash;not ad hoc vendor calls. You get faster resolution, documented accountability, and fewer repeat issues.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How does this improve retention?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Reliable connectivity and responsive infrastructure are table stakes for modern tenants. When the foundation works, experience improves&mdash;and renewals follow.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 2 &mdash; Owner-Controlled Intelligence</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">Will I have visibility into performance?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Yes. The intelligence layer gives you real-time dashboards tied to your KPIs&mdash;not vendor metrics. You see what matters to your operation, not what a vendor wants you to see.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What do &ldquo;data plane&rdquo; and &ldquo;trust plane&rdquo; mean?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">The data plane is where your building data flows. The trust plane is the governance layer that controls who can access, modify, and export that data. Owning both means you control the narrative.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Advisory</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What does the transition look like?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">We start with a PPP Audit&trade; to map current state, then implement Layer 1 without disrupting your on-site operations. Most transitions are transparent to tenants and staff.</div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ASSET MANAGER ===== -->
+      <div class="role-panel" id="role-am">
+        <div class="faq-list">
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 1 &mdash; Managed Data &amp; Digital Infrastructure</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How does owner-controlled infrastructure affect NOI?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">It reduces revenue leakage from vendor lock-in, lowers OpEx by eliminating redundant contracts, and strengthens the diligence narrative&mdash;all of which flow directly to NOI.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What metrics should I track?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Connectivity revenue vs. cost, vendor contract consolidation, credential ownership percentage, data export readiness, and tenant experience scores tied to infrastructure performance.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 2 &mdash; Owner-Controlled Intelligence</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How does the intelligence layer help portfolio decisions?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">It moves you from building-by-building guesswork to portfolio-wide benchmarking. You see which properties are performing, where spend is redundant, and where standards need enforcement.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">Can this strengthen the diligence narrative?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Absolutely. Documented ownership, portable data, and a governed operating model are exactly what institutional buyers look for. It de-risks the asset and supports premium valuation.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Advisory</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How do we evaluate ROI?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">Start with the PPP Audit&trade; to quantify current leakage. Then measure against NOI impact, OpEx reduction, and portfolio standardization velocity over 12&ndash;24 months.</div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ERTC ===== -->
+      <div class="role-panel" id="role-ertc">
+        <div class="faq-list">
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 1 &mdash; Managed Data &amp; Digital Infrastructure</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How does OpticWise work with our teams?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">We complement your internal technology teams by owning the building-level data &amp; digital infrastructure layer. Your teams focus on enterprise IT; we focus on the property backbone.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Layer 2 &mdash; Owner-Controlled Intelligence</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">Is this just another vendor dashboard?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">No. The intelligence layer is owner-controlled. You own the data, the integrations, and the governance rules. It&rsquo;s not a dashboard you rent&mdash;it&rsquo;s a platform you control.</div>
+            </details>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">What integration standards do you support?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">We build on open standards&mdash;RESTful APIs, MQTT, BACnet/IP, and standard data export formats. No proprietary lock-in. Your technology roadmap stays yours.</div>
+            </details>
+          </div>
+
+          <div class="faq-group">
+            <span class="faq-group-label">Advisory</span>
+            <details class="faq-item">
+              <summary>
+                <span class="faq-q">How does this fit our technology roadmap?</span>
+                <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="faq-a">OpticWise provides the building-level foundation your roadmap assumes exists. We don&rsquo;t compete with your enterprise stack&mdash;we make it possible to extend it into the property.</div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== GENERAL FAQ HUB ==================== -->
+  <section class="section section-light">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-eyebrow">General</span>
+        <h2 class="section-heading">General FAQ Hub</h2>
+        <div class="accent-bar accent-bar-center"></div>
+      </div>
+
+      <div class="faq-list general-hub">
+        <div class="faq-group">
+          <span class="faq-group-label">The What &amp; Why</span>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">What does OpticWise actually do?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">OpticWise provides owner-controlled data &amp; digital infrastructure for commercial real estate&mdash;Layer 1 (managed infrastructure) and Layer 2 (intelligence layer)&mdash;so owners retain control, reduce vendor dependency, and compound value across portfolios.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">Why does ownership of data &amp; digital infrastructure matter?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">Because whoever owns your infrastructure owns your operational data, your tenant experience, and your ability to make AI-ready decisions. If you don&rsquo;t own it, your vendors do.</div>
+          </details>
+        </div>
+
+        <div class="faq-group">
+          <span class="faq-group-label">Delivery &amp; Support</span>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">How long does implementation take?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">A PPP Audit&trade; typically completes in 2&ndash;4 weeks. Layer 1 deployment follows within 60&ndash;90 days depending on property complexity and existing vendor agreements.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">Do you work with existing vendors?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">Yes. We don&rsquo;t rip and replace&mdash;we establish owner control over the foundation so your existing vendors plug into something you own, under governance rules you set.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">What ongoing support is included?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">Managed D&amp;DI includes 24/7 monitoring, vendor coordination, credential governance, and quarterly performance reviews tied to your KPIs.</div>
+          </details>
+        </div>
+
+        <div class="faq-group">
+          <span class="faq-group-label">Economics, Liability &amp; Billing</span>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">How is OpticWise compensated?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">Engagement models vary by scope&mdash;advisory, managed services, or full-stack deployment. We align economics with your outcomes, not with selling you more hardware.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">Who carries liability for the infrastructure?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">Under the managed model, OpticWise carries operational liability for the infrastructure we manage. Clear SLAs define accountability boundaries between owner, operator, and vendor.</div>
+          </details>
+        </div>
+
+        <div class="faq-group">
+          <span class="faq-group-label">Definitions</span>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">What is ElasticISP&reg;?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">ElasticISP&reg; is OpticWise&rsquo;s connectivity delivery model&mdash;carrier-neutral, scalable bandwidth provisioned over the owner-controlled backbone. It replaces fragmented ISP agreements with a single governed pathway.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">What is BoT&reg;?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">BoT&reg; (Building of Things) is OpticWise&rsquo;s converged infrastructure platform that consolidates building systems&mdash;access control, Wi-Fi, IoT, BAS, cellular&mdash;onto a single owner-controlled backbone.</div>
+          </details>
+          <details class="faq-item">
+            <summary>
+              <span class="faq-q">What is PPP&trade;?</span>
+              <svg class="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+            </summary>
+            <div class="faq-a">PPP&trade; (Peak Property Performance) is OpticWise&rsquo;s owner-first operating model for turning data &amp; digital infrastructure into measurable outcomes&mdash;NOI growth, tenant experience, operational control, and AI readiness.</div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== CTA ==================== -->
+  <section class="section section-cta">
+    <div class="cta-bg"><img src="images/testimonial-bg.jpg" alt="" class="cta-bg-img"></div>
+    <div class="cta-overlay"></div>
+    <div class="container cta-content">
+      <span class="section-eyebrow section-eyebrow-light">Your Next Step</span>
+      <h2 class="cta-heading">Complementary CRE Data &amp; Digital Review Session</h2>
+      <p class="cta-sub">One building. Map who owns what, where data lives, and where operational burden stacks up vs your KPIs.</p>
+      <a href="ppp-audit.html" class="btn btn-white btn-lg">Schedule Your Review</a>
+    </div>
+  </section>
+  <section class="section section-navy"><div class="container infinite-content"><p class="infinite-closing"><strong>Own your data &amp; digital infrastructure. Operate with strategic foresight. Build for the long game.</strong></p></div></section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand"><img src="images/ow_logo.png" alt="OpticWise" class="footer-logo"><p>Owner-controlled data &amp; digital infrastructure for commercial real estate.</p></div>
+        <div class="footer-col"><h4>Explore</h4><ul>
+            <li><a href="digital-infrastructure-noi-strategy.html">NOI Strategy</a></li>
+            <li><a href="digital-infrastructure-noi-playbook.html">NOI Playbook</a></li>
+            <li><a href="cre-ai-readiness.html">CRE AI Readiness</a></li>
+            <li><a href="ai-ready-commercial-real-estate.html">AI-Ready CRE</a></li>
+            <li><a href="own-vs-lease-cre-building-data.html">Own vs Lease Data</a></li>
+            <li><a href="control-cre-digital-visibility.html">Digital Visibility</a></li>
+        </ul></div>
+        <div class="footer-col"><h4>Products &amp; Services</h4><ul>
+            <li><a href="ppp-audit.html">PPP Audit&trade;</a></li>
+            <li><a href="bot-building-of-things.html">BoT&reg;</a></li>
+            <li><a href="5s-wireless-connectivity.html">5S&reg; Wireless</a></li>
+            <li><a href="how-we-operate-digital-infrastructure.html">How We Operate</a></li>
+        </ul></div>
+        <div class="footer-col"><h4>Resources</h4><ul>
+            <li><a href="insights.html">Insights</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+            <li><a href="digital-infrastructure-noi-ai.html">Category Hub</a></li>
+        </ul></div>
+      </div>
+      <div class="footer-bottom"><p>&copy; 2026 OpticWise. All rights reserved.</p><p class="footer-closing">Own your data &amp; digital infrastructure. Operate with strategic foresight. Build for the long game.</p></div>
+    </div>
+  </footer>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var tabs = document.querySelectorAll('.role-tab');
+    var panels = document.querySelectorAll('.role-panel');
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        panels.forEach(function(p) { p.classList.remove('active'); });
+        this.classList.add('active');
+        document.getElementById('role-' + this.dataset.role).classList.add('active');
+      });
+    });
+  });
+  </script>
+
+</body>
+</html>
