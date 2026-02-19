@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+  body { @apply font-sans text-gray-700 bg-white; }
+}
+
+@layer components {
+  .ow-container { @apply mx-auto max-w-[1200px] px-6; }
+  .ow-section { @apply py-24 lg:py-28; }
+
+  .btn {
+    @apply inline-flex items-center justify-center font-semibold rounded-full transition-all duration-200 cursor-pointer whitespace-nowrap;
+  }
+  .btn-primary { @apply bg-ow-blue text-white px-8 py-4 shadow-glow hover:bg-ow-blue-dark hover:shadow-glow-lg hover:-translate-y-0.5; }
+  .btn-outline-light { @apply bg-white/10 text-white px-8 py-4 border-2 border-white/50 backdrop-blur-sm hover:bg-white hover:text-ow-blue hover:border-white; }
+  .btn-white { @apply bg-white text-ow-blue px-8 py-4 shadow-lg hover:bg-gray-50 hover:-translate-y-0.5 hover:shadow-xl; }
+  .btn-nav { @apply bg-ow-blue text-white px-5 py-2.5 text-sm shadow-glow hover:bg-ow-blue-dark; }
+  .btn-lg { @apply px-9 py-4 text-base; }
+
+  .text-gradient {
+    @apply inline-block;
+    background: linear-gradient(135deg, #60a5fa, #10B981);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .hero-overlay {
+    @apply absolute inset-0 z-[1];
+    background: linear-gradient(135deg, rgba(10,22,40,.92), rgba(15,40,71,.88) 50%, rgba(10,22,40,.92));
+  }
+  .hero-grid-lines {
+    @apply absolute inset-0 z-[2];
+    background-image: linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  .accent-bar { @apply w-14 h-1 rounded-full; background: linear-gradient(90deg, #2B6CB0, #10B981); }
+  .accent-bar-center { @apply mx-auto my-4; }
+
+  .ghost-content { @apply prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-strong:text-gray-900 prose-a:text-ow-blue; }
+}
+
+.mobile-menu-enter { animation: slideDown .2s ease-out; }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(8px); } }
+
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+details[open] .faq-chevron { transform: rotate(180deg); }

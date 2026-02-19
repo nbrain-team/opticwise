@@ -34,6 +34,26 @@ services:
         value: 10000
 
   - type: web
+    name: opticwise-website-v3
+    runtime: node
+    region: oregon
+    plan: starter
+    branch: main
+    buildCommand: cd website-v3-nextjs && npm install --include=dev && npm run build
+    startCommand: cd website-v3-nextjs && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: GHOST_URL
+        value: https://opticwise-ghost.onrender.com
+      - key: GHOST_CONTENT_KEY
+        value: placeholder_update_after_ghost_setup
+      - key: GHOST_WEBHOOK_SECRET
+        generateValue: true
+
+  - type: web
     name: opticwise-ghost
     env: docker
     region: oregon
