@@ -83,6 +83,21 @@ services:
           name: ghost-mysql
           envVarKey: MYSQL_PASSWORD
 
+  - type: cron
+    name: opticwise-email-sync
+    runtime: node
+    region: oregon
+    plan: starter
+    branch: main
+    schedule: "*/15 * * * *"
+    buildCommand: echo "no build needed"
+    startCommand: |
+      curl -s -X GET "https://opticwise-frontend.onrender.com/api/sales-inbox/sync?secret=$CRON_SECRET" \
+        -H "Content-Type: application/json" || echo "Sync request failed"
+    envVars:
+      - key: CRON_SECRET
+        generateValue: true
+
   - type: pserv
     name: ghost-mysql
     env: docker

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DealActions } from "@/app/components/DealActions";
+import { DealContacts } from "@/app/components/DealContacts";
 import { DetailTabs } from "@/app/components/DetailTabs";
 import { NotesTab } from "@/app/components/NotesTab";
 import { EmailsTab } from "@/app/components/EmailsTab";
@@ -18,6 +19,25 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       organization: true,
       person: true,
       owner: true,
+      dealContacts: {
+        include: {
+          person: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              emailWork: true,
+              title: true,
+              phoneMobile: true,
+              phoneWork: true,
+              organizationId: true,
+              organization: { select: { id: true, name: true } },
+            },
+          },
+        },
+        orderBy: [{ isPrimary: "desc" }, { createdAt: "asc" }],
+      },
       noteRecords: {
         orderBy: { createdAt: "desc" },
       },
@@ -146,6 +166,11 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       doneTime: a.doneTime?.toISOString() || null,
       createdAt: a.createdAt.toISOString(),
       updatedAt: a.updatedAt.toISOString(),
+    })),
+    dealContacts: deal.dealContacts.map((dc) => ({
+      ...dc,
+      createdAt: dc.createdAt.toISOString(),
+      updatedAt: dc.updatedAt.toISOString(),
     })),
   };
 
@@ -399,38 +424,27 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Linked Entities */}
+          {/* Organization */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-[#2E2E2F] mb-4">Linked</h2>
-            <div className="space-y-4">
-              <div>
-                <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Organization</div>
-                {deal.organization ? (
-                  <Link 
-                    href={`/organization/${deal.organization.id}`}
-                    className="text-sm font-medium text-[#3B6B8F] hover:underline"
-                  >
-                    {deal.organization.name}
-                  </Link>
-                ) : (
-                  <div className="text-sm text-gray-400">No organization</div>
-                )}
-              </div>
-              <div>
-                <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Person</div>
-                {deal.person ? (
-                  <Link 
-                    href={`/person/${deal.person.id}`}
-                    className="text-sm font-medium text-[#3B6B8F] hover:underline"
-                  >
-                    {deal.person.firstName} {deal.person.lastName}
-                  </Link>
-                ) : (
-                  <div className="text-sm text-gray-400">No contact person</div>
-                )}
-              </div>
-            </div>
+            <h2 className="text-lg font-semibold text-[#2E2E2F] mb-4">Organization</h2>
+            {deal.organization ? (
+              <Link 
+                href={`/organization/${deal.organization.id}`}
+                className="text-sm font-medium text-[#3B6B8F] hover:underline"
+              >
+                {deal.organization.name}
+              </Link>
+            ) : (
+              <div className="text-sm text-gray-400">No organization linked</div>
+            )}
           </div>
+
+          {/* Deal Stakeholders (multi-contact) */}
+          <DealContacts
+            dealId={deal.id}
+            dealContacts={serializedDeal.dealContacts}
+            allPeople={people}
+          />
 
           {/* Products */}
           {(deal.productName || deal.productQuantity) && (

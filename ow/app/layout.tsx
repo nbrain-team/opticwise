@@ -19,7 +19,7 @@ export default function RootLayout({
       <body className="antialiased bg-gray-50">
         <header className="sticky top-0 z-10 border-b bg-white shadow-sm">
           <div className="mx-auto max-w-7xl px-6 h-16 flex items-center gap-8">
-            <Link href="/deals" className="flex items-center gap-3">
+            <Link href="/dashboard" className="flex items-center gap-3">
               <Image 
                 src="/opticwise-logo.png" 
                 alt="Opticwise" 
@@ -29,6 +29,9 @@ export default function RootLayout({
               />
             </Link>
             <nav className="flex items-center gap-6 text-sm font-medium">
+              <Link href="/dashboard" className="nav-link hover:text-[#3B6B8F] transition-colors">
+                Dashboard
+              </Link>
               <Link href="/deals" className="nav-link hover:text-[#3B6B8F] transition-colors">
                 Deals
               </Link>
