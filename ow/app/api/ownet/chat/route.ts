@@ -72,6 +72,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Resolve the current user's ID for email privacy scoping
+    const currentUserId = session.userId;
+
     const body = await request.json();
     const { message, sessionId } = body;
 
@@ -184,7 +187,8 @@ export async function POST(request: NextRequest) {
       openai,
       pc,
       sessionId,
-      contextWindow
+      contextWindow,
+      currentUserId
     );
     
     console.log('[OWnet] Loaded context:', {
@@ -267,9 +271,10 @@ export async function POST(request: NextRequest) {
               `SELECT id, subject, "from", "to", snippet, date, body
                FROM "GmailMessage"
                WHERE vectorized = true AND embedding IS NOT NULL
+                 AND "syncUserId" = $2
                ORDER BY embedding <=> $1::vector
                LIMIT 5`,
-              [`[${queryVector.join(',')}]`]
+              [`[${queryVector.join(',')}]`, currentUserId]
             );
             
             if (emailResults.rows.length > 0) {
@@ -289,9 +294,10 @@ export async function POST(request: NextRequest) {
               `SELECT id, subject, "from", "to", snippet, date, body
                FROM "GmailMessage"
                WHERE (subject ILIKE $1 OR body ILIKE $1 OR snippet ILIKE $1)
+                 AND "syncUserId" = $2
                ORDER BY date DESC
                LIMIT 5`,
-              [`%${keywords}%`]
+              [`%${keywords}%`, currentUserId]
             );
             
             if (emailResults.rows.length > 0) {

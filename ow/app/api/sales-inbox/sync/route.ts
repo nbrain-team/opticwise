@@ -20,38 +20,32 @@ async function generateEmbedding(text: string): Promise<number[]> {
 }
 
 /**
- * POST /api/sales-inbox/sync
- * 
- * Syncs Gmail messages with the sales inbox by:
- * 1. Fetching new emails from Gmail (last 24 hours by default)
- * 2. Linking emails to contact records based on email addresses
- * 3. Creating EmailThread and EmailMessage records for the sales inbox
- * 4. Storing GmailMessage records for AI search
+ * Sync Gmail for a single user.
+ * Impersonates the user's @opticwise.com email via Google Workspace delegation.
+ * All synced emails are tagged with syncUserId for data isolation.
  */
-export async function POST(request: NextRequest) {
+async function syncUserEmails(userId: string, userEmail: string, hoursBack: number) {
+  console.log(`🔄 Syncing emails for ${userEmail} (userId: ${userId})...`);
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { emailSyncStatus: 'syncing' },
+  });
+
   try {
-    console.log('🔄 Starting sales inbox sync...');
-    
-    // Get sync parameters
-    const body = await request.json().catch(() => ({}));
-    const hoursBack = body.hoursBack || 24; // Default: last 24 hours
-    
-    // Authenticate with Gmail
-    const auth = getServiceAccountClient();
+    const auth = getServiceAccountClient(userEmail);
     const gmail = await getGmailClient(auth);
-    
-    // Build query for recent emails
+
     const startDate = new Date();
     startDate.setHours(startDate.getHours() - hoursBack);
     const afterDate = startDate.toISOString().split('T')[0].replace(/-/g, '/');
     const query = `after:${afterDate}`;
-    
-    console.log(`📅 Fetching emails from last ${hoursBack} hours (after ${afterDate})`);
-    
-    // Fetch message IDs
+
+    console.log(`  📅 Fetching emails from last ${hoursBack} hours (after ${afterDate})`);
+
     let allMessages: { id: string; threadId?: string }[] = [];
     let pageToken: string | undefined;
-    
+
     do {
       const listResponse = await gmail.users.messages.list({
         userId: 'me',
@@ -59,33 +53,31 @@ export async function POST(request: NextRequest) {
         q: query,
         pageToken,
       });
-      
+
       const messages = listResponse.data.messages || [];
       allMessages = allMessages.concat(messages as { id: string; threadId?: string }[]);
       pageToken = listResponse.data.nextPageToken || undefined;
     } while (pageToken);
-    
-    console.log(`✅ Found ${allMessages.length} messages`);
-    
-    // Check which messages we already have
+
+    console.log(`  ✅ Found ${allMessages.length} messages for ${userEmail}`);
+
     const existingGmailIds = await prisma.gmailMessage.findMany({
+      where: { syncUserId: userId },
       select: { gmailMessageId: true },
     });
     const existingSet = new Set(existingGmailIds.map(e => e.gmailMessageId));
-    
+
     const newMessages = allMessages.filter(m => !existingSet.has(m.id));
-    console.log(`📥 New messages to process: ${newMessages.length}`);
-    
+    console.log(`  📥 New messages to process: ${newMessages.length}`);
+
     if (newMessages.length === 0) {
-      return NextResponse.json({
-        success: true,
-        message: 'No new emails to sync',
-        synced: 0,
-        skipped: existingSet.size,
+      await prisma.user.update({
+        where: { id: userId },
+        data: { lastEmailSync: new Date(), emailSyncStatus: 'ok' },
       });
+      return { synced: 0, linked: 0, errors: 0, total: allMessages.length, skipped: existingSet.size };
     }
-    
-    // Get all contacts with email addresses for matching, including their open deals
+
     const contacts = await prisma.person.findMany({
       where: {
         OR: [
@@ -96,72 +88,54 @@ export async function POST(request: NextRequest) {
         ],
       },
       select: {
-        id: true,
-        email: true,
-        emailWork: true,
-        emailHome: true,
-        emailOther: true,
-        firstName: true,
-        lastName: true,
-        organizationId: true,
-        deals: {
-          where: { status: 'open' },
-          select: { id: true },
-          take: 1,
-        },
+        id: true, email: true, emailWork: true, emailHome: true, emailOther: true,
+        firstName: true, lastName: true, organizationId: true,
+        deals: { where: { status: 'open' }, select: { id: true }, take: 1 },
       },
     });
-    
-    // Create email lookup map
+
     const emailToContact = new Map<string, typeof contacts[0]>();
     contacts.forEach(contact => {
       [contact.email, contact.emailWork, contact.emailHome, contact.emailOther].forEach(email => {
-        if (email) {
-          emailToContact.set(email.toLowerCase(), contact);
-        }
+        if (email) emailToContact.set(email.toLowerCase(), contact);
       });
     });
-    
-    console.log(`📇 Loaded ${contacts.length} contacts with ${emailToContact.size} email addresses`);
-    
+
     let synced = 0;
     let linked = 0;
     let errors = 0;
-    
-    // Process each new message
+    const userEmailLower = userEmail.toLowerCase();
+
     for (const message of newMessages) {
       if (!message.id) continue;
-      
+
       try {
-        // Get full message details
         const fullMessage = await gmail.users.messages.get({
           userId: 'me',
           id: message.id,
           format: 'full',
         });
-        
+
         const headers = fullMessage.data.payload?.headers || [];
-        const getHeader = (name: string) => 
+        const getHeader = (name: string) =>
           headers.find(h => h.name?.toLowerCase() === name.toLowerCase())?.value || '';
-        
+
         const subject = getHeader('Subject');
         const from = getHeader('From');
         const to = getHeader('To');
         const cc = getHeader('Cc');
         const date = getHeader('Date');
-        
-        // Extract email addresses from headers
+
         const extractEmails = (header: string): string[] => {
           const emailRegex = /[\w.-]+@[\w.-]+\.\w+/g;
           return (header.match(emailRegex) || []).map(e => e.toLowerCase());
         };
-        
+
         const fromEmails = extractEmails(from);
         const toEmails = extractEmails(to);
         const ccEmails = extractEmails(cc);
         const allEmails = [...fromEmails, ...toEmails, ...ccEmails];
-        
-        // Find matching contact
+
         let matchedContact = null;
         for (const email of allEmails) {
           if (emailToContact.has(email)) {
@@ -169,17 +143,16 @@ export async function POST(request: NextRequest) {
             break;
           }
         }
-        
-        // Extract body
+
         let body = '';
         let bodyHtml = '';
-        
+
         type MessagePart = {
           mimeType?: string;
           body?: { data?: string };
           parts?: MessagePart[];
         };
-        
+
         const extractBody = (part: MessagePart): void => {
           if (part.mimeType === 'text/plain' && part.body?.data) {
             body = Buffer.from(part.body.data, 'base64').toString('utf-8');
@@ -187,34 +160,24 @@ export async function POST(request: NextRequest) {
           if (part.mimeType === 'text/html' && part.body?.data) {
             bodyHtml = Buffer.from(part.body.data, 'base64').toString('utf-8');
           }
-          if (part.parts) {
-            part.parts.forEach(extractBody);
-          }
+          if (part.parts) part.parts.forEach(extractBody);
         };
-        
+
         if (fullMessage.data.payload) {
           extractBody(fullMessage.data.payload as MessagePart);
         }
-        
-        // Generate embedding
+
         const textForEmbedding = `Subject: ${subject}\nFrom: ${from}\nBody: ${body || bodyHtml}`.slice(0, 8000);
         const embedding = await generateEmbedding(textForEmbedding);
-        
-        // Extract attachments
+
         type AttachmentPart = {
           filename?: string;
           mimeType?: string;
           body?: { size?: number; attachmentId?: string };
           parts?: AttachmentPart[];
         };
-        
-        const attachments: Array<{
-          filename: string;
-          mimeType: string;
-          size: number;
-          attachmentId: string;
-        }> = [];
-        
+
+        const attachments: Array<{ filename: string; mimeType: string; size: number; attachmentId: string }> = [];
         const extractAttachments = (part: AttachmentPart): void => {
           if (part.filename && part.body?.attachmentId) {
             attachments.push({
@@ -224,19 +187,15 @@ export async function POST(request: NextRequest) {
               attachmentId: part.body.attachmentId,
             });
           }
-          if (part.parts) {
-            part.parts.forEach(extractAttachments);
-          }
+          if (part.parts) part.parts.forEach(extractAttachments);
         };
-        
+
         if (fullMessage.data.payload) {
           extractAttachments(fullMessage.data.payload as AttachmentPart);
         }
-        
-        // Determine if this is incoming or outgoing
-        const isOutgoing = from.toLowerCase().includes('bill@opticwise.com');
-        
-        // Save GmailMessage
+
+        const isOutgoing = from.toLowerCase().includes(userEmailLower);
+
         await prisma.gmailMessage.create({
           data: {
             gmailMessageId: message.id,
@@ -255,19 +214,15 @@ export async function POST(request: NextRequest) {
             embedding: `[${embedding.join(',')}]`,
             personId: matchedContact?.id,
             organizationId: matchedContact?.organizationId,
+            syncUserId: userId,
           },
         });
-        
-        // If we found a matching contact, create/update EmailThread, EmailMessage, and Activity
+
         if (matchedContact) {
-          // Find or create EmailThread
           let emailThread = await prisma.emailThread.findFirst({
-            where: {
-              subject,
-              personId: matchedContact.id,
-            },
+            where: { subject, personId: matchedContact.id },
           });
-          
+
           if (!emailThread) {
             emailThread = await prisma.emailThread.create({
               data: {
@@ -277,8 +232,7 @@ export async function POST(request: NextRequest) {
               },
             });
           }
-          
-          // Create EmailMessage
+
           await prisma.emailMessage.create({
             data: {
               threadId: emailThread.id,
@@ -290,17 +244,15 @@ export async function POST(request: NextRequest) {
               sentAt: date ? new Date(date) : new Date(),
             },
           });
-          
-          // Update thread timestamp
+
           await prisma.emailThread.update({
             where: { id: emailThread.id },
             data: { updatedAt: new Date() },
           });
-          
-          // Create Activity record so emails appear in the Activities tab
+
           const emailDate = date ? new Date(date) : new Date();
           const activityDealId = matchedContact.deals?.[0]?.id || null;
-          
+
           const existingActivity = await prisma.activity.findFirst({
             where: {
               type: 'email',
@@ -309,7 +261,7 @@ export async function POST(request: NextRequest) {
               doneTime: emailDate,
             },
           });
-          
+
           if (!existingActivity) {
             await prisma.activity.create({
               data: {
@@ -322,66 +274,98 @@ export async function POST(request: NextRequest) {
                 personId: matchedContact.id,
                 organizationId: matchedContact.organizationId || null,
                 dealId: activityDealId,
-                createdBy: 'email-sync',
+                createdBy: `email-sync:${userEmail}`,
               },
             });
-            
+
             await updateActivityCounters({
               personId: matchedContact.id,
               organizationId: matchedContact.organizationId,
               dealId: activityDealId,
             });
           }
-          
+
           linked++;
         }
-        
+
         synced++;
-        
-        // Rate limiting
         await new Promise(resolve => setTimeout(resolve, 100));
-        
       } catch (err) {
         errors++;
         const errorMessage = err instanceof Error ? err.message : String(err);
-        console.error(`❌ Error processing message ${message.id}:`, errorMessage);
+        console.error(`  ❌ Error processing message ${message.id}:`, errorMessage);
       }
     }
-    
-    const syncFinishedAt = new Date();
-    console.log('✅ Sync complete');
-    console.log(`   📥 Synced: ${synced} messages`);
-    console.log(`   🔗 Linked: ${linked} to contacts`);
-    console.log(`   ❌ Errors: ${errors}`);
-    
-    // Store sync status for visibility (upsert a settings key)
-    try {
-      await prisma.$executeRawUnsafe(`
-        INSERT INTO "Setting" (id, key, value, "updatedAt")
-        VALUES (gen_random_uuid(), 'last_email_sync', $1::text, NOW())
-        ON CONFLICT (key) DO UPDATE SET value = $1::text, "updatedAt" = NOW()
-      `, JSON.stringify({
-        completedAt: syncFinishedAt.toISOString(),
-        synced,
-        linked,
-        errors,
-        total: allMessages.length,
-        hoursBack,
-      }));
-    } catch (settingsErr) {
-      console.log('Note: Could not save sync status (Setting table may not exist yet)');
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        lastEmailSync: new Date(),
+        emailSyncStatus: errors > 0 && synced === 0 ? 'error' : 'ok',
+      },
+    });
+
+    console.log(`  ✅ Sync complete for ${userEmail}: ${synced} synced, ${linked} linked, ${errors} errors`);
+    return { synced, linked, errors, total: allMessages.length, skipped: existingSet.size };
+  } catch (error) {
+    console.error(`  ❌ Sync failed for ${userEmail}:`, error);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { emailSyncStatus: 'error' },
+    });
+    throw error;
+  }
+}
+
+/**
+ * POST /api/sales-inbox/sync
+ * 
+ * Sync a specific user's emails or all enabled users.
+ * Body: { userId?: string, hoursBack?: number }
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json().catch(() => ({}));
+    const hoursBack = body.hoursBack || 24;
+    const targetUserId = body.userId;
+
+    let usersToSync;
+
+    if (targetUserId) {
+      const user = await prisma.user.findUnique({ where: { id: targetUserId } });
+      if (!user || !user.isActive) {
+        return NextResponse.json({ error: 'User not found or inactive' }, { status: 404 });
+      }
+      if (!user.email.endsWith('@opticwise.com')) {
+        return NextResponse.json({ error: 'Only @opticwise.com emails can be synced' }, { status: 400 });
+      }
+      usersToSync = [user];
+    } else {
+      usersToSync = await prisma.user.findMany({
+        where: { emailSyncEnabled: true, isActive: true },
+      });
     }
-    
+
+    if (usersToSync.length === 0) {
+      return NextResponse.json({ success: true, message: 'No users with email sync enabled' });
+    }
+
+    const results: Record<string, unknown> = {};
+
+    for (const user of usersToSync) {
+      try {
+        results[user.email] = await syncUserEmails(user.id, user.email, hoursBack);
+      } catch (err) {
+        results[user.email] = { error: err instanceof Error ? err.message : String(err) };
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      synced,
-      linked,
-      errors,
-      total: allMessages.length,
-      skipped: existingSet.size,
-      completedAt: syncFinishedAt.toISOString(),
+      usersSynced: usersToSync.length,
+      results,
+      completedAt: new Date().toISOString(),
     });
-    
   } catch (error) {
     console.error('Error syncing sales inbox:', error);
     return NextResponse.json(
@@ -393,28 +377,21 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/sales-inbox/sync
- * 
- * Trigger sync via GET request (for cron jobs)
+ * Trigger sync for all enabled users via cron
  */
 export async function GET(request: NextRequest) {
-  // Verify cron secret if provided
   const cronSecret = request.nextUrl.searchParams.get('secret');
   const expectedSecret = process.env.CRON_SECRET;
-  
+
   if (expectedSecret && cronSecret !== expectedSecret) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
-  // Call POST handler
+
   const mockRequest = new NextRequest(request.url, {
     method: 'POST',
     headers: request.headers,
     body: JSON.stringify({ hoursBack: 24 }),
   });
-  
+
   return POST(mockRequest);
 }
-

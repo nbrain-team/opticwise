@@ -10,6 +10,9 @@ type User = {
   role: string;
   department: string | null;
   isActive: boolean;
+  emailSyncEnabled: boolean;
+  lastEmailSync: string | null;
+  emailSyncStatus: string | null;
   createdAt: Date;
 };
 
@@ -78,6 +81,46 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
     }
   }
 
+  async function handleToggleEmailSync(userId: string, currentlyEnabled: boolean) {
+    try {
+      const res = await fetch(`/api/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailSyncEnabled: !currentlyEnabled }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to update email sync");
+      }
+
+      router.refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update email sync");
+    }
+  }
+
+  async function handleSyncNow(userId: string) {
+    try {
+      const res = await fetch("/api/sales-inbox/sync", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, hoursBack: 168 }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to trigger sync");
+      }
+
+      const data = await res.json();
+      alert(`Sync complete! Check results in the console.`);
+      router.refresh();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to trigger sync");
+    }
+  }
+
   async function handleDeleteUser(userId: string) {
     if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
       return;
@@ -133,6 +176,9 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
                 Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Email Sync
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Joined
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -181,6 +227,49 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
                   >
                     {user.isActive ? "Active" : "Inactive"}
                   </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center gap-2">
+                    {user.email.endsWith("@opticwise.com") ? (
+                      <>
+                        <button
+                          onClick={() => handleToggleEmailSync(user.id, user.emailSyncEnabled)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
+                            user.emailSyncEnabled ? "bg-[#3B6B8F]" : "bg-gray-300"
+                          }`}
+                          title={user.emailSyncEnabled ? "Disable email sync" : "Enable email sync"}
+                        >
+                          <span
+                            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                              user.emailSyncEnabled ? "translate-x-4" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                        {user.emailSyncEnabled && (
+                          <button
+                            onClick={() => handleSyncNow(user.id)}
+                            className="text-xs text-[#3B6B8F] hover:underline"
+                            title="Sync now"
+                          >
+                            Sync
+                          </button>
+                        )}
+                        {user.lastEmailSync && (
+                          <span className="text-[10px] text-gray-400" title={`Last sync: ${new Date(user.lastEmailSync).toLocaleString()}`}>
+                            {user.emailSyncStatus === "error" ? (
+                              <span className="text-red-500">Error</span>
+                            ) : user.emailSyncStatus === "syncing" ? (
+                              <span className="text-orange-500">Syncing...</span>
+                            ) : (
+                              new Date(user.lastEmailSync).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            )}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="text-xs text-gray-400">N/A</span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {new Date(user.createdAt).toLocaleDateString("en-US", {

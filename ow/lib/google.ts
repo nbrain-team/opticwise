@@ -16,7 +16,8 @@ export function getOAuth2Client() {
 }
 
 // Initialize service account client for server-to-server authentication
-export function getServiceAccountClient() {
+// userEmail: the @opticwise.com user to impersonate (defaults to bill@opticwise.com)
+export function getServiceAccountClient(userEmail?: string) {
   let credentials;
   
   // Option 1: Try environment variable first (easiest for Render)
@@ -56,7 +57,7 @@ export function getServiceAccountClient() {
       'https://www.googleapis.com/auth/drive.readonly',
     ],
     clientOptions: {
-      subject: process.env.GOOGLE_IMPERSONATE_USER || 'bill@opticwise.com',
+      subject: userEmail || process.env.GOOGLE_IMPERSONATE_USER || 'bill@opticwise.com',
     },
   });
 

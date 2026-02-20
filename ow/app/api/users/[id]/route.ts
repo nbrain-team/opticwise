@@ -33,12 +33,24 @@ export async function PATCH(
       );
     }
 
-    // Update user
+    // Build update data - only include fields that were provided
+    const updateData: Record<string, unknown> = {};
+    if (body.isActive !== undefined) updateData.isActive = body.isActive;
+    if (body.emailSyncEnabled !== undefined) {
+      // Only allow @opticwise.com emails to enable sync
+      const targetUser = await prisma.user.findUnique({ where: { id } });
+      if (body.emailSyncEnabled && targetUser && !targetUser.email.endsWith('@opticwise.com')) {
+        return NextResponse.json(
+          { error: "Only @opticwise.com emails can enable email sync" },
+          { status: 400 }
+        );
+      }
+      updateData.emailSyncEnabled = body.emailSyncEnabled;
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id },
-      data: {
-        isActive: body.isActive,
-      },
+      data: updateData,
       select: {
         id: true,
         email: true,
@@ -46,6 +58,9 @@ export async function PATCH(
         role: true,
         department: true,
         isActive: true,
+        emailSyncEnabled: true,
+        lastEmailSync: true,
+        emailSyncStatus: true,
         createdAt: true,
       },
     });

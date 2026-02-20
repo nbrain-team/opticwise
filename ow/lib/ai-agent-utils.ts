@@ -295,7 +295,8 @@ export async function loadContextWithinBudget(
   openai: OpenAI,
   pinecone: Pinecone,
   sessionId: string,
-  maxContextTokens: number = 180000
+  maxContextTokens: number = 180000,
+  userId?: string
 ): Promise<{
   contexts: ContextSource[];
   totalTokens: number;
@@ -522,12 +523,14 @@ export async function loadContextWithinBudget(
     }
     
     // Then add GmailMessage emails if we have token budget left
-    if (emailTokens < 30000) {
+    // PRIVACY: Only return emails belonging to the current user
+    if (emailTokens < 30000 && userId) {
       const gmailResult = await db.query(
         `SELECT id, subject, "from", "to", snippet, body, date,
          1 - (embedding <=> $1::vector) as similarity
          FROM "GmailMessage"
          WHERE vectorized = true AND embedding IS NOT NULL
+           AND "syncUserId" = $2
            AND "from" NOT ILIKE '%noreply%'
            AND "from" NOT ILIKE '%no-reply%'
            AND "from" NOT ILIKE '%@ingram%'
@@ -539,7 +542,7 @@ export async function loadContextWithinBudget(
            AND subject NOT ILIKE '%build failed%'
          ORDER BY embedding <=> $1::vector
          LIMIT 10`,
-        [vectorString]
+        [vectorString, userId]
       );
       
       for (const email of gmailResult.rows) {

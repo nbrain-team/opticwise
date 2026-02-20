@@ -19,10 +19,22 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  // Get all users if admin
+  // Get all users if admin (include email sync fields)
   const allUsers = currentUser.role === "admin" 
     ? await prisma.user.findMany({
         orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          department: true,
+          isActive: true,
+          emailSyncEnabled: true,
+          lastEmailSync: true,
+          emailSyncStatus: true,
+          createdAt: true,
+        },
       })
     : [];
 
@@ -135,7 +147,16 @@ export default async function SettingsPage() {
             {/* Team Members Section - Admin Only */}
             {currentUser.role === "admin" && (
               <div id="team" className="bg-white rounded-lg border border-gray-200 p-6 scroll-mt-20">
-                <UserManagement currentUser={currentUser} users={allUsers} />
+                <UserManagement
+                  currentUser={{
+                    ...currentUser,
+                    lastEmailSync: currentUser.lastEmailSync?.toISOString() || null,
+                  }}
+                  users={allUsers.map(u => ({
+                    ...u,
+                    lastEmailSync: u.lastEmailSync?.toISOString() || null,
+                  }))}
+                />
               </div>
             )}
           </div>

@@ -8,16 +8,19 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  name         String?
-  passwordHash String
-  role         String   @default("user") // admin, user
-  isActive     Boolean  @default(true)
-  department   String?  // finance, marketing, ops (placeholder for future permissions)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  createdBy    String?  // User ID of admin who created this user
+  id               String   @id @default(cuid())
+  email            String   @unique
+  name             String?
+  passwordHash     String
+  role             String   @default("user") // admin, user
+  isActive         Boolean  @default(true)
+  department       String?  // finance, marketing, ops (placeholder for future permissions)
+  emailSyncEnabled Boolean  @default(false)
+  lastEmailSync    DateTime?
+  emailSyncStatus  String?  // ok, error, syncing
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  createdBy        String?  // User ID of admin who created this user
 
   deals        Deal[]   @relation("DealOwner")
   campaigns    Campaign[] @relation("CampaignOwner")
@@ -438,6 +441,9 @@ model GmailMessage {
   personId        String?
   organizationId  String?
   
+  // Data isolation: which user's mailbox this email was synced from
+  syncUserId      String?
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   
@@ -453,6 +459,7 @@ model GmailMessage {
   @@index([personId])
   @@index([organizationId])
   @@index([vectorized])
+  @@index([syncUserId])
 }
 
 model CalendarEvent {

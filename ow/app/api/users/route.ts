@@ -28,6 +28,9 @@ export async function GET() {
         role: true,
         department: true,
         isActive: true,
+        emailSyncEnabled: true,
+        lastEmailSync: true,
+        emailSyncStatus: true,
         createdAt: true,
       },
       orderBy: { createdAt: "desc" },
@@ -63,10 +66,16 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { email, name, password, department } = body;
 
-    // Validate required fields
     if (!email || !name || !password) {
       return NextResponse.json(
         { error: "Email, name, and password are required" },
+        { status: 400 }
+      );
+    }
+
+    if (!email.endsWith("@opticwise.com")) {
+      return NextResponse.json(
+        { error: "Users must have an @opticwise.com email address" },
         { status: 400 }
       );
     }

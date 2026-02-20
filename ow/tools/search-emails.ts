@@ -26,9 +26,16 @@ export const searchEmailsTool: ToolDefinition = {
     },
   },
 
-  async execute({ query, limit = 5 }, { dbPool, openai }) {
+  async execute({ query, limit = 5 }, { dbPool, openai, userId }) {
     try {
-      // Generate embedding
+      if (!userId) {
+        return {
+          success: false,
+          error: 'User context required for email search (privacy enforcement)',
+          confidence: 0,
+        };
+      }
+
       const embeddingResponse = await openai.embeddings.create({
         model: 'text-embedding-3-large',
         input: String(query),
@@ -37,14 +44,15 @@ export const searchEmailsTool: ToolDefinition = {
 
       const queryVector = embeddingResponse.data[0].embedding;
 
-      // Search emails
+      // PRIVACY: Only search emails belonging to the current user
       const emailResults = await dbPool.query(
         `SELECT id, subject, "from", "to", snippet, date, body
          FROM "GmailMessage"
          WHERE vectorized = true AND embedding IS NOT NULL
+           AND "syncUserId" = $3
          ORDER BY embedding <=> $1::vector
          LIMIT $2`,
-        [`[${queryVector.join(',')}]`, limit]
+        [`[${queryVector.join(',')}]`, limit, userId]
       );
 
       const emails = emailResults.rows.map(email => ({
