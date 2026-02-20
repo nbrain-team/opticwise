@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { updateActivityCounters } from "@/lib/activity-counters";
 
 /**
  * Create a new activity
@@ -52,6 +53,12 @@ export async function POST(request: NextRequest) {
         assignedTo: assignedTo || null,
         createdBy: createdBy || null,
       },
+    });
+
+    await updateActivityCounters({
+      dealId: dealId || null,
+      personId: personId || null,
+      organizationId: organizationId || null,
     });
 
     return NextResponse.json(activity, { status: 201 });

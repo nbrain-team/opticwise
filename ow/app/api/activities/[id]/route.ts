@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { updateActivityCounters } from "@/lib/activity-counters";
 
 /**
  * Update an activity
@@ -41,6 +42,12 @@ export async function PATCH(
       data: updateData,
     });
 
+    await updateActivityCounters({
+      dealId: activity.dealId,
+      personId: activity.personId,
+      organizationId: activity.organizationId,
+    });
+
     return NextResponse.json(activity);
   } catch (error) {
     console.error("Error updating activity:", error);
@@ -62,9 +69,22 @@ export async function DELETE(
   try {
     const { id } = await params;
 
+    const activity = await prisma.activity.findUnique({
+      where: { id },
+      select: { dealId: true, personId: true, organizationId: true },
+    });
+
     await prisma.activity.delete({
       where: { id },
     });
+
+    if (activity) {
+      await updateActivityCounters({
+        dealId: activity.dealId,
+        personId: activity.personId,
+        organizationId: activity.organizationId,
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

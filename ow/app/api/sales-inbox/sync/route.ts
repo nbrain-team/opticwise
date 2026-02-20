@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { getServiceAccountClient, getGmailClient } from '@/lib/google';
+import { updateActivityCounters } from '@/lib/activity-counters';
 import OpenAI from 'openai';
 
 let _openai: OpenAI | null = null;
@@ -84,7 +85,7 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // Get all contacts with email addresses for matching
+    // Get all contacts with email addresses for matching, including their open deals
     const contacts = await prisma.person.findMany({
       where: {
         OR: [
@@ -103,6 +104,11 @@ export async function POST(request: NextRequest) {
         firstName: true,
         lastName: true,
         organizationId: true,
+        deals: {
+          where: { status: 'open' },
+          select: { id: true },
+          take: 1,
+        },
       },
     });
     
@@ -252,7 +258,7 @@ export async function POST(request: NextRequest) {
           },
         });
         
-        // If we found a matching contact, create/update EmailThread and EmailMessage
+        // If we found a matching contact, create/update EmailThread, EmailMessage, and Activity
         if (matchedContact) {
           // Find or create EmailThread
           let emailThread = await prisma.emailThread.findFirst({
@@ -291,6 +297,42 @@ export async function POST(request: NextRequest) {
             data: { updatedAt: new Date() },
           });
           
+          // Create Activity record so emails appear in the Activities tab
+          const emailDate = date ? new Date(date) : new Date();
+          const activityDealId = matchedContact.deals?.[0]?.id || null;
+          
+          const existingActivity = await prisma.activity.findFirst({
+            where: {
+              type: 'email',
+              subject: subject || '(No Subject)',
+              personId: matchedContact.id,
+              doneTime: emailDate,
+            },
+          });
+          
+          if (!existingActivity) {
+            await prisma.activity.create({
+              data: {
+                subject: subject || '(No Subject)',
+                note: `${isOutgoing ? 'Sent to' : 'Received from'}: ${isOutgoing ? to : from}`,
+                type: 'email',
+                status: 'done',
+                dueDate: emailDate,
+                doneTime: emailDate,
+                personId: matchedContact.id,
+                organizationId: matchedContact.organizationId || null,
+                dealId: activityDealId,
+                createdBy: 'email-sync',
+              },
+            });
+            
+            await updateActivityCounters({
+              personId: matchedContact.id,
+              organizationId: matchedContact.organizationId,
+              dealId: activityDealId,
+            });
+          }
+          
           linked++;
         }
         
@@ -306,10 +348,29 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    const syncFinishedAt = new Date();
     console.log('✅ Sync complete');
     console.log(`   📥 Synced: ${synced} messages`);
     console.log(`   🔗 Linked: ${linked} to contacts`);
     console.log(`   ❌ Errors: ${errors}`);
+    
+    // Store sync status for visibility (upsert a settings key)
+    try {
+      await prisma.$executeRawUnsafe(`
+        INSERT INTO "Setting" (id, key, value, "updatedAt")
+        VALUES (gen_random_uuid(), 'last_email_sync', $1::text, NOW())
+        ON CONFLICT (key) DO UPDATE SET value = $1::text, "updatedAt" = NOW()
+      `, JSON.stringify({
+        completedAt: syncFinishedAt.toISOString(),
+        synced,
+        linked,
+        errors,
+        total: allMessages.length,
+        hoursBack,
+      }));
+    } catch (settingsErr) {
+      console.log('Note: Could not save sync status (Setting table may not exist yet)');
+    }
     
     return NextResponse.json({
       success: true,
@@ -318,6 +379,7 @@ export async function POST(request: NextRequest) {
       errors,
       total: allMessages.length,
       skipped: existingSet.size,
+      completedAt: syncFinishedAt.toISOString(),
     });
     
   } catch (error) {

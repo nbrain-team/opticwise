@@ -42,16 +42,25 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
     return notFound();
   }
 
-  // Fetch emails based on person's email address
-  const gmailMessages = person.email 
+  // Fetch emails based on all of the person's email addresses
+  const personEmails = [person.email, person.emailWork, person.emailHome, person.emailOther]
+    .filter((e): e is string => !!e);
+
+  type EmailCondition = { from: { contains: string; mode: 'insensitive' } } 
+    | { to: { contains: string; mode: 'insensitive' } } 
+    | { cc: { contains: string; mode: 'insensitive' } };
+  const emailConditions: EmailCondition[] = [];
+  personEmails.forEach(email => {
+    emailConditions.push(
+      { from: { contains: email, mode: 'insensitive' as const } },
+      { to: { contains: email, mode: 'insensitive' as const } },
+      { cc: { contains: email, mode: 'insensitive' as const } },
+    );
+  });
+
+  const gmailMessages = emailConditions.length > 0
     ? await prisma.gmailMessage.findMany({
-        where: {
-          OR: [
-            { from: { contains: person.email, mode: 'insensitive' as const } },
-            { to: { contains: person.email, mode: 'insensitive' as const } },
-            { cc: { contains: person.email, mode: 'insensitive' as const } },
-          ],
-        },
+        where: { OR: emailConditions },
         orderBy: { date: "desc" },
         take: 50,
       })
