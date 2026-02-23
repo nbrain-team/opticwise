@@ -25,9 +25,9 @@ const INTERNAL_DOMAINS = [
   'nbrain.team',
 ];
 
-// Time range: last 1 year
+// Time range: last 2 years
 const SIX_MONTHS_AGO = new Date();
-SIX_MONTHS_AGO.setFullYear(SIX_MONTHS_AGO.getFullYear() - 1);
+SIX_MONTHS_AGO.setFullYear(SIX_MONTHS_AGO.getFullYear() - 2);
 
 interface ContactData {
   email: string;
@@ -381,27 +381,9 @@ async function extractContacts() {
   const qualifiedContacts: ContactData[] = [];
   
   for (const [email, contact] of contactMap.entries()) {
-    let qualified = false;
-    let reason = '';
-    
-    // NEW RULE: 1 initiated email + 2+ messages in thread (only requirement)
-    if (contact.initiatedEmailCount >= 1) {
-      // Check if any of their threads qualify
-      for (const sentEmail of sentEmails) {
-        if (sentEmail.to?.toLowerCase().includes(email) || sentEmail.cc?.toLowerCase().includes(email)) {
-          const thread = threadMap.get(sentEmail.threadId);
-          if (thread && thread.hasInitiated && thread.messageCount >= 2) {
-            qualified = true;
-            reason = `1 initiated email + ${thread.messageCount} message thread`;
-            contact.threadParticipationCount = thread.messageCount;
-            break;
-          }
-        }
-      }
-    }
-    
-    if (qualified) {
-      contact.qualificationReason = reason;
+    // SIMPLEST RULE: Any email Bill sent to them (no other requirements)
+    if (contact.totalEmailCount >= 1) {
+      contact.qualificationReason = `${contact.totalEmailCount} total emails (${contact.initiatedEmailCount} initiated, ${contact.replyEmailCount} replies)`;
       qualifiedContacts.push(contact);
     }
   }
