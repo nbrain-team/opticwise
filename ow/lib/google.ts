@@ -31,20 +31,31 @@ export function getServiceAccountClient(userEmail?: string) {
   }
   // Option 2: Try secret file locations
   else {
-    const secretPath = '/etc/secrets/google-service-account.json';
-    const workspacePath = path.join(process.cwd(), 'google-service-account.json');
+    const possiblePaths = [
+      '/etc/secrets/google-service-account.json',
+      path.join(process.cwd(), 'google-service-account.json'),
+      path.join(process.cwd(), 'ow', 'google-service-account.json'),
+      path.join(__dirname, '..', 'google-service-account.json'),
+      path.join(__dirname, '..', '..', 'google-service-account.json'),
+    ];
     
-    try {
-      if (fs.existsSync(secretPath)) {
-        credentials = JSON.parse(fs.readFileSync(secretPath, 'utf8'));
-      } else if (fs.existsSync(workspacePath)) {
-        credentials = JSON.parse(fs.readFileSync(workspacePath, 'utf8'));
-      } else {
-        throw new Error('Service account credentials not found. Set GOOGLE_SERVICE_ACCOUNT_JSON env var or upload google-service-account.json to /etc/secrets/');
+    let found = false;
+    for (const filePath of possiblePaths) {
+      try {
+        if (fs.existsSync(filePath)) {
+          credentials = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          console.log(`[Google Auth] Loaded credentials from: ${filePath}`);
+          found = true;
+          break;
+        }
+      } catch {
+        // Try next path
       }
-    } catch (error) {
-      console.error('Error loading service account credentials:', error);
-      throw error;
+    }
+    
+    if (!found) {
+      console.error('[Google Auth] Checked paths:', possiblePaths);
+      throw new Error('Service account credentials not found. Set GOOGLE_SERVICE_ACCOUNT_JSON env var or upload google-service-account.json to /etc/secrets/');
     }
   }
 
