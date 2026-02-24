@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 type User = {
@@ -30,6 +30,23 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
   const [newPassword, setNewPassword] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  function formatDate(date: Date | string) {
+    if (!mounted) return "";
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
+
+  function formatSyncDate(date: string) {
+    if (!mounted) return "";
+    return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  }
 
   // Form state
   const [formData, setFormData] = useState({
@@ -287,13 +304,13 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
                           </button>
                         )}
                         {user.lastEmailSync && (
-                          <span className="text-[10px] text-gray-400" title={`Last sync: ${new Date(user.lastEmailSync).toLocaleString()}`}>
+                          <span className="text-[10px] text-gray-400" title={mounted ? `Last sync: ${new Date(user.lastEmailSync).toLocaleString()}` : ""}>
                             {user.emailSyncStatus === "error" ? (
                               <span className="text-red-500">Error</span>
                             ) : user.emailSyncStatus === "syncing" ? (
                               <span className="text-orange-500">Syncing...</span>
                             ) : (
-                              new Date(user.lastEmailSync).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                              formatSyncDate(user.lastEmailSync)
                             )}
                           </span>
                         )}
@@ -304,11 +321,7 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {new Date(user.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
+                  {formatDate(user.createdAt)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   {user.id !== currentUser.id && (
@@ -363,6 +376,7 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
             )}
 
             <form onSubmit={handleResetPassword} className="space-y-4">
+              <input type="text" name="username" autoComplete="username" value={resetPasswordUser.email} readOnly hidden aria-hidden="true" />
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   New Password <span className="text-red-500">*</span>
@@ -370,6 +384,7 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
                 <input
                   type="password"
                   required
+                  autoComplete="new-password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
@@ -418,6 +433,7 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
             )}
 
             <form onSubmit={handleAddUser} className="space-y-4">
+              <input type="text" name="username" autoComplete="username" value={formData.email} readOnly hidden aria-hidden="true" />
               {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

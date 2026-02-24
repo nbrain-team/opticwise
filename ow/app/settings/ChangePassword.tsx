@@ -80,6 +80,7 @@ export function ChangePassword() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <input type="text" name="username" autoComplete="username" hidden aria-hidden="true" />
         {/* Current Password */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
