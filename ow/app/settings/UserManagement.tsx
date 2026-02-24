@@ -30,6 +30,10 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
   const [newPassword, setNewPassword] = useState("");
   const [resetLoading, setResetLoading] = useState(false);
   const [resetError, setResetError] = useState<string | null>(null);
+  const [editUser, setEditUser] = useState<User | null>(null);
+  const [editData, setEditData] = useState({ name: "", email: "", department: "" });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
@@ -139,6 +143,43 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
       router.refresh();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to trigger sync");
+    }
+  }
+
+  function openEditUser(user: User) {
+    setEditUser(user);
+    setEditData({
+      name: user.name || "",
+      email: user.email,
+      department: user.department || "",
+    });
+    setEditError(null);
+  }
+
+  async function handleEditUser(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editUser) return;
+    setEditLoading(true);
+    setEditError(null);
+
+    try {
+      const res = await fetch(`/api/users/${editUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to update user");
+      }
+
+      setEditUser(null);
+      router.refresh();
+    } catch (err: unknown) {
+      setEditError(err instanceof Error ? err.message : "Failed to update user");
+    } finally {
+      setEditLoading(false);
     }
   }
 
@@ -325,26 +366,35 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   {user.id !== currentUser.id && (
-                    <div className="flex items-center justify-end gap-3">
+                    <div className="flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => openEditUser(user)}
+                        className="text-[#3B6B8F] hover:text-[#2E5570] text-sm"
+                      >
+                        Edit
+                      </button>
+                      <span className="text-gray-300">|</span>
                       <button
                         onClick={() => {
                           setResetPasswordUser(user);
                           setNewPassword("");
                           setResetError(null);
                         }}
-                        className="text-[#3B6B8F] hover:text-[#2E5570]"
+                        className="text-[#3B6B8F] hover:text-[#2E5570] text-sm"
                       >
-                        Reset Password
+                        Password
                       </button>
+                      <span className="text-gray-300">|</span>
                       <button
                         onClick={() => handleToggleActive(user.id, user.isActive)}
-                        className="text-[#3B6B8F] hover:text-[#2E5570]"
+                        className="text-[#3B6B8F] hover:text-[#2E5570] text-sm"
                       >
                         {user.isActive ? "Deactivate" : "Activate"}
                       </button>
+                      <span className="text-gray-300">|</span>
                       <button
                         onClick={() => handleDeleteUser(user.id)}
-                        className="text-red-600 hover:text-red-800"
+                        className="text-red-600 hover:text-red-800 text-sm"
                       >
                         Delete
                       </button>
@@ -359,6 +409,87 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
           </tbody>
         </table>
       </div>
+
+      {/* Edit User Modal */}
+      {editUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Edit User</h3>
+
+            {editError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {editError}
+              </div>
+            )}
+
+            <form onSubmit={handleEditUser} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editData.name}
+                  onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
+                  placeholder="John Doe"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={editData.email}
+                  onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
+                  placeholder="user@opticwise.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Department
+                </label>
+                <select
+                  value={editData.department}
+                  onChange={(e) => setEditData({ ...editData, department: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
+                >
+                  <option value="">Select department</option>
+                  <option value="finance">Finance</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="ops">Operations</option>
+                  <option value="sales">Sales</option>
+                  <option value="engineering">Engineering</option>
+                </select>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => { setEditUser(null); setEditError(null); }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  disabled={editLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editLoading}
+                  className="px-4 py-2 bg-[#3B6B8F] text-white rounded-lg hover:bg-[#2E5570] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {editLoading ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Reset Password Modal */}
       {resetPasswordUser && (

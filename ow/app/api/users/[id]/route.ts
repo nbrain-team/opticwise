@@ -66,6 +66,18 @@ export async function PATCH(
 
     // Build update data - only include fields that were provided
     const updateData: Record<string, unknown> = {};
+    if (body.name !== undefined) updateData.name = body.name;
+    if (body.email !== undefined) {
+      const existingWithEmail = await prisma.user.findUnique({ where: { email: body.email } });
+      if (existingWithEmail && existingWithEmail.id !== id) {
+        return NextResponse.json(
+          { error: "Another user already has this email address" },
+          { status: 400 }
+        );
+      }
+      updateData.email = body.email;
+    }
+    if (body.department !== undefined) updateData.department = body.department || null;
     if (body.isActive !== undefined) updateData.isActive = body.isActive;
     if (body.emailSyncEnabled !== undefined) {
       // Only allow @opticwise.com emails to enable sync
