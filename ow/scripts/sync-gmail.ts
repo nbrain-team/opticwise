@@ -172,7 +172,8 @@ async function syncGmail() {
         const msgId = `cm${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
         await prisma.$executeRawUnsafe(
           `INSERT INTO "GmailMessage" ("id", "gmailMessageId", "threadId", "subject", "snippet", "body", "bodyHtml", "from", "to", "cc", "date", "labels", "attachments", "vectorized", "embedding", "createdAt", "updatedAt")
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14, $15::vector, NOW(), NOW())`,
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14, $15::vector, NOW(), NOW())
+           ON CONFLICT ("gmailMessageId") DO NOTHING`,
           msgId,
           message.id,
           fullMessage.data.threadId || '',

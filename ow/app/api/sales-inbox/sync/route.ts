@@ -61,10 +61,10 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
 
     console.log(`  ✅ Found ${allMessages.length} messages for ${userEmail}`);
 
-    const existingGmailIds = await prisma.gmailMessage.findMany({
-      where: { syncUserId: userId },
-      select: { gmailMessageId: true },
-    });
+    const existingGmailIds = await prisma.$queryRaw<Array<{ gmailMessageId: string }>>`
+      SELECT "gmailMessageId" FROM "GmailMessage"
+      WHERE "gmailMessageId" = ANY(${allMessages.map(m => m.id)}::text[])
+    `;
     const existingSet = new Set(existingGmailIds.map(e => e.gmailMessageId));
 
     const newMessages = allMessages.filter(m => !existingSet.has(m.id));
@@ -203,7 +203,12 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
 
         await prisma.$executeRawUnsafe(
           `INSERT INTO "GmailMessage" ("id", "gmailMessageId", "threadId", "subject", "snippet", "body", "bodyHtml", "from", "to", "cc", "date", "labels", "attachments", "vectorized", "embedding", "personId", "organizationId", "syncUserId", "createdAt", "updatedAt")
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14, $15::vector, $16, $17, $18, NOW(), NOW())`,
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14, $15::vector, $16, $17, $18, NOW(), NOW())
+           ON CONFLICT ("gmailMessageId") DO UPDATE SET
+             "syncUserId" = COALESCE("GmailMessage"."syncUserId", EXCLUDED."syncUserId"),
+             "personId" = COALESCE(EXCLUDED."personId", "GmailMessage"."personId"),
+             "organizationId" = COALESCE(EXCLUDED."organizationId", "GmailMessage"."organizationId"),
+             "updatedAt" = NOW()`,
           crypto.randomUUID().replace(/-/g, '').slice(0, 25),
           message.id,
           fullMessage.data.threadId || '',
