@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
+import bcrypt from "bcryptjs";
 
 // PATCH update user (admin only)
 export async function PATCH(
@@ -31,6 +32,36 @@ export async function PATCH(
         { error: "You cannot deactivate your own account" },
         { status: 400 }
       );
+    }
+
+    // Handle password reset
+    if (body.newPassword) {
+      if (body.newPassword.length < 8) {
+        return NextResponse.json(
+          { error: "Password must be at least 8 characters" },
+          { status: 400 }
+        );
+      }
+
+      const passwordHash = await bcrypt.hash(body.newPassword, 10);
+      const updatedUser = await prisma.user.update({
+        where: { id },
+        data: { passwordHash },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          department: true,
+          isActive: true,
+          emailSyncEnabled: true,
+          lastEmailSync: true,
+          emailSyncStatus: true,
+          createdAt: true,
+        },
+      });
+
+      return NextResponse.json({ user: updatedUser, passwordReset: true });
     }
 
     // Build update data - only include fields that were provided

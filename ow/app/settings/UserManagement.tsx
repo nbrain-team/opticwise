@@ -26,6 +26,10 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
   const [showAddUser, setShowAddUser] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resetPasswordUser, setResetPasswordUser] = useState<User | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -118,6 +122,34 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
       router.refresh();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to trigger sync");
+    }
+  }
+
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!resetPasswordUser) return;
+    setResetLoading(true);
+    setResetError(null);
+
+    try {
+      const res = await fetch(`/api/users/${resetPasswordUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ newPassword }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to reset password");
+      }
+
+      setResetPasswordUser(null);
+      setNewPassword("");
+      alert(`Password updated successfully for ${resetPasswordUser.name || resetPasswordUser.email}`);
+    } catch (err: unknown) {
+      setResetError(err instanceof Error ? err.message : "Failed to reset password");
+    } finally {
+      setResetLoading(false);
     }
   }
 
@@ -282,6 +314,16 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
                   {user.id !== currentUser.id && (
                     <div className="flex items-center justify-end gap-3">
                       <button
+                        onClick={() => {
+                          setResetPasswordUser(user);
+                          setNewPassword("");
+                          setResetError(null);
+                        }}
+                        className="text-[#3B6B8F] hover:text-[#2E5570]"
+                      >
+                        Reset Password
+                      </button>
+                      <button
                         onClick={() => handleToggleActive(user.id, user.isActive)}
                         className="text-[#3B6B8F] hover:text-[#2E5570]"
                       >
@@ -304,6 +346,64 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
           </tbody>
         </table>
       </div>
+
+      {/* Reset Password Modal */}
+      {resetPasswordUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+            <h3 className="text-xl font-semibold text-gray-900 mb-1">Reset Password</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Set a new password for <span className="font-medium">{resetPasswordUser.name || resetPasswordUser.email}</span>
+            </p>
+
+            {resetError && (
+              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {resetError}
+              </div>
+            )}
+
+            <form onSubmit={handleResetPassword} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  New Password <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="password"
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
+                  placeholder="Min. 8 characters"
+                  minLength={8}
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetPasswordUser(null);
+                    setNewPassword("");
+                    setResetError(null);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                  disabled={resetLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={resetLoading}
+                  className="px-4 py-2 bg-[#3B6B8F] text-white rounded-lg hover:bg-[#2E5570] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {resetLoading ? "Updating..." : "Update Password"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Add User Modal */}
       {showAddUser && (
