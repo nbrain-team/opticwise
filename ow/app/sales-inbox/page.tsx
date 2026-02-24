@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -52,24 +52,43 @@ export default function SalesInboxPage() {
   const [generatingAI, setGeneratingAI] = useState(false);
   const [manualReply, setManualReply] = useState('');
   const [creatingDeal, setCreatingDeal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searching, setSearching] = useState(false);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     fetchThreads();
   }, []);
 
-  const fetchThreads = async () => {
+  const fetchThreads = async (query?: string) => {
     try {
-      const response = await fetch('/api/sales-inbox/threads');
+      if (query !== undefined) setSearching(true);
+      const url = query ? `/api/sales-inbox/threads?q=${encodeURIComponent(query)}` : '/api/sales-inbox/threads';
+      const response = await fetch(url);
       const data = await response.json();
       setThreads(data.threads || []);
-      if (data.threads && data.threads.length > 0) {
+      if (data.threads && data.threads.length > 0 && !selectedThread) {
         setSelectedThread(data.threads[0]);
       }
     } catch (error) {
       console.error('Error fetching threads:', error);
     } finally {
       setLoading(false);
+      setSearching(false);
     }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchThreads(value || undefined);
+    }, 300);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    fetchThreads();
   };
 
   const handleSync = async () => {
@@ -218,7 +237,44 @@ export default function SalesInboxPage() {
 
       <div className="flex-1 grid grid-cols-3 overflow-hidden">
         {/* Thread List */}
-        <aside className="border-r overflow-y-auto bg-gray-50">
+        <aside className="border-r overflow-hidden bg-gray-50 flex flex-col">
+          {/* Search Bar */}
+          <div className="p-3 border-b bg-white">
+            <div className="relative">
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                placeholder="Search emails, contacts, companies..."
+                className="w-full pl-9 pr-8 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+              />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <div className="mt-1.5 text-xs text-gray-500">
+                {searching ? 'Searching...' : `${threads.length} result${threads.length !== 1 ? 's' : ''} for "${searchQuery}"`}
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
           {threads.length === 0 ? (
             <div className="p-6 text-center">
               <div className="text-gray-400 mb-2">
@@ -299,6 +355,7 @@ export default function SalesInboxPage() {
               })}
             </ul>
           )}
+          </div>
         </aside>
 
         {/* Message Detail */}
