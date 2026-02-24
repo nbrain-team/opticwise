@@ -137,8 +137,13 @@ async function syncGmailLast30Days() {
         }
         
         // Generate embedding for vectorization
-        const textForEmbedding = `Subject: ${subject}\nFrom: ${from}\nBody: ${body || bodyHtml}`.slice(0, 8000);
-        const embedding = await generateEmbedding(textForEmbedding);
+        let embedding: number[] | null = null;
+        try {
+          const textForEmbedding = `Subject: ${subject}\nFrom: ${from}\nBody: ${body || bodyHtml}`.slice(0, 8000);
+          embedding = await generateEmbedding(textForEmbedding);
+        } catch (embeddingError) {
+          console.error(`   ⚠️ Embedding failed for message ${message.id}, storing without embedding`);
+        }
         
         // Extract attachments metadata
         const attachments: any[] = [];
@@ -188,8 +193,8 @@ async function syncGmailLast30Days() {
             date ? new Date(date) : new Date(),
             JSON.stringify(fullMessage.data.labelIds || []),
             attachments.length > 0 ? JSON.stringify(attachments) : null,
-            true,
-            `[${embedding.join(',')}]`,
+            embedding ? true : false,
+            embedding ? `[${embedding.join(',')}]` : null,
             now,
             now
           ]

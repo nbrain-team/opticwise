@@ -140,8 +140,13 @@ async function syncGmail() {
         }
         
         // Generate embedding for vectorization
-        const textForEmbedding = `Subject: ${subject}\nFrom: ${from}\nBody: ${body || bodyHtml}`.slice(0, 8000);
-        const embedding = await generateEmbedding(textForEmbedding);
+        let embedding: number[] | null = null;
+        try {
+          const textForEmbedding = `Subject: ${subject}\nFrom: ${from}\nBody: ${body || bodyHtml}`.slice(0, 8000);
+          embedding = await generateEmbedding(textForEmbedding);
+        } catch (embeddingError) {
+          console.error(`   ⚠️ Embedding failed for message ${message.id}, storing without embedding`);
+        }
         
         // Extract attachments metadata
         const attachments: any[] = [];
@@ -163,25 +168,27 @@ async function syncGmail() {
           extractAttachments(fullMessage.data.payload);
         }
         
-        // Save to database
-        await prisma.gmailMessage.create({
-          data: {
-            gmailMessageId: message.id,
-            threadId: fullMessage.data.threadId || '',
-            subject,
-            snippet: fullMessage.data.snippet || '',
-            body,
-            bodyHtml,
-            from,
-            to,
-            cc,
-            date: date ? new Date(date) : new Date(),
-            labels: JSON.stringify(fullMessage.data.labelIds || []),
-            attachments: attachments.length > 0 ? attachments : null,
-            vectorized: true,
-            embedding: `[${embedding.join(',')}]`,
-          },
-        });
+        // Save to database using raw SQL to handle vector type
+        const msgId = `cm${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+        await prisma.$executeRawUnsafe(
+          `INSERT INTO "GmailMessage" ("id", "gmailMessageId", "threadId", "subject", "snippet", "body", "bodyHtml", "from", "to", "cc", "date", "labels", "attachments", "vectorized", "embedding", "createdAt", "updatedAt")
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb, $14, $15::vector, NOW(), NOW())`,
+          msgId,
+          message.id,
+          fullMessage.data.threadId || '',
+          subject,
+          fullMessage.data.snippet || '',
+          body,
+          bodyHtml,
+          from,
+          to || null,
+          cc || null,
+          date ? new Date(date) : new Date(),
+          JSON.stringify(fullMessage.data.labelIds || []),
+          attachments.length > 0 ? JSON.stringify(attachments) : null,
+          embedding ? true : false,
+          embedding ? `[${embedding.join(',')}]` : null,
+        );
         
         synced++;
         
