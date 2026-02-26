@@ -124,16 +124,24 @@ export async function POST(request: NextRequest) {
 
     // Extract text
     let content = '';
+    const effectiveMimeType = file.type || (file.name.endsWith('.pdf') ? 'application/pdf' : 
+      file.name.endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+      file.name.endsWith('.txt') ? 'text/plain' : file.name.endsWith('.csv') ? 'text/csv' :
+      file.name.endsWith('.md') ? 'text/markdown' : 'text/plain');
+
     try {
-      content = await extractText(buffer, file.type);
+      content = await extractText(buffer, effectiveMimeType);
     } catch (err) {
       console.error('Text extraction error:', err);
-      content = '';
+      return NextResponse.json(
+        { error: `Text extraction failed: ${err instanceof Error ? err.message : 'Unknown error'}` },
+        { status: 400 }
+      );
     }
 
     if (!content || content.trim().length < 10) {
       return NextResponse.json(
-        { error: 'Could not extract text from this file. The file may be empty or in an unsupported format.' },
+        { error: `Could not extract enough text from this file (got ${content?.length || 0} chars). The file may be empty, scanned (image-only PDF), or in an unsupported format.` },
         { status: 400 }
       );
     }
