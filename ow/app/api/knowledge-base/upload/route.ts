@@ -20,13 +20,15 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 async function extractText(buffer: Buffer, mimeType: string): Promise<string> {
   if (mimeType === 'application/pdf') {
-    const pdfParse = (await import('pdf-parse')).default;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const pdfParse = require('pdf-parse');
     const result = await pdfParse(buffer);
     return result.text;
   }
 
   if (mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-    const mammoth = await import('mammoth');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const mammoth = require('mammoth');
     const result = await mammoth.extractRawText({ buffer });
     return result.value;
   }
