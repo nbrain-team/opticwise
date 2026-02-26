@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface DriveTypeStat {
   mimeType: string;
@@ -70,13 +71,24 @@ export default function KnowledgeBasePage() {
   return (
     <div className="px-6 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          AI Knowledge Base
-        </h1>
-        <p className="text-gray-600">
-          Data sources powering OWnet Agent&apos;s intelligence. Vectorized content enables semantic search and AI-powered insights.
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            AI Knowledge Base
+          </h1>
+          <p className="text-gray-600">
+            Data sources powering OWnet Agent&apos;s intelligence. Vectorized content enables semantic search and AI-powered insights.
+          </p>
+        </div>
+        <Link
+          href="/knowledge-base/upload"
+          className="px-4 py-2 bg-[#3B6B8F] text-white rounded-lg hover:bg-[#2E5570] transition-colors text-sm font-medium flex items-center gap-2"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          Upload Documents
+        </Link>
       </div>
 
       {/* Summary Cards */}

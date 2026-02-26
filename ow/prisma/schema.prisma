@@ -1291,4 +1291,31 @@ model ChatbotMessage {
   @@index([timestamp])
 }
 
+// Knowledge Base - User-uploaded documents
+model KnowledgeDocument {
+  id          String   @id @default(cuid())
+  name        String
+  fileName    String
+  mimeType    String
+  fileSize    Int
+  fileData    String   @db.Text
+  content     String?  @db.Text
+  comment     String?  @db.Text
+  category    String?
+  uploadedBy  String?
+  vectorized  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  chunks      KnowledgeChunk[]
+}
 
+model KnowledgeChunk {
+  id          String   @id @default(cuid())
+  documentId  String
+  chunkIndex  Int
+  chunkText   String   @db.Text
+  wordCount   Int?
+  createdAt   DateTime @default(now())
+  document    KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  @@unique([documentId, chunkIndex])
+}

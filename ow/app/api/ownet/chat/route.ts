@@ -362,6 +362,29 @@ export async function POST(request: NextRequest) {
             }).join('\n\n');
           }
         }
+
+        // Search Knowledge Base (uploaded documents)
+        try {
+          const kbResults = await db.query(
+            `SELECT kc."chunkText", kc."wordCount", kd.name as doc_name, kd.category, kd.comment
+             FROM "KnowledgeChunk" kc
+             JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
+             WHERE kc.embedding IS NOT NULL
+             ORDER BY kc.embedding <=> $1::vector
+             LIMIT 8`,
+            [`[${queryVector.join(',')}]`]
+          );
+
+          if (kbResults.rows.length > 0) {
+            googleContext += '\n\n**Knowledge Base Documents:**\n\n';
+            googleContext += kbResults.rows.map((chunk, idx) => {
+              return `${idx + 1}. **${chunk.doc_name}** (${chunk.category || 'Uncategorized'})
+   ${chunk.comment ? `Note: ${chunk.comment}\n   ` : ''}Content: ${chunk.chunkText.slice(0, 500)}`;
+            }).join('\n\n');
+          }
+        } catch (kbError) {
+          console.log('[OWnet] Knowledge base search error:', kbError);
+        }
       } catch (error) {
         console.log('[OWnet] Google Workspace search error:', error);
       }

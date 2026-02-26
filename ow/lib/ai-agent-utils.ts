@@ -640,7 +640,57 @@ export async function loadContextWithinBudget(
   } catch (error) {
     console.error('Error loading CRM data:', error);
   }
-  
+
+  // Priority 5: Knowledge Base documents (up to 30K tokens)
+  try {
+    if (vectorString) {
+      const kbResult = await db.query(
+        `SELECT kc."chunkText", kd.name as doc_name, kd.category, kd.comment,
+                1 - (kc.embedding <=> $1::vector) as similarity
+         FROM "KnowledgeChunk" kc
+         JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
+         WHERE kc.embedding IS NOT NULL
+         ORDER BY kc.embedding <=> $1::vector
+         LIMIT 10`,
+        [vectorString]
+      );
+
+      let kbTokens = 0;
+      const kbContents: string[] = [];
+      const kbCitations: SourceCitation[] = [];
+
+      for (const chunk of kbResult.rows) {
+        const text = `[Knowledge Base - ${chunk.doc_name}] (${chunk.category || 'Uncategorized'})\n${chunk.comment ? `Note: ${chunk.comment}\n` : ''}${chunk.chunkText.slice(0, 3000)}`;
+        const tokens = estimateTokens(text);
+        if (kbTokens + tokens > 30000 || usedTokens + kbTokens + tokens > availableForContext) break;
+        kbContents.push(text);
+        kbCitations.push({
+          id: chunk.doc_name,
+          type: 'knowledge_base',
+          title: chunk.doc_name,
+          date: '',
+          confidence: chunk.similarity,
+          preview: chunk.chunkText.slice(0, 150),
+          metadata: { category: chunk.category }
+        });
+        kbTokens += tokens;
+      }
+
+      if (kbContents.length > 0) {
+        contexts.push({
+          type: 'knowledge_base',
+          content: kbContents.join('\n\n---\n\n'),
+          metadata: { chunkCount: kbContents.length },
+          tokenCount: kbTokens,
+          sources: kbCitations,
+        });
+        usedTokens += kbTokens;
+      }
+    }
+  } catch (error) {
+    console.error('Error loading knowledge base:', error);
+  }
+
   return {
     contexts,
     totalTokens: usedTokens,
