@@ -24,8 +24,9 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 async function extractText(buffer: Buffer, mimeType: string): Promise<string> {
   if (mimeType === 'application/pdf') {
+    // Use pdf-parse's internal module directly to avoid the test file auto-load bug
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require('pdf-parse');
+    const pdfParse = require('pdf-parse/lib/pdf-parse.js');
     const result = await pdfParse(buffer);
     return result.text;
   }
