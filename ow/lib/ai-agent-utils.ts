@@ -259,7 +259,7 @@ Return ONLY valid JSON (no markdown, no code blocks):
 // ============================================
 
 export interface ContextSource {
-  type: 'transcript' | 'email' | 'calendar' | 'drive' | 'crm' | 'chat_history';
+  type: 'transcript' | 'email' | 'calendar' | 'drive' | 'crm' | 'chat_history' | 'knowledge_base';
   content: string;
   metadata: Record<string, unknown>;
   relevanceScore?: number;
@@ -269,7 +269,7 @@ export interface ContextSource {
 
 export interface SourceCitation {
   id: string;
-  type: 'transcript' | 'email' | 'calendar' | 'drive' | 'crm' | 'chat_history';
+  type: 'transcript' | 'email' | 'calendar' | 'drive' | 'crm' | 'chat_history' | 'knowledge_base';
   title: string;
   date?: string;
   author?: string;
