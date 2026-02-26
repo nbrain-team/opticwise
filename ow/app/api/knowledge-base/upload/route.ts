@@ -3,7 +3,11 @@ import { prisma } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let _openai: OpenAI | null = null;
+function getOpenAI() {
+  if (!_openai) _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  return _openai;
+}
 
 const ALLOWED_TYPES = new Set([
   'application/pdf',
@@ -79,7 +83,7 @@ function chunkText(text: string, chunkSize = 500, overlap = 50): { text: string;
 }
 
 async function generateEmbedding(text: string): Promise<number[]> {
-  const response = await openai.embeddings.create({
+  const response = await getOpenAI().embeddings.create({
     model: 'text-embedding-3-large',
     input: text.slice(0, 8000),
     dimensions: 1024,
