@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 
 // Define all available columns with sortable flag
@@ -85,6 +86,7 @@ interface ContactsTableProps {
 type SortDirection = "asc" | "desc" | null;
 
 export function ContactsTable({ people }: ContactsTableProps) {
+  const router = useRouter();
   const [visibleColumns, setVisibleColumns] = useState<string[]>(DEFAULT_COLUMNS);
   const [pendingColumns, setPendingColumns] = useState<string[]>(DEFAULT_COLUMNS);
   const [showColumnSelector, setShowColumnSelector] = useState(false);
@@ -486,7 +488,15 @@ export function ContactsTable({ people }: ContactsTableProps) {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {sortedPeople.map((person) => (
-                <tr key={person.id} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={person.id}
+                  className="hover:bg-blue-50 transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    const target = e.target as HTMLElement;
+                    if (target.closest('a')) return;
+                    router.push(`/person/${person.id}`);
+                  }}
+                >
                   {ALL_COLUMNS.filter(col => visibleColumns.includes(col.key)).map(col => (
                     <td key={col.key} className="px-4 py-3 whitespace-nowrap">
                       {renderCellValue(person, col.key)}

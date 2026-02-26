@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { getSession } from "@/lib/session";
 import { PersonActions } from "@/app/components/PersonActions";
 import { DetailTabs } from "@/app/components/DetailTabs";
 import { NotesTab } from "@/app/components/NotesTab";
@@ -9,6 +10,9 @@ import { FilesTab } from "@/app/components/FilesTab";
 import { ActivitiesTab } from "@/app/components/ActivitiesTab";
 
 export default async function PersonDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
   const { id } = await params;
   const person = await prisma.person.findUnique({
     where: { id },
@@ -60,9 +64,19 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
 
   const gmailMessages = emailConditions.length > 0
     ? await prisma.gmailMessage.findMany({
-        where: { OR: emailConditions },
+        where: {
+          OR: emailConditions,
+          syncUserId: session.userId,
+        },
         orderBy: { date: "desc" },
         take: 50,
+        select: {
+          id: true, gmailMessageId: true, threadId: true, subject: true,
+          snippet: true, body: true, bodyHtml: true, from: true, to: true,
+          cc: true, bcc: true, date: true, labels: true, attachments: true,
+          vectorized: true, dealId: true, personId: true, organizationId: true,
+          syncUserId: true, createdAt: true, updatedAt: true,
+        },
       })
     : [];
   

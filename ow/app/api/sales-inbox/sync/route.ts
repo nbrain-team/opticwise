@@ -231,7 +231,7 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
 
         if (matchedContact) {
           let emailThread = await prisma.emailThread.findFirst({
-            where: { subject, personId: matchedContact.id },
+            where: { subject, personId: matchedContact.id, syncUserId: userId },
           });
 
           if (!emailThread) {
@@ -240,6 +240,7 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
                 subject: subject || '(No Subject)',
                 personId: matchedContact.id,
                 organizationId: matchedContact.organizationId,
+                syncUserId: userId,
               },
             });
           }

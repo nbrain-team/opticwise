@@ -58,8 +58,9 @@ async function backfill() {
     to: string | null;
     cc: string | null;
     date: Date;
+    syncUserId: string | null;
   }>>`
-    SELECT id, "gmailMessageId", "threadId", subject, snippet, body, "bodyHtml", "from", "to", cc, date
+    SELECT id, "gmailMessageId", "threadId", subject, snippet, body, "bodyHtml", "from", "to", cc, date, "syncUserId"
     FROM "GmailMessage"
     WHERE date >= ${cutoff}
     ORDER BY date ASC
@@ -117,12 +118,22 @@ async function backfill() {
       }
     }
 
-    // Find or create EmailThread
+    // Determine syncUserId from GmailMessage or from the "from" field
+    let threadSyncUserId = msg.syncUserId;
+    if (!threadSyncUserId) {
+      // Try to determine user from the from address
+      const fromLower = msg.from.toLowerCase();
+      if (fromLower.includes('bill')) threadSyncUserId = 'cmi4xt68j00008ot0v4wygbsz';
+      else if (fromLower.includes('drew')) threadSyncUserId = 'cmlzvmjng0000sv1rkcq6wpow';
+    }
+
+    // Find or create EmailThread (scoped to user)
     const subject = msg.subject || '(No Subject)';
     let emailThread = await prisma.emailThread.findFirst({
       where: {
         subject,
         personId: matchedContact.id,
+        syncUserId: threadSyncUserId,
       },
     });
 
@@ -132,6 +143,7 @@ async function backfill() {
           subject,
           personId: matchedContact.id,
           organizationId: matchedContact.organizationId,
+          syncUserId: threadSyncUserId,
         },
       });
       threadsCreated++;

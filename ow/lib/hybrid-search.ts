@@ -44,20 +44,22 @@ export class HybridSearchService {
     top_k?: number;
     min_similarity?: number;
     enable_reranking?: boolean;
+    userId?: string;
   }) {
     const {
       query,
       top_k = 10,
       min_similarity = 0.7,
       enable_reranking = true,
+      userId,
     } = params;
 
-    console.log(`[HybridSearch] Searching for: "${query}"`);
+    console.log(`[HybridSearch] Searching for: "${query}" (userId: ${userId || 'none'})`);
 
     // Execute both search strategies in parallel
     const [vectorResults, keywordResults] = await Promise.all([
-      this.vectorSearch(query, { top_k: Math.ceil(top_k * 1.5), min_similarity }),
-      this.bm25Search(query, { top_k: Math.ceil(top_k * 1.5) }),
+      this.vectorSearch(query, { top_k: Math.ceil(top_k * 1.5), min_similarity, userId }),
+      this.bm25Search(query, { top_k: Math.ceil(top_k * 1.5), userId }),
     ]);
 
     console.log(`[HybridSearch] Vector: ${vectorResults.length}, Keyword: ${keywordResults.length}`);
@@ -89,9 +91,9 @@ export class HybridSearchService {
 
   private async vectorSearch(
     query: string,
-    params: { top_k: number; min_similarity: number }
+    params: { top_k: number; min_similarity: number; userId?: string }
   ): Promise<SearchResult[]> {
-    const { top_k, min_similarity } = params;
+    const { top_k, min_similarity, userId } = params;
     const results: SearchResult[] = [];
 
     try {
@@ -125,16 +127,25 @@ export class HybridSearchService {
         })));
       }
 
-      // Search Gmail messages
-      const emailResults = await this.dbPool.query(
-        `SELECT id, subject, body, "from", "to", date,
-                1 - (embedding <=> $1::vector) as score
-         FROM "GmailMessage"
-         WHERE vectorized = true AND embedding IS NOT NULL
-         ORDER BY embedding <=> $1::vector
-         LIMIT $2`,
-        [embeddingStr, Math.ceil(top_k / 3)]
-      );
+      // Search Gmail messages (filtered by user for privacy)
+      const emailQuery = userId
+        ? `SELECT id, subject, body, "from", "to", date,
+                  1 - (embedding <=> $1::vector) as score
+           FROM "GmailMessage"
+           WHERE vectorized = true AND embedding IS NOT NULL
+             AND "syncUserId" = $3
+           ORDER BY embedding <=> $1::vector
+           LIMIT $2`
+        : `SELECT id, subject, body, "from", "to", date,
+                  1 - (embedding <=> $1::vector) as score
+           FROM "GmailMessage"
+           WHERE vectorized = true AND embedding IS NOT NULL
+           ORDER BY embedding <=> $1::vector
+           LIMIT $2`;
+      const emailParams = userId
+        ? [embeddingStr, Math.ceil(top_k / 3), userId]
+        : [embeddingStr, Math.ceil(top_k / 3)];
+      const emailResults = await this.dbPool.query(emailQuery, emailParams);
 
       results.push(...emailResults.rows.map((e, idx) => ({
         id: e.id,
@@ -186,28 +197,39 @@ export class HybridSearchService {
 
   private async bm25Search(
     query: string,
-    params: { top_k: number }
+    params: { top_k: number; userId?: string }
   ): Promise<SearchResult[]> {
-    const { top_k } = params;
+    const { top_k, userId } = params;
     const results: SearchResult[] = [];
 
     try {
-      // Search Gmail with full-text search
-      const emailResults = await this.dbPool.query(
-        `SELECT id, subject, body, "from", "to", date,
-                ts_rank(to_tsvector('english', 
-                  COALESCE(subject, '') || ' ' || COALESCE(body, '')
-                ), plainto_tsquery('english', $1)) as score
-         FROM "GmailMessage"
-         WHERE to_tsvector('english', 
-           COALESCE(subject, '') || ' ' || COALESCE(body, '')
-         ) @@ plainto_tsquery('english', $1)
-         ORDER BY ts_rank(to_tsvector('english', 
-           COALESCE(subject, '') || ' ' || COALESCE(body, '')
-         ), plainto_tsquery('english', $1)) DESC
-         LIMIT $2`,
-        [query, Math.ceil(top_k / 2)]
-      );
+      // Search Gmail with full-text search (filtered by user for privacy)
+      const bm25EmailQuery = userId
+        ? `SELECT id, subject, body, "from", "to", date,
+                  ts_rank(to_tsvector('english', 
+                    COALESCE(subject, '') || ' ' || COALESCE(body, '')
+                  ), plainto_tsquery('english', $1)) as score
+           FROM "GmailMessage"
+           WHERE to_tsvector('english', 
+             COALESCE(subject, '') || ' ' || COALESCE(body, '')
+           ) @@ plainto_tsquery('english', $1)
+             AND "syncUserId" = $3
+           ORDER BY score DESC
+           LIMIT $2`
+        : `SELECT id, subject, body, "from", "to", date,
+                  ts_rank(to_tsvector('english', 
+                    COALESCE(subject, '') || ' ' || COALESCE(body, '')
+                  ), plainto_tsquery('english', $1)) as score
+           FROM "GmailMessage"
+           WHERE to_tsvector('english', 
+             COALESCE(subject, '') || ' ' || COALESCE(body, '')
+           ) @@ plainto_tsquery('english', $1)
+           ORDER BY score DESC
+           LIMIT $2`;
+      const bm25EmailParams = userId
+        ? [query, Math.ceil(top_k / 2), userId]
+        : [query, Math.ceil(top_k / 2)];
+      const emailResults = await this.dbPool.query(bm25EmailQuery, bm25EmailParams);
 
       results.push(...emailResults.rows.map((e, idx) => ({
         id: e.id,

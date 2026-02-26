@@ -54,9 +54,16 @@ export default function SalesInboxPage() {
   const [creatingDeal, setCreatingDeal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.json())
+      .then(data => {
+        if (data.user?.id) setCurrentUserId(data.user.id);
+      })
+      .catch(() => {});
     fetchThreads();
   }, []);
 
@@ -97,7 +104,7 @@ export default function SalesInboxPage() {
       const response = await fetch('/api/sales-inbox/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ hoursBack: 24 }),
+        body: JSON.stringify({ userId: currentUserId, hoursBack: 4320 }),
       });
       if (response.ok) {
         await fetchThreads();

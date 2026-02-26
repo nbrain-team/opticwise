@@ -472,26 +472,32 @@ export async function loadContextWithinBudget(
     
     // First, search Sales Inbox EmailMessage (customer conversations)
     try {
-      const salesInboxResult = await db.query(
-        `SELECT 
-          em.id,
-          em.body,
-          em.sender,
-          em."sentAt",
-          et.subject,
-          p.name as person_name,
-          o.name as org_name,
-          1 - (em.embedding <=> $1::vector) as similarity
-         FROM "EmailMessage" em
-         JOIN "EmailThread" et ON em."threadId" = et.id
-         LEFT JOIN "Person" p ON et."personId" = p.id
-         LEFT JOIN "Organization" o ON p."organizationId" = o.id
-         WHERE em.vectorized = true AND em.embedding IS NOT NULL
-           AND p.name != 'Bill Douglas'
-         ORDER BY em.embedding <=> $1::vector
-         LIMIT 15`,
-        [vectorString]
-      );
+      const salesInboxQuery = userId
+        ? `SELECT 
+            em.id, em.body, em.sender, em."sentAt",
+            et.subject, p.name as person_name, o.name as org_name,
+            1 - (em.embedding <=> $1::vector) as similarity
+           FROM "EmailMessage" em
+           JOIN "EmailThread" et ON em."threadId" = et.id
+           LEFT JOIN "Person" p ON et."personId" = p.id
+           LEFT JOIN "Organization" o ON p."organizationId" = o.id
+           WHERE em.vectorized = true AND em.embedding IS NOT NULL
+             AND et."syncUserId" = $2
+           ORDER BY em.embedding <=> $1::vector
+           LIMIT 15`
+        : `SELECT 
+            em.id, em.body, em.sender, em."sentAt",
+            et.subject, p.name as person_name, o.name as org_name,
+            1 - (em.embedding <=> $1::vector) as similarity
+           FROM "EmailMessage" em
+           JOIN "EmailThread" et ON em."threadId" = et.id
+           LEFT JOIN "Person" p ON et."personId" = p.id
+           LEFT JOIN "Organization" o ON p."organizationId" = o.id
+           WHERE em.vectorized = true AND em.embedding IS NOT NULL
+           ORDER BY em.embedding <=> $1::vector
+           LIMIT 15`;
+      const salesInboxParams = userId ? [vectorString, userId] : [vectorString];
+      const salesInboxResult = await db.query(salesInboxQuery, salesInboxParams);
       
       for (const email of salesInboxResult.rows) {
         const emailBody = email.body.slice(0, 3000);

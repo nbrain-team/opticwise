@@ -1,17 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { getSession } from '@/lib/session';
 
 /**
  * GET /api/sales-inbox/threads?q=search+term
  * 
- * Fetches email threads for the sales inbox with optional search
+ * Fetches email threads scoped to the logged-in user.
+ * Users can only see threads from their own synced emails.
  */
 export async function GET(request: NextRequest) {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const searchQuery = request.nextUrl.searchParams.get('q')?.trim();
 
-    const where = searchQuery ? {
-      OR: [
+    const baseWhere: Record<string, unknown> = {
+      syncUserId: session.userId,
+    };
+
+    if (searchQuery) {
+      baseWhere.OR = [
         { subject: { contains: searchQuery, mode: 'insensitive' as const } },
         { person: { firstName: { contains: searchQuery, mode: 'insensitive' as const } } },
         { person: { lastName: { contains: searchQuery, mode: 'insensitive' as const } } },
@@ -19,11 +30,11 @@ export async function GET(request: NextRequest) {
         { organization: { name: { contains: searchQuery, mode: 'insensitive' as const } } },
         { messages: { some: { body: { contains: searchQuery, mode: 'insensitive' as const } } } },
         { messages: { some: { sender: { contains: searchQuery, mode: 'insensitive' as const } } } },
-      ],
-    } : undefined;
+      ];
+    }
 
     const threads = await prisma.emailThread.findMany({
-      where,
+      where: baseWhere,
       include: {
         messages: {
           orderBy: { sentAt: 'desc' },
@@ -40,7 +51,6 @@ export async function GET(request: NextRequest) {
       take: 200,
     });
 
-    // Sort by the most recent message sentAt (newest thread on top)
     threads.sort((a, b) => {
       const aLatest = a.messages[0]?.sentAt ? new Date(a.messages[0].sentAt).getTime() : 0;
       const bLatest = b.messages[0]?.sentAt ? new Date(b.messages[0].sentAt).getTime() : 0;
@@ -60,4 +70,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
