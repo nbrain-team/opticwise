@@ -250,19 +250,22 @@ export async function POST(request: NextRequest) {
     const needsCalendar = messageLower.includes('meeting') || messageLower.includes('calendar') || messageLower.includes('schedule') || messageLower.includes('event');
     const needsDrive = messageLower.includes('document') || messageLower.includes('file') || messageLower.includes('drive') || messageLower.includes('proposal');
     
-    if (needsEmail || needsCalendar || needsDrive) {
+    // Generate embedding once for all vector searches (email, drive, knowledge base)
+    let queryVector: number[] | null = null;
+    try {
+      const openaiForSearch = new (await import('openai')).default({ apiKey: process.env.OPENAI_API_KEY });
+      const searchEmbedding = await openaiForSearch.embeddings.create({
+        model: 'text-embedding-3-large',
+        input: message,
+        dimensions: 1024,
+      });
+      queryVector = searchEmbedding.data[0].embedding;
+    } catch (embErr) {
+      console.log('[OWnet] Embedding generation error:', embErr);
+    }
+
+    if (queryVector && (needsEmail || needsCalendar || needsDrive)) {
       try {
-        const openaiForGoogle = new (await import('openai')).default({
-          apiKey: process.env.OPENAI_API_KEY,
-        });
-        
-        const googleEmbedding = await openaiForGoogle.embeddings.create({
-          model: 'text-embedding-3-large',
-          input: message,
-          dimensions: 1024,
-        });
-        
-        const queryVector = googleEmbedding.data[0].embedding;
         
         // Search Gmail if needed
         if (needsEmail) {
@@ -363,33 +366,40 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Search Knowledge Base (uploaded documents)
-        try {
-          const kbResults = await db.query(
-            `SELECT kc."chunkText", kc."wordCount", kd.name as doc_name, kd.category, kd.comment
-             FROM "KnowledgeChunk" kc
-             JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
-             WHERE kc.embedding IS NOT NULL
-             ORDER BY kc.embedding <=> $1::vector
-             LIMIT 8`,
-            [`[${queryVector.join(',')}]`]
-          );
-
-          if (kbResults.rows.length > 0) {
-            googleContext += '\n\n**Knowledge Base Documents:**\n\n';
-            googleContext += kbResults.rows.map((chunk, idx) => {
-              return `${idx + 1}. **${chunk.doc_name}** (${chunk.category || 'Uncategorized'})
-   ${chunk.comment ? `Note: ${chunk.comment}\n   ` : ''}Content: ${chunk.chunkText.slice(0, 500)}`;
-            }).join('\n\n');
-          }
-        } catch (kbError) {
-          console.log('[OWnet] Knowledge base search error:', kbError);
-        }
       } catch (error) {
         console.log('[OWnet] Google Workspace search error:', error);
       }
     }
-    
+
+    // Always search Knowledge Base (uploaded documents) regardless of query keywords
+    if (queryVector) {
+      try {
+        const kbResults = await db.query(
+          `SELECT kc."chunkText", kc."wordCount", kd.name as doc_name, kd.category, kd.comment,
+                  1 - (kc.embedding <=> $1::vector) as similarity
+           FROM "KnowledgeChunk" kc
+           JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
+           WHERE kc.embedding IS NOT NULL
+           ORDER BY kc.embedding <=> $1::vector
+           LIMIT 8`,
+          [`[${queryVector.join(',')}]`]
+        );
+
+      if (kbResults.rows.length > 0) {
+        const relevantKb = kbResults.rows.filter((r: { similarity: number }) => r.similarity > 0.3);
+        if (relevantKb.length > 0) {
+          googleContext += '\n\n**Knowledge Base Documents:**\n\n';
+          googleContext += relevantKb.map((chunk: { doc_name: string; category: string; comment: string; chunkText: string }, idx: number) => {
+            return `${idx + 1}. **${chunk.doc_name}** (${chunk.category || 'Uncategorized'})
+   ${chunk.comment ? `Note: ${chunk.comment}\n   ` : ''}Content: ${chunk.chunkText.slice(0, 500)}`;
+          }).join('\n\n');
+        }
+      }
+      } catch (kbError) {
+        console.log('[OWnet] Knowledge base search error:', kbError);
+      }
+    }
+
     // 3. Query CRM data based on user's question
     let crmContext = '';
     
