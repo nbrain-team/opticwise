@@ -202,7 +202,8 @@ async function callOWnetAgent(message: string, sessionId: string, slackUserId?: 
   error?: string;
 }> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.RENDER_EXTERNAL_URL || 'https://ownet.opticwise.com';
+    const port = process.env.PORT || '3000';
+    const baseUrl = `http://localhost:${port}`;
     const internalKey = process.env.AUTH_SECRET;
     
     console.log(`[Slack] Calling OWnet API at ${baseUrl}/api/ownet/chat`, {
