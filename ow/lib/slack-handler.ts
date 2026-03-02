@@ -71,6 +71,40 @@ async function ensureSlackTables() {
   }
 }
 
+const SLACK_SERVICE_USER_EMAIL = 'slack-bot@opticwise.com';
+let serviceUserId: string | null = null;
+
+/**
+ * Get or create a service user in the User table for Slack sessions.
+ * AgentChatSession requires a User.id foreign key, so all Slack
+ * conversations use this shared service account.
+ */
+async function getServiceUserId(): Promise<string> {
+  if (serviceUserId) return serviceUserId;
+  const db = getPool();
+
+  const existing = await db.query(
+    'SELECT id FROM "User" WHERE email = $1',
+    [SLACK_SERVICE_USER_EMAIL]
+  );
+
+  if (existing.rows.length > 0) {
+    serviceUserId = existing.rows[0].id;
+    return serviceUserId!;
+  }
+
+  const result = await db.query(
+    `INSERT INTO "User" (id, email, name, "passwordHash", role, "isActive", "createdAt", "updatedAt")
+     VALUES (gen_random_uuid()::text, $1, 'OWnet Slack Bot', 'SERVICE_ACCOUNT_NO_LOGIN', 'service', true, NOW(), NOW())
+     RETURNING id`,
+    [SLACK_SERVICE_USER_EMAIL]
+  );
+
+  serviceUserId = result.rows[0].id;
+  console.log('[Slack] Created service user:', serviceUserId);
+  return serviceUserId!;
+}
+
 /**
  * Get or create Slack user in database
  */
@@ -78,7 +112,6 @@ async function getOrCreateSlackUser(slackUserId: string, slackTeamId: string): P
   await ensureSlackTables();
   const db = getPool();
   
-  // Check if user exists
   const existing = await db.query(
     'SELECT id FROM "SlackUser" WHERE "slackUserId" = $1',
     [slackUserId]
@@ -88,11 +121,9 @@ async function getOrCreateSlackUser(slackUserId: string, slackTeamId: string): P
     return existing.rows[0].id;
   }
   
-  // Get user info from Slack
   try {
     const userInfo = await getUserInfo(slackUserId);
     
-    // Create new user
     const result = await db.query(
       `INSERT INTO "SlackUser" (id, "slackUserId", "slackTeamId", "slackUserName", "slackUserEmail")
        VALUES (gen_random_uuid()::text, $1, $2, $3, $4)
@@ -102,9 +133,8 @@ async function getOrCreateSlackUser(slackUserId: string, slackTeamId: string): P
     
     return result.rows[0].id;
   } catch (error) {
-    console.error('Error creating Slack user:', error);
+    console.error('[Slack] Error getting user info, creating without:', error);
     
-    // Fallback: create without user info
     const result = await db.query(
       `INSERT INTO "SlackUser" (id, "slackUserId", "slackTeamId")
        VALUES (gen_random_uuid()::text, $1, $2)
@@ -126,7 +156,6 @@ async function getOrCreateSession(
 ): Promise<string> {
   const db = getPool();
   
-  // If thread exists, try to find existing session
   if (slackThreadTs) {
     const existing = await db.query(
       `SELECT "ownetSessionId" FROM "SlackSession" 
@@ -139,17 +168,18 @@ async function getOrCreateSession(
     }
   }
   
-  // Create new OWnet session
+  // Use the service user for AgentChatSession (requires User table FK)
+  const svcUserId = await getServiceUserId();
+  
   const sessionResult = await db.query(
     `INSERT INTO "AgentChatSession" ("userId", title)
      VALUES ($1, 'Slack Conversation')
      RETURNING id`,
-    [slackUserId]
+    [svcUserId]
   );
   
   const ownetSessionId = sessionResult.rows[0].id;
   
-  // Create or update Slack session mapping
   if (slackThreadTs) {
     await db.query(
       `INSERT INTO "SlackSession" (id, "slackUserId", "slackChannelId", "slackThreadTs", "ownetSessionId")
