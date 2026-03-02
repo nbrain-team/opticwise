@@ -60,7 +60,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
   }
 
   // Fetch emails based on person and organization email addresses
-  type GmailMessage = Awaited<ReturnType<typeof prisma.gmailMessage.findMany>>[number];
+  type GmailMessage = Omit<Awaited<ReturnType<typeof prisma.gmailMessage.findMany>>[number], 'embedding'>;
   let gmailMessages: GmailMessage[] = [];
   
   if (deal.organization?.domain) {
@@ -68,18 +68,15 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     gmailMessages = await prisma.gmailMessage.findMany({
       where: {
         OR: [
-          // Emails from the person
           deal.person?.email ? { from: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
-          // Emails to the person
           deal.person?.email ? { to: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
-          // Emails from organization domain
           deal.organization?.domain ? { from: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
-          // Emails to organization domain
           deal.organization?.domain ? { to: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
-        ].filter(condition => Object.keys(condition).length > 0), // Remove empty conditions
+        ].filter(condition => Object.keys(condition).length > 0),
       },
       orderBy: { date: "desc" },
       take: 50,
+      omit: { embedding: true },
     });
   } else if (deal.person?.email) {
     // If no organization domain, just search by person email
@@ -92,6 +89,7 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       },
       orderBy: { date: "desc" },
       take: 50,
+      omit: { embedding: true },
     });
   }
   

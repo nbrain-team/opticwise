@@ -71,6 +71,7 @@ export default async function OrganizationDetailPage({ params }: { params: Promi
         where: { OR: emailConditions },
         orderBy: { date: "desc" },
         take: 50,
+        omit: { embedding: true },
       })
     : [];
   
