@@ -277,19 +277,40 @@ export async function POST(request: NextRequest) {
         // Search Gmail if needed
         if (needsEmail) {
           try {
-            const emailResults = await db.query(
-              `SELECT id, subject, "from", "to", snippet, date, body
-               FROM "GmailMessage"
-               WHERE vectorized = true AND embedding IS NOT NULL
-                 AND "syncUserId" = $2
-               ORDER BY embedding <=> $1::vector
-               LIMIT 5`,
-              [`[${queryVector.join(',')}]`, currentUserId]
+            // Check if GmailMessage has a vector-type embedding column
+            const colCheck = await db.query(
+              `SELECT 1 FROM information_schema.columns
+               WHERE table_name = 'GmailMessage' AND column_name = 'embedding'
+                 AND udt_name = 'vector' LIMIT 1`
             );
+            
+            let emailResults;
+            if (colCheck.rows.length > 0) {
+              emailResults = await db.query(
+                `SELECT id, subject, "from", "to", snippet, date, body
+                 FROM "GmailMessage"
+                 WHERE vectorized = true AND embedding IS NOT NULL
+                   AND "syncUserId" = $2
+                 ORDER BY embedding <=> $1::vector
+                 LIMIT 5`,
+                [`[${queryVector.join(',')}]`, currentUserId]
+              );
+            } else {
+              const keywords = message.toLowerCase().split(/\s+/).slice(0, 5).join('|');
+              emailResults = await db.query(
+                `SELECT id, subject, "from", "to", snippet, date, body
+                 FROM "GmailMessage"
+                 WHERE (subject ILIKE $1 OR body ILIKE $1 OR snippet ILIKE $1)
+                   AND "syncUserId" = $2
+                 ORDER BY date DESC
+                 LIMIT 5`,
+                [`%${keywords}%`, currentUserId]
+              );
+            }
             
             if (emailResults.rows.length > 0) {
               googleContext += '\n\n**Relevant Emails:**\n\n';
-              googleContext += emailResults.rows.map((email, idx) => {
+              googleContext += emailResults.rows.map((email: { subject: string; from: string; date: string; snippet?: string; body?: string }, idx: number) => {
                 return `${idx + 1}. **${email.subject}**
    - From: ${email.from}
    - Date: ${new Date(email.date).toLocaleDateString()}
@@ -297,41 +318,33 @@ export async function POST(request: NextRequest) {
               }).join('\n\n');
             }
           } catch (error) {
-            // Fallback: Use keyword search if vector extension not available
-            console.log('[OWnet] Vector search unavailable, using keyword fallback for emails:', error);
-            const keywords = message.toLowerCase().split(/\s+/).slice(0, 5).join('|');
-            const emailResults = await db.query(
-              `SELECT id, subject, "from", "to", snippet, date, body
-               FROM "GmailMessage"
-               WHERE (subject ILIKE $1 OR body ILIKE $1 OR snippet ILIKE $1)
-                 AND "syncUserId" = $2
-               ORDER BY date DESC
-               LIMIT 5`,
-              [`%${keywords}%`, currentUserId]
-            );
-            
-            if (emailResults.rows.length > 0) {
-              googleContext += '\n\n**Relevant Emails (keyword search):**\n\n';
-              googleContext += emailResults.rows.map((email, idx) => {
-                return `${idx + 1}. **${email.subject}**
-   - From: ${email.from}
-   - Date: ${new Date(email.date).toLocaleDateString()}
-   - Preview: ${email.snippet || email.body?.slice(0, 200)}`;
-              }).join('\n\n');
-            }
+            console.log('[OWnet] Email search error:', error);
           }
         }
         
         // Search Calendar if needed
         if (needsCalendar) {
-          const calendarResults = await db.query(
-            `SELECT id, summary, description, "startTime", "endTime", organizer, location, attendees
-             FROM "CalendarEvent"
-             WHERE vectorized = true AND embedding IS NOT NULL
-             ORDER BY embedding <=> $1::vector
-             LIMIT 5`,
-            [`[${queryVector.join(',')}]`]
+          const calColCheck = await db.query(
+            `SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'CalendarEvent' AND column_name = 'embedding'
+               AND udt_name = 'vector' LIMIT 1`
           );
+
+          const calendarResults = calColCheck.rows.length > 0
+            ? await db.query(
+                `SELECT id, summary, description, "startTime", "endTime", organizer, location, attendees
+                 FROM "CalendarEvent"
+                 WHERE vectorized = true AND embedding IS NOT NULL
+                 ORDER BY embedding <=> $1::vector
+                 LIMIT 5`,
+                [`[${queryVector.join(',')}]`]
+              )
+            : await db.query(
+                `SELECT id, summary, description, "startTime", "endTime", organizer, location, attendees
+                 FROM "CalendarEvent"
+                 ORDER BY "startTime" DESC
+                 LIMIT 5`
+              );
           
           if (calendarResults.rows.length > 0) {
             googleContext += '\n\n**Relevant Calendar Events:**\n\n';
@@ -351,14 +364,27 @@ export async function POST(request: NextRequest) {
         
         // Search Drive if needed
         if (needsDrive) {
-          const driveResults = await db.query(
-            `SELECT id, name, "mimeType", description, content, "webViewLink", "modifiedTime"
-             FROM "DriveFile"
-             WHERE vectorized = true AND embedding IS NOT NULL
-             ORDER BY embedding <=> $1::vector
-             LIMIT 5`,
-            [`[${queryVector.join(',')}]`]
+          const driveColCheck = await db.query(
+            `SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'DriveFile' AND column_name = 'embedding'
+               AND udt_name = 'vector' LIMIT 1`
           );
+
+          const driveResults = driveColCheck.rows.length > 0
+            ? await db.query(
+                `SELECT id, name, "mimeType", description, content, "webViewLink", "modifiedTime"
+                 FROM "DriveFile"
+                 WHERE vectorized = true AND embedding IS NOT NULL
+                 ORDER BY embedding <=> $1::vector
+                 LIMIT 5`,
+                [`[${queryVector.join(',')}]`]
+              )
+            : await db.query(
+                `SELECT id, name, "mimeType", description, content, "webViewLink", "modifiedTime"
+                 FROM "DriveFile"
+                 ORDER BY "modifiedTime" DESC NULLS LAST
+                 LIMIT 5`
+              );
           
           if (driveResults.rows.length > 0) {
             googleContext += '\n\n**Relevant Drive Files:**\n\n';
@@ -381,27 +407,45 @@ export async function POST(request: NextRequest) {
     // Always search Knowledge Base (uploaded documents) regardless of query keywords
     if (queryVector) {
       try {
-        const kbResults = await db.query(
-          `SELECT kc."chunkText", kc."wordCount", kd.name as doc_name, kd.category, kd.comment,
-                  1 - (kc.embedding <=> $1::vector) as similarity
-           FROM "KnowledgeChunk" kc
-           JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
-           WHERE kc.embedding IS NOT NULL
-           ORDER BY kc.embedding <=> $1::vector
-           LIMIT 8`,
-          [`[${queryVector.join(',')}]`]
+        const kbColCheck = await db.query(
+          `SELECT 1 FROM information_schema.columns
+           WHERE table_name = 'KnowledgeChunk' AND column_name = 'embedding'
+             AND udt_name = 'vector' LIMIT 1`
         );
 
-      if (kbResults.rows.length > 0) {
-        const relevantKb = kbResults.rows.filter((r: { similarity: number }) => r.similarity > 0.3);
-        if (relevantKb.length > 0) {
-          googleContext += '\n\n**Knowledge Base Documents:**\n\n';
-          googleContext += relevantKb.map((chunk: { doc_name: string; category: string; comment: string; chunkText: string }, idx: number) => {
-            return `${idx + 1}. **${chunk.doc_name}** (${chunk.category || 'Uncategorized'})
-   ${chunk.comment ? `Note: ${chunk.comment}\n   ` : ''}Content: ${chunk.chunkText.slice(0, 500)}`;
-          }).join('\n\n');
+        let kbResults;
+        if (kbColCheck.rows.length > 0) {
+          kbResults = await db.query(
+            `SELECT kc."chunkText", kc."wordCount", kd.name as doc_name, kd.category, kd.comment,
+                    1 - (kc.embedding <=> $1::vector) as similarity
+             FROM "KnowledgeChunk" kc
+             JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
+             WHERE kc.embedding IS NOT NULL
+             ORDER BY kc.embedding <=> $1::vector
+             LIMIT 8`,
+            [`[${queryVector.join(',')}]`]
+          );
+        } else {
+          kbResults = await db.query(
+            `SELECT kc."chunkText", kc."wordCount", kd.name as doc_name, kd.category, kd.comment,
+                    0.5 as similarity
+             FROM "KnowledgeChunk" kc
+             JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
+             ORDER BY kd."createdAt" DESC
+             LIMIT 8`
+          );
         }
-      }
+
+        if (kbResults.rows.length > 0) {
+          const relevantKb = kbResults.rows.filter((r: { similarity: number }) => r.similarity > 0.3);
+          if (relevantKb.length > 0) {
+            googleContext += '\n\n**Knowledge Base Documents:**\n\n';
+            googleContext += relevantKb.map((chunk: { doc_name: string; category: string; comment: string; chunkText: string }, idx: number) => {
+              return `${idx + 1}. **${chunk.doc_name}** (${chunk.category || 'Uncategorized'})
+   ${chunk.comment ? `Note: ${chunk.comment}\n   ` : ''}Content: ${chunk.chunkText.slice(0, 500)}`;
+            }).join('\n\n');
+          }
+        }
       } catch (kbError) {
         console.log('[OWnet] Knowledge base search error:', kbError);
       }

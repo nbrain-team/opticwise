@@ -472,32 +472,71 @@ export async function loadContextWithinBudget(
     
     // First, search Sales Inbox EmailMessage (customer conversations)
     try {
-      const salesInboxQuery = userId
-        ? `SELECT 
-            em.id, em.body, em.sender, em."sentAt",
-            et.subject, p.name as person_name, o.name as org_name,
-            1 - (em.embedding <=> $1::vector) as similarity
-           FROM "EmailMessage" em
-           JOIN "EmailThread" et ON em."threadId" = et.id
-           LEFT JOIN "Person" p ON et."personId" = p.id
-           LEFT JOIN "Organization" o ON p."organizationId" = o.id
-           WHERE em.vectorized = true AND em.embedding IS NOT NULL
-             AND et."syncUserId" = $2
-           ORDER BY em.embedding <=> $1::vector
-           LIMIT 15`
-        : `SELECT 
-            em.id, em.body, em.sender, em."sentAt",
-            et.subject, p.name as person_name, o.name as org_name,
-            1 - (em.embedding <=> $1::vector) as similarity
-           FROM "EmailMessage" em
-           JOIN "EmailThread" et ON em."threadId" = et.id
-           LEFT JOIN "Person" p ON et."personId" = p.id
-           LEFT JOIN "Organization" o ON p."organizationId" = o.id
-           WHERE em.vectorized = true AND em.embedding IS NOT NULL
-           ORDER BY em.embedding <=> $1::vector
-           LIMIT 15`;
-      const salesInboxParams = userId ? [vectorString, userId] : [vectorString];
-      const salesInboxResult = await db.query(salesInboxQuery, salesInboxParams);
+      // Check if EmailMessage has the embedding column before attempting vector search
+      const emColCheck = await db.query(
+        `SELECT 1 FROM information_schema.columns
+         WHERE table_name = 'EmailMessage' AND column_name = 'embedding'
+           AND udt_name = 'vector'
+         LIMIT 1`
+      );
+      const hasVectorCol = emColCheck.rows.length > 0;
+      
+      let salesInboxResult;
+      if (hasVectorCol) {
+        const salesInboxQuery = userId
+          ? `SELECT 
+              em.id, em.body, em.sender, em."sentAt",
+              et.subject, p.name as person_name, o.name as org_name,
+              1 - (em.embedding <=> $1::vector) as similarity
+             FROM "EmailMessage" em
+             JOIN "EmailThread" et ON em."threadId" = et.id
+             LEFT JOIN "Person" p ON et."personId" = p.id
+             LEFT JOIN "Organization" o ON p."organizationId" = o.id
+             WHERE em.vectorized = true AND em.embedding IS NOT NULL
+               AND et."syncUserId" = $2
+             ORDER BY em.embedding <=> $1::vector
+             LIMIT 15`
+          : `SELECT 
+              em.id, em.body, em.sender, em."sentAt",
+              et.subject, p.name as person_name, o.name as org_name,
+              1 - (em.embedding <=> $1::vector) as similarity
+             FROM "EmailMessage" em
+             JOIN "EmailThread" et ON em."threadId" = et.id
+             LEFT JOIN "Person" p ON et."personId" = p.id
+             LEFT JOIN "Organization" o ON p."organizationId" = o.id
+             WHERE em.vectorized = true AND em.embedding IS NOT NULL
+             ORDER BY em.embedding <=> $1::vector
+             LIMIT 15`;
+        const salesInboxParams = userId ? [vectorString, userId] : [vectorString];
+        salesInboxResult = await db.query(salesInboxQuery, salesInboxParams);
+      } else {
+        // Fallback: keyword search when vector column doesn't exist
+        const keywords = query.toLowerCase().split(/\s+/).slice(0, 5).join('|');
+        const fallbackQuery = userId
+          ? `SELECT em.id, em.body, em.sender, em."sentAt",
+                    et.subject, p.name as person_name, o.name as org_name,
+                    0.5 as similarity
+             FROM "EmailMessage" em
+             JOIN "EmailThread" et ON em."threadId" = et.id
+             LEFT JOIN "Person" p ON et."personId" = p.id
+             LEFT JOIN "Organization" o ON p."organizationId" = o.id
+             WHERE (em.body ILIKE $1 OR et.subject ILIKE $1)
+               AND et."syncUserId" = $2
+             ORDER BY em."sentAt" DESC
+             LIMIT 15`
+          : `SELECT em.id, em.body, em.sender, em."sentAt",
+                    et.subject, p.name as person_name, o.name as org_name,
+                    0.5 as similarity
+             FROM "EmailMessage" em
+             JOIN "EmailThread" et ON em."threadId" = et.id
+             LEFT JOIN "Person" p ON et."personId" = p.id
+             LEFT JOIN "Organization" o ON p."organizationId" = o.id
+             WHERE (em.body ILIKE $1 OR et.subject ILIKE $1)
+             ORDER BY em."sentAt" DESC
+             LIMIT 15`;
+        const fallbackParams = userId ? [`%${keywords}%`, userId] : [`%${keywords}%`];
+        salesInboxResult = await db.query(fallbackQuery, fallbackParams);
+      }
       
       for (const email of salesInboxResult.rows) {
         const emailBody = email.body.slice(0, 3000);
@@ -531,25 +570,48 @@ export async function loadContextWithinBudget(
     // Then add GmailMessage emails if we have token budget left
     // PRIVACY: Only return emails belonging to the current user
     if (emailTokens < 30000 && userId) {
-      const gmailResult = await db.query(
-        `SELECT id, subject, "from", "to", snippet, body, date,
-         1 - (embedding <=> $1::vector) as similarity
-         FROM "GmailMessage"
-         WHERE vectorized = true AND embedding IS NOT NULL
-           AND "syncUserId" = $2
-           AND "from" NOT ILIKE '%noreply%'
-           AND "from" NOT ILIKE '%no-reply%'
-           AND "from" NOT ILIKE '%@ingram%'
-           AND "from" NOT ILIKE '%@fathom%'
-           AND "from" NOT ILIKE '%invoic%'
-           AND "from" NOT ILIKE '%receipt%'
-           AND subject NOT ILIKE '%invoice%'
-           AND subject NOT ILIKE '%receipt%'
-           AND subject NOT ILIKE '%build failed%'
-         ORDER BY embedding <=> $1::vector
-         LIMIT 10`,
-        [vectorString, userId]
+      // Check if GmailMessage.embedding is vector type (not text)
+      const gmColCheck = await db.query(
+        `SELECT 1 FROM information_schema.columns
+         WHERE table_name = 'GmailMessage' AND column_name = 'embedding'
+           AND udt_name = 'vector'
+         LIMIT 1`
       );
+      const gmHasVector = gmColCheck.rows.length > 0;
+
+      const gmailResult = gmHasVector
+        ? await db.query(
+            `SELECT id, subject, "from", "to", snippet, body, date,
+             1 - (embedding <=> $1::vector) as similarity
+             FROM "GmailMessage"
+             WHERE vectorized = true AND embedding IS NOT NULL
+               AND "syncUserId" = $2
+               AND "from" NOT ILIKE '%noreply%'
+               AND "from" NOT ILIKE '%no-reply%'
+               AND "from" NOT ILIKE '%@ingram%'
+               AND "from" NOT ILIKE '%@fathom%'
+               AND "from" NOT ILIKE '%invoic%'
+               AND "from" NOT ILIKE '%receipt%'
+               AND subject NOT ILIKE '%invoice%'
+               AND subject NOT ILIKE '%receipt%'
+               AND subject NOT ILIKE '%build failed%'
+             ORDER BY embedding <=> $1::vector
+             LIMIT 10`,
+            [vectorString, userId]
+          )
+        : await db.query(
+            `SELECT id, subject, "from", "to", snippet, body, date,
+             0.5 as similarity
+             FROM "GmailMessage"
+             WHERE "syncUserId" = $1
+               AND "from" NOT ILIKE '%noreply%'
+               AND "from" NOT ILIKE '%no-reply%'
+               AND subject NOT ILIKE '%invoice%'
+               AND subject NOT ILIKE '%receipt%'
+             ORDER BY date DESC
+             LIMIT 10`,
+            [userId]
+          );
       
       for (const email of gmailResult.rows) {
         const emailBody = email.body ? email.body.slice(0, 3000) : email.snippet || '';

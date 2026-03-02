@@ -13,7 +13,7 @@ services:
       - key: AUTH_SECRET
         generateValue: true
       - key: NEXT_PUBLIC_BASE_URL
-        value: https://opticwise-frontend.onrender.com
+        value: https://ownet.opticwise.com
       - key: NODE_ENV
         value: production
       - key: PORT
@@ -94,7 +94,7 @@ services:
     schedule: "*/15 * * * *"
     buildCommand: echo "no build needed"
     startCommand: |
-      curl -s -X GET "https://opticwise-frontend.onrender.com/api/sales-inbox/sync?secret=$CRON_SECRET" \
+      curl -s -X GET "https://ownet.opticwise.com/api/sales-inbox/sync?secret=$CRON_SECRET" \
         -H "Content-Type: application/json" || echo "Sync request failed"
     envVars:
       - key: CRON_SECRET

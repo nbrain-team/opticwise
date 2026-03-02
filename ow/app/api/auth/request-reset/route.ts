@@ -60,7 +60,9 @@ export async function POST(req: NextRequest) {
     });
 
     // Generate reset URL
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+      || process.env.RENDER_EXTERNAL_URL
+      || 'https://ownet.opticwise.com';
     const resetUrl = `${baseUrl}/reset-password/${token}`;
 
     // Send reset email
