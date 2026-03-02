@@ -171,6 +171,10 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
         try {
           const textForEmbedding = `Subject: ${subject}\nFrom: ${from}\nBody: ${body || bodyHtml}`.slice(0, 8000);
           embedding = await generateEmbedding(textForEmbedding);
+          if (embedding && embedding.length !== 1024) {
+            console.warn(`  ⚠️ Unexpected embedding dimensions: ${embedding.length} (expected 1024), discarding`);
+            embedding = null;
+          }
         } catch (embeddingError) {
           console.error(`  ⚠️ Embedding failed for message ${message.id}, storing without embedding`);
         }

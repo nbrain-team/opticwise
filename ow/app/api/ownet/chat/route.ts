@@ -110,7 +110,18 @@ export async function POST(request: NextRequest) {
       let cleanedResponse = enforceBrandVoice(cachedResponse.response);
       cleanedResponse = injectReframingLineIfNeeded(cleanedResponse);
       
-      // Still save the user message
+      // Ensure session exists before saving (prevents FK violation)
+      const cacheSessionCheck = await db.query(
+        'SELECT id FROM "AgentChatSession" WHERE id = $1', [sessionId]
+      );
+      if (cacheSessionCheck.rows.length === 0) {
+        await db.query(
+          `INSERT INTO "AgentChatSession" (id, "userId", title, "createdAt", "updatedAt")
+           VALUES ($1, $2, 'New Chat', NOW(), NOW()) ON CONFLICT (id) DO NOTHING`,
+          [sessionId, currentUserId]
+        );
+      }
+
       await db.query(
         'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3)',
         [sessionId, 'user', message]
@@ -744,7 +755,20 @@ ${customerQuestionsGuidance}`;
             fullResponse += sourceCitations;
           }
           
-          // Save messages to database
+          // Ensure session exists before saving messages (prevents FK violation)
+          const sessionCheck = await db.query(
+            'SELECT id FROM "AgentChatSession" WHERE id = $1',
+            [sessionId]
+          );
+          if (sessionCheck.rows.length === 0) {
+            await db.query(
+              `INSERT INTO "AgentChatSession" (id, "userId", title, "createdAt", "updatedAt")
+               VALUES ($1, $2, 'New Chat', NOW(), NOW())
+               ON CONFLICT (id) DO NOTHING`,
+              [sessionId, currentUserId]
+            );
+          }
+
           await db.query(
             'INSERT INTO "AgentChatMessage" ("sessionId", role, content) VALUES ($1, $2, $3)',
             [sessionId, 'user', message]
