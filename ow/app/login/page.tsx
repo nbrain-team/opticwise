@@ -32,8 +32,7 @@ function LoginForm() {
         const data = await res.json();
         throw new Error(data.error || "Login failed");
       }
-      router.push(next);
-      router.refresh();
+      window.location.href = next;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
