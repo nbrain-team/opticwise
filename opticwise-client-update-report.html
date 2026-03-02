@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpticWise Platform Update | Feb 16 - Mar 2, 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: #1a1a2e;
+    background: #f5f6fa;
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+  .report-header {
+    background: linear-gradient(135deg, #0f1b3d 0%, #1a2f5a 100%);
+    color: #fff;
+    padding: 48px 40px;
+    border-radius: 12px;
+    margin-bottom: 40px;
+  }
+  .report-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .report-header .subtitle {
+    font-size: 16px;
+    color: #a0b4d6;
+    font-weight: 400;
+  }
+  .report-header .date-range {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #7a9acc;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding-top: 16px;
+  }
+
+  .summary-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .summary-item {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #e2e6ef;
+  }
+  .summary-item .number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #0f1b3d;
+    display: block;
+  }
+  .summary-item .label {
+    font-size: 13px;
+    color: #5a6478;
+    margin-top: 4px;
+    display: block;
+  }
+
+  .module {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e2e6ef;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .module-header {
+    padding: 24px 28px 20px;
+    border-bottom: 1px solid #eef0f5;
+  }
+  .module-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f1b3d;
+    margin-bottom: 4px;
+  }
+  .module-header .module-desc {
+    font-size: 14px;
+    color: #5a6478;
+  }
+  .module-body {
+    padding: 20px 28px 28px;
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a2f5a;
+    margin: 20px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #eef0f5;
+  }
+  .section-title:first-child {
+    margin-top: 0;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  ul li {
+    padding: 6px 0 6px 18px;
+    position: relative;
+    font-size: 14px;
+    color: #2d3748;
+  }
+  ul li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 13px;
+    width: 6px;
+    height: 6px;
+    background: #3b5998;
+    border-radius: 50%;
+  }
+  ul li strong {
+    color: #0f1b3d;
+  }
+
+  .highlight-box {
+    background: #f0f4fb;
+    border-left: 3px solid #3b5998;
+    padding: 14px 18px;
+    margin: 14px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 14px;
+    color: #2d3748;
+  }
+
+  .status-tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .status-complete { background: #e6f4ea; color: #1a7f37; }
+  .status-live { background: #dbeafe; color: #1e40af; }
+  .status-ready { background: #fef3c7; color: #92400e; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  table th {
+    background: #f5f6fa;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    color: #1a2f5a;
+    border-bottom: 2px solid #e2e6ef;
+  }
+  table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #eef0f5;
+    color: #2d3748;
+  }
+  table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 40px;
+    padding: 20px;
+    font-size: 13px;
+    color: #8896a6;
+  }
+
+  @media (max-width: 700px) {
+    .summary-bar { grid-template-columns: repeat(2, 1fr); }
+    .report-header { padding: 32px 24px; }
+    .report-header h1 { font-size: 22px; }
+    .module-header, .module-body { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="report-header">
+    <h1>OpticWise Platform Update</h1>
+    <div class="subtitle">Development Progress Report</div>
+    <div class="date-range">Reporting Period: February 16 - March 2, 2026</div>
+  </div>
+
+  <div class="summary-bar">
+    <div class="summary-item">
+      <span class="number">646</span>
+      <span class="label">CRM Contacts (Clean)</span>
+    </div>
+    <div class="summary-item">
+      <span class="number">319</span>
+      <span class="label">Companies Linked</span>
+    </div>
+    <div class="summary-item">
+      <span class="number">17</span>
+      <span class="label">Website Pages</span>
+    </div>
+    <div class="summary-item">
+      <span class="number">107</span>
+      <span class="label">Blog Posts Imported</span>
+    </div>
+  </div>
+
+  <!-- MODULE 1: CRM -->
+  <div class="module">
+    <div class="module-header">
+      <h2>1. CRM: Contacts and Companies Rebuild <span class="status-tag status-complete">Complete</span></h2>
+      <div class="module-desc">Full replacement of legacy Pipedrive data with a clean, email-derived contact database</div>
+    </div>
+    <div class="module-body">
+
+      <div class="section-title">The Problem</div>
+      <ul>
+        <li>The CRM was populated with Pipedrive data that contained many entries that were not real business contacts</li>
+        <li>Contacts were not properly linked to companies or deals</li>
+        <li>No reliable way to distinguish actual business relationships from one-off email interactions</li>
+      </ul>
+
+      <div class="section-title">What We Built</div>
+      <ul>
+        <li><strong>Email-based contact extraction engine</strong> -- scans all sent email history and identifies real contacts based on outbound engagement, not just replies</li>
+        <li><strong>Tiered qualification logic</strong> -- contacts are scored by initiation frequency, thread depth, and recency to separate active relationships from noise</li>
+        <li><strong>Signature parsing</strong> -- automatically extracts name, title, company, phone, and other profile data from email signatures</li>
+        <li><strong>Multi-user extraction</strong> -- system supports scanning any user's email, not just one account</li>
+        <li><strong>Full CRM refresh pipeline</strong> -- single command to clean, extract, deduplicate, and replace the entire contact database</li>
+      </ul>
+
+      <div class="section-title">The Numbers: Before and After</div>
+      <table>
+        <tr><th>Metric</th><th>Before (Pipedrive Import)</th><th>After (Email-Derived)</th></tr>
+        <tr><td>Total Contacts</td><td>11,568 (many junk/fake)</td><td><strong>646</strong> (100% verified)</td></tr>
+        <tr><td>Companies Linked to Contacts</td><td>Unknown</td><td><strong>319</strong></td></tr>
+        <tr><td>Total Organizations in DB</td><td>4,979</td><td><strong>4,979+</strong> (preserved)</td></tr>
+        <tr><td>Data Quality</td><td>Poor -- many fake/duplicate entries</td><td><strong>Excellent</strong> -- all email-validated</td></tr>
+        <tr><td>Contacts with Email</td><td>~74%</td><td><strong>100%</strong> (646/646)</td></tr>
+        <tr><td>Contacts with Name</td><td>Mixed</td><td><strong>100%</strong> (646/646)</td></tr>
+      </table>
+
+      <div class="section-title">Contact Quality Breakdown (646 Contacts)</div>
+      <table>
+        <tr><th>Engagement Tier</th><th>Criteria</th><th>Count</th></tr>
+        <tr><td>VIP</td><td>10+ email exchanges</td><td>~95 contacts</td></tr>
+        <tr><td>Active</td><td>5-9 email exchanges</td><td>~79 contacts</td></tr>
+        <tr><td>Regular</td><td>2-4 email exchanges</td><td>~284 contacts</td></tr>
+        <tr><td>Single Contact</td><td>1 email exchange</td><td>~188 contacts</td></tr>
+      </table>
+      <div class="highlight-box">
+        The extraction scanned 1,152 unique email recipients from Bill's complete sent history (~13 months). 646 contacts with valid name and email data were imported. 506 entries were automatically filtered out (no name data, spam, auto-replies, cold outreach with no response). The original 11,568 Pipedrive contacts were backed up before replacement.
+      </div>
+
+      <div class="section-title">Contact-to-Company Mapping</div>
+      <ul>
+        <li><strong>319 companies</strong> automatically created and linked to contacts via email domain matching and signature data</li>
+        <li><strong>Deal-to-organization linking</strong> -- all deals are now connected to their parent company, not just the individual contact</li>
+        <li><strong>Multi-contact deals</strong> -- deals can have multiple contacts assigned with roles (champion, decision maker, technical evaluator, influencer)</li>
+        <li>Activity counters on both contacts and organizations update automatically as emails sync</li>
+      </ul>
+
+      <div class="section-title">CRM Data Model (Current State)</div>
+      <table>
+        <tr><th>Entity</th><th>Key Relationships</th><th>Status</th></tr>
+        <tr><td>Person (Contact)</td><td>Linked to Organization, Deals, Email Threads, Activities</td><td>Live</td></tr>
+        <tr><td>Organization</td><td>Has People, Deals, Email Threads, Activities</td><td>Live</td></tr>
+        <tr><td>Deal</td><td>Linked to Pipeline/Stage, Organization, Owner, multiple Contacts via DealContact</td><td>Live</td></tr>
+        <tr><td>DealContact (Junction)</td><td>Many-to-many between Deals and People with role assignment</td><td>Live</td></tr>
+        <tr><td>Activity</td><td>Linked to Person, Organization, Deal</td><td>Live</td></tr>
+      </table>
+
+      <div class="section-title">CRM Dashboard</div>
+      <ul>
+        <li>New dashboard page showing pipeline overview, deal counts by stage, and recent activity metrics</li>
+        <li>Email-to-activity auto-linking: inbound and outbound emails are automatically logged as activities on the relevant contact and deal records</li>
+        <li>Real-time activity counters on every contact, deal, and organization</li>
+      </ul>
+
+      <div class="section-title">Operational Scripts Delivered</div>
+      <table>
+        <tr><th>Script</th><th>Purpose</th></tr>
+        <tr><td>extract-all-users-contacts</td><td>Scan any user's sent emails and build contact profiles</td></tr>
+        <tr><td>full-crm-refresh</td><td>End-to-end pipeline: extract, clean, deduplicate, replace CRM data</td></tr>
+        <tr><td>link-deals-to-orgs</td><td>Backfill deal-to-organization relationships</td></tr>
+        <tr><td>merge-contacts-to-crm</td><td>Import extracted contacts into the live CRM</td></tr>
+        <tr><td>clean-email-list</td><td>Deduplicate and normalize email addresses</td></tr>
+        <tr><td>fix-apollo-names</td><td>Correct name formatting from Apollo-sourced data</td></tr>
+        <tr><td>relink-emails-to-contacts</td><td>Re-associate email threads with correct contact records</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODULE 2: Admin & User Management -->
+  <div class="module">
+    <div class="module-header">
+      <h2>2. Admin Controls and User Self-Sync <span class="status-tag status-live">Live</span></h2>
+      <div class="module-desc">Team member management, email sync configuration, and per-user privacy enforcement</div>
+    </div>
+    <div class="module-body">
+
+      <div class="section-title">Admin Panel (Settings Page)</div>
+      <ul>
+        <li><strong>Create and manage team users</strong> -- admins can add new users with name, email, department, and role</li>
+        <li><strong>Edit user profiles</strong> -- update name, email address, and department for any team member</li>
+        <li><strong>Password reset</strong> -- admin can reset passwords for team members directly</li>
+        <li><strong>Department assignment</strong> -- users can be tagged by department (finance, marketing, ops) for future permission controls</li>
+      </ul>
+
+      <div class="section-title">Email Sync: Self-Service Activation</div>
+      <ul>
+        <li>Each user has an <strong>Email Sync Enabled</strong> toggle that can be activated per user</li>
+        <li>Once enabled, that user's Gmail is synced automatically via a <strong>cron job running every 15 minutes</strong> on Render</li>
+        <li>Users see only their own email threads -- strict per-user privacy isolation enforced at the database query level</li>
+        <li>Sync status is tracked per user: last sync time, sync status (ok / error / syncing)</li>
+        <li>Google service account credentials are configured on Render so new users can be onboarded without additional credential setup</li>
+      </ul>
+
+      <div class="section-title">Privacy Enforcement</div>
+      <div class="highlight-box">
+        Per-user email privacy was implemented across the entire platform. Every query that touches email threads, contacts, or AI search results filters by the logged-in user. Users cannot see each other's email data, contacts extracted from their emails, or AI agent results sourced from another user's messages.
+      </div>
+
+      <div class="section-title">Authentication and Login Fixes (Mar 2)</div>
+      <ul>
+        <li><strong>Forgot password fixed</strong> -- password reset emails now link to the correct domain (ownet.opticwise.com) so users can reset their own passwords</li>
+        <li><strong>Login redirect fixed</strong> -- resolved an issue where users would stay stuck on the login page after entering correct credentials</li>
+      </ul>
+
+      <div class="section-title">Sales Inbox Improvements</div>
+      <ul>
+        <li><strong>Search bar</strong> added to Sales Inbox for real-time thread filtering</li>
+        <li>Default sort changed to <strong>newest received first</strong></li>
+        <li><strong>Backfill script</strong> built for recovering any missed emails or filling gaps in sync history</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MODULE 3: Website -->
+  <div class="module">
+    <div class="module-header">
+      <h2>3. New Website, Ghost CMS, and Blog Migration <span class="status-tag status-complete">Complete</span></h2>
+      <div class="module-desc">Full website rebuild from client content, Ghost CMS deployment, and 107 blog posts imported</div>
+    </div>
+    <div class="module-body">
+
+      <div class="section-title">Website Rebuild (website-v3)</div>
+      <ul>
+        <li>Reviewed client feedback and content proof-build folder with all desired pages and structure</li>
+        <li>Built <strong>website-v3</strong> incorporating the client's exact content with professional visual design</li>
+        <li>Created <strong>17 fully designed pages</strong> including homepage, all service pages, insights, FAQ, and a Schedule Review form page</li>
+        <li>Served from OWnet for client preview and feedback</li>
+      </ul>
+
+      <div class="section-title">Pages Built</div>
+      <table>
+        <tr><th>Page</th><th>Type</th></tr>
+        <tr><td>Homepage</td><td>Main landing</td></tr>
+        <tr><td>PPP Audit</td><td>Service page (design example with all content modules)</td></tr>
+        <tr><td>AI-Ready Commercial Real Estate</td><td>Service page</td></tr>
+        <tr><td>Digital Infrastructure NOI - AI / Playbook / Strategy</td><td>3 service pages</td></tr>
+        <tr><td>CRE AI Readiness</td><td>Service page</td></tr>
+        <tr><td>5S Wireless Connectivity</td><td>Service page</td></tr>
+        <tr><td>BOT (Building of Things)</td><td>Service page</td></tr>
+        <tr><td>Control CRE Digital Visibility</td><td>Service page</td></tr>
+        <tr><td>Own vs Lease CRE Building Data</td><td>Service page</td></tr>
+        <tr><td>How We Operate Digital Infrastructure</td><td>Service page</td></tr>
+        <tr><td>Insights (listing + 2 article pages)</td><td>Content / blog</td></tr>
+        <tr><td>FAQ</td><td>Reference page</td></tr>
+        <tr><td>Schedule Review</td><td>Contact form</td></tr>
+      </table>
+      <ul>
+        <li>All CTA buttons across every page were updated to point to the Schedule Review form</li>
+        <li>Navigation fully linked across all pages with consistent header and footer</li>
+      </ul>
+
+      <div class="section-title">Ghost CMS Deployment</div>
+      <ul>
+        <li>Deployed <strong>Ghost CMS</strong> as a separate service on Render with its own MySQL database and persistent storage</li>
+        <li>Configured Docker container, production config, and admin API access</li>
+        <li>Ghost is available as a headless CMS for managing blog content going forward</li>
+      </ul>
+
+      <div class="section-title">Blog Import: 107 Posts</div>
+      <div class="highlight-box">
+        Built a scraping and import pipeline that extracted all 107 blog posts from the existing opticwise.com website and imported them into Ghost CMS. Each post was imported with its original title, URL slug, featured image, meta description, and full HTML content preserved.
+      </div>
+      <ul>
+        <li><strong>Scraper</strong> built with Puppeteer to crawl all blog post URLs from opticwise.com</li>
+        <li><strong>Import script</strong> uses the Ghost Admin API with JWT authentication to create published posts</li>
+        <li>URL slugs preserved for SEO continuity when the new site goes live</li>
+        <li>Ghost Content API key configured for the website-v3 frontend to pull blog data dynamically</li>
+      </ul>
+
+      <div class="section-title">Next.js Website (website-v3-nextjs)</div>
+      <ul>
+        <li>Built a <strong>Next.js 14 + Tailwind CSS</strong> version of the website that pulls blog content directly from Ghost</li>
+        <li>Dynamic blog listing and individual post pages powered by Ghost Content API</li>
+        <li>Revalidation webhook endpoint so new Ghost posts automatically appear on the site</li>
+        <li>Deployed as a separate Render service alongside the Ghost CMS</li>
+        <li>Reusable components: SiteHeader, SiteFooter, ContentPage, SubpageHero, CTASection, GhostContent</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MODULE 4: Document Upload -->
+  <div class="module">
+    <div class="module-header">
+      <h2>4. Knowledge Base: Document Upload and Vectorization <span class="status-tag status-live">Live</span></h2>
+      <div class="module-desc">Upload documents into the platform for AI-powered search, retrieval, and agent responses</div>
+    </div>
+    <div class="module-body">
+
+      <div class="section-title">What It Does</div>
+      <ul>
+        <li>Upload <strong>PDFs, Word documents (.docx), and plain text files</strong> directly into the OWnet platform</li>
+        <li>Documents are automatically parsed, split into chunks, and vectorized for semantic search</li>
+        <li>The AI agent (OWnet chat) searches the knowledge base on every query and cites uploaded documents in its responses</li>
+        <li>Documents can be categorized (Proposals, Contracts, Technical Docs, Research, Marketing, Financial, Training, Policies, and more)</li>
+      </ul>
+
+      <div class="section-title">Use Cases This Enables</div>
+      <div class="highlight-box">
+        This is the system for handling tasks such as uploading the PPP book content as well as importing OW market research information. Any document uploaded here becomes immediately searchable and available to the AI agent for answering questions, generating summaries, and referencing in conversations.
+      </div>
+      <ul>
+        <li><strong>PPP Book</strong> -- upload the full book content and the AI agent can answer questions about it, summarize sections, and reference specific passages</li>
+        <li><strong>Market research</strong> -- upload industry reports, competitive analysis, or market data and query it conversationally</li>
+        <li><strong>Proposals and contracts</strong> -- store and search across deal-related documents</li>
+        <li><strong>Training materials</strong> -- onboard new team members by making internal docs queryable via the AI agent</li>
+        <li><strong>Any reference material</strong> -- technical specs, playbooks, policies, or any document the team needs quick access to</li>
+      </ul>
+
+      <div class="section-title">Technical Details</div>
+      <ul>
+        <li>Drag-and-drop upload interface with progress tracking</li>
+        <li>Text extraction via pdf-parse (PDFs) and mammoth (Word documents)</li>
+        <li>Content is chunked into searchable segments and vectorized using OpenAI embeddings</li>
+        <li>Stored in the platform database with full CRUD management (list, rename, re-categorize, delete)</li>
+        <li>AI agent performs vector similarity search across all uploaded documents on every conversation</li>
+        <li>Source citations displayed in agent responses so users can see which document the information came from</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MODULE 5: AI Agent -->
+  <div class="module">
+    <div class="module-header">
+      <h2>5. AI Agent Upgrades <span class="status-tag status-live">Live</span></h2>
+      <div class="module-desc">Model upgrade, knowledge base integration, and privacy-aware search</div>
+    </div>
+    <div class="module-body">
+
+      <div class="section-title">Changes Made</div>
+      <ul>
+        <li><strong>Model upgraded from Claude Sonnet 4.5 to Claude Opus 4.6</strong> across all AI modules -- chat agent, email voice analyzer, execution planner, feedback learning, and hybrid search</li>
+        <li><strong>Knowledge base integration</strong> -- the agent now automatically searches uploaded documents on every query, with proper source citations</li>
+        <li><strong>Privacy-aware search</strong> -- all email and contact search results are filtered by the logged-in user, so the agent never surfaces another user's data</li>
+        <li><strong>New context source type</strong> -- "knowledge_base" added as a recognized source alongside emails, transcripts, CRM data, and calendar events</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MODULE 6: Slack Integration -->
+  <div class="module">
+    <div class="module-header">
+      <h2>6. Slack Bot Integration <span class="status-tag status-live">Live</span></h2>
+      <div class="module-desc">Access the full OWnet AI agent directly from Slack -- same capabilities as the web interface</div>
+    </div>
+    <div class="module-body">
+
+      <div class="section-title">What It Does</div>
+      <ul>
+        <li>Mention <strong>@ownet</strong> in any Slack channel or send a direct message to get AI-powered answers from the full OWnet agent</li>
+        <li>Same AI quality, data access, and source citations as the web interface -- CRM data, emails, transcripts, knowledge base, and all connected sources</li>
+        <li>Thread-based conversations maintain context, so follow-up questions work naturally</li>
+        <li>Deep analysis mode supported (e.g., "Deep analysis of all customer activity")</li>
+      </ul>
+
+      <div class="section-title">How It Works</div>
+      <ul>
+        <li><strong>@ownet mentions</strong> -- tag the bot in any channel and ask a question</li>
+        <li><strong>Direct messages</strong> -- message the bot privately for individual queries</li>
+        <li><strong>Threaded replies</strong> -- the bot responds in-thread to keep channels clean and maintain conversation context</li>
+        <li><strong>Progress indicators</strong> -- emoji reactions show when the bot is processing (eyes) and when it completes (checkmark)</li>
+        <li><strong>Long responses</strong> -- if a response exceeds Slack's message limit, the full answer is uploaded as a file attachment</li>
+        <li><strong>Rich formatting</strong> -- responses use Slack blocks for clean, structured display of data and citations</li>
+      </ul>
+
+      <div class="section-title">Recent Fixes (Mar 2)</div>
+      <div class="highlight-box">
+        Resolved a series of issues preventing the Slack bot from functioning end-to-end. Fixed authentication so the bot can communicate with the platform securely without user-level session tokens. Resolved database table initialization, foreign key errors, and internal port mismatches. The bot is now fully operational -- it receives mentions, queries the OWnet agent, and posts responses back to Slack threads.
+      </div>
+      <ul>
+        <li><strong>Internal API key auth bypass</strong> -- bot communicates with OWnet API using AUTH_SECRET instead of session tokens</li>
+        <li><strong>Auto-create database tables</strong> -- SlackUser, SlackSession, and SlackMessageLog tables are initialized on first use</li>
+        <li><strong>Service user for sessions</strong> -- bot creates a dedicated service user to satisfy AgentChatSession foreign key constraints</li>
+        <li><strong>Correct PORT binding</strong> -- fixed internal API call from port 3000 to the correct Render port 10000</li>
+        <li><strong>Table init endpoint</strong> -- added /api/slack/init-tables endpoint for manual table creation</li>
+        <li><strong>Reaction scope handling</strong> -- graceful fallback when reactions:write scope is missing from Slack app config</li>
+        <li><strong>Comprehensive logging</strong> -- detailed diagnostics added throughout the Slack event pipeline for monitoring</li>
+      </ul>
+
+      <div class="section-title">Technical Architecture</div>
+      <ul>
+        <li>Slack Events API webhook endpoint with signature verification and replay attack prevention</li>
+        <li>Slack user-to-OWnet user mapping stored in the database (SlackUser, SlackSession, SlackMessageLog tables)</li>
+        <li>Internal API key authentication using AUTH_SECRET for secure server-to-server calls</li>
+        <li>Streaming response handling -- reads the OWnet agent's streamed response and assembles the full answer before posting to Slack</li>
+        <li>Built with @slack/bolt and @slack/web-api SDKs</li>
+      </ul>
+
+      <div class="section-title">Example Usage</div>
+      <table>
+        <tr><th>Slack Message</th><th>What Happens</th></tr>
+        <tr><td>@ownet What deals are in the pipeline?</td><td>Queries CRM data and returns pipeline summary with deal counts</td></tr>
+        <tr><td>@ownet Deep analysis of customer activity</td><td>Runs comprehensive analysis across emails, CRM, and transcripts</td></tr>
+        <tr><td>@ownet What does the PPP book say about audits?</td><td>Searches uploaded knowledge base documents and returns relevant passages</td></tr>
+        <tr><td>@ownet Summarize recent emails with [contact name]</td><td>Pulls email threads and provides a conversation summary</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODULE 7: Infrastructure -->
+  <div class="module">
+    <div class="module-header">
+      <h2>7. Infrastructure and Render Services <span class="status-tag status-live">Live</span></h2>
+      <div class="module-desc">New services deployed, automated syncing, and production stability fixes</div>
+    </div>
+    <div class="module-body">
+
+      <div class="section-title">Services Running on Render</div>
+      <table>
+        <tr><th>Service</th><th>Type</th><th>Purpose</th></tr>
+        <tr><td>opticwise-frontend</td><td>Web Service</td><td>Main OWnet platform (Next.js)</td></tr>
+        <tr><td>opticwise-website</td><td>Web Service</td><td>Website v2 (Next.js)</td></tr>
+        <tr><td>opticwise-website-v3</td><td>Web Service</td><td>Website v3 with Ghost integration (Next.js)</td></tr>
+        <tr><td>opticwise-ghost</td><td>Web Service (Docker)</td><td>Ghost CMS with persistent storage</td></tr>
+        <tr><td>ghost-mysql</td><td>Private Service</td><td>MySQL database for Ghost</td></tr>
+        <tr><td>opticwise-email-sync</td><td>Cron Job</td><td>Automated email sync every 15 minutes</td></tr>
+      </table>
+
+      <div class="section-title">Database Changes</div>
+      <ul>
+        <li>Migration 012: DealContact junction table for multi-contact deal linking</li>
+        <li>Migration 013: Multi-user email sync fields (emailSyncEnabled, lastEmailSync, emailSyncStatus on User model)</li>
+        <li>Migration 014: Created missing production tables (SemanticCache, CallTranscriptChunk, StyleGuide, QueryAnalytics) and converted all embedding columns from TEXT to <code>vector(1024)</code> for proper similarity search</li>
+        <li>KnowledgeDocument and KnowledgeChunk models for document storage and vectorization</li>
+        <li>SlackUser, SlackSession, and SlackMessageLog tables for Slack bot integration</li>
+        <li>Email ownership field added for per-user privacy filtering</li>
+      </ul>
+
+      <div class="section-title">Production Bug Fixes (16 resolved)</div>
+      <ul>
+        <li>Gmail sync: fixed vector column type handling for email embeddings</li>
+        <li>Gmail sync: resolved duplicate key errors during email upsert operations</li>
+        <li>Gmail sync: added embedding dimension validation to prevent "vector cannot have more than 16000 dimensions" errors</li>
+        <li>Google service account credential lookup fixed for Render production environment</li>
+        <li>OpenAI client: lazy initialization to prevent build-time crash</li>
+        <li>PDF parsing: downgraded pdf-parse to stable v1.1.1, fixed test file import bug</li>
+        <li>PDF parsing: improved error handling for scanned/image-only PDFs with user-friendly messages</li>
+        <li>mammoth/pdf-parse imports corrected for production builds</li>
+        <li>Knowledge base search: fixed to always fire regardless of query keywords</li>
+        <li>React hydration error resolved on settings page</li>
+        <li>Password form accessibility warnings fixed</li>
+        <li>Website v2 Render deploy: fixed module resolution and devDependency installation</li>
+        <li>Forgot password: fixed base URL pointing to wrong domain so reset emails link to correct site</li>
+        <li>Login redirect: fixed users getting stuck on login page after successful authentication</li>
+        <li>Agent chat sessions: auto-create session record before saving messages to prevent FK violation</li>
+        <li>Database migration 014: created missing production tables and fixed embedding column types</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- MODULE 8: Additional -->
+  <div class="module">
+    <div class="module-header">
+      <h2>8. Additional Items <span class="status-tag status-complete">Complete</span></h2>
+      <div class="module-desc">Wireframe review system and other platform additions</div>
+    </div>
+    <div class="module-body">
+
+      <div class="section-title">Wireframe Review Page</div>
+      <ul>
+        <li>Built a wireframe review page served from OWnet for client content approval</li>
+        <li>Fixed hero section text readability with proper contrast</li>
+        <li>Public access enabled so the page is viewable without login</li>
+      </ul>
+
+      <div class="section-title">Schedule Review Page</div>
+      <ul>
+        <li>Built a Schedule Review page with a contact form for the website</li>
+        <li>All CTA buttons across all 17 website pages updated to route to this form</li>
+      </ul>
+
+      <div class="section-title">Website v2 Deployment</div>
+      <ul>
+        <li>Deployed a second version of the website as a separate Render service built from the client's proof content</li>
+        <li>Resolved build issues including devDependency installation, webpack alias configuration, and Render directory setup</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    OpticWise Platform -- Prepared March 2, 2026
+  </div>
+
+</div>
+</body>
+</html>
