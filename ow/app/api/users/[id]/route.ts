@@ -34,7 +34,10 @@ export async function PATCH(
       );
     }
 
-    // Handle password reset
+    // Build update data - only include fields that were provided
+    const updateData: Record<string, unknown> = {};
+    let passwordReset = false;
+
     if (body.newPassword) {
       if (body.newPassword.length < 8) {
         return NextResponse.json(
@@ -42,30 +45,10 @@ export async function PATCH(
           { status: 400 }
         );
       }
-
-      const passwordHash = await bcrypt.hash(body.newPassword, 10);
-      const updatedUser = await prisma.user.update({
-        where: { id },
-        data: { passwordHash },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          department: true,
-          isActive: true,
-          emailSyncEnabled: true,
-          lastEmailSync: true,
-          emailSyncStatus: true,
-          createdAt: true,
-        },
-      });
-
-      return NextResponse.json({ user: updatedUser, passwordReset: true });
+      updateData.passwordHash = await bcrypt.hash(body.newPassword, 10);
+      passwordReset = true;
     }
 
-    // Build update data - only include fields that were provided
-    const updateData: Record<string, unknown> = {};
     if (body.name !== undefined) updateData.name = body.name;
     if (body.email !== undefined) {
       const existingWithEmail = await prisma.user.findUnique({ where: { email: body.email } });
@@ -78,6 +61,21 @@ export async function PATCH(
       updateData.email = body.email;
     }
     if (body.department !== undefined) updateData.department = body.department || null;
+    if (body.role !== undefined) {
+      if (!["admin", "user"].includes(body.role)) {
+        return NextResponse.json(
+          { error: "Role must be 'admin' or 'user'" },
+          { status: 400 }
+        );
+      }
+      if (id === session.userId && body.role !== "admin") {
+        return NextResponse.json(
+          { error: "You cannot remove your own admin role" },
+          { status: 400 }
+        );
+      }
+      updateData.role = body.role;
+    }
     if (body.isActive !== undefined) updateData.isActive = body.isActive;
     if (body.emailSyncEnabled !== undefined) {
       // Only allow @opticwise.com emails to enable sync
@@ -108,7 +106,7 @@ export async function PATCH(
       },
     });
 
-    return NextResponse.json({ user: updatedUser });
+    return NextResponse.json({ user: updatedUser, passwordReset });
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json(
