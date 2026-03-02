@@ -84,6 +84,16 @@ services:
           type: pserv
           name: ghost-mysql
           envVarKey: MYSQL_PASSWORD
+      - key: mail__options__host
+        value: smtp.gmail.com
+      - key: mail__options__port
+        value: "587"
+      - key: mail__options__auth__user
+        sync: false
+      - key: mail__options__auth__pass
+        sync: false
+      - key: mail__from
+        value: "'Opticwise' <bill@opticwise.com>"
 
   - type: cron
     name: opticwise-email-sync
