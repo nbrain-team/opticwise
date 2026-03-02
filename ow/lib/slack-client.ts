@@ -104,8 +104,15 @@ export async function addReaction(
       timestamp,
       name: emoji
     });
-  } catch (error) {
-    console.error('Error adding reaction:', error);
+  } catch (error: unknown) {
+    const slackError = error as { data?: { error?: string } };
+    if (slackError?.data?.error === 'missing_scope') {
+      console.warn(`[Slack] Missing reactions:write scope - skipping reaction :${emoji}:`);
+    } else if (slackError?.data?.error === 'already_reacted') {
+      // Ignore duplicate reactions
+    } else {
+      console.error('[Slack] Error adding reaction:', error);
+    }
   }
 }
 
