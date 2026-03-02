@@ -57,46 +57,57 @@ function verifySlackSignature(
  */
 export async function POST(request: NextRequest) {
   try {
-    // Get raw body for signature verification
     const body = await request.text();
     const slackSignature = request.headers.get('x-slack-signature');
     const slackTimestamp = request.headers.get('x-slack-request-timestamp');
     
-    // Verify signature
+    console.log('[Slack] POST /api/slack/events received', {
+      hasSignature: !!slackSignature,
+      hasTimestamp: !!slackTimestamp,
+      bodyLength: body.length,
+      bodyPreview: body.substring(0, 200)
+    });
+    
     if (!slackSignature || !slackTimestamp) {
-      console.error('Missing Slack signature headers');
+      console.error('[Slack] Missing signature headers');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
     if (!verifySlackSignature(body, slackTimestamp, slackSignature)) {
-      console.error('Invalid Slack signature');
+      console.error('[Slack] Signature verification failed');
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    // Parse event
+    console.log('[Slack] Signature verified successfully');
+    
     const event = JSON.parse(body);
     
-    // Handle URL verification challenge (Slack setup)
     if (event.type === 'url_verification') {
+      console.log('[Slack] URL verification challenge received');
       return NextResponse.json({ challenge: event.challenge });
     }
     
-    // Handle event callback
     if (event.type === 'event_callback') {
       const slackEvent = event.event;
       
-      // Ignore bot messages to prevent loops
+      console.log('[Slack] Event callback received:', {
+        type: slackEvent.type,
+        user: slackEvent.user,
+        channel: slackEvent.channel,
+        hasBotId: !!slackEvent.bot_id,
+        subtype: slackEvent.subtype,
+        text: slackEvent.text?.substring(0, 100)
+      });
+      
       if (slackEvent.bot_id || slackEvent.subtype === 'bot_message') {
+        console.log('[Slack] Ignoring bot message to prevent loops');
         return NextResponse.json({ ok: true });
       }
       
-      // Handle different event types
       switch (slackEvent.type) {
         case 'app_mention':
-          // @ownet was mentioned
-          console.log('[Slack] App mention received:', slackEvent.text);
+          console.log('[Slack] Processing app_mention from user:', slackEvent.user, 'text:', slackEvent.text);
           
-          // Process asynchronously (don't block Slack)
           handleAppMention({
             user: slackEvent.user,
             text: slackEvent.text,
@@ -111,9 +122,8 @@ export async function POST(request: NextRequest) {
           break;
         
         case 'message':
-          // Direct message to bot
           if (slackEvent.channel_type === 'im') {
-            console.log('[Slack] Direct message received');
+            console.log('[Slack] Processing DM from user:', slackEvent.user);
             
             handleDirectMessage({
               user: slackEvent.user,
@@ -124,6 +134,8 @@ export async function POST(request: NextRequest) {
             }).catch(error => {
               console.error('[Slack] Error handling DM:', error);
             });
+          } else {
+            console.log('[Slack] Ignoring non-DM message event, channel_type:', slackEvent.channel_type);
           }
           break;
         
@@ -131,11 +143,10 @@ export async function POST(request: NextRequest) {
           console.log('[Slack] Unhandled event type:', slackEvent.type);
       }
       
-      // Respond immediately to Slack (required within 3 seconds)
       return NextResponse.json({ ok: true });
     }
     
-    // Unknown event type
+    console.log('[Slack] Unknown top-level event type:', event.type);
     return NextResponse.json({ ok: true });
     
   } catch (error) {
@@ -156,6 +167,12 @@ export async function GET() {
   return NextResponse.json({
     status: 'ok',
     service: 'OWnet Slack Integration',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
+    config: {
+      hasSigningSecret: !!process.env.SLACK_SIGNING_SECRET,
+      hasBotToken: !!process.env.SLACK_BOT_TOKEN,
+      hasAuthSecret: !!process.env.AUTH_SECRET,
+      appUrl: process.env.NEXT_PUBLIC_APP_URL || process.env.RENDER_EXTERNAL_URL || '(not set)',
+    }
   });
 }

@@ -67,13 +67,20 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   
   try {
-    const session = await getSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    let currentUserId: string;
 
-    // Resolve the current user's ID for email privacy scoping
-    const currentUserId = session.userId;
+    const internalKey = request.headers.get('x-internal-api-key');
+    const isInternalCall = internalKey && process.env.AUTH_SECRET && internalKey === process.env.AUTH_SECRET;
+
+    if (isInternalCall) {
+      currentUserId = request.headers.get('x-slack-user-id') || 'slack-service';
+    } else {
+      const session = await getSession();
+      if (!session) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      currentUserId = session.userId;
+    }
 
     const body = await request.json();
     const { message, sessionId } = body;

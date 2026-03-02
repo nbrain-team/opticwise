@@ -114,20 +114,38 @@ async function getOrCreateSession(
 /**
  * Call OWnet agent API
  */
-async function callOWnetAgent(message: string, sessionId: string): Promise<{
+async function callOWnetAgent(message: string, sessionId: string, slackUserId?: string): Promise<{
   response: string;
   sources?: Record<string, unknown>;
   error?: string;
 }> {
   try {
-    // Call the internal OWnet chat API
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.RENDER_EXTERNAL_URL || 'https://ownet.opticwise.com';
+    const internalKey = process.env.AUTH_SECRET;
+    
+    console.log(`[Slack] Calling OWnet API at ${baseUrl}/api/ownet/chat`, {
+      hasInternalKey: !!internalKey,
+      hasSlackUserId: !!slackUserId
+    });
+    
+    if (!internalKey) {
+      console.warn('[Slack] AUTH_SECRET not set - OWnet API call will fail without authentication');
+    }
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    
+    if (internalKey) {
+      headers['x-internal-api-key'] = internalKey;
+    }
+    if (slackUserId) {
+      headers['x-slack-user-id'] = slackUserId;
+    }
     
     const response = await fetch(`${baseUrl}/api/ownet/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         message,
         sessionId
@@ -135,8 +153,12 @@ async function callOWnetAgent(message: string, sessionId: string): Promise<{
     });
     
     if (!response.ok) {
-      throw new Error(`OWnet API error: ${response.statusText}`);
+      const errorBody = await response.text().catch(() => 'unable to read body');
+      console.error(`[Slack] OWnet API error: ${response.status} ${response.statusText}`, errorBody);
+      throw new Error(`OWnet API error: ${response.status} ${response.statusText} - ${errorBody}`);
     }
+    
+    console.log('[Slack] OWnet API responded with status:', response.status);
     
     // Handle streaming response
     const reader = response.body?.getReader();
@@ -229,7 +251,7 @@ export async function handleAppMention(event: {
     );
     
     // Call OWnet agent
-    const result = await callOWnetAgent(question, sessionId);
+    const result = await callOWnetAgent(question, sessionId, slackUserId);
     
     if (result.error) {
       // Update with error
