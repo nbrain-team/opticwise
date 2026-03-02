@@ -9,6 +9,7 @@ import { postMessage, postMessageWithBlocks, addReaction, uploadFile, getUserInf
 import { markdownToSlack, createSlackBlocks, isResponseTooLong, truncateForSlack, formatSourcesForSlack } from './slack-formatter';
 
 let pool: Pool | null = null;
+let tablesInitialized = false;
 
 function getPool() {
   if (!pool) {
@@ -20,10 +21,61 @@ function getPool() {
   return pool;
 }
 
+async function ensureSlackTables() {
+  if (tablesInitialized) return;
+  const db = getPool();
+  try {
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "SlackUser" (
+        id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        "slackUserId" TEXT UNIQUE NOT NULL,
+        "slackTeamId" TEXT NOT NULL,
+        "slackUserName" TEXT,
+        "slackUserEmail" TEXT,
+        "ownetUserId" TEXT,
+        "createdAt" TIMESTAMP DEFAULT NOW(),
+        "updatedAt" TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "SlackSession" (
+        id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        "slackUserId" TEXT NOT NULL REFERENCES "SlackUser"(id) ON DELETE CASCADE,
+        "slackChannelId" TEXT NOT NULL,
+        "slackThreadTs" TEXT,
+        "ownetSessionId" TEXT,
+        "createdAt" TIMESTAMP DEFAULT NOW(),
+        "updatedAt" TIMESTAMP DEFAULT NOW(),
+        UNIQUE("slackUserId", "slackThreadTs")
+      )
+    `);
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS "SlackMessageLog" (
+        id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+        "slackUserId" TEXT NOT NULL REFERENCES "SlackUser"(id),
+        "slackChannelId" TEXT NOT NULL,
+        "slackThreadTs" TEXT,
+        "slackMessageTs" TEXT NOT NULL,
+        question TEXT NOT NULL,
+        response TEXT,
+        "responseTime" INTEGER,
+        error TEXT,
+        "createdAt" TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    tablesInitialized = true;
+    console.log('[Slack] Database tables initialized successfully');
+  } catch (error) {
+    console.error('[Slack] Error initializing tables:', error);
+    throw error;
+  }
+}
+
 /**
  * Get or create Slack user in database
  */
 async function getOrCreateSlackUser(slackUserId: string, slackTeamId: string): Promise<string> {
+  await ensureSlackTables();
   const db = getPool();
   
   // Check if user exists
