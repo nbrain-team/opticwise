@@ -9,11 +9,6 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showResetModal, setShowResetModal] = useState(false);
-  const [resetEmail, setResetEmail] = useState("");
-  const [resetLoading, setResetLoading] = useState(false);
-  const [resetSuccess, setResetSuccess] = useState(false);
-  const [resetError, setResetError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") || "/ownet-agent";
@@ -37,28 +32,6 @@ function LoginForm() {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handlePasswordReset(e: React.FormEvent) {
-    e.preventDefault();
-    setResetLoading(true);
-    setResetError(null);
-    try {
-      const res = await fetch("/api/auth/request-reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to send reset email");
-      }
-      setResetSuccess(true);
-    } catch (err: unknown) {
-      setResetError(err instanceof Error ? err.message : "Failed to send reset email");
-    } finally {
-      setResetLoading(false);
     }
   }
 
@@ -121,101 +94,6 @@ function LoginForm() {
             {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
-
-        <div className="text-center mt-4">
-          <button
-            type="button"
-            onClick={() => {
-              setShowResetModal(true);
-              setResetEmail(email);
-            }}
-            className="text-sm text-[#3B6B8F] hover:text-[#2E5570] font-medium"
-          >
-            Forgot password?
-          </button>
-        </div>
-
-        {/* Password Reset Modal */}
-        {showResetModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-              {resetSuccess ? (
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Check Your Email</h3>
-                  <p className="text-gray-600 mb-6">
-                    If an account exists with <strong>{resetEmail}</strong>, you will receive a password reset link shortly.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setShowResetModal(false);
-                      setResetSuccess(false);
-                      setResetEmail("");
-                    }}
-                    className="w-full btn-primary py-2.5"
-                  >
-                    Close
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-4">Reset Password</h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Enter your email address and we&apos;ll send you a link to reset your password.
-                  </p>
-
-                  {resetError && (
-                    <div className="mb-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
-                      {resetError}
-                    </div>
-                  )}
-
-                  <form onSubmit={handlePasswordReset} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={resetEmail}
-                        onChange={(e) => setResetEmail(e.target.value)}
-                        className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                        placeholder="you@opticwise.com"
-                      />
-                    </div>
-
-                    <div className="flex gap-3 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowResetModal(false);
-                          setResetError(null);
-                          setResetEmail("");
-                        }}
-                        className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-                        disabled={resetLoading}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={resetLoading}
-                        className="flex-1 btn-primary py-2.5 disabled:opacity-50"
-                      >
-                        {resetLoading ? "Sending..." : "Send Reset Link"}
-                      </button>
-                    </div>
-                  </form>
-                </>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
