@@ -88,24 +88,28 @@ function LoginForm() {
             </div>
           ) : null}
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-[#2E2E2F]">Email</label>
+            <label htmlFor="login-email" className="block text-sm font-medium text-[#2E2E2F]">Email</label>
             <input
+              id="login-email"
+              name="email"
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent transition-all"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               type="email"
-              autoComplete="off"
+              autoComplete="username"
               required
             />
           </div>
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-[#2E2E2F]">Password</label>
+            <label htmlFor="login-password" className="block text-sm font-medium text-[#2E2E2F]">Password</label>
             <input
+              id="login-password"
+              name="password"
               className="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent transition-all"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               type="password"
-              autoComplete="off"
+              autoComplete="current-password"
               required
             />
           </div>
@@ -116,20 +120,20 @@ function LoginForm() {
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
-
-          <div className="text-center pt-4">
-            <button
-              type="button"
-              onClick={() => {
-                setShowResetModal(true);
-                setResetEmail(email);
-              }}
-              className="text-sm text-[#3B6B8F] hover:text-[#2E5570] font-medium"
-            >
-              Forgot password?
-            </button>
-          </div>
         </form>
+
+        <div className="text-center mt-4">
+          <button
+            type="button"
+            onClick={() => {
+              setShowResetModal(true);
+              setResetEmail(email);
+            }}
+            className="text-sm text-[#3B6B8F] hover:text-[#2E5570] font-medium"
+          >
+            Forgot password?
+          </button>
+        </div>
 
         {/* Password Reset Modal */}
         {showResetModal && (
