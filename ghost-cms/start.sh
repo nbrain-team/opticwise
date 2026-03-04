@@ -13,6 +13,11 @@ done
 
 node updateConfig.js
 
+# One-time password reset if GHOST_RESET_PASSWORD env var is set
+if [ -n "$GHOST_RESET_PASSWORD" ]; then
+  node reset-password.js || echo "[Ghost Reset] Reset script failed, continuing startup"
+fi
+
 # Fix Ghost admin login: remove "Forgot?" from tab order so pressing Enter
 # after typing the password submits the form instead of triggering "Forgot?"
 ADMIN_INDEX="$GHOST_INSTALL/current/core/built/admin/index.html"
