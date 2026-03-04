@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { toNullIfEmpty, toInt, toDateOrNull } from "@/lib/api-sanitize";
 
-// PATCH - Update a contact
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,28 +10,46 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
-    // Remove fields that shouldn't be updated directly
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { createdAt, updatedAt, deals, organization, ...updateData } = body;
+    const updateData: Record<string, unknown> = {};
 
-    // Handle date fields
-    if (updateData.birthday) {
-      updateData.birthday = new Date(updateData.birthday);
-    }
-    if (updateData.nextActivityDate) {
-      updateData.nextActivityDate = new Date(updateData.nextActivityDate);
-    }
-    if (updateData.lastActivityDate) {
-      updateData.lastActivityDate = new Date(updateData.lastActivityDate);
-    }
-    if (updateData.lastEmailReceived) {
-      updateData.lastEmailReceived = new Date(updateData.lastEmailReceived);
-    }
-    if (updateData.lastEmailSent) {
-      updateData.lastEmailSent = new Date(updateData.lastEmailSent);
+    // Required string fields
+    if (body.firstName !== undefined) updateData.firstName = body.firstName;
+    if (body.lastName !== undefined) updateData.lastName = body.lastName;
+
+    // Nullable string fields
+    const nullableStringFields = [
+      "name", "email", "phone", "phoneWork", "phoneHome", "phoneMobile", "phoneOther",
+      "emailWork", "emailHome", "emailOther", "title", "labels", "contactType",
+      "postalAddress", "streetAddress", "houseNumber", "apartmentSuite",
+      "city", "state", "region", "country", "zipCode", "latitude", "longitude",
+      "notes", "linkedInProfile", "qwilrProposal", "classification",
+      "instantMessenger", "marketingStatus", "doubleOptIn", "profilePicture",
+    ];
+    for (const field of nullableStringFields) {
+      if (body[field] !== undefined) updateData[field] = toNullIfEmpty(body[field]);
     }
 
-    // Update the person
+    // Foreign key
+    if (body.organizationId !== undefined) updateData.organizationId = toNullIfEmpty(body.organizationId);
+
+    // Nullable int fields
+    const nullableIntFields = [
+      "openDeals", "wonDeals", "lostDeals", "closedDeals",
+      "totalActivities", "doneActivities", "activitiesToDo", "emailMessagesCount",
+    ];
+    for (const field of nullableIntFields) {
+      if (body[field] !== undefined) updateData[field] = toInt(body[field]);
+    }
+
+    // Date fields
+    const dateFields = [
+      "birthday", "nextActivityDate", "lastActivityDate",
+      "lastEmailReceived", "lastEmailSent",
+    ];
+    for (const field of dateFields) {
+      if (body[field] !== undefined) updateData[field] = toDateOrNull(body[field]);
+    }
+
     const person = await prisma.person.update({
       where: { id },
       data: updateData,
@@ -56,7 +74,6 @@ export async function PATCH(
   }
 }
 
-// DELETE - Delete a contact
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -64,7 +81,6 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Check if contact has deals
     const person = await prisma.person.findUnique({
       where: { id },
       include: {
@@ -79,7 +95,6 @@ export async function DELETE(
       );
     }
 
-    // Delete the person (deals will be set to null via onDelete: SetNull)
     await prisma.person.delete({
       where: { id },
     });
@@ -97,8 +112,3 @@ export async function DELETE(
     );
   }
 }
-
-
-
-
-

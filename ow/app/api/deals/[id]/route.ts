@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { toNullIfEmpty, toInt, toDecimal, toDateOrNull } from "@/lib/api-sanitize";
 
-// PATCH - Update a deal
+const DEAL_RELATION_KEYS = [
+  "addTime", "updateTime", "pipeline", "stage", "organization", "person", "owner",
+  "dealContacts", "emailThreads", "callTranscripts", "gmailMessages",
+  "calendarEvents", "driveFiles", "noteRecords", "notes", "activities",
+  "campaignLeadsConverted", "auditRequestsConverted", "bookRequestsConverted",
+  "conferenceAttendeesConverted", "chatbotConversationsConverted",
+  "id", "pipelineId", "ownerId", "position", "stageChangeTime", "customFields",
+];
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,63 +19,65 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
-    // Remove fields that shouldn't be updated directly
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { addTime, updateTime, pipeline, stage, organization, person, owner, ...updateData } = body;
+    const updateData: Record<string, unknown> = {};
 
-    // Handle decimal fields
-    if (updateData.value !== undefined) {
-      updateData.value = parseFloat(updateData.value);
-    }
-    if (updateData.productAmount !== undefined) {
-      updateData.productAmount = updateData.productAmount ? parseFloat(updateData.productAmount) : null;
-    }
-    if (updateData.mrr !== undefined) {
-      updateData.mrr = updateData.mrr ? parseFloat(updateData.mrr) : null;
-    }
-    if (updateData.arr !== undefined) {
-      updateData.arr = updateData.arr ? parseFloat(updateData.arr) : null;
-    }
-    if (updateData.acv !== undefined) {
-      updateData.acv = updateData.acv ? parseFloat(updateData.acv) : null;
-    }
-    if (updateData.arrForecast !== undefined) {
-      updateData.arrForecast = updateData.arrForecast ? parseFloat(updateData.arrForecast) : null;
-    }
-    if (updateData.capexRom !== undefined) {
-      updateData.capexRom = updateData.capexRom ? parseFloat(updateData.capexRom) : null;
-    }
-    if (updateData.auditValue !== undefined) {
-      updateData.auditValue = updateData.auditValue ? parseFloat(updateData.auditValue) : null;
-    }
-    if (updateData.arrExpansionPotential !== undefined) {
-      updateData.arrExpansionPotential = updateData.arrExpansionPotential ? parseFloat(updateData.arrExpansionPotential) : null;
-    }
+    if (body.title !== undefined) updateData.title = body.title;
+    if (body.currency !== undefined) updateData.currency = body.currency;
+    if (body.status !== undefined) updateData.status = body.status;
+    if (body.stageId !== undefined) updateData.stageId = body.stageId;
+    if (body.label !== undefined) updateData.label = toNullIfEmpty(body.label);
+    if (body.labels !== undefined) updateData.labels = toNullIfEmpty(body.labels);
+    if (body.lostReason !== undefined) updateData.lostReason = toNullIfEmpty(body.lostReason);
 
-    // Handle date fields
-    if (updateData.expectedCloseDate) {
-      updateData.expectedCloseDate = new Date(updateData.expectedCloseDate);
-    }
-    if (updateData.wonTime) {
-      updateData.wonTime = new Date(updateData.wonTime);
-    }
-    if (updateData.lostTime) {
-      updateData.lostTime = new Date(updateData.lostTime);
-    }
-    if (updateData.nextActivityDate) {
-      updateData.nextActivityDate = new Date(updateData.nextActivityDate);
-    }
-    if (updateData.lastActivityDate) {
-      updateData.lastActivityDate = new Date(updateData.lastActivityDate);
-    }
-    if (updateData.lastEmailReceived) {
-      updateData.lastEmailReceived = new Date(updateData.lastEmailReceived);
-    }
-    if (updateData.lastEmailSent) {
-      updateData.lastEmailSent = new Date(updateData.lastEmailSent);
+    // Foreign key fields: empty string → null
+    if (body.organizationId !== undefined) updateData.organizationId = toNullIfEmpty(body.organizationId);
+    if (body.personId !== undefined) updateData.personId = toNullIfEmpty(body.personId);
+
+    // Integer field
+    if (body.probability !== undefined) updateData.probability = toInt(body.probability);
+
+    // Decimal fields
+    if (body.value !== undefined) updateData.value = toDecimal(body.value) ?? 0;
+    if (body.productAmount !== undefined) updateData.productAmount = toDecimal(body.productAmount);
+    if (body.mrr !== undefined) updateData.mrr = toDecimal(body.mrr);
+    if (body.arr !== undefined) updateData.arr = toDecimal(body.arr);
+    if (body.acv !== undefined) updateData.acv = toDecimal(body.acv);
+    if (body.arrForecast !== undefined) updateData.arrForecast = toDecimal(body.arrForecast);
+    if (body.capexRom !== undefined) updateData.capexRom = toDecimal(body.capexRom);
+    if (body.auditValue !== undefined) updateData.auditValue = toDecimal(body.auditValue);
+    if (body.arrExpansionPotential !== undefined) updateData.arrExpansionPotential = toDecimal(body.arrExpansionPotential);
+
+    // Date fields
+    if (body.expectedCloseDate !== undefined) updateData.expectedCloseDate = toDateOrNull(body.expectedCloseDate);
+    if (body.wonTime !== undefined) updateData.wonTime = toDateOrNull(body.wonTime);
+    if (body.lostTime !== undefined) updateData.lostTime = toDateOrNull(body.lostTime);
+    if (body.nextActivityDate !== undefined) updateData.nextActivityDate = toDateOrNull(body.nextActivityDate);
+    if (body.lastActivityDate !== undefined) updateData.lastActivityDate = toDateOrNull(body.lastActivityDate);
+    if (body.lastEmailReceived !== undefined) updateData.lastEmailReceived = toDateOrNull(body.lastEmailReceived);
+    if (body.lastEmailSent !== undefined) updateData.lastEmailSent = toDateOrNull(body.lastEmailSent);
+
+    // Nullable string fields
+    const nullableStringFields = [
+      "propertyAddress", "propertyType", "qty", "goLiveTarget",
+      "productQuantity", "productName", "mrrCurrency", "arrCurrency", "acvCurrency",
+      "arrForecastCurrency", "capexRomCurrency", "auditValueCurrency", "arrExpansionCurrency",
+      "sourceOrigin", "sourceOriginId", "sourceChannel", "sourceChannelId",
+      "roiNoiBomSheet", "printsPlansExternal", "printsPlansDropbox",
+      "leadSource", "technicalPOC", "icpSegment", "leadSourcePPP",
+      "readinessScore", "ddiAuditStatus",
+    ];
+    for (const field of nullableStringFields) {
+      if (body[field] !== undefined) updateData[field] = toNullIfEmpty(body[field]);
     }
 
-    // Update the deal
+    // Nullable int fields
+    const nullableIntFields = [
+      "totalActivities", "doneActivities", "activitiesToDo", "emailMessagesCount",
+    ];
+    for (const field of nullableIntFields) {
+      if (body[field] !== undefined) updateData[field] = toInt(body[field]);
+    }
+
     const deal = await prisma.deal.update({
       where: { id },
       data: updateData,
@@ -89,7 +100,6 @@ export async function PATCH(
   }
 }
 
-// DELETE - Delete a deal
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -97,7 +107,6 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Check if deal exists
     const deal = await prisma.deal.findUnique({
       where: { id },
     });
@@ -109,7 +118,6 @@ export async function DELETE(
       );
     }
 
-    // Delete the deal
     await prisma.deal.delete({
       where: { id },
     });
@@ -126,8 +134,3 @@ export async function DELETE(
     );
   }
 }
-
-
-
-
-

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { toNullIfEmpty, toInt, toDateOrNull } from "@/lib/api-sanitize";
 
-// PATCH - Update an organization
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -10,19 +10,36 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
 
-    // Remove fields that shouldn't be updated directly
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { createdAt, updatedAt, people, deals, ...updateData } = body;
+    const updateData: Record<string, unknown> = {};
 
-    // Handle date fields
-    if (updateData.nextActivityDate) {
-      updateData.nextActivityDate = new Date(updateData.nextActivityDate);
-    }
-    if (updateData.lastActivityDate) {
-      updateData.lastActivityDate = new Date(updateData.lastActivityDate);
+    // Name (required, unique)
+    if (body.name !== undefined) updateData.name = body.name;
+
+    // Nullable string fields
+    const nullableStringFields = [
+      "address", "websiteUrl", "domain", "linkedInProfile", "industry",
+      "annualRevenue", "numberOfEmployees", "doors", "labels", "profilePicture",
+      "streetAddress", "houseNumber", "apartmentSuite", "district",
+      "city", "state", "region", "country", "zipCode", "fullAddress",
+      "latitude", "longitude",
+    ];
+    for (const field of nullableStringFields) {
+      if (body[field] !== undefined) updateData[field] = toNullIfEmpty(body[field]);
     }
 
-    // Update the organization
+    // Nullable int fields
+    const nullableIntFields = [
+      "openDeals", "wonDeals", "lostDeals", "closedDeals",
+      "totalActivities", "doneActivities", "activitiesToDo", "emailMessagesCount",
+    ];
+    for (const field of nullableIntFields) {
+      if (body[field] !== undefined) updateData[field] = toInt(body[field]);
+    }
+
+    // Date fields
+    if (body.nextActivityDate !== undefined) updateData.nextActivityDate = toDateOrNull(body.nextActivityDate);
+    if (body.lastActivityDate !== undefined) updateData.lastActivityDate = toDateOrNull(body.lastActivityDate);
+
     const organization = await prisma.organization.update({
       where: { id },
       data: updateData,
@@ -47,7 +64,6 @@ export async function PATCH(
   }
 }
 
-// DELETE - Delete an organization
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -55,7 +71,6 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Check if organization has people or deals
     const organization = await prisma.organization.findUnique({
       where: { id },
       include: {
@@ -71,7 +86,6 @@ export async function DELETE(
       );
     }
 
-    // Delete the organization (people and deals will be set to null via onDelete: SetNull)
     await prisma.organization.delete({
       where: { id },
     });
@@ -90,8 +104,3 @@ export async function DELETE(
     );
   }
 }
-
-
-
-
-

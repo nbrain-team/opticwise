@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { updateActivityCounters } from "@/lib/activity-counters";
+import { toInt, toDateOrNull, toNullIfEmpty } from "@/lib/api-sanitize";
 
 /**
  * Update an activity
@@ -20,10 +21,10 @@ export async function PATCH(
     if (subject !== undefined) updateData.subject = subject.trim();
     if (note !== undefined) updateData.note = note?.trim() || null;
     if (type !== undefined) updateData.type = type;
-    if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
-    if (dueTime !== undefined) updateData.dueTime = dueTime || null;
-    if (duration !== undefined) updateData.duration = duration || null;
-    if (assignedTo !== undefined) updateData.assignedTo = assignedTo || null;
+    if (dueDate !== undefined) updateData.dueDate = toDateOrNull(dueDate);
+    if (dueTime !== undefined) updateData.dueTime = toNullIfEmpty(dueTime);
+    if (duration !== undefined) updateData.duration = toInt(duration);
+    if (assignedTo !== undefined) updateData.assignedTo = toNullIfEmpty(assignedTo);
     
     // Handle status change
     if (status !== undefined) {

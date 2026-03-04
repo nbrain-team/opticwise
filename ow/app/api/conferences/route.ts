@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { toInt } from '@/lib/api-sanitize';
 
 // GET /api/conferences - List all conferences
 export async function GET(request: NextRequest) {
@@ -84,9 +85,9 @@ export async function POST(request: NextRequest) {
         registrationUrl,
         boothNumber,
         teamMembers,
-        targetMeetings,
-        targetLeads,
-        booksToDistribute,
+        targetMeetings: toInt(targetMeetings),
+        targetLeads: toInt(targetLeads),
+        booksToDistribute: toInt(booksToDistribute),
         status: 'upcoming',
       },
     });

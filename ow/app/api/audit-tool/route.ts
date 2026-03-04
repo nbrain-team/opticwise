@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { toInt } from '@/lib/api-sanitize';
 
 // POST /api/audit-tool - Submit audit request (public endpoint)
 export async function POST(request: NextRequest) {
@@ -15,9 +16,6 @@ export async function POST(request: NextRequest) {
       phone,
       propertyType,
       propertySize,
-      numberOfUnits,
-      independentSystems,
-      physicalNetworks,
       currentVendors,
       painPoints,
       decisionMaker,
@@ -29,6 +27,9 @@ export async function POST(request: NextRequest) {
       utmMedium,
       utmCampaign,
     } = body;
+    const numberOfUnits = toInt(body.numberOfUnits);
+    const independentSystems = toInt(body.independentSystems);
+    const physicalNetworks = toInt(body.physicalNetworks);
 
     if (!email) {
       return NextResponse.json(
@@ -138,9 +139,9 @@ export async function POST(request: NextRequest) {
     // Return response with insights
     const insights = generateInsights({
       propertyType,
-      numberOfUnits,
-      independentSystems,
-      physicalNetworks,
+      numberOfUnits: numberOfUnits ?? undefined,
+      independentSystems: independentSystems ?? undefined,
+      physicalNetworks: physicalNetworks ?? undefined,
       painPoints,
     });
 

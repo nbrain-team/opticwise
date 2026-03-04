@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
+import { toInt, toDecimal, toDateOrNull } from "@/lib/api-sanitize";
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
   const deal = await prisma.deal.create({
     data: {
       title,
-      value: value ?? 0,
+      value: toDecimal(value) ?? 0,
       currency,
       pipelineId,
       stageId,
@@ -92,8 +93,8 @@ export async function POST(request: Request) {
       organizationId,
       personId,
       ownerId: session.userId,
-      expectedCloseDate: expectedCloseDate ? new Date(expectedCloseDate) : undefined,
-      probability: probability ?? undefined,
+      expectedCloseDate: toDateOrNull(expectedCloseDate),
+      probability: toInt(probability),
     },
   });
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { prisma } from '@/lib/db';
+import { toInt, toDateOrNull } from '@/lib/api-sanitize';
 
 // GET /api/campaigns/[id] - Get campaign details
 export async function GET(
@@ -106,10 +107,10 @@ export async function PUT(
         ...(type && { type }),
         ...(status && { status }),
         ...(workflow !== undefined && { workflow }),
-        ...(startDate !== undefined && { startDate: startDate ? new Date(startDate) : null }),
-        ...(endDate !== undefined && { endDate: endDate ? new Date(endDate) : null }),
+        ...(startDate !== undefined && { startDate: toDateOrNull(startDate) }),
+        ...(endDate !== undefined && { endDate: toDateOrNull(endDate) }),
         ...(goalType !== undefined && { goalType }),
-        ...(goalTarget !== undefined && { goalTarget }),
+        ...(goalTarget !== undefined && { goalTarget: toInt(goalTarget) }),
         ...(tags !== undefined && { tags }),
       },
       include: {

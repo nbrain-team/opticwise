@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { updateActivityCounters } from "@/lib/activity-counters";
+import { toInt, toDateOrNull, toNullIfEmpty } from "@/lib/api-sanitize";
 
 /**
  * Create a new activity
@@ -44,14 +45,14 @@ export async function POST(request: NextRequest) {
         note: note?.trim() || null,
         type: type || "task",
         status: "pending",
-        dueDate: dueDate ? new Date(dueDate) : null,
-        dueTime: dueTime || null,
-        duration: duration || null,
-        dealId: dealId || null,
-        personId: personId || null,
-        organizationId: organizationId || null,
-        assignedTo: assignedTo || null,
-        createdBy: createdBy || null,
+        dueDate: toDateOrNull(dueDate),
+        dueTime: toNullIfEmpty(dueTime),
+        duration: toInt(duration),
+        dealId: toNullIfEmpty(dealId),
+        personId: toNullIfEmpty(personId),
+        organizationId: toNullIfEmpty(organizationId),
+        assignedTo: toNullIfEmpty(assignedTo),
+        createdBy: toNullIfEmpty(createdBy),
       },
     });
 
