@@ -1,12 +1,363 @@
 # Weekly Client Update - OpticWise Platform
 
+**Latest Update**: March 4, 2026  
+**Latest Period**: February 14 - March 4, 2026 (3 weeks)  
+**Status**: Website Redesign, CRM Overhaul, Knowledge Base & Slack Bot Deployed
+
+---
+
+### 2026-03-04 — Fix: Deal Editing & Platform-Wide Data Validation
+
+- **Fixed deal editing error** that prevented saving changes to deals (PrismaClientValidationError). The root cause was form data being passed to the database without proper type conversion (e.g., probability sent as text instead of number, empty dropdowns sent as blank text instead of null).
+- **Hardened data validation across 10 API routes** (deals, contacts, organizations, activities, campaigns, conferences, audit tool) to prevent similar issues from occurring elsewhere on the platform.
+- **Created shared validation utility** (`api-sanitize.ts`) that standardizes how all form data is converted before database writes — ensuring consistent, error-free operation across the entire CRM.
+
+---
+
+## Latest Update: February 14 - March 4, 2026
+
+### Executive Summary
+
+The past three weeks delivered the most infrastructure-heavy sprint to date - spanning a complete website redesign pipeline (v2 → v3 → Ghost CMS-powered Next.js), a full CRM overhaul with multi-user email sync, a Knowledge Base document upload system with AI agent integration, the Slack bot going fully operational in production, and a new Peak Property Performance microsite. The platform now supports multi-user privacy isolation, knowledge base document search, and team-wide AI access via Slack.
+
+**Key Strategic Achievements**: OpticWise now has a CMS-powered website architecture ready for ongoing content marketing, a CRM system with automatic email sync and per-user privacy, a knowledge base that the AI agent searches automatically, and a working Slack bot for team-wide AI access.
+
+---
+
+### Week-by-Week Overview (Feb 14 - Mar 4)
+
+#### Week 4 (Feb 14-20): Website Redesign Pipeline & CRM Overhaul
+- ✅ Website v2 rebuilt from client proof build content
+- ✅ Wireframe review page for client content approval
+- ✅ Website v3: redesigned homepage with client's exact content
+- ✅ All 14 website-v3 sub-pages with fixed navigation
+- ✅ PPP Audit subpage as design example with all content modules
+- ✅ Schedule Review page with form and CTA button updates
+- ✅ Claude Opus 4.6 upgrade across all AI modules
+- ✅ Ghost CMS service with MySQL deployed on Render
+- ✅ Ghost-powered Next.js website (website-v3-nextjs) with Tailwind
+- ✅ 107 blog posts scraped and imported from opticwise.com into Ghost
+- ✅ CRM dashboard with multi-contact deals and automatic email sync
+- ✅ CRM enhancements: email-to-activity linking, counters, new API routes
+- ✅ Multi-user email sync with strict per-user privacy isolation
+
+#### Week 5 (Feb 21-27): Knowledge Base, CRM Intelligence & Privacy
+- ✅ Knowledge Base document upload (PDF, Word, TXT) with AI agent integration
+- ✅ Email-based contact extraction and CRM replacement system
+- ✅ Multi-user contact extraction and full CRM refresh system
+- ✅ Per-user email privacy enforcement across entire platform
+- ✅ Deal-to-organization linking script and backfill
+- ✅ Sales Inbox: search bar and sort by newest received
+- ✅ Admin password reset for team members
+- ✅ Admin ability to edit user name, email, and department
+- ✅ Sales Inbox backfill script for gap recovery
+- ✅ Always search knowledge base regardless of query keywords
+- ✅ Multiple production stability fixes (PDF parsing, Gmail sync, credentials)
+
+#### Week 6 (Feb 28 - Mar 4): Slack Bot Live, Stabilization & PPP Microsite
+- ✅ Slack bot fully deployed and operational in production
+- ✅ Full inline user editing with role management
+- ✅ Ghost CMS SMTP configured for password reset emails
+- ✅ Blog post cleanup: clean HTML, remove duplicate headers, correct dates
+- ✅ Login form fixes: autocomplete, forgot password isolation
+- ✅ Organization and deal page crash fixes
+- ✅ Multiple vector/dimension/session/FK error fixes
+- ✅ Peak Property Performance (PPP) 4-page microsite deployed
+
+---
+
+### Detailed Accomplishments (Feb 14 - Mar 4)
+
+#### 1. Complete Website Redesign Pipeline (v2 → v3 → Ghost CMS)
+
+**Completed**: February 16-19, 2026
+**Status**: ✅ Multiple versions deployed, Ghost CMS architecture production-ready
+**Client Impact**: OpticWise now has a modern, CMS-powered website architecture that enables non-technical content updates, blog publishing, and ongoing SEO/content marketing without developer involvement
+
+**Website v2 (Feb 16)**:
+- Complete rebuild from client proof build content
+- Deployed as separate Render service
+- Webpack module resolution configured
+- DevDependencies build fix for Render
+
+**Wireframe Review (Feb 16)**:
+- Client content approval page served from OWnet domain
+- Hero text readability fixes
+- All hero section text forced to white for consistency
+
+**Website v3 - Static HTML (Feb 18)**:
+- Redesigned homepage with client's exact content and copy
+- PPP Audit subpage built as design example with all content modules
+- All 14 sub-pages built with fixed navigation links
+- Schedule Review page with functional form
+- All CTA buttons updated across every page
+- Public access configured via middleware
+
+**Website v3 - Ghost CMS + Next.js (Feb 19)**:
+- Ghost CMS deployed as Docker service on Render with MySQL database
+- Ghost Content API configured for headless content delivery
+- Next.js frontend (website-v3-nextjs) built with Tailwind CSS
+- 15+ page routes including all pillar pages, product pages, insights, and FAQ
+- Dynamic blog/insights pages pulling content from Ghost API
+- Revalidation webhook for instant content updates
+- Professional header/footer components, CTA sections, subpage heroes
+- SEO-ready with robots.txt, proper meta tags, and schema markup
+
+**107 Blog Posts Imported (Feb 19)**:
+- Custom scraping script extracted all blog posts from opticwise.com
+- Content imported into Ghost CMS with proper formatting
+- Dates, authors, and categories preserved
+- Posts immediately available through the Next.js frontend
+
+**Files Created**: 80+ files across website-v2, website-v3, website-v3-nextjs, and ghost-cms directories
+
+---
+
+#### 2. CRM Overhaul: Multi-User Dashboard & Email Sync
+
+**Completed**: February 20-26, 2026
+**Status**: ✅ Production deployed
+**Client Impact**: The CRM now features a real-time dashboard, automatic email sync for all team members, multi-contact deal support, and per-user privacy isolation - transforming it from a single-user tool to a team-ready system
+
+**CRM Dashboard (Feb 20)**:
+- New dashboard view with pipeline overview
+- Multi-contact deals - link multiple contacts to a single deal
+- Automatic email sync on page load
+- Activity counter tracking (emails, calls, meetings per contact)
+
+**Email-to-Activity Linking (Feb 20)**:
+- Emails automatically linked to contact activity records
+- Counter updates on each sync
+- New API routes for activity management
+
+**Multi-User Email Sync (Feb 20)**:
+- Each team member syncs their own Gmail
+- Strict per-user privacy isolation - users only see their own emails
+- Google service account authentication per user
+
+**Contact Extraction & CRM Refresh (Feb 23-26)**:
+- Email-based contact extraction system
+- Multi-user contact extraction across all team accounts
+- Full CRM refresh system for data consistency
+- Contact merge and deduplication
+- Apollo name fix script for data quality
+
+**Per-User Privacy Enforcement (Feb 26)**:
+- Privacy isolation enforced across entire platform
+- Sales Inbox filtered by authenticated user
+- Contact pages respect user boundaries
+- AI agent queries scoped to user's data
+- Hybrid search respects user privacy
+- Email relink script for data integrity
+
+**Deal-to-Organization Linking (Feb 26)**:
+- Script to link existing deals to their organizations
+- Backfill of historical deal data
+- Organization pages now show related deals
+
+---
+
+#### 3. Knowledge Base Document Upload & AI Integration
+
+**Completed**: February 26, 2026
+**Status**: ✅ Production deployed
+**Client Impact**: Team members can now upload PDF, Word, and text documents to a Knowledge Base that the AI agent automatically searches when answering questions - enabling the agent to reference internal documents, reports, and SOPs alongside CRM and email data
+
+**Upload System**:
+- File upload page at `/knowledge-base/upload`
+- Supports PDF (.pdf), Word (.docx), and plain text (.txt) files
+- Documents parsed, chunked, and vectorized with OpenAI embeddings
+- Stored in PostgreSQL with vector similarity search
+
+**AI Agent Integration**:
+- Agent automatically searches knowledge base on every query
+- Knowledge base results included alongside CRM, email, and transcript data
+- Source citations show knowledge base documents with confidence scores
+- Knowledge base type added to ContextSource and SourceCitation unions
+
+**Document Management**:
+- List all uploaded documents at `/knowledge-base`
+- Delete documents via API
+- Metadata tracking: filename, upload date, chunk count
+
+**Technical Fixes (6 commits)**:
+- PDF parsing: downgraded pdf-parse to v1.1.1 for compatibility
+- Lazy-init OpenAI client to prevent build-time crashes
+- Fixed mammoth and pdf-parse imports for production build
+- Fixed test file bug in pdf-parse
+- Always search knowledge base regardless of query keywords
+
+---
+
+#### 4. Slack Bot - Fully Operational in Production
+
+**Completed**: March 2, 2026
+**Status**: ✅ Live and operational
+**Client Impact**: Team members can now interact with the OWnet AI agent directly from Slack via @ownet mentions or direct messages - enabling team-wide AI access without switching tools
+
+**Production Deployment (6 fixes to go live)**:
+1. Internal auth bypass for Slack bot API calls
+2. Improved diagnostics and error logging
+3. Table initialization endpoint for first-use setup
+4. Reaction scope handling for missing permissions
+5. Auto-create database tables on first message
+6. Service user for AgentChatSession foreign key compliance
+7. Correct PORT configuration for internal API routing
+
+**Working Features**:
+- @ownet mentions in any Slack channel
+- Direct message conversations
+- Thread-based context preservation
+- Same AI quality as web interface
+- Source citations and brand voice
+- Progress indicators via emoji reactions
+- Automatic table creation on first use
+
+---
+
+#### 5. Sales Inbox Enhancements
+
+**Completed**: February 23-24, 2026
+**Status**: ✅ Production deployed
+**Client Impact**: Sales Inbox now includes search functionality and chronological sorting, making it faster to find and respond to important emails
+
+**Features Added**:
+- Search bar to filter emails by subject, sender, or content
+- Sort by newest received (most recent first)
+- Backfill script for recovering email gaps
+- Duplicate key error handling in email sync
+- Vector column type handling for embeddings
+
+---
+
+#### 6. Enhanced User Management
+
+**Completed**: February 24 - March 2, 2026
+**Status**: ✅ Production deployed
+**Client Impact**: Admins now have full inline editing capabilities for team members, including password reset, role management, and profile editing directly from the settings page
+
+**New Capabilities**:
+- Admin password reset for team members (one-click)
+- Admin ability to edit user name, email, and department
+- Full inline user editing with role management (complete rewrite of management UI)
+- React hydration error and accessibility fixes
+
+---
+
+#### 7. Ghost CMS Blog Post Cleanup
+
+**Completed**: March 2, 2026
+**Status**: ✅ Complete
+**Client Impact**: All 107 imported blog posts now have clean HTML, correct publication dates, and no duplicate headers - ensuring professional appearance and proper SEO
+
+**Fixes Applied**:
+- Cleaned HTML across all posts (removed artifacts from scraping)
+- Removed duplicate headers that appeared in post bodies
+- Corrected publication dates using sitemap data
+- SMTP configured for Ghost CMS password reset emails
+
+---
+
+#### 8. Production Stability & Bug Fixes (Mar 2-3)
+
+**Completed**: March 2-3, 2026
+**Status**: ✅ All resolved
+**Client Impact**: Multiple critical crashes and errors resolved - organization pages, deal pages, login flow, forgot password, and vector queries all now working reliably
+
+**Critical Fixes**:
+- Organization and deal pages crashing on vector column deserialization
+- Login redirect staying on login page
+- Forgot password URL pointing to wrong domain
+- Missing database tables causing 500 errors
+- Vector dimension mismatch errors
+- PDF parsing failures in production
+- Session foreign key constraint violations
+- Login form: proper autocomplete attributes, separated forgot password
+
+---
+
+#### 9. Peak Property Performance (PPP) Microsite
+
+**Completed**: March 4, 2026
+**Status**: ✅ Deployed
+**Client Impact**: Professional 4-page microsite for the Peak Property Performance brand - featuring home, about, book, and podcast pages with dynamic Spotify episode loading
+
+**Pages Built**:
+1. **Home** - Hero section, book showcase, podcast preview, about section
+2. **About** - Brand story, mission, team information
+3. **Book** - Book details, purchase links, content overview
+4. **Podcast** - Dynamic episode loading from Spotify API with playback
+
+**Technical Details**:
+- Custom CSS (674 lines)
+- Dynamic podcast.js for Spotify integration
+- Deployed to `/ppp-website/` path on OWnet
+- Also available in standalone `/ppp-microsite/` directory
+- Book cover image (WebP format, optimized)
+
+---
+
+#### 10. Claude Opus 4.6 Model Upgrade
+
+**Completed**: February 18, 2026
+**Status**: ✅ Deployed across all AI modules
+**Client Impact**: All AI-powered features upgraded to latest Claude Opus 4.6 model - improved reasoning, faster responses, and better brand voice consistency
+
+**Modules Upgraded**:
+- OWnet chat agent
+- Sales Inbox AI reply
+- Knowledge base query processing
+- All supporting AI utility functions
+
+---
+
+### Performance & Impact Summary (Feb 14 - Mar 4)
+
+| Metric | Value |
+|--------|-------|
+| **Commits** | 55+ |
+| **Files Created/Modified** | 200+ |
+| **Website Versions Built** | 3 (v2, v3-static, v3-nextjs) |
+| **Blog Posts Imported** | 107 |
+| **CMS Infrastructure** | Ghost + MySQL + Next.js |
+| **New Platform Features** | 8 major |
+| **Critical Bug Fixes** | 15+ |
+| **Knowledge Base** | PDF/Word/TXT upload + AI search |
+| **Slack Bot** | Fully operational |
+| **PPP Microsite Pages** | 4 |
+| **AI Model** | Upgraded to Claude Opus 4.6 |
+
+### Platform Status (as of March 4, 2026)
+
+| Component | Status |
+|-----------|--------|
+| **AI Agent (OWnet)** | ✅ Operational - Claude Opus 4.6 |
+| **Knowledge Base** | ✅ Upload + AI integration live |
+| **Slack Bot** | ✅ Live in production |
+| **CRM Dashboard** | ✅ Multi-user, privacy-isolated |
+| **Sales Inbox** | ✅ Search, sort, auto-sync |
+| **Email Sync** | ✅ Multi-user with privacy |
+| **User Management** | ✅ Full inline editing + roles |
+| **Website (v3-static)** | ✅ Deployed on OWnet |
+| **Website (Ghost CMS)** | ✅ Infrastructure ready |
+| **Blog (Ghost)** | ✅ 107 posts imported |
+| **PPP Microsite** | ✅ 4 pages deployed |
+| **Password Reset** | ✅ Email-based flow |
+| **Contact Extraction** | ✅ Multi-user system |
+
+---
+
+---
+
+## Previous Update: January 25 - February 13, 2026
+
 **Date**: February 13, 2026  
 **Week Period**: January 25 - February 13, 2026 (3 weeks)  
 **Status**: Major Platform Enhancement Phase Complete ✅
 
 ---
 
-## 🚀 Executive Summary
+## Executive Summary (Jan 25 - Feb 13)
 
 The past three weeks delivered transformational platform enhancements across AI agent intelligence, user management, security, website expansion, and quality assurance systems. The development team implemented enterprise-grade capabilities including BrandScript voice training, deep analysis mode, source citations, complete user management with password reset, a 14-page marketing website, comprehensive agent testing framework, and extracted 314 qualified contacts from email history.
 
@@ -14,7 +365,7 @@ The past three weeks delivered transformational platform enhancements across AI 
 
 ---
 
-## 📊 Week-by-Week Overview
+## Week-by-Week Overview (Jan 25 - Feb 13)
 
 ### Week 1 (Jan 25-31): AI Agent Intelligence Enhancement
 - ✅ BrandScript voice training with SB7 framework
