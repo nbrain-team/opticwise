@@ -49,3 +49,120 @@
 details > summary { list-style: none; cursor: pointer; }
 details > summary::-webkit-details-marker { display: none; }
 details[open] .faq-chevron { transform: rotate(180deg); }
+
+/* ===================================
+   CONTENT PAGE SECTIONS
+   =================================== */
+.content-section { @apply py-16 lg:py-20; }
+.content-section.bg-light { @apply bg-gray-50; }
+.content-block { @apply max-w-3xl mx-auto; }
+.content-block-centered { @apply max-w-3xl mx-auto text-center; }
+.section-label { @apply text-xs font-bold uppercase tracking-widest text-ow-blue mb-3 block; }
+.section-title { @apply text-2xl lg:text-3xl font-extrabold text-gray-900 mb-6; }
+.content-text { @apply text-base lg:text-lg text-gray-600 leading-relaxed mb-4; }
+.content-lead { @apply text-lg lg:text-xl text-gray-700 leading-relaxed mb-4 font-medium; }
+.content-list { @apply list-none space-y-3 my-6 pl-0; }
+.content-list li { @apply relative pl-6 text-gray-600 leading-relaxed; }
+.content-list li::before { content: ''; @apply absolute left-0 top-2.5 w-2 h-2 rounded-full bg-ow-blue/40; }
+
+/* Definition Box */
+.definition-box {
+  @apply bg-gray-50 border-l-4 border-ow-blue rounded-lg p-6 lg:p-8 my-8;
+}
+.definition-label { @apply text-xs font-bold uppercase tracking-widest text-ow-blue mb-2; }
+.definition-text { @apply text-base lg:text-lg text-gray-700 leading-relaxed m-0; }
+
+/* Framework Grid (PPP 5C) */
+.framework-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-8;
+}
+.framework-item {
+  @apply bg-white border-2 border-gray-200 rounded-xl p-6 transition-all duration-200;
+}
+.framework-item:hover {
+  @apply border-ow-blue/30 shadow-lg -translate-y-1;
+}
+.framework-item h3 { @apply text-lg font-bold text-gray-900 mb-2; }
+.framework-item p { @apply text-sm text-gray-600 leading-relaxed m-0; }
+
+/* FAQ Section (simple non-accordion) */
+.faq-section-simple { @apply py-16 lg:py-20 bg-gray-50; }
+.faq-item { @apply mb-8; }
+.faq-question { @apply text-lg lg:text-xl font-bold text-gray-900 mb-3; }
+.faq-answer { @apply text-base text-gray-600 leading-relaxed; }
+
+/* ===================================
+   FAQ PAGE STYLES (Tabs + Accordions)
+   =================================== */
+.faq-role-tabs {
+  @apply flex flex-wrap justify-center gap-2 mb-10;
+}
+.faq-role-tab {
+  @apply px-5 py-2.5 rounded-full text-sm font-semibold bg-gray-100 text-gray-600 border-2 border-transparent cursor-pointer transition-all duration-200;
+}
+.faq-role-tab:hover {
+  @apply border-ow-blue/30 text-ow-blue bg-white;
+}
+.faq-role-tab.active {
+  @apply bg-ow-blue text-white border-ow-blue;
+}
+.faq-layer-group { @apply mb-10; }
+.faq-layer-label {
+  @apply text-xs font-bold uppercase tracking-widest text-ow-blue mb-4 pb-2 border-b-2 border-ow-blue/20;
+}
+.faq-accordion {
+  @apply mb-3 bg-white border-2 border-gray-200 rounded-lg overflow-hidden transition-all duration-200;
+}
+.faq-accordion:hover { @apply border-ow-blue/30; }
+.faq-accordion-header {
+  @apply flex items-center justify-between px-6 py-5 cursor-pointer transition-all duration-200;
+}
+.faq-accordion-header:hover { @apply bg-gray-50; }
+.faq-accordion-question {
+  @apply text-base lg:text-lg font-semibold text-gray-900 leading-snug flex-1 pr-4;
+}
+.faq-accordion-icon {
+  @apply w-7 h-7 flex-shrink-0 flex items-center justify-center text-ow-blue font-bold text-lg transition-transform duration-200;
+}
+.faq-accordion.open .faq-accordion-icon { @apply rotate-45; }
+.faq-accordion-body {
+  @apply hidden px-6 pb-5;
+}
+.faq-accordion.open .faq-accordion-body { @apply block; }
+.faq-accordion-answer {
+  @apply text-base leading-relaxed text-gray-600;
+}
+.faq-general-section { @apply py-16 lg:py-20 bg-gray-50; }
+.faq-general-header { @apply text-center max-w-2xl mx-auto mb-10; }
+.faq-general-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-8;
+}
+.faq-general-group-title {
+  @apply text-xl font-bold text-gray-900 mb-4 pl-3;
+}
+
+/* ===================================
+   PILLARS / CATEGORY HUB
+   =================================== */
+.pillars-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-10;
+}
+.pillar-card {
+  @apply block bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border-2 border-gray-200 transition-all duration-200 relative no-underline;
+}
+.pillar-card::before {
+  content: ''; @apply absolute top-0 left-0 right-0 h-1 bg-ow-blue rounded-t-2xl;
+  transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
+}
+.pillar-card:hover::before { transform: scaleX(1); }
+.pillar-card:hover {
+  @apply border-ow-blue bg-white shadow-xl -translate-y-3;
+}
+.pillar-number { @apply text-3xl font-extrabold text-ow-blue/40 mb-4; }
+.pillar-title { @apply text-xl font-bold text-gray-900 mb-3 leading-snug; }
+.pillar-description { @apply text-base text-gray-600 leading-relaxed mb-4; }
+.pillar-link { @apply text-base font-bold text-ow-blue; }
+.pillars-conclusion-card {
+  @apply max-w-2xl mx-auto p-8 bg-gradient-to-br from-ow-navy to-ow-navy/90 rounded-xl text-center;
+}
+.pillars-conclusion-card p { @apply text-xl lg:text-2xl font-bold text-white leading-relaxed m-0; }

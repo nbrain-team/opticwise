@@ -6,6 +6,17 @@
 
 ---
 
+### 2026-03-05 — Website Visual Overhaul: Ghost CMS Pages Redesigned to Match Original HTML
+
+- **Rebuilt 12 website pages** in the Ghost CMS Next.js frontend to match the original static HTML design. Pages were previously rendering as plain text columns; they now have proper structured sections, alternating backgrounds, styled definition boxes, bullet lists, and FAQ sections.
+- **FAQ page completely rebuilt** with interactive role-based tabs (Developer, Owner, Operator, Property Manager, Asset Manager, ERTC), expandable accordion items organized by Layer 1/Layer 2/Advisory, and a two-column General FAQ Hub grid.
+- **Category Hub / Pillars page rebuilt** with a five-pillar card grid layout, canonical clarification box, and conclusion card.
+- **All Explore footer links redesigned**: NOI Strategy, NOI Playbook, CRE AI Readiness, AI-Ready CRE, Own vs Lease Data, Digital Visibility — each with proper definition boxes, alternating content sections, and styled FAQ areas.
+- **All Products & Services footer links redesigned**: PPP Audit, BoT (Building of Things), 5S Wireless, How We Operate — each with structured layouts matching the original HTML version.
+- **Added comprehensive CSS** for content page styling including section alternation, definition boxes, framework grids, pillar cards, and FAQ accordions.
+
+---
+
 ### 2026-03-04 — Fix: Deal Editing & Platform-Wide Data Validation
 
 - **Fixed deal editing error** that prevented saving changes to deals (PrismaClientValidationError). The root cause was form data being passed to the database without proper type conversion (e.g., probability sent as text instead of number, empty dropdowns sent as blank text instead of null).
