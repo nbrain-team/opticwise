@@ -3,6 +3,7 @@ import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/db";
 import { UserManagement } from "./UserManagement";
 import { ChangePassword } from "./ChangePassword";
+import { PipelineManager } from "./PipelineManager";
 
 export default async function SettingsPage() {
   const session = await getSession();
@@ -70,12 +71,20 @@ export default async function SettingsPage() {
                 Change Password
               </a>
               {currentUser.role === "admin" && (
-                <a
-                  href="#team"
-                  className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                >
-                  Team Members
-                </a>
+                <>
+                  <a
+                    href="#pipelines"
+                    className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  >
+                    Pipelines
+                  </a>
+                  <a
+                    href="#team"
+                    className="block px-3 py-2 rounded-md text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  >
+                    Team Members
+                  </a>
+                </>
               )}
             </nav>
           </div>
@@ -143,6 +152,13 @@ export default async function SettingsPage() {
             <div id="password" className="scroll-mt-20">
               <ChangePassword />
             </div>
+
+            {/* Pipeline Manager - Admin Only */}
+            {currentUser.role === "admin" && (
+              <div id="pipelines" className="bg-white rounded-lg border border-gray-200 p-6 scroll-mt-20">
+                <PipelineManager />
+              </div>
+            )}
 
             {/* Team Members Section - Admin Only */}
             {currentUser.role === "admin" && (

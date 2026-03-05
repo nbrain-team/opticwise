@@ -4,13 +4,29 @@ import { redirect } from "next/navigation";
 import { getActivePipeline } from "@/lib/pipeline";
 import { toInt, toDecimal, toDateOrNull } from "@/lib/api-sanitize";
 
-export default async function NewDealPage() {
+export default async function NewDealPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await getSession();
   if (!session) redirect("/login?next=/deals/new");
 
-  const pipeline = await getActivePipeline();
+  const params = await searchParams;
+  const pipelineId = params.pipeline as string | undefined;
+
+  let pipeline;
+  if (pipelineId) {
+    pipeline = await prisma.pipeline.findUnique({
+      where: { id: pipelineId },
+      include: { stages: { orderBy: { orderIndex: "asc" } } },
+    });
+  }
+  if (!pipeline) {
+    pipeline = await getActivePipeline();
+  }
   if (!pipeline || pipeline.stages.length === 0) {
-    return <div className="p-6">No pipeline. Run seed.</div>;
+    return <div className="p-6">No pipeline found. Go to Settings to create one.</div>;
   }
 
   const organizations = await prisma.organization.findMany({

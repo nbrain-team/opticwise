@@ -3,10 +3,10 @@ import Link from "next/link";
 import DealsBoard from "./ui/DealsBoard";
 import DealsFilters from "./ui/DealsFilters";
 import { getSession } from "@/lib/session";
-import { getActivePipeline } from "@/lib/pipeline";
+import { getAllPipelines } from "@/lib/pipeline";
 
 type SortKey =
-  | "nextActivity" // placeholder for future parity
+  | "nextActivity"
   | "title"
   | "value"
   | "person"
@@ -32,31 +32,32 @@ export default async function DealsPage({
   const owner = (params.owner as string) || "everyone";
   const sort = ((params.sort as SortKey) || "title") as SortKey;
   const statusFilter = (params.status as string) || "open";
+  const pipelineParam = (params.pipeline as string) || "";
 
-  const activePipeline = await getActivePipeline();
+  const allPipelines = await getAllPipelines();
 
-  if (!activePipeline) {
+  if (!allPipelines || allPipelines.length === 0) {
     return (
       <div className="p-8">
         <h1 className="text-xl font-semibold">Deals</h1>
         <p className="text-sm text-gray-600 mt-2">
-          No pipeline found. Run the database seed.
+          No pipeline found. Go to Settings to create one.
         </p>
-        <Link className="text-sm underline" href="/login">
-          Go to login
+        <Link className="text-sm underline" href="/settings#pipelines">
+          Go to Settings
         </Link>
       </div>
     );
   }
 
+  const activePipeline = pipelineParam
+    ? allPipelines.find(p => p.id === pipelineParam) || allPipelines[0]
+    : allPipelines[0];
+
   const whereOwner =
     owner === "everyone"
       ? {}
-      : {
-          owner: {
-            email: owner,
-          },
-        };
+      : { owner: { email: owner } };
 
   const orderBy =
     sort === "title"
@@ -112,7 +113,6 @@ export default async function DealsPage({
       })),
   }));
 
-  // Count deals by status
   const openCount = await prisma.deal.count({
     where: { pipelineId: activePipeline.id, status: "open", ...whereOwner },
   });
@@ -125,11 +125,31 @@ export default async function DealsPage({
 
   return (
     <div className="p-8 space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 flex-wrap">
         <h1 className="text-3xl font-light text-[#50555C]">Deals</h1>
+
+        {/* Pipeline Switcher */}
+        {allPipelines.length > 1 && (
+          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            {allPipelines.map(p => (
+              <Link
+                key={p.id}
+                href={`/deals?pipeline=${p.id}&status=${statusFilter}&owner=${owner}&sort=${sort}`}
+                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                  activePipeline.id === p.id
+                    ? "bg-white text-[#3B6B8F] shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {p.name}
+              </Link>
+            ))}
+          </div>
+        )}
+
         <DealsFilters users={users} currentOwner={owner} currentSort={sort} />
         <Link
-          href="/deals/new"
+          href={`/deals/new?pipeline=${activePipeline.id}`}
           className="btn-primary ml-2"
         >
           + Deal
@@ -139,7 +159,7 @@ export default async function DealsPage({
       {/* Status Filter Tabs */}
       <div className="flex gap-2 border-b border-gray-200">
         <Link
-          href={`/deals?status=open&owner=${owner}&sort=${sort}`}
+          href={`/deals?pipeline=${activePipeline.id}&status=open&owner=${owner}&sort=${sort}`}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             statusFilter === "open"
               ? "border-[#3B6B8F] text-[#3B6B8F]"
@@ -149,7 +169,7 @@ export default async function DealsPage({
           Open ({openCount})
         </Link>
         <Link
-          href={`/deals?status=won&owner=${owner}&sort=${sort}`}
+          href={`/deals?pipeline=${activePipeline.id}&status=won&owner=${owner}&sort=${sort}`}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             statusFilter === "won"
               ? "border-green-600 text-green-600"
@@ -159,7 +179,7 @@ export default async function DealsPage({
           Won ({wonCount})
         </Link>
         <Link
-          href={`/deals?status=lost&owner=${owner}&sort=${sort}`}
+          href={`/deals?pipeline=${activePipeline.id}&status=lost&owner=${owner}&sort=${sort}`}
           className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
             statusFilter === "lost"
               ? "border-red-600 text-red-600"
@@ -228,5 +248,3 @@ export default async function DealsPage({
     </div>
   );
 }
-
-

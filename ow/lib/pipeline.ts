@@ -2,18 +2,21 @@ import { prisma } from "@/lib/db";
 
 /**
  * Finds the active pipeline consistently across the platform.
- * Priority: "Sales Pipeline" by name, then fallback to oldest pipeline.
+ * Uses the first (oldest) pipeline as default.
  */
 export async function getActivePipeline() {
-  const named = await prisma.pipeline.findFirst({
-    where: { name: "Sales Pipeline" },
-    include: { stages: { orderBy: { orderIndex: "asc" } } },
-  });
-  if (named && named.stages.length > 0) return named;
-
-  const fallback = await prisma.pipeline.findFirst({
+  return prisma.pipeline.findFirst({
     include: { stages: { orderBy: { orderIndex: "asc" } } },
     orderBy: { createdAt: "asc" },
   });
-  return fallback;
+}
+
+/**
+ * Gets all pipelines for the pipeline switcher.
+ */
+export async function getAllPipelines() {
+  return prisma.pipeline.findMany({
+    include: { stages: { orderBy: { orderIndex: "asc" } } },
+    orderBy: { createdAt: "asc" },
+  });
 }
