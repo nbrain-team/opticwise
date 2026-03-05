@@ -6,14 +6,14 @@
 
 ---
 
-### 2026-03-05 — Website Visual Overhaul: Ghost CMS Pages Redesigned to Match Original HTML
+### 2026-03-05 — Website Visual Overhaul: All Content Pages Rebuilt to Match Original HTML Design
 
-- **Rebuilt 12 website pages** in the Ghost CMS Next.js frontend to match the original static HTML design. Pages were previously rendering as plain text columns; they now have proper structured sections, alternating backgrounds, styled definition boxes, bullet lists, and FAQ sections.
-- **FAQ page completely rebuilt** with interactive role-based tabs (Developer, Owner, Operator, Property Manager, Asset Manager, ERTC), expandable accordion items organized by Layer 1/Layer 2/Advisory, and a two-column General FAQ Hub grid.
-- **Category Hub / Pillars page rebuilt** with a five-pillar card grid layout, canonical clarification box, and conclusion card.
-- **All Explore footer links redesigned**: NOI Strategy, NOI Playbook, CRE AI Readiness, AI-Ready CRE, Own vs Lease Data, Digital Visibility — each with proper definition boxes, alternating content sections, and styled FAQ areas.
-- **All Products & Services footer links redesigned**: PPP Audit, BoT (Building of Things), 5S Wireless, How We Operate — each with structured layouts matching the original HTML version.
-- **Added comprehensive CSS** for content page styling including section alternation, definition boxes, framework grids, pillar cards, and FAQ accordions.
+- **Rebuilt 12+ website pages** to be visually identical to the original HTML version at ownet.opticwise.com/website-v3/. Pages now feature the full design system: icon card grids, numbered deliverables, PPP 5C timelines, dark-section audience cards, two-layer model diagrams, and expandable FAQ accordions with chevron icons.
+- **FAQ page rebuilt** with interactive role-based tabs (Developer, Owner, Operator, Property Manager, Asset Manager, ERTC), native HTML5 expandable accordions organized by Layer 1/Layer 2/Advisory, and a two-column General FAQ Hub grid.
+- **Category Hub page rebuilt** with convergence deliverables, audit card grid, two-layer model diagram, PPP 5C timeline, and six pillar outcome cards with "Explore" buttons.
+- **All 6 Explore pages redesigned**: NOI Strategy (with icon cards + dark section + timeline), NOI Playbook (5C detailed + two-layer model), CRE AI Readiness (audit cards + dark failures section + layers), AI-Ready CRE (cards + deliverables + layers + outcomes), Own vs Lease Data (deliverables + red/green card comparison), Digital Visibility (deliverables + audit cards + timeline).
+- **All 4 Products & Services pages redesigned**: PPP Audit (audit grid + deliverables + timeline + audience cards), BoT (deliverables + outcome cards + layers), 5S Wireless (5 experience cards + outcome cards + dark operations section), How We Operate (3 deliverables + layer-2 card + outcome cards).
+- **Added complete subpage CSS design system** to globals.css with audit cards, deliverables, PPP timelines, audience/outcome grids, two-layer model, FAQ accordions, callout bars, and section eyebrows.
 
 ---
 
