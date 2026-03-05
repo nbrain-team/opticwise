@@ -52,6 +52,10 @@ export default function SalesInboxPage() {
   const [generatingAI, setGeneratingAI] = useState(false);
   const [manualReply, setManualReply] = useState('');
   const [creatingDeal, setCreatingDeal] = useState(false);
+  const [showDealPicker, setShowDealPicker] = useState(false);
+  const [dealSearchResults, setDealSearchResults] = useState<Array<{ id: string; title: string; organization?: { name: string } | null }>>([]);
+  const [dealSearchQuery, setDealSearchQuery] = useState('');
+  const [linkingDeal, setLinkingDeal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -210,6 +214,44 @@ export default function SalesInboxPage() {
       alert('Failed to create deal. Please try again.');
     } finally {
       setCreatingDeal(false);
+    }
+  };
+
+  const handleSearchDeals = async (query: string) => {
+    setDealSearchQuery(query);
+    if (!query.trim()) {
+      setDealSearchResults([]);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/deals/search?q=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setDealSearchResults(data.deals || []);
+      }
+    } catch {
+      console.error('Failed to search deals');
+    }
+  };
+
+  const handleLinkDeal = async (dealId: string) => {
+    if (!selectedThread) return;
+    setLinkingDeal(true);
+    try {
+      await fetch(`/api/sales-inbox/threads/${selectedThread.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dealId }),
+      });
+      await fetchThreads();
+      setShowDealPicker(false);
+      setDealSearchQuery('');
+      setDealSearchResults([]);
+      window.location.href = `/deal/${dealId}`;
+    } catch {
+      alert('Failed to link deal. Please try again.');
+    } finally {
+      setLinkingDeal(false);
     }
   };
 
@@ -421,13 +463,64 @@ export default function SalesInboxPage() {
                       View Deal
                     </Link>
                   ) : (
-                    <button
-                      onClick={handleCreateDeal}
-                      disabled={creatingDeal}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-                    >
-                      {creatingDeal ? 'Creating...' : 'Create Deal'}
-                    </button>
+                    <div className="flex items-center gap-2 relative">
+                      <button
+                        onClick={handleCreateDeal}
+                        disabled={creatingDeal}
+                        className="px-4 py-2 bg-[#3B6B8F] text-white rounded-lg hover:bg-[#2d5270] disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                      >
+                        {creatingDeal ? 'Creating...' : 'New Deal'}
+                      </button>
+                      <button
+                        onClick={() => { setShowDealPicker(!showDealPicker); if (!showDealPicker) handleSearchDeals(''); }}
+                        disabled={linkingDeal}
+                        className="px-4 py-2 bg-white text-[#3B6B8F] border border-[#3B6B8F] rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                      >
+                        {linkingDeal ? 'Linking...' : 'Link to Deal'}
+                      </button>
+                      {showDealPicker && (
+                        <div className="absolute top-full right-0 mt-2 w-80 bg-white rounded-lg border border-gray-200 shadow-xl z-50">
+                          <div className="p-3 border-b border-gray-200">
+                            <input
+                              type="text"
+                              placeholder="Search deals..."
+                              value={dealSearchQuery}
+                              onChange={(e) => handleSearchDeals(e.target.value)}
+                              autoFocus
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
+                            />
+                          </div>
+                          <div className="max-h-60 overflow-y-auto">
+                            {dealSearchResults.length === 0 ? (
+                              <div className="p-3 text-sm text-gray-500 text-center">
+                                {dealSearchQuery ? 'No deals found' : 'Type to search deals'}
+                              </div>
+                            ) : (
+                              dealSearchResults.map((deal) => (
+                                <button
+                                  key={deal.id}
+                                  onClick={() => handleLinkDeal(deal.id)}
+                                  className="w-full text-left px-3 py-2 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                >
+                                  <div className="text-sm font-medium text-gray-900">{deal.title}</div>
+                                  {deal.organization?.name && (
+                                    <div className="text-xs text-gray-500">{deal.organization.name}</div>
+                                  )}
+                                </button>
+                              ))
+                            )}
+                          </div>
+                          <div className="p-2 border-t border-gray-200">
+                            <button
+                              onClick={() => { setShowDealPicker(false); setDealSearchQuery(''); }}
+                              className="w-full text-center text-xs text-gray-500 hover:text-gray-700 py-1"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

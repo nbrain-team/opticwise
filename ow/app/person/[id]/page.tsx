@@ -8,6 +8,7 @@ import { NotesTab } from "@/app/components/NotesTab";
 import { EmailsTab } from "@/app/components/EmailsTab";
 import { FilesTab } from "@/app/components/FilesTab";
 import { ActivitiesTab } from "@/app/components/ActivitiesTab";
+import { LinkToDeal } from "@/app/components/LinkToDeal";
 
 export default async function PersonDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const session = await getSession();
@@ -454,7 +455,10 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ i
 
           {/* Deals */}
           <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-[#2E2E2F] mb-4">Deals ({person.deals.length})</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-[#2E2E2F]">Deals ({person.deals.length})</h2>
+              <LinkToDeal personId={person.id} />
+            </div>
             {person.deals.length > 0 ? (
               <div className="space-y-2">
                 {person.deals.map((deal) => (

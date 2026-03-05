@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { toInt, toDecimal, toDateOrNull } from "@/lib/api-sanitize";
+import { getActivePipeline } from "@/lib/pipeline";
 
 export async function POST(request: Request) {
   const session = await getSession();
@@ -25,17 +26,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
   }
 
-  // If pipelineId or stageId not provided, get the first pipeline and first stage
   if (!pipelineId || !stageId) {
-    const pipeline = await prisma.pipeline.findFirst({
-      include: { stages: { orderBy: { orderIndex: "asc" } } },
-      orderBy: { createdAt: "asc" },
-    });
-    
+    const pipeline = await getActivePipeline();
     if (!pipeline || pipeline.stages.length === 0) {
       return NextResponse.json({ error: "No pipeline found. Please run seed." }, { status: 400 });
     }
-    
     pipelineId = pipeline.id;
     stageId = pipeline.stages[0].id;
   }

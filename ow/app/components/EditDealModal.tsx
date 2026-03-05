@@ -45,23 +45,19 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
     stageId: deal.stageId,
     organizationId: getString(deal.organizationId),
     personId: getString(deal.personId),
-    label: getString(deal.label) || getString(deal.labels),
+    // Property Details
     propertyType: getString(deal.propertyType),
     propertyAddress: getString(deal.propertyAddress),
     qty: getString(deal.qty),
     goLiveTarget: getString(deal.goLiveTarget),
+    // Financial (only ARR Forecast and CapEx ROM)
     arrForecast: getString(deal.arrForecast),
     capexRom: getString(deal.capexRom),
-    mrr: getString(deal.mrr),
-    arr: getString(deal.arr),
-    acv: getString(deal.acv),
-    auditValue: getString(deal.auditValue),
-    arrExpansionPotential: getString(deal.arrExpansionPotential),
+    // Sales & Qualification (only Lead Source, Technical POC as contact, ICP Segment)
     leadSource: getString(deal.leadSource),
     technicalPOC: getString(deal.technicalPOC),
     icpSegment: getString(deal.icpSegment),
-    readinessScore: getString(deal.readinessScore),
-    ddiAuditStatus: getString(deal.ddiAuditStatus),
+    // Lost reason (shown conditionally)
     lostReason: getString(deal.lostReason),
   });
 
@@ -102,7 +98,7 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full my-8">
+      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full my-8">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-semibold text-[#2E2E2F]">Edit Deal</h2>
@@ -295,7 +291,7 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
             </div>
           </div>
 
-          {/* Financial Details */}
+          {/* Financial Details (only ARR Forecast and CapEx ROM) */}
           <div>
             <h3 className="text-lg font-semibold text-[#2E2E2F] mb-4">Financial Details</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -321,65 +317,10 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">MRR</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="mrr"
-                  value={formData.mrr}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">ARR</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="arr"
-                  value={formData.arr}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">ACV</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="acv"
-                  value={formData.acv}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Audit Value</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="auditValue"
-                  value={formData.auditValue}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">ARR Expansion Potential</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  name="arrExpansionPotential"
-                  value={formData.arrExpansionPotential}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                />
-              </div>
             </div>
           </div>
 
-          {/* Sales & Qualification */}
+          {/* Sales & Qualification (only Lead Source, Technical POC, ICP Segment) */}
           <div>
             <h3 className="text-lg font-semibold text-[#2E2E2F] mb-4">Sales & Qualification</h3>
             <div className="grid grid-cols-2 gap-4">
@@ -395,13 +336,19 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Technical POC</label>
-                <input
-                  type="text"
+                <select
                   name="technicalPOC"
                   value={formData.technicalPOC}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                />
+                >
+                  <option value="">Select a contact</option>
+                  {people.map(person => (
+                    <option key={person.id} value={`${person.firstName} ${person.lastName}`}>
+                      {person.firstName} {person.lastName}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">ICP Segment</label>
@@ -409,36 +356,6 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
                   type="text"
                   name="icpSegment"
                   value={formData.icpSegment}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Readiness Score</label>
-                <input
-                  type="text"
-                  name="readinessScore"
-                  value={formData.readinessScore}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">DDI Audit Status</label>
-                <input
-                  type="text"
-                  name="ddiAuditStatus"
-                  value={formData.ddiAuditStatus}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Label</label>
-                <input
-                  type="text"
-                  name="label"
-                  value={formData.label}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
                 />
@@ -483,8 +400,3 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
     </div>
   );
 }
-
-
-
-
-

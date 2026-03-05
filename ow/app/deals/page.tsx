@@ -3,6 +3,7 @@ import Link from "next/link";
 import DealsBoard from "./ui/DealsBoard";
 import DealsFilters from "./ui/DealsFilters";
 import { getSession } from "@/lib/session";
+import { getActivePipeline } from "@/lib/pipeline";
 
 type SortKey =
   | "nextActivity" // placeholder for future parity
@@ -32,31 +33,7 @@ export default async function DealsPage({
   const sort = ((params.sort as SortKey) || "title") as SortKey;
   const statusFilter = (params.status as string) || "open";
 
-  // Get Sales Pipeline (where imported deals are)
-  const pipeline = await prisma.pipeline.findFirst({
-    where: {
-      name: "Sales Pipeline",
-    },
-    include: {
-      stages: {
-        orderBy: { orderIndex: "asc" },
-      },
-    },
-  });
-
-  // Fallback to first pipeline if Sales Pipeline doesn't exist
-  const fallbackPipeline = !pipeline
-    ? await prisma.pipeline.findFirst({
-        include: {
-          stages: {
-            orderBy: { orderIndex: "asc" },
-          },
-        },
-        orderBy: { createdAt: "asc" },
-      })
-    : null;
-
-  const activePipeline = pipeline || fallbackPipeline;
+  const activePipeline = await getActivePipeline();
 
   if (!activePipeline) {
     return (
