@@ -342,20 +342,11 @@ const GENERAL_FAQ: { title: string; items: FAQItem[] }[] = [
   },
 ];
 
-function AccordionItem({ item }: { item: FAQItem }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className={`faq-accordion${open ? " open" : ""}`}>
-      <div className="faq-accordion-header" onClick={() => setOpen(!open)}>
-        <span className="faq-accordion-question">{item.question}</span>
-        <span className="faq-accordion-icon">+</span>
-      </div>
-      <div className="faq-accordion-body">
-        <p className="faq-accordion-answer">{item.answer}</p>
-      </div>
-    </div>
-  );
-}
+const ChevronIcon = () => (
+  <svg className="faq-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M19 9l-7 7-7-7" />
+  </svg>
+);
 
 export function FAQPageContent() {
   const [activeRole, setActiveRole] = useState("developer");
@@ -363,18 +354,19 @@ export function FAQPageContent() {
   return (
     <>
       {/* Role-Based FAQ Section */}
-      <section className="content-section bg-white">
+      <section className="section section-white">
         <div className="ow-container">
-          <div className="text-center mb-10">
-            <span className="section-label">By Role</span>
-            <h2 className="section-title">Find Answers for Your Role</h2>
+          <div className="section-header">
+            <span className="section-eyebrow">By Role</span>
+            <h2 className="section-heading">Find Answers for Your Role</h2>
+            <div className="accent-bar accent-bar-center" />
           </div>
 
-          <div className="faq-role-tabs">
+          <div className="role-tabs">
             {ROLE_PANELS.map((panel) => (
               <button
                 key={panel.role}
-                className={`faq-role-tab${activeRole === panel.role ? " active" : ""}`}
+                className={`role-tab${activeRole === panel.role ? " active" : ""}`}
                 onClick={() => setActiveRole(panel.role)}
               >
                 {panel.label}
@@ -385,14 +377,22 @@ export function FAQPageContent() {
           {ROLE_PANELS.map((panel) => (
             <div
               key={panel.role}
-              className={activeRole === panel.role ? "block" : "hidden"}
+              className={`role-panel${activeRole === panel.role ? "" : " hidden"}`}
             >
               {panel.layers.map((layer, li) => (
-                <div key={li} className="faq-layer-group">
-                  <div className="faq-layer-label">{layer.label}</div>
-                  {layer.items.map((item, ii) => (
-                    <AccordionItem key={ii} item={item} />
-                  ))}
+                <div key={li} className="faq-group">
+                  <span className="faq-group-label">{layer.label}</span>
+                  <div className="faq-list">
+                    {layer.items.map((item, ii) => (
+                      <details key={ii} className="faq-item">
+                        <summary>
+                          <span className="faq-q">{item.question}</span>
+                          <ChevronIcon />
+                        </summary>
+                        <div className="faq-a">{item.answer}</div>
+                      </details>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -401,19 +401,26 @@ export function FAQPageContent() {
       </section>
 
       {/* General FAQ Hub */}
-      <section className="faq-general-section">
+      <section className="section section-light">
         <div className="ow-container">
-          <div className="faq-general-header">
-            <span className="section-label">General</span>
-            <h2 className="section-title">General FAQ Hub</h2>
+          <div className="section-header">
+            <span className="section-eyebrow">General</span>
+            <h2 className="section-heading">General FAQ Hub</h2>
+            <div className="accent-bar accent-bar-center" />
           </div>
 
-          <div className="faq-general-grid">
+          <div className="faq-list general-hub">
             {GENERAL_FAQ.map((group, gi) => (
-              <div key={gi}>
-                <h3 className="faq-general-group-title">{group.title}</h3>
+              <div key={gi} className="faq-group">
+                <span className="faq-group-label">{group.title}</span>
                 {group.items.map((item, ii) => (
-                  <AccordionItem key={ii} item={item} />
+                  <details key={ii} className="faq-item">
+                    <summary>
+                      <span className="faq-q">{item.question}</span>
+                      <ChevronIcon />
+                    </summary>
+                    <div className="faq-a">{item.answer}</div>
+                  </details>
                 ))}
               </div>
             ))}
