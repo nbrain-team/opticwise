@@ -6,6 +6,18 @@
 
 ---
 
+### 2026-03-05 — CRM Enhancements: Deal Bugs Fixed, Edit Modal Simplified, Search & Email-Deal Linking
+
+- **Fixed crash when creating deals** from the Add Deal page — the system was failing silently due to an authentication issue in the server-side code. Deals now create reliably and redirect to the deal detail page.
+- **Fixed deals not appearing in the pipeline** — deals were being created in one pipeline but displayed from another. All deal creation paths now use the same pipeline consistently.
+- **Simplified the Edit Deal modal** per client request — removed unnecessary fields. Now shows only: Basic Information, Property Details, ARR Forecast & CapEx ROM (Financial), and Lead Source, Technical POC (as a contact dropdown), and ICP Segment (Sales).
+- **Added search bar to the deals pipeline** — users can now instantly filter deals by name or organization without scrolling.
+- **Added "Link to Deal" button in Sales Inbox** — when viewing an email thread, users can now associate it with an existing deal (search by name) in addition to creating a new deal.
+- **Added "Link to Deal" on contact pages** — users can now link contacts to existing deals directly from the contact detail page.
+- **Improved new deal form** — now shows organization and contact dropdowns (instead of free-text) for consistent data entry.
+
+---
+
 ### 2026-03-05 — Website Visual Overhaul: All Content Pages Rebuilt to Match Original HTML Design
 
 - **Rebuilt 12+ website pages** to be visually identical to the original HTML version at ownet.opticwise.com/website-v3/. Pages now feature the full design system: icon card grids, numbered deliverables, PPP 5C timelines, dark-section audience cards, two-layer model diagrams, and expandable FAQ accordions with chevron icons.
