@@ -6,6 +6,16 @@
 
 ---
 
+### 2026-03-05 — Pipeline Manager & Multi-Pipeline Support
+
+- **Built Pipeline Manager** in Settings — admins can now create new pipelines, rename existing ones, add/rename/reorder/delete stages, and delete entire pipelines. No more dev involvement needed for pipeline changes.
+- **Added pipeline switcher** to the Deals page — toggle between pipelines using tabs at the top of the page. Each pipeline shows its own kanban board with stages and deals.
+- **Created MTU Tenant Pipeline** with stages: Tenant Identified, Contacted, Solution Defined, Proposal Made, Negotiations Started.
+- **Deleted Sales Pipeline** (175 old deals, 17 stages) per client request — data is preserved in Pipedrive as backup.
+- **New pipelines ready to create** — the client can now create new pipelines directly (e.g., "Podcast Guests Pipeline") and point form submissions at them.
+
+---
+
 ### 2026-03-05 — CRM Enhancements: Deal Bugs Fixed, Edit Modal Simplified, Search & Email-Deal Linking
 
 - **Fixed crash when creating deals** from the Add Deal page — the system was failing silently due to an authentication issue in the server-side code. Deals now create reliably and redirect to the deal detail page.
