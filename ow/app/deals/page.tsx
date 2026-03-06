@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import DealsBoard from "./ui/DealsBoard";
 import DealsFilters from "./ui/DealsFilters";
+import PipelineSwitcher from "./ui/PipelineSwitcher";
 import { getSession } from "@/lib/session";
 import { getAllPipelines } from "@/lib/pipeline";
 
@@ -128,24 +129,10 @@ export default async function DealsPage({
       <div className="flex items-center gap-4 flex-wrap">
         <h1 className="text-3xl font-light text-[#50555C]">Deals</h1>
 
-        {/* Pipeline Switcher */}
-        {allPipelines.length > 1 && (
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
-            {allPipelines.map(p => (
-              <Link
-                key={p.id}
-                href={`/deals?pipeline=${p.id}&status=${statusFilter}&owner=${owner}&sort=${sort}`}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  activePipeline.id === p.id
-                    ? "bg-white text-[#3B6B8F] shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                {p.name}
-              </Link>
-            ))}
-          </div>
-        )}
+        <PipelineSwitcher
+          pipelines={allPipelines.map(p => ({ id: p.id, name: p.name }))}
+          activePipelineId={activePipeline.id}
+        />
 
         <DealsFilters users={users} currentOwner={owner} currentSort={sort} />
         <Link
