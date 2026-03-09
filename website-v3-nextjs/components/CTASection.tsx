@@ -1,5 +1,7 @@
-import Link from "next/link";
+"use client";
+
 import { SITE } from "@/lib/site";
+import { ScheduleReviewButton } from "./ScheduleReviewPopup";
 
 export function CTASection() {
   return (
@@ -12,7 +14,7 @@ export function CTASection() {
         <p className="text-xs font-bold uppercase tracking-widest text-blue-200 mb-4">Your Next Step</p>
         <h2 className="text-2xl lg:text-3xl font-extrabold text-white mb-4 leading-tight">{SITE.primaryCTA.label}</h2>
         <p className="text-base text-white/80 max-w-xl mx-auto mb-8 leading-relaxed">{SITE.primaryCTA.microcopy}</p>
-        <Link href={SITE.primaryCTA.href} className="btn btn-white btn-lg">Schedule Your Review</Link>
+        <ScheduleReviewButton className="btn btn-white btn-lg" label="Schedule Your Review" />
       </div>
     </section>
   );

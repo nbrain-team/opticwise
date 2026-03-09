@@ -3,6 +3,7 @@ import { getPageBySlug } from "@/lib/ghost";
 import { GhostContent } from "@/components/GhostContent";
 import { CTASection } from "@/components/CTASection";
 import { SITE } from "@/lib/site";
+import { ScheduleReviewButton } from "@/components/ScheduleReviewPopup";
 
 export const revalidate = 300;
 
@@ -31,7 +32,7 @@ export default async function HomePage() {
             <p className="text-lg font-bold text-white m-0">{SITE.reframingLine}</p>
           </div>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Link href={SITE.primaryCTA.href} className="btn btn-primary btn-lg">Schedule Your Review</Link>
+            <ScheduleReviewButton className="btn btn-primary btn-lg" label="Schedule Your Review" />
             <Link href="/digital-infrastructure-noi-ai/" className="btn btn-outline-light btn-lg">Explore the Pillars</Link>
           </div>
         </div>

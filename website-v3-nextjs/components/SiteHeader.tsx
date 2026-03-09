@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { SITE } from "@/lib/site";
+import { ScheduleReviewButton } from "./ScheduleReviewPopup";
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
@@ -32,9 +33,9 @@ export function SiteHeader() {
           ))}
         </ul>
 
-        <Link href={SITE.primaryCTA.href} className="hidden lg:inline-flex btn btn-nav">
-          Schedule Review
-        </Link>
+        <span className="hidden lg:inline-flex">
+          <ScheduleReviewButton className="btn btn-nav" label="Schedule Review" />
+        </span>
 
         <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2" aria-label="Menu">
           {[0, 1, 2].map((i) => (
@@ -51,9 +52,7 @@ export function SiteHeader() {
                 {item.label}
               </Link>
             ))}
-            <Link href={SITE.primaryCTA.href} onClick={() => setMobileOpen(false)} className="btn btn-primary text-center mt-3 text-sm py-3">
-              Schedule Review
-            </Link>
+            <ScheduleReviewButton className="btn btn-primary text-center mt-3 text-sm py-3" label="Schedule Review" />
           </div>
         </div>
       )}
