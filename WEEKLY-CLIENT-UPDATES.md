@@ -6,6 +6,14 @@
 
 ---
 
+### 2026-03-09 — Schedule Review Form & Create Deal from Contacts
+
+- **Added "Schedule Review" stage** as the first stage in the New Projects Pipeline. Website form leads now flow directly into this stage as new deals.
+- **Ghost CMS "Schedule Your Review" buttons** now trigger a popup form (instead of linking to a page). Form captures first/last name, email, company, phone, property type, and message. Submissions automatically create a contact, organization, and deal in the Schedule Review stage.
+- **Added "Create Deal" button on contact pages** — users can now create a new deal directly from any contact card. The modal lets you pick a pipeline, stage, set value and title (pre-populated with the contact/org name).
+
+---
+
 ### 2026-03-05 — Pipeline Manager & Multi-Pipeline Support
 
 - **Built Pipeline Manager** in Settings — admins can now create new pipelines, rename existing ones, add/rename/reorder/delete stages, and delete entire pipelines. No more dev involvement needed for pipeline changes.

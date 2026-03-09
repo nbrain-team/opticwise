@@ -1,5 +1,8 @@
 # Opticwise Project Configuration
 
+## Weekly Client Updates
+After completing any new feature, enhancement, or major bug fix, update `WEEKLY-CLIENT-UPDATES.md` in the workspace root. New entries go at the TOP. Before ending any conversation that included qualifying work, verify this file was updated.
+
 ## Git & GitHub Configuration
 - **Repository**: https://github.com/nbrain-team/opticwise
 - **Git Remote**: git@github-opticwise:nbrain-team/opticwise.git
