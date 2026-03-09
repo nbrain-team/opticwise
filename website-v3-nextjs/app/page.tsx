@@ -4,6 +4,7 @@ import { GhostContent } from "@/components/GhostContent";
 import { CTASection } from "@/components/CTASection";
 import { SITE } from "@/lib/site";
 import { ScheduleReviewButton } from "@/components/ScheduleReviewPopup";
+import { LeadMagnetForm } from "@/components/LeadMagnetForm";
 
 export const revalidate = 300;
 
@@ -146,6 +147,58 @@ export default async function HomePage() {
                 <span>Many decision engines</span>
                 <span className="text-emerald-500 text-lg">&rarr;</span>
                 <span>Scaled across buildings</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==================== LEAD MAGNET ==================== */}
+      <section className="relative overflow-hidden py-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0f2847] to-[#0a1628]" />
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, rgba(43,108,176,.15) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(16,185,129,.08) 0%, transparent 50%)" }} />
+        </div>
+        <div className="relative z-10 ow-container py-20 lg:py-28">
+          <div className="grid lg:grid-cols-[1fr_380px] gap-12 lg:gap-16 items-center">
+            <div>
+              <span className="inline-block text-xs font-bold uppercase tracking-widest text-emerald-400 bg-emerald-400/10 px-4 py-1.5 rounded-full mb-6">
+                Free Download &mdash; PPP Starter Kit
+              </span>
+              <h2 className="text-3xl lg:text-4xl font-extrabold text-white leading-tight mb-4">
+                The Hidden Data Inside Your Buildings
+              </h2>
+              <p className="text-lg text-white/70 mb-6 leading-relaxed">
+                Why most CRE owners don&rsquo;t control their most valuable asset&mdash;and the framework that changes everything.
+              </p>
+
+              <div className="space-y-3 mb-8">
+                {[
+                  "Chapter 1 from Peak Property Performance (Fast Company Press)",
+                  "1-page PPP 5C\u2122 Framework diagram",
+                  "The five questions every owner should ask about building data",
+                  "PPP Review teaser worksheet",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3"><path d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <span className="text-sm text-white/80">{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <LeadMagnetForm />
+            </div>
+
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-br from-ow-blue/20 to-emerald-500/10 rounded-3xl blur-2xl" />
+                <img
+                  src="/images/ppp-book-cover.png"
+                  alt="Peak Property Performance book by Bill Douglas and Drew Hall"
+                  className="relative w-64 lg:w-80 drop-shadow-2xl"
+                />
               </div>
             </div>
           </div>
