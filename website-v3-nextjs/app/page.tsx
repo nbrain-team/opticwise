@@ -24,11 +24,11 @@ export default async function HomePage() {
             Own Your Data &amp; Digital Infrastructure.{" "}
             <span className="text-gradient">Build for the Long Game.</span>
           </h1>
-          <p className="text-lg lg:text-xl text-white/85 max-w-3xl mx-auto mb-4 leading-relaxed">
+          <p className="text-lg lg:text-xl text-white/85 max-w-4xl mx-auto mb-4 leading-relaxed">
             Data &amp; digital infrastructure are no longer background utilities. They determine who controls NOI, who owns operational and tenant data, and who shapes the future intelligence of commercial real estate assets.
           </p>
           <p className="text-base text-white/60 mb-8">For years, these decisions were delegated to vendors. That era is ending.</p>
-          <div className="max-w-xl mx-auto px-7 py-5 rounded-xl bg-ow-blue/15 border border-blue-400/30 backdrop-blur-sm mb-9">
+          <div className="max-w-3xl mx-auto px-7 py-5 rounded-xl bg-ow-blue/15 border border-blue-400/30 backdrop-blur-sm mb-9">
             <p className="text-lg font-bold text-white m-0">{SITE.reframingLine}</p>
           </div>
           <div className="flex flex-wrap gap-4 justify-center">
