@@ -18,12 +18,12 @@ export default async function HomePage() {
         </div>
         <div className="hero-overlay" />
         <div className="hero-grid-lines" />
-        <div className="relative z-10 ow-container text-center max-w-[900px] mx-auto">
+        <div className="relative z-10 ow-container text-center">
           <h1 className="text-4xl lg:text-5xl xl:text-6xl font-extrabold text-white leading-tight tracking-tight mb-7">
             Own Your Data &amp; Digital Infrastructure.{" "}
             <span className="text-gradient">Build for the Long Game.</span>
           </h1>
-          <p className="text-lg lg:text-xl text-white/85 max-w-2xl mx-auto mb-4 leading-relaxed">
+          <p className="text-lg lg:text-xl text-white/85 max-w-3xl mx-auto mb-4 leading-relaxed">
             Data &amp; digital infrastructure are no longer background utilities. They determine who controls NOI, who owns operational and tenant data, and who shapes the future intelligence of commercial real estate assets.
           </p>
           <p className="text-base text-white/60 mb-8">For years, these decisions were delegated to vendors. That era is ending.</p>

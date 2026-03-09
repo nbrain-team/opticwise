@@ -22,10 +22,11 @@ export async function ContentPage({ slug, title, lead, description, badge, bgIma
       <SubpageHero title={title} lead={lead} description={description} badge={badge} bgImage={bgImage} />
 
       <section className="ow-section bg-white">
-        <div className="ow-container max-w-3xl mx-auto">
+        <div className="ow-container">
           <GhostContent html={page?.html ?? null} fallbackMarkdown={fallbackContent} />
         </div>
       </section>
+
 
       <CTASection />
 

@@ -17,7 +17,7 @@ export function SubpageHero({ title, lead, description, badge, bgImage = "/image
       </div>
       <div className="hero-overlay" />
       <div className="hero-grid-lines" />
-      <div className="relative z-10 ow-container max-w-3xl">
+      <div className="relative z-10 ow-container">
         <Link href="/" className="inline-flex items-center gap-1 text-sm text-white/50 hover:text-white/80 mb-5 transition-colors">
           &larr; Home
         </Link>

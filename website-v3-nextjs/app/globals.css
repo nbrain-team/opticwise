@@ -76,14 +76,14 @@ details[open] .faq-chevron { transform: rotate(180deg); }
 .section-heading-light { color: #fff; }
 .section-subtitle {
   font-size: 1.05rem; color: #64748b;
-  max-width: 640px; margin: 0 auto; line-height: 1.7;
+  max-width: 800px; margin: 0 auto; line-height: 1.7;
 }
 .section-header-light .section-subtitle { color: rgba(255,255,255,.7); }
 
 /* --- Audit Cards (Icon Grid) --- */
 .audit-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 20px; max-width: 960px; margin: 0 auto;
+  gap: 20px; max-width: 1100px; margin: 0 auto;
 }
 .audit-card {
   background: #fff; border: 1px solid #e2e8f0;
@@ -111,7 +111,7 @@ details[open] .faq-chevron { transform: rotate(180deg); }
 /* --- Callout Bar --- */
 .callout-bar {
   display: flex; align-items: center; gap: 12px;
-  max-width: 640px; margin: 40px auto 0;
+  max-width: 800px; margin: 40px auto 0;
   padding: 18px 24px; border-radius: 12px;
   background: #eff6ff; border: 1px solid #bfdbfe;
   color: #1e40af; font-size: .9rem; font-weight: 500;
@@ -122,7 +122,7 @@ details[open] .faq-chevron { transform: rotate(180deg); }
 /* --- Deliverables (Numbered Items) --- */
 .deliverables {
   display: flex; flex-direction: column; gap: 24px;
-  max-width: 800px; margin: 0 auto;
+  max-width: 1000px; margin: 0 auto;
 }
 .deliverable {
   display: flex; gap: 24px;
@@ -158,7 +158,7 @@ details[open] .faq-chevron { transform: rotate(180deg); }
 
 /* --- PPP 5C Timeline --- */
 .ppp-timeline {
-  max-width: 720px; margin: 0 auto;
+  max-width: 900px; margin: 0 auto;
   display: flex; flex-direction: column; gap: 0;
   position: relative;
 }
@@ -196,7 +196,7 @@ details[open] .faq-chevron { transform: rotate(180deg); }
 /* --- Audience Cards (Dark Section) --- */
 .audience-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px; max-width: 960px; margin: 0 auto;
+  gap: 20px; max-width: 1100px; margin: 0 auto;
 }
 .audience-card {
   background: rgba(255,255,255,.05);
@@ -240,7 +240,7 @@ details[open] .faq-chevron { transform: rotate(180deg); }
 /* --- Two-Layer Model --- */
 .layers {
   display: flex; flex-direction: column; gap: 0;
-  max-width: 800px; margin: 0 auto;
+  max-width: 1000px; margin: 0 auto;
 }
 .layer { border-radius: 20px; padding: 40px 36px; position: relative; }
 .layer-1 { background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1px solid #bfdbfe; }
@@ -273,10 +273,10 @@ details[open] .faq-chevron { transform: rotate(180deg); }
 
 /* --- FAQ Accordion (details/summary) --- */
 .faq-list {
-  max-width: 720px; margin: 0 auto;
+  max-width: 900px; margin: 0 auto;
   display: flex; flex-direction: column; gap: 12px;
 }
-.faq-list.general-hub { max-width: 960px; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 32px; }
+.faq-list.general-hub { max-width: 1100px; display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 32px; }
 .faq-group { margin-bottom: 8px; }
 .faq-group-label {
   display: block; font-size: .7rem; font-weight: 700;
