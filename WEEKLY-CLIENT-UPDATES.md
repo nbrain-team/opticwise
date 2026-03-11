@@ -6,6 +6,15 @@
 
 ---
 
+### 2026-03-11 — Read AI Webhook Integration
+
+- **Integrated Read AI webhook** into the Opticwise platform. After each meeting recorded by Read AI, the full meeting report (summary, transcript, action items, key questions, topics, chapter summaries, and participants) is automatically pushed into the platform database.
+- **Auto-links meetings to CRM contacts** — when a meeting participant's email matches a contact in the CRM, the meeting is automatically linked to that person and their organization.
+- **New `ReadAIMeeting` database model** stores all Read AI data with full indexing for future AI agent queries and search.
+- **Secure webhook endpoint** at `/api/webhooks/read-ai` with token-based authentication. Webhook URL and setup instructions provided for client configuration in Read AI settings.
+
+---
+
 ### 2026-03-09 — Schedule Review Form & Create Deal from Contacts
 
 - **Added "Schedule Review" stage** as the first stage in the New Projects Pipeline. Website form leads now flow directly into this stage as new deals.

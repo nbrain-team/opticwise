@@ -123,6 +123,7 @@ model Organization {
   auditRequests AuditRequest[]
   bookRequests BookRequest[]
   conferenceAttendees ConferenceAttendee[]
+  readAIMeetings ReadAIMeeting[]
 }
 
 model Person {
@@ -201,6 +202,7 @@ model Person {
   bookRequests BookRequest[]
   conferenceAttendees ConferenceAttendee[]
   chatbotConversations ChatbotConversation[]
+  readAIMeetings ReadAIMeeting[]
 }
 
 enum DealStatus {
@@ -307,6 +309,7 @@ model Deal {
   bookRequestsConverted BookRequest[]
   conferenceAttendeesConverted ConferenceAttendee[]
   chatbotConversationsConverted ChatbotConversation[]
+  readAIMeetings ReadAIMeeting[]
 
   @@index([pipelineId, stageId])
   @@index([ownerId])
@@ -409,6 +412,60 @@ model CallTranscript {
   @@index([personId])
   @@index([organizationId])
   @@index([startTime])
+}
+
+// Read AI Meeting Notes (via webhook)
+model ReadAIMeeting {
+  id                String   @id @default(cuid())
+  sessionId         String   @unique
+  trigger           String?  // meeting_end, manual
+  title             String
+  platform          String?  // meet, zoom, teams, etc.
+  platformMeetingId String?
+
+  // Timing
+  startTime         DateTime
+  endTime           DateTime?
+
+  // Content
+  summary           String?  @db.Text
+  transcript        String?  @db.Text
+  transcriptJson    Json?    // Raw speaker_blocks from ReadAI
+  actionItems       Json?    // [{text: string}]
+  keyQuestions      Json?    // [{text: string}]
+  topics            Json?    // [{text: string}]
+  chapterSummaries  Json?    // [{title, description, topics}]
+
+  // Owner and participants
+  owner             Json?    // {name, first_name, last_name, email}
+  participants      Json?    // [{name, first_name, last_name, email}]
+
+  // Links
+  reportUrl         String?
+
+  // CRM linking
+  dealId            String?
+  personId          String?
+  organizationId    String?
+
+  // Metadata
+  rawPayload        Json?    // Full original webhook payload
+  vectorized        Boolean  @default(false)
+  vectorEmbedding   String?  @db.Text
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId])
+  @@index([dealId])
+  @@index([personId])
+  @@index([organizationId])
+  @@index([startTime])
+  @@index([vectorized])
 }
 
 // Google Workspace Integration Models
