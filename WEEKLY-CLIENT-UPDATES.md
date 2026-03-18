@@ -1,8 +1,17 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: March 4, 2026  
-**Latest Period**: February 14 - March 4, 2026 (3 weeks)  
+**Latest Update**: March 18, 2026  
+**Latest Period**: February 14 - March 18, 2026  
 **Status**: Website Redesign, CRM Overhaul, Knowledge Base & Slack Bot Deployed
+
+---
+
+### 2026-03-18 — CRM Pipeline Management & Email Linking Fix
+
+- **Pipeline management now accessible directly from Deals page** — click the gear icon next to pipeline tabs to add/edit/delete pipelines and their stages (rename, reorder, add, remove stages). No more navigating to separate settings.
+- **Pipeline switcher always visible** — previously hidden when only one pipeline existed, now consistently shows all pipelines with quick-switch tabs.
+- **Fixed emails not appearing on deal pages** — when linking emails from the Sales Inbox to a deal, the linked emails now correctly appear in the deal's Emails tab. Previously, the link was saved but emails were not surfaced because the deal page only searched by email address matching, not by the explicit deal link.
+- **Bidirectional email linking** — linking a sales inbox thread to a deal now also tags the underlying Gmail messages, ensuring they show up via both direct link and address-based matching.
 
 ---
 

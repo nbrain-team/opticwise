@@ -59,28 +59,58 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     return notFound();
   }
 
-  // Fetch emails based on person and organization email addresses
+  // Fetch emails: explicitly linked (via dealId) + address-matched (person/org)
   type GmailMessage = Omit<Awaited<ReturnType<typeof prisma.gmailMessage.findMany>>[number], 'embedding'>;
-  let gmailMessages: GmailMessage[] = [];
-  
-  if (deal.organization?.domain) {
-    // Get emails that match person email or organization domain
-    gmailMessages = await prisma.gmailMessage.findMany({
+
+  // 1. Always get emails explicitly linked to this deal (via GmailMessage.dealId)
+  const directlyLinked = await prisma.gmailMessage.findMany({
+    where: { dealId: deal.id },
+    orderBy: { date: "desc" },
+    take: 50,
+    omit: { embedding: true },
+  });
+
+  // Also get emails from threads linked to this deal (via EmailThread.dealId)
+  const linkedThreads = await prisma.emailThread.findMany({
+    where: { dealId: deal.id },
+    select: { subject: true, personId: true, syncUserId: true },
+  });
+  let threadLinkedEmails: GmailMessage[] = [];
+  if (linkedThreads.length > 0) {
+    threadLinkedEmails = await prisma.gmailMessage.findMany({
       where: {
-        OR: [
-          deal.person?.email ? { from: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
-          deal.person?.email ? { to: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
-          deal.organization?.domain ? { from: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
-          deal.organization?.domain ? { to: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
-        ].filter(condition => Object.keys(condition).length > 0),
+        OR: linkedThreads.map(t => ({
+          subject: t.subject,
+          ...(t.personId ? { personId: t.personId } : {}),
+          ...(t.syncUserId ? { syncUserId: t.syncUserId } : {}),
+        })),
       },
       orderBy: { date: "desc" },
       take: 50,
       omit: { embedding: true },
     });
+  }
+
+  // 2. Address-matched emails (original behavior)
+  let addressMatched: GmailMessage[] = [];
+  if (deal.organization?.domain) {
+    const orConditions = [
+      deal.person?.email ? { from: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
+      deal.person?.email ? { to: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
+      deal.organization?.domain ? { from: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
+      deal.organization?.domain ? { to: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
+    ].filter(condition => Object.keys(condition).length > 0);
+
+    if (orConditions.length > 0) {
+      addressMatched = await prisma.gmailMessage.findMany({
+        where: { OR: orConditions },
+        orderBy: { date: "desc" },
+        take: 50,
+        omit: { embedding: true },
+      });
+    }
   } else if (deal.person?.email) {
-    // If no organization domain, just search by person email
-    gmailMessages = await prisma.gmailMessage.findMany({
+    addressMatched = await prisma.gmailMessage.findMany({
       where: {
         OR: [
           { from: { contains: deal.person.email, mode: 'insensitive' as const } },
@@ -92,6 +122,17 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       omit: { embedding: true },
     });
   }
+
+  // 3. Merge and deduplicate, sorted by date descending
+  const seenIds = new Set<string>();
+  const gmailMessages: GmailMessage[] = [];
+  for (const email of [...directlyLinked, ...threadLinkedEmails, ...addressMatched]) {
+    if (!seenIds.has(email.id)) {
+      seenIds.add(email.id);
+      gmailMessages.push(email);
+    }
+  }
+  gmailMessages.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   
   // Attach to deal object with proper typing
   const dealWithEmails = {

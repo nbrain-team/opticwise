@@ -130,7 +130,11 @@ export default async function DealsPage({
         <h1 className="text-3xl font-light text-[#50555C]">Deals</h1>
 
         <PipelineSwitcher
-          pipelines={allPipelines.map(p => ({ id: p.id, name: p.name }))}
+          pipelines={allPipelines.map(p => ({
+            id: p.id,
+            name: p.name,
+            stages: p.stages.map(s => ({ id: s.id, name: s.name, orderIndex: s.orderIndex })),
+          }))}
           activePipelineId={activePipeline.id}
         />
 
