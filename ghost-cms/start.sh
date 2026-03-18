@@ -27,9 +27,14 @@ if [ -f "$ADMIN_INDEX" ] && ! grep -q "ghost-signin-fix" "$ADMIN_INDEX"; then
   echo "[Ghost Fix] Patched admin signin tab order (${PATCH_DATE})"
 fi
 
-# Disable Ghost 5.x staff email verification (2FA via email code)
-# Ghost 5.130+ calls sendAuthCodeToUser during createSession, which requires
-# working SMTP. Patch the session service to skip the verification step.
-node disable-staff-2fa.js || echo "[Ghost Fix] 2FA patch script failed, continuing startup"
+# Ghost 5.130+ staff email verification (2FA via email code)
+# Only disable if SMTP credentials are NOT configured; when SMTP is working,
+# let Ghost send the verification code normally.
+if [ -z "$mail__options__auth__user" ] || [ -z "$mail__options__auth__pass" ]; then
+  echo "[Ghost Fix] No SMTP credentials found — disabling staff email verification"
+  node disable-staff-2fa.js || echo "[Ghost Fix] 2FA patch script failed, continuing startup"
+else
+  echo "[Ghost Fix] SMTP credentials found — staff email verification enabled"
+fi
 
 node current/index.js
