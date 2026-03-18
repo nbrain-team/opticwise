@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import PipelineManager from "./PipelineManager";
@@ -14,21 +15,20 @@ export default function PipelineSwitcher({ pipelines, activePipelineId }: Pipeli
   const searchParams = useSearchParams();
   const [showManager, setShowManager] = useState(false);
 
-  const switchPipeline = (pipelineId: string) => {
+  function buildPipelineHref(pipelineId: string) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("pipeline", pipelineId);
-    router.push(`/deals?${params.toString()}`);
-    router.refresh();
-  };
+    return `/deals?${params.toString()}`;
+  }
 
   return (
     <>
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
           {pipelines.map(p => (
-            <button
+            <Link
               key={p.id}
-              onClick={() => switchPipeline(p.id)}
+              href={buildPipelineHref(p.id)}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 activePipelineId === p.id
                   ? "bg-white text-[#3B6B8F] shadow-sm"
@@ -36,7 +36,7 @@ export default function PipelineSwitcher({ pipelines, activePipelineId }: Pipeli
               }`}
             >
               {p.name}
-            </button>
+            </Link>
           ))}
         </div>
         <button
