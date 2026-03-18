@@ -6,6 +6,14 @@
 
 ---
 
+### 2026-03-18 — Ghost CMS Login Fix
+
+- **Fixed Ghost CMS login failure in new browser sessions** — Ghost 5.130.6 introduced mandatory staff email verification (2FA) on every new login, which required working SMTP. Since SMTP credentials were not configured, any new login attempt (e.g., incognito browser) failed with "Failed to send email." Existing sessions continued to work.
+- **Root cause**: The `disable-staff-2fa.js` patch script was written but never included in the Docker image (missing `COPY` instruction in Dockerfile). Once added, the patch disables the email verification step so staff can log in directly with username/password.
+- Ghost admin is now fully accessible from any browser without needing email-based verification codes.
+
+---
+
 ### 2026-03-18 — CRM Pipeline Management & Email Linking Fix
 
 - **Pipeline management now accessible directly from Deals page** — click the gear icon next to pipeline tabs to add/edit/delete pipelines and their stages (rename, reorder, add, remove stages). No more navigating to separate settings.
