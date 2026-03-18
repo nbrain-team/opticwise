@@ -24,6 +24,10 @@ if (process.env.mail__options__auth__user && process.env.mail__options__auth__pa
   };
   console.log("[Ghost Config] Mail configured via SMTP:", process.env.mail__options__host || "smtp.gmail.com");
 } else {
+  config.mail = {
+    transport: "Direct",
+    from: process.env.mail__from || "'Opticwise' <bill@opticwise.com>",
+  };
   console.warn("[Ghost Config] No SMTP credentials found. Mail transport set to Direct (emails may not deliver).");
 }
 
