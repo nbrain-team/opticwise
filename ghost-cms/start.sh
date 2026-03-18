@@ -29,21 +29,7 @@ fi
 
 # Disable Ghost 5.x staff email verification (2FA via email code)
 # Ghost 5.130+ calls sendAuthCodeToUser during createSession, which requires
-# working SMTP. Patch the session service to skip the verification step so
-# password-only login works without email.
-SESSION_SVC="$GHOST_INSTALL/versions/5.130.6/core/server/services/auth/session/session-service.js"
-if [ -f "$SESSION_SVC" ] && grep -q "sendAuthCodeToUser" "$SESSION_SVC"; then
-  # Replace sendAuthCodeToUser to be a no-op that resolves immediately
-  sed -i 's/async sendAuthCodeToUser(user)/async sendAuthCodeToUser(user) { return; } async _originalSendAuthCodeToUser(user)/' "$SESSION_SVC"
-  echo "[Ghost Fix] Disabled staff email verification (2FA bypass)"
-elif [ -d "$GHOST_INSTALL/versions" ]; then
-  # Handle different Ghost versions dynamically
-  GHOST_VER=$(ls "$GHOST_INSTALL/versions" | head -1)
-  SESSION_SVC_ALT="$GHOST_INSTALL/versions/$GHOST_VER/core/server/services/auth/session/session-service.js"
-  if [ -f "$SESSION_SVC_ALT" ] && grep -q "sendAuthCodeToUser" "$SESSION_SVC_ALT"; then
-    sed -i 's/async sendAuthCodeToUser(user)/async sendAuthCodeToUser(user) { return; } async _originalSendAuthCodeToUser(user)/' "$SESSION_SVC_ALT"
-    echo "[Ghost Fix] Disabled staff email verification for Ghost $GHOST_VER (2FA bypass)"
-  fi
-fi
+# working SMTP. Patch the session service to skip the verification step.
+node disable-staff-2fa.js || echo "[Ghost Fix] 2FA patch script failed, continuing startup"
 
 node current/index.js
