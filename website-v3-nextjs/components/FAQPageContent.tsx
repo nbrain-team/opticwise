@@ -377,7 +377,7 @@ export function FAQPageContent() {
           {ROLE_PANELS.map((panel) => (
             <div
               key={panel.role}
-              className={`role-panel${activeRole === panel.role ? "" : " hidden"}`}
+              className={`role-panel${activeRole === panel.role ? " active" : ""}`}
             >
               {panel.layers.map((layer, li) => (
                 <div key={li} className="faq-group">
