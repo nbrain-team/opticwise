@@ -1,8 +1,26 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: March 18, 2026  
-**Latest Period**: February 14 - March 18, 2026  
+**Latest Update**: March 25, 2026  
+**Latest Period**: February 14 - March 25, 2026  
 **Status**: Website Redesign, CRM Overhaul, Knowledge Base & Slack Bot Deployed
+
+---
+
+### 2026-03-25 — Two External Landing Pages Migrated to Ghost CMS Site
+
+- **Replicated two external landing pages** as standalone pages within the main OpticWise website, preserving their exact design and content:
+  - `/data-digital-cre-review/` — PPP Data & Digital Infrastructure Review scheduling page with hero, form, feature cards, testimonial, and trust section
+  - `/stop-flying-blind/` — "7 Ways to Stop Flying Blind" guide download with stats, learning items, form, and trust bar
+- **Restructured Next.js app with route groups** to support landing pages without the standard site header/footer while keeping all existing pages unchanged. Landing pages use a minimal layout for focused conversion.
+- These landing page templates are now reusable for future campaigns on the main domain.
+
+---
+
+### 2026-03-25 — Data & Digital CRE Review Landing Page
+
+- **Created standalone landing page** at `/data-digital-cre-review` replicating the design from `data-digital-cre-review.opticwise.com`. This brings the page into the main Next.js website (v3) under the `(landing)` route group (no site header/footer).
+- Page includes: hero section with gold/amber headline, dark-themed contact form with validation & submit state, "What You'll Discover" feature grid (5 cards), testimonial section, trust/credibility cards linking to OpticWise properties, and a minimal footer.
+- Fully responsive, uses the site's existing Tailwind design system and color tokens (`ow-navy`, `ow-blue`, etc.).
 
 ---
 
