@@ -16,6 +16,8 @@ export const SITE = {
     { label: "Pillars", href: "/digital-infrastructure-noi-ai/" },
     { label: "Insights", href: "/insights/" },
     { label: "FAQ", href: "/faq/" },
+    { label: "Advisory", href: "/advisory-services/" },
+    { label: "Brains", href: "/brains/" },
   ],
   pillars: [
     { label: "NOI Strategy", href: "/digital-infrastructure-noi-strategy/", desc: "How data & digital infrastructure drives NOI" },
