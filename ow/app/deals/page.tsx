@@ -183,7 +183,7 @@ export default async function DealsPage({
 
       {/* Show board for open deals, list for won/lost */}
       {statusFilter === "open" ? (
-        <DealsBoard pipelineId={activePipeline.id} columns={grouped} />
+        <DealsBoard key={activePipeline.id} pipelineId={activePipeline.id} columns={grouped} />
       ) : (
         <div className="space-y-2">
           {deals.length === 0 ? (
