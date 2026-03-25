@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import PipelineManager from "./PipelineManager";
 
 interface PipelineSwitcherProps {
@@ -14,21 +13,27 @@ export default function PipelineSwitcher({ pipelines, activePipelineId }: Pipeli
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showManager, setShowManager] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  function buildPipelineHref(pipelineId: string) {
+  function switchPipeline(pipelineId: string) {
     const params = new URLSearchParams(searchParams.toString());
     params.set("pipeline", pipelineId);
-    return `/deals?${params.toString()}`;
+    const href = `/deals?${params.toString()}`;
+    startTransition(() => {
+      router.push(href);
+      router.refresh();
+    });
   }
 
   return (
     <>
       <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+        <div className={`flex items-center gap-1 bg-gray-100 rounded-lg p-1 ${isPending ? "opacity-60" : ""}`}>
           {pipelines.map(p => (
-            <Link
+            <button
               key={p.id}
-              href={buildPipelineHref(p.id)}
+              onClick={() => switchPipeline(p.id)}
+              disabled={isPending}
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
                 activePipelineId === p.id
                   ? "bg-white text-[#3B6B8F] shadow-sm"
@@ -36,7 +41,7 @@ export default function PipelineSwitcher({ pipelines, activePipelineId }: Pipeli
               }`}
             >
               {p.name}
-            </Link>
+            </button>
           ))}
         </div>
         <button
