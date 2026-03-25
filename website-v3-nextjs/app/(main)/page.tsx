@@ -215,9 +215,9 @@ export default async function HomePage() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { img: "/images/project-catalyst.jpg", name: "Catalyst HTI", loc: "Denver, CO" },
+              { img: "/images/project-catalyst.jpg", name: "ASPIRIA", loc: "Salt Lake City, UT \u00B7 Overland Park, KS" },
               { img: "/images/project-industry.jpg", name: "Industry", loc: "Denver, CO" },
-              { img: "/images/project-tradecraft.jpg", name: "Tradecraft", loc: "Denver, CO" },
+              { img: "/images/project-tradecraft.jpg", name: "AMAZE @ NODA APARTMENTS", loc: "Charlotte, NC" },
             ].map((p, i) => (
               <div key={i} className="rounded-2xl overflow-hidden bg-gray-800 group hover:-translate-y-1 transition-transform">
                 <div className="aspect-[4/3] overflow-hidden">

@@ -20,7 +20,6 @@ export const SITE = {
   pillars: [
     { label: "NOI Strategy", href: "/digital-infrastructure-noi-strategy/", desc: "How data & digital infrastructure drives NOI" },
     { label: "NOI Playbook", href: "/digital-infrastructure-noi-playbook/", desc: "PPP 5C\u2122 repeatable framework" },
-    { label: "CRE AI Readiness", href: "/cre-ai-readiness/", desc: "Foundation for reliable AI" },
     { label: "AI-Ready CRE", href: "/ai-ready-commercial-real-estate/", desc: "Properties designed for AI" },
     { label: "Own vs Lease Data", href: "/own-vs-lease-cre-building-data/", desc: "Data ownership economics" },
     { label: "Digital Visibility", href: "/control-cre-digital-visibility/", desc: "Control your narrative" },

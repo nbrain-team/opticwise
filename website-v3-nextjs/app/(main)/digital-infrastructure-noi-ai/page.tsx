@@ -231,7 +231,6 @@ export default function Page() {
               </div>
               <h3>CRE AI Readiness</h3>
               <p>What it actually takes for AI to produce reliable, actionable insights in buildings</p>
-              <Link href="/cre-ai-readiness/" className="btn btn-primary" style={{ marginTop: '16px', fontSize: '.8rem', padding: '8px 20px' }}>Explore &rarr;</Link>
             </div>
             <div className="outcome-card">
               <div className="outcome-icon">
@@ -257,6 +256,33 @@ export default function Page() {
               <p>Control how your properties appear, perform, and compete online</p>
               <Link href="/control-cre-digital-visibility/" className="btn btn-primary" style={{ marginTop: '16px', fontSize: '.8rem', padding: '8px 20px' }}>Explore &rarr;</Link>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ==================== MORE ==================== */}
+      <section className="section section-light">
+        <div className="ow-container">
+          <div className="section-header">
+            <span className="section-eyebrow">More</span>
+            <h2 className="section-heading">Explore Further</h2>
+            <div className="accent-bar accent-bar-center" />
+          </div>
+          <div className="deliverables">
+            <Link href="/brains/" className="deliverable" style={{ textDecoration: 'none' }}>
+              <div className="deliverable-num">&rarr;</div>
+              <div className="deliverable-body">
+                <h3>Property Brain&trade; &rarr; Portfolio Brain&trade;</h3>
+                <p>The intelligence layer that senses, decides, and drives execution at each asset&mdash;then compounds across the portfolio.</p>
+              </div>
+            </Link>
+            <Link href="/advisory-services/" className="deliverable" style={{ textDecoration: 'none' }}>
+              <div className="deliverable-num">&rarr;</div>
+              <div className="deliverable-body">
+                <h3>Advisory Services</h3>
+                <p>For owners/operators who want to self-perform or co-manage with an owner standard for data &amp; digital infrastructure.</p>
+              </div>
+            </Link>
           </div>
         </div>
       </section>
