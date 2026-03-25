@@ -6,6 +6,20 @@
 
 ---
 
+### 2026-03-25 — March 23 Content Updates Integrated into Ghost CMS Site
+
+- **Created 3 new pages** from client's updated content package:
+  - `/advisory-services/` — Advisory Services for owners who want to self-perform or co-manage, with PPP 5C framework
+  - `/brains/` — Property Brain / Portfolio Brain page with the B.R.A.I.N. loop concept and two-layer intelligence model
+  - `/schedule-review/` — Full review scheduling page with two-column form layout, "What You'll Discover" cards, testimonial, and trust stats
+- **Updated homepage project cards**: Catalyst HTI renamed to ASPIRIA (Salt Lake City / Overland Park), Tradecraft renamed to AMAZE @ NODA APARTMENTS (Charlotte, NC)
+- **Redesigned Insights page** with Featured Insights article cards, 6 numbered Owner Plays, category pill badges, and how-to-use callout
+- **Updated Category Hub**: removed CRE AI Readiness explore button, added "More" section linking to Property Brain and Advisory Services
+- **CRE AI Readiness now redirects** to AI-Ready CRE (consolidated from two pages into one)
+- **Removed CRE AI Readiness** from footer Explore links across all pages
+
+---
+
 ### 2026-03-25 — Two External Landing Pages Migrated to Ghost CMS Site
 
 - **Replicated two external landing pages** as standalone pages within the main OpticWise website, preserving their exact design and content:
