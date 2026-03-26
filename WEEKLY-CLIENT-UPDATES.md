@@ -6,6 +6,15 @@
 
 ---
 
+### 2026-03-25 — Customer Service Call Recordings Transcribed for AI Agent Training
+
+- **Transcribed 89 helpdesk call recordings** (13 hours of audio) using OpenAI Whisper API, covering the date range Jan 19 - Mar 19, 2026.
+- **Deduplicated** 165 raw files down to 91 unique recordings (2 skipped as too small/corrupt), achieving a 100% transcription success rate.
+- **Output structured for CS agent training**: individual JSON transcripts per call (with timestamped segments and duration), a master `training-data.json` file with all calls and metadata, and a plain-text `all-transcripts.txt` for quick reference.
+- This transcript dataset captures real customer interactions — what clients ask, how Opticwise responds — and will serve as the training foundation for a customer service AI agent the client can deploy.
+
+---
+
 ### 2026-03-25 — March 23 Content Updates Integrated into Ghost CMS Site
 
 - **Created 3 new pages** from client's updated content package:
@@ -52,6 +61,16 @@
 - **Pipeline switcher always visible** — previously hidden when only one pipeline existed, now consistently shows all pipelines with quick-switch tabs.
 - **Fixed emails not appearing on deal pages** — when linking emails from the Sales Inbox to a deal, the linked emails now correctly appear in the deal's Emails tab. Previously, the link was saved but emails were not surfaced because the deal page only searched by email address matching, not by the explicit deal link.
 - **Bidirectional email linking** — linking a sales inbox thread to a deal now also tags the underlying Gmail messages, ensuring they show up via both direct link and address-based matching.
+
+---
+
+### 2026-03-26 — Meeting Transcripts Page & Read AI Webhook Fix
+
+- **Built Meeting Transcripts page** (`/meeting-transcripts`) — full-featured list view showing all Read AI meeting transcripts with stats cards (total, linked, unassigned, this week), search, and filter tabs (All / Linked / Unassigned).
+- **Built transcript detail page** (`/meeting-transcripts/[id]`) — shows full meeting summary, chapter summaries, action items, key questions, full transcript text, participants, topics, and metadata.
+- **CRM assignment feature** — from the detail page, users can link any transcript to a Deal or Contact in the CRM. When linking to a deal, the associated organization and contact are auto-linked. Users can also remove assignments.
+- **Added "Transcripts" link** to the main navigation bar.
+- **Diagnosed Read AI webhook issue** — the database migration for the `ReadAIMeeting` table had not been applied on Render, causing all incoming webhook data to fail silently. Migration needs to be run via `npx prisma migrate deploy` in the Render shell.
 
 ---
 
