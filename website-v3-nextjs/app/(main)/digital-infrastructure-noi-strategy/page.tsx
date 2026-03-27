@@ -22,7 +22,7 @@ export default function Page() {
 
       {/* The Shift */}
       <section className="section section-white">
-        <div className="container">
+        <div className="ow-container">
           <div className="section-header">
             <span className="section-eyebrow">The Shift</span>
             <h2 className="section-heading">Why NOI Is Now a Data &amp; Digital Infrastructure Decision</h2>
@@ -56,7 +56,7 @@ export default function Page() {
 
       {/* Where NOI Leaks Today */}
       <section className="section section-light">
-        <div className="container">
+        <div className="ow-container">
           <div className="section-header">
             <span className="section-eyebrow">The Problem</span>
             <h2 className="section-heading">Where NOI Leaks Today</h2>
@@ -112,7 +112,7 @@ export default function Page() {
 
       {/* The Owner-Control Advantage */}
       <section className="section section-dark">
-        <div className="container">
+        <div className="ow-container">
           <div className="section-header section-header-light">
             <span className="section-eyebrow section-eyebrow-light">The Advantage</span>
             <h2 className="section-heading section-heading-light">The Owner-Control Advantage</h2>
@@ -146,7 +146,7 @@ export default function Page() {
 
       {/* PPP 5C */}
       <section className="section section-white">
-        <div className="container">
+        <div className="ow-container">
           <div className="section-header">
             <span className="section-eyebrow">The Path</span>
             <h2 className="section-heading">The Path: PPP 5C&trade;</h2>
@@ -195,7 +195,7 @@ export default function Page() {
 
       {/* FAQ */}
       <section className="section section-light">
-        <div className="container">
+        <div className="ow-container">
           <div className="section-header">
             <span className="section-eyebrow">Questions</span>
             <h2 className="section-heading">Frequently Asked Questions</h2>
@@ -229,9 +229,9 @@ export default function Page() {
 
       <CTASection />
 
-      <section className="section section-navy">
-        <div className="container infinite-content">
-          <p className="infinite-closing"><strong>{SITE.closingLine}</strong></p>
+      <section className="bg-ow-navy py-14">
+        <div className="ow-container text-center">
+          <p className="text-sm text-white/70 font-medium">{SITE.closingLine}</p>
         </div>
       </section>
     </>

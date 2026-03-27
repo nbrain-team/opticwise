@@ -22,7 +22,7 @@ export default function Page() {
 
       {/* The Why */}
       <section className="section section-white">
-        <div className="container">
+        <div className="ow-container">
           <div className="section-header">
             <span className="section-eyebrow">The Why</span>
             <h2 className="section-heading">Why a Playbook (Not a One-Off Project)</h2>
@@ -55,7 +55,7 @@ export default function Page() {
 
       {/* The Framework */}
       <section className="section section-light">
-        <div className="container">
+        <div className="ow-container">
           <div className="section-header">
             <span className="section-eyebrow">The Framework</span>
             <h2 className="section-heading">The PPP 5C&trade; Owner Path (Detailed)</h2>
@@ -104,7 +104,7 @@ export default function Page() {
 
       {/* How NOI Compounds */}
       <section className="section section-white">
-        <div className="container">
+        <div className="ow-container">
           <div className="section-header">
             <span className="section-eyebrow">How NOI Compounds</span>
             <h2 className="section-heading">The Two-Layer Model</h2>
@@ -157,7 +157,7 @@ export default function Page() {
 
       {/* FAQ */}
       <section className="section section-light">
-        <div className="container">
+        <div className="ow-container">
           <div className="section-header">
             <span className="section-eyebrow">Questions</span>
             <h2 className="section-heading">Frequently Asked Questions</h2>
@@ -191,9 +191,9 @@ export default function Page() {
 
       <CTASection />
 
-      <section className="section section-navy">
-        <div className="container infinite-content">
-          <p className="infinite-closing"><strong>{SITE.closingLine}</strong></p>
+      <section className="bg-ow-navy py-14">
+        <div className="ow-container text-center">
+          <p className="text-sm text-white/70 font-medium">{SITE.closingLine}</p>
         </div>
       </section>
     </>

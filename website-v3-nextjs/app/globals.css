@@ -39,7 +39,26 @@
   .accent-bar { @apply w-14 h-1 rounded-full; background: linear-gradient(90deg, #2B6CB0, #10B981); }
   .accent-bar-center { @apply mx-auto my-4; }
 
-  .ghost-content { @apply prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-strong:text-gray-900 prose-a:text-ow-blue; }
+  .ghost-content { @apply prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-strong:text-gray-900 prose-a:text-ow-blue prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto; }
+}
+
+/* Ghost CMS content image formatting */
+.ghost-content img {
+  max-width: 100%; height: auto;
+  border-radius: 12px; margin: 24px auto;
+  display: block;
+}
+.ghost-content figure { margin: 32px 0; text-align: center; }
+.ghost-content figcaption {
+  font-size: .8rem; color: #94a3b8;
+  margin-top: 8px; font-style: italic;
+}
+.ghost-content .kg-image-card,
+.ghost-content .kg-gallery-card { margin: 32px 0; }
+.ghost-content .kg-image-card img { width: 100%; }
+.ghost-content .kg-bookmark-card {
+  border: 1px solid #e2e8f0; border-radius: 12px;
+  overflow: hidden; margin: 24px 0;
 }
 
 .mobile-menu-enter { animation: slideDown .2s ease-out; }

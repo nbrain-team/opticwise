@@ -51,14 +51,11 @@ export default function Page() {
               <p className="layer-desc">
                 Sets strategy, standards, and allocates focus/capital&mdash;so results compound across the portfolio instead of resetting at every building.
               </p>
-              <div className="layer-formula">
-                <span>Owner-controlled intelligence</span>
-                <span className="formula-arrow">&rarr;</span>
-                <span>Governed data plane + trust plane</span>
-                <span className="formula-arrow">&rarr;</span>
-                <span>Autonomous activities under owner permissions</span>
-              </div>
             </div>
+          </div>
+          <div className="callout-bar" style={{ marginTop: 32 }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <p><strong>OpticWise delivers:</strong> Owner-controlled intelligence &rarr; Governed data plane + trust plane &rarr; Autonomous activities under owner permissions. This applies whether you start with Property Brain&trade; at one asset or scale to Portfolio Brain&trade; across the portfolio.</p>
           </div>
         </div>
       </section>
