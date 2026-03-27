@@ -6,6 +6,19 @@
 
 ---
 
+### 2026-03-27 — Client Video Feedback Review: Website Fixes Deployed
+
+- **Transcribed client screen recording** reviewing the Ghost CMS website and extracted a detailed punch list of issues to address.
+- **Fixed pillar count**: Removed duplicate "CRE AI Readiness" card from the Category Hub and all pillar listings — now correctly shows 5 pillars site-wide (NOI Strategy, NOI Playbook, AI-Ready CRE, Own vs Lease Data, Digital Visibility).
+- **Fixed centering issues** on NOI Strategy, NOI Playbook, and Category Hub pages caused by incorrect CSS container class — all content now properly centered and contained.
+- **Standardized footer/closing band** across NOI Strategy and NOI Playbook pages to match the consistent site-wide pattern used on all other pages.
+- **Rebuilt Insights/Blog page** to dynamically pull all blog posts from Ghost CMS in a clean card grid layout with working tag-based filtering and search — replacing the previous static/hardcoded version that had reverted.
+- **Fixed "OpticWise delivers" text placement** on the Brains page — moved the intelligence layer statement outside the Portfolio Brain box since it applies to both Property Brain and Portfolio Brain.
+- **Improved blog image formatting** — Ghost CMS content images now display with rounded corners, proper spacing, and figure/caption support for a cleaner reading experience.
+- All changes committed and deployed to production via Render.
+
+---
+
 ### 2026-03-25 — Customer Service Call Recordings Transcribed for AI Agent Training
 
 - **Transcribed 89 helpdesk call recordings** (13 hours of audio) using OpenAI Whisper API, covering the date range Jan 19 - Mar 19, 2026.
