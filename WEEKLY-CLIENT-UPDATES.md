@@ -6,6 +6,13 @@
 
 ---
 
+### 2026-03-31 — LinkedIn Connect Flow Fix
+
+- **Fixed LinkedIn OAuth redirect** — Users are now redirected directly to LinkedIn for authorization, then brought back to the platform automatically (no Zernio login page).
+- **Per-user account binding** — Each CRM user's LinkedIn connection is permanently tied to their account, so multiple team members can connect their own profiles.
+- **Auto-sync on return** — When a user returns from LinkedIn authorization, their account is automatically synced and a success confirmation is shown.
+- **Richer profile display** — Connected accounts now show the LinkedIn profile URL, full display name, and profile photo pulled from the API.
+
 ### 2026-03-31 — LinkedIn Social Media Management Suite
 
 - **Built a full LinkedIn management module** integrated into the Opticwise CRM platform, powered by the Zernio social media API aggregator.
