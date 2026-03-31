@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npx prisma generate && npx prisma db push --skip-generate && next build",
+    "build": "npx prisma generate && npx prisma migrate resolve --applied 20260209145306_add_password_reset_tokens && npx prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
