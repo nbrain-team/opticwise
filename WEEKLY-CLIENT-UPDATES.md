@@ -6,6 +6,12 @@
 
 ---
 
+### 2026-03-31 — LinkedIn Connect: Zernio Login Page Eliminated
+
+- **Eliminated the Zernio login page** that was appearing after LinkedIn authorization — users now go directly from LinkedIn OAuth back to the Opticwise platform with no third-party login screens.
+- **Headless OAuth mode** — The connect flow now uses Zernio's headless API, handling the LinkedIn account selection entirely server-side so the user experience is seamless.
+- **Automatic personal profile connection** — After LinkedIn authorization, the system auto-selects the user's personal profile and syncs it to their CRM account in one step.
+
 ### 2026-03-31 — LinkedIn Connect Flow Fix
 
 - **Fixed LinkedIn OAuth redirect** — Users are now redirected directly to LinkedIn for authorization, then brought back to the platform automatically (no Zernio login page).
