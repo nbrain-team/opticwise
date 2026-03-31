@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
-import prisma from '@/lib/db';
+import { prisma } from '@/lib/db';
 import * as zernio from '@/lib/zernio';
 
 export async function POST(

@@ -4,12 +4,12 @@ import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft, Linkedin, Eye, Heart, MessageSquare, Share2,
-  MousePointerClick, TrendingUp, FileText, Calendar, Sparkles,
+  TrendingUp, FileText, Sparkles,
   BarChart3, Users,
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell,
+  ResponsiveContainer, PieChart, Pie, Cell,
 } from 'recharts';
 
 interface AnalyticsData {
@@ -40,7 +40,6 @@ interface AnalyticsData {
   dateRange: { fromDate: string; toDate: string };
 }
 
-const CHART_COLORS = ['#0A66C2', '#00B4D8', '#2EC4B6', '#FF6B6B', '#C77DFF', '#FFB703'];
 
 export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);

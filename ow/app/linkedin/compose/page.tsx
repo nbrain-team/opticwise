@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, Sparkles, Image as ImageIcon, Calendar, Send, Save,
-  Linkedin, Loader2, X, ChevronDown, MessageSquareText, Clock,
-  FileText, Type, Wand2, RefreshCw,
+  Linkedin, Loader2, X, MessageSquareText, Clock,
+  FileText, Wand2,
 } from 'lucide-react';
 
 interface Account {

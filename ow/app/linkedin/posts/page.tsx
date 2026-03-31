@@ -3,9 +3,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import {
-  ArrowLeft, Plus, Linkedin, Search, Filter, CheckCircle2,
+  ArrowLeft, Plus, Linkedin, Search, CheckCircle2,
   Clock, FileText, AlertCircle, Eye, Heart, MessageSquare,
-  Share2, Sparkles, MoreHorizontal, Trash2, Send, Edit2,
+  Share2, Sparkles, MoreHorizontal, Trash2, Send,
   MousePointerClick,
 } from 'lucide-react';
 

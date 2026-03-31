@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, Linkedin, CheckCircle2, Clock, FileText, AlertCircle,
   Eye, Heart, MessageSquare, Share2, MousePointerClick, Sparkles,
-  Send, Loader2, Trash2, Wand2, RefreshCw, ExternalLink,
+  Send, Loader2, Trash2, Wand2, RefreshCw,
 } from 'lucide-react';
 
 interface Comment {

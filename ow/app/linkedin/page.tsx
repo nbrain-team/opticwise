@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   Linkedin, Plus, Calendar, BarChart3, MessageSquare, Clock,
   CheckCircle2, AlertCircle, FileText, Sparkles, RefreshCw,
-  ArrowRight, TrendingUp, Eye, Heart, Share2, MousePointerClick,
+  ArrowRight, TrendingUp, Eye, Heart, Share2,
 } from 'lucide-react';
 
 interface Account {
