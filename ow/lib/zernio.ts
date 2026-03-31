@@ -57,11 +57,25 @@ export async function createProfile(name: string, description?: string) {
 export async function getConnectUrl(
   platform: string,
   profileId: string,
-  redirectUrl?: string
+  opts?: { redirectUrl?: string; headless?: boolean }
 ): Promise<{ authUrl: string; state: string }> {
   const params = new URLSearchParams({ profileId });
-  if (redirectUrl) params.set('redirect_url', redirectUrl);
+  if (opts?.redirectUrl) params.set('redirect_url', opts.redirectUrl);
+  if (opts?.headless) params.set('headless', 'true');
   return zernioFetch(`/connect/${platform}?${params.toString()}`);
+}
+
+export async function selectLinkedInOrg(body: {
+  profileId: string;
+  tempToken: string;
+  userProfile: Record<string, unknown>;
+  accountType: 'personal' | 'organization';
+  selectedOrganization?: Record<string, unknown>;
+}): Promise<{ message: string; account: ZernioAccountData }> {
+  return zernioFetch('/connect/linkedin/select-organization', {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
 }
 
 // ─── Accounts ────────────────────────────────────────

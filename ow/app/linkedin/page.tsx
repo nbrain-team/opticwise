@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   Linkedin, Plus, Calendar, BarChart3, MessageSquare, Clock,
@@ -50,7 +50,6 @@ interface Analytics {
 
 export default function LinkedInDashboard() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
@@ -88,20 +87,15 @@ export default function LinkedInDashboard() {
 
   useEffect(() => {
     const connected = searchParams.get('connected');
+    const error = searchParams.get('error');
     if (connected === 'true') {
       setJustConnected(true);
-      setSyncing(true);
-      fetch('/api/linkedin/connect', { method: 'POST' })
-        .then(() => fetchData())
-        .then(() => {
-          setSyncing(false);
-          router.replace('/linkedin');
-        })
-        .catch(() => setSyncing(false));
-    } else {
-      fetchData();
     }
-  }, [searchParams, fetchData, router]);
+    if (error) {
+      console.error('LinkedIn connect error:', error);
+    }
+    fetchData();
+  }, [searchParams, fetchData]);
 
   const handleConnect = async () => {
     setConnecting(true);
@@ -200,6 +194,16 @@ export default function LinkedInDashboard() {
           <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
           <p className="text-sm text-green-800">
             <strong>LinkedIn connected successfully!</strong> Your account is now linked and ready to use.
+          </p>
+        </div>
+      )}
+
+      {/* Error Banner */}
+      {searchParams.get('error') && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <p className="text-sm text-red-800">
+            <strong>Connection issue:</strong> {decodeURIComponent(searchParams.get('error') || '')}. Please try again.
           </p>
         </div>
       )}

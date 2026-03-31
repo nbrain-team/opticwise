@@ -4,8 +4,9 @@ import { prisma } from '@/lib/db';
 import * as zernio from '@/lib/zernio';
 
 /**
- * GET — Generate the LinkedIn OAuth URL.
- * Passes redirect_url so Zernio sends the user back to our app after auth.
+ * GET — Generate the LinkedIn OAuth URL using headless mode.
+ * After LinkedIn auth, Zernio redirects to our /api/linkedin/callback
+ * with tempToken + userProfile so we complete the flow server-side.
  */
 export async function GET(req: NextRequest) {
   try {
@@ -25,9 +26,12 @@ export async function GET(req: NextRequest) {
       process.env.RENDER_EXTERNAL_URL ||
       req.nextUrl.origin;
 
-    const redirectUrl = `${baseUrl}/linkedin?connected=true`;
+    const callbackUrl = `${baseUrl}/api/linkedin/callback`;
 
-    const { authUrl } = await zernio.getConnectUrl('linkedin', profile._id, redirectUrl);
+    const { authUrl } = await zernio.getConnectUrl('linkedin', profile._id, {
+      redirectUrl: callbackUrl,
+      headless: true,
+    });
 
     return NextResponse.json({ authUrl, profileId: profile._id });
   } catch (error) {
