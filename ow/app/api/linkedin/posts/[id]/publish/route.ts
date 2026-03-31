@@ -43,7 +43,7 @@ export async function POST(
     };
 
     if (existing.mediaItems) {
-      postParams.mediaItems = existing.mediaItems as zernio.ZernioMediaItem[];
+      postParams.mediaItems = existing.mediaItems as unknown as zernio.ZernioMediaItem[];
     }
 
     const result = await zernio.createPost(postParams);
