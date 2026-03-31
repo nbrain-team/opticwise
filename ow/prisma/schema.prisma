@@ -1376,3 +1376,100 @@ model KnowledgeChunk {
   document    KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
   @@unique([documentId, chunkIndex])
 }
+
+// ============================================
+// LINKEDIN SOCIAL MEDIA MANAGEMENT
+// ============================================
+
+model LinkedInAccount {
+  id              String   @id @default(cuid())
+  zernioAccountId String   @unique
+  zernioProfileId String
+  platform        String   @default("linkedin")
+  username        String?
+  displayName     String?
+  avatarUrl       String?
+  accountType     String?
+  isConnected     Boolean  @default(true)
+  connectedAt     DateTime @default(now())
+  disconnectedAt  DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  posts           SocialPost[]
+
+  @@index([platform])
+  @@index([isConnected])
+}
+
+model SocialPost {
+  id              String    @id @default(cuid())
+  zernioPostId    String?   @unique
+  accountId       String
+  account         LinkedInAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  content         String    @db.Text
+  firstComment    String?   @db.Text
+  mediaItems      Json?
+  mediaType       String?
+
+  status          String    @default("draft")
+  publishedAt     DateTime?
+  scheduledFor    DateTime?
+  timezone        String    @default("America/Denver")
+
+  aiGenerated     Boolean   @default(false)
+  aiPrompt        String?   @db.Text
+  aiTopicCategory String?
+
+  impressions     Int       @default(0)
+  likes           Int       @default(0)
+  commentCount    Int       @default(0)
+  shares          Int       @default(0)
+  clicks          Int       @default(0)
+  reach           Int       @default(0)
+
+  errorMessage    String?   @db.Text
+
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  comments        PostComment[]
+
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([publishedAt])
+  @@index([accountId])
+  @@index([aiTopicCategory])
+}
+
+model PostComment {
+  id              String    @id @default(cuid())
+  zernioCommentId String?   @unique
+  postId          String
+  post            SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  authorName      String
+  authorUsername  String?
+  authorAvatar    String?
+  authorProfileUrl String?
+  content         String    @db.Text
+
+  isReply         Boolean   @default(false)
+  parentCommentId String?
+  parentComment   PostComment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: SetNull)
+  replies         PostComment[] @relation("CommentReplies")
+
+  aiSuggestedReply String?  @db.Text
+  repliedWith     String?   @db.Text
+  repliedAt       DateTime?
+
+  commentedAt     DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([postId])
+  @@index([commentedAt])
+  @@index([parentCommentId])
+}

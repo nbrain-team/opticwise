@@ -1,8 +1,32 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: March 25, 2026  
-**Latest Period**: February 14 - March 25, 2026  
-**Status**: Website Redesign, CRM Overhaul, Knowledge Base & Slack Bot Deployed
+**Latest Update**: March 31, 2026  
+**Latest Period**: February 14 - March 31, 2026  
+**Status**: Website Redesign, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched
+
+---
+
+### 2026-03-31 — LinkedIn Social Media Management Suite
+
+- **Built a full LinkedIn management module** integrated into the Opticwise CRM platform, powered by the Zernio social media API aggregator.
+- **LinkedIn Account Connection** — One-click OAuth flow to connect Bill's LinkedIn profile directly from the platform with automatic account sync.
+- **AI-Powered Post Composer** — Create LinkedIn posts with a built-in AI writing assistant trained on Opticwise's brand voice and Bill's thought leadership style. Supports multiple post types (thought leadership, educational, story/narrative, industry commentary, company updates), tone selection, and AI refinement of drafts.
+- **Media Upload Support** — Upload images, videos, and documents (PDF carousels) directly to posts with preview before publishing.
+- **Smart Scheduling & Content Calendar** — Interactive monthly calendar view showing all scheduled, published, and draft posts. Schedule posts for optimal engagement windows with timezone support.
+- **Comment Management with AI Replies** — Pull in comments from published LinkedIn posts and generate AI-powered reply suggestions that match Bill's voice, with one-click send.
+- **Analytics Dashboard** — Track impressions, likes, comments, shares, clicks, reach, and engagement rate with visual charts. Includes top-performing posts ranking and AI vs manual post comparison.
+- **LinkedIn Best Practices Built In** — First comment field for links (avoids LinkedIn's 40-50% suppression), character counter with hook length indicator (210 char fold), and 3,000 character limit enforcement.
+- **Full Post Lifecycle** — Create drafts, schedule for future dates, publish immediately, view detailed performance, and manage everything from a single dashboard.
+- Added LinkedIn to the main platform navigation for easy access.
+
+---
+
+### 2026-03-31 — Fixed Meeting Transcripts Page (Server Error)
+
+- **Resolved production crash** on the Meeting Transcripts page (`/meeting-transcripts`) — the page was showing a server-side exception because the `ReadAIMeeting` database table was never created in production.
+- **Root cause**: The build script only ran `prisma generate` (client code generation) but did not run `prisma migrate deploy` to apply pending database migrations.
+- **Fix**: Updated the build script to include `prisma migrate deploy` so all future database schema changes are automatically applied during Render deployments.
+- Committed and pushed to trigger a production redeploy on Render.
 
 ---
 
