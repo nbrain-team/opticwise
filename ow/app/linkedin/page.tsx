@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Linkedin, Plus, Calendar, BarChart3, MessageSquare, Clock,
@@ -13,6 +14,7 @@ interface Account {
   displayName: string;
   username: string;
   avatarUrl: string;
+  profileUrl: string | null;
   isConnected: boolean;
   accountType: string;
 }
@@ -47,12 +49,15 @@ interface Analytics {
 }
 
 export default function LinkedInDashboard() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [justConnected, setJustConnected] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -81,7 +86,22 @@ export default function LinkedInDashboard() {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    const connected = searchParams.get('connected');
+    if (connected === 'true') {
+      setJustConnected(true);
+      setSyncing(true);
+      fetch('/api/linkedin/connect', { method: 'POST' })
+        .then(() => fetchData())
+        .then(() => {
+          setSyncing(false);
+          router.replace('/linkedin');
+        })
+        .catch(() => setSyncing(false));
+    } else {
+      fetchData();
+    }
+  }, [searchParams, fetchData, router]);
 
   const handleConnect = async () => {
     setConnecting(true);
@@ -89,7 +109,7 @@ export default function LinkedInDashboard() {
       const res = await fetch('/api/linkedin/connect');
       if (!res.ok) throw new Error('Failed to get connect URL');
       const { authUrl } = await res.json();
-      window.open(authUrl, '_blank', 'width=600,height=700');
+      window.location.href = authUrl;
     } catch (err) {
       console.error('Connect error:', err);
     } finally {
@@ -174,34 +194,43 @@ export default function LinkedInDashboard() {
         </div>
       </div>
 
+      {/* Just Connected Banner */}
+      {justConnected && isConnected && (
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3">
+          <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0" />
+          <p className="text-sm text-green-800">
+            <strong>LinkedIn connected successfully!</strong> Your account is now linked and ready to use.
+          </p>
+        </div>
+      )}
+
       {/* Connection Widget */}
-      {!isConnected && (
+      {!isConnected && !syncing && (
         <div className="bg-gradient-to-r from-[#0A66C2] to-[#004182] rounded-xl p-8 text-white">
           <div className="max-w-2xl">
             <h2 className="text-xl font-semibold mb-2">Connect Your LinkedIn Account</h2>
             <p className="text-blue-100 mb-6">
               Link your LinkedIn profile to start creating AI-powered posts, schedule content,
               manage comments, and track your engagement analytics — all from one place.
+              You&apos;ll be redirected to LinkedIn to authorize, then brought right back here.
             </p>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleConnect}
-                disabled={connecting}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#0A66C2] rounded-lg font-medium hover:bg-blue-50 transition-colors disabled:opacity-50"
-              >
-                <Linkedin className="w-5 h-5" />
-                {connecting ? 'Connecting...' : 'Connect LinkedIn'}
-              </button>
-              <button
-                onClick={handleSync}
-                disabled={syncing}
-                className="inline-flex items-center gap-2 px-6 py-3 border border-white/30 text-white rounded-lg font-medium hover:bg-white/10 transition-colors disabled:opacity-50"
-              >
-                <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
-                {syncing ? 'Syncing...' : 'Check Connection'}
-              </button>
-            </div>
+            <button
+              onClick={handleConnect}
+              disabled={connecting}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#0A66C2] rounded-lg font-medium hover:bg-blue-50 transition-colors disabled:opacity-50"
+            >
+              <Linkedin className="w-5 h-5" />
+              {connecting ? 'Redirecting to LinkedIn...' : 'Connect LinkedIn'}
+            </button>
           </div>
+        </div>
+      )}
+
+      {/* Syncing State */}
+      {syncing && !isConnected && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0A66C2] mx-auto mb-3" />
+          <p className="text-sm text-blue-700 font-medium">Syncing your LinkedIn account...</p>
         </div>
       )}
 
@@ -211,7 +240,7 @@ export default function LinkedInDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {accounts[0].avatarUrl ? (
-                <img src={accounts[0].avatarUrl} alt="" className="w-12 h-12 rounded-full" />
+                <img src={accounts[0].avatarUrl} alt="" className="w-12 h-12 rounded-full border-2 border-[#0A66C2]/20" />
               ) : (
                 <div className="w-12 h-12 rounded-full bg-[#0A66C2] flex items-center justify-center text-white font-semibold text-lg">
                   {(accounts[0].displayName || 'L').charAt(0)}
@@ -219,9 +248,19 @@ export default function LinkedInDashboard() {
               )}
               <div>
                 <p className="font-medium text-gray-900">{accounts[0].displayName || accounts[0].username}</p>
-                <p className="text-sm text-gray-500">@{accounts[0].username} · {accounts[0].accountType || 'Personal'}</p>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  {accounts[0].profileUrl ? (
+                    <a href={accounts[0].profileUrl} target="_blank" rel="noopener noreferrer" className="hover:text-[#0A66C2] transition-colors">
+                      {accounts[0].profileUrl.replace('https://www.linkedin.com/in/', '').replace('/', '')}
+                    </a>
+                  ) : (
+                    <span>{accounts[0].username}</span>
+                  )}
+                  <span>·</span>
+                  <span className="capitalize">{accounts[0].accountType || 'Personal'} Profile</span>
+                </div>
               </div>
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                 <CheckCircle2 className="w-3 h-3" /> Connected
               </span>
             </div>

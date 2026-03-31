@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
-import * as zernio from '@/lib/zernio';
 import { prisma } from '@/lib/db';
+import * as zernio from '@/lib/zernio';
 
-export async function GET() {
+/**
+ * GET — Generate the LinkedIn OAuth URL.
+ * Passes redirect_url so Zernio sends the user back to our app after auth.
+ */
+export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
     if (!session) {
@@ -16,7 +20,15 @@ export async function GET() {
       return NextResponse.json({ error: 'No Zernio profile found' }, { status: 500 });
     }
 
-    const { authUrl } = await zernio.getConnectUrl('linkedin', profile._id);
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      process.env.RENDER_EXTERNAL_URL ||
+      req.nextUrl.origin;
+
+    const redirectUrl = `${baseUrl}/linkedin?connected=true`;
+
+    const { authUrl } = await zernio.getConnectUrl('linkedin', profile._id, redirectUrl);
+
     return NextResponse.json({ authUrl, profileId: profile._id });
   } catch (error) {
     console.error('LinkedIn connect error:', error);
@@ -27,7 +39,10 @@ export async function GET() {
   }
 }
 
-export async function POST(req: NextRequest) {
+/**
+ * POST — Sync connected LinkedIn accounts from Zernio and bind to the current CRM user.
+ */
+export async function POST() {
   try {
     const session = await getSession();
     if (!session) {
@@ -39,6 +54,11 @@ export async function POST(req: NextRequest) {
 
     const syncedAccounts = [];
     for (const acct of linkedInAccounts) {
+      const displayName = acct.displayName || acct.name || acct.metadata?.userProfile?.displayName || acct.username;
+      const avatarUrl = acct.profilePicture || acct.avatar || acct.metadata?.userProfile?.profilePicture;
+      const profileUrl = acct.profileUrl || acct.metadata?.userProfile?.profileUrl;
+      const accountType = acct.metadata?.accountType || acct.type;
+
       const existing = await prisma.linkedInAccount.findUnique({
         where: { zernioAccountId: acct._id },
       });
@@ -48,11 +68,13 @@ export async function POST(req: NextRequest) {
           where: { id: existing.id },
           data: {
             username: acct.username ?? existing.username,
-            displayName: acct.name ?? existing.displayName,
-            avatarUrl: acct.avatar ?? existing.avatarUrl,
-            accountType: acct.type ?? existing.accountType,
+            displayName: displayName ?? existing.displayName,
+            avatarUrl: avatarUrl ?? existing.avatarUrl,
+            profileUrl: profileUrl ?? existing.profileUrl,
+            accountType: accountType ?? existing.accountType,
             isConnected: true,
             disconnectedAt: null,
+            userId: existing.userId ?? session.userId,
           },
         });
         syncedAccounts.push(updated);
@@ -63,10 +85,12 @@ export async function POST(req: NextRequest) {
             zernioProfileId: acct.profileId ?? '',
             platform: 'linkedin',
             username: acct.username,
-            displayName: acct.name,
-            avatarUrl: acct.avatar,
-            accountType: acct.type,
+            displayName,
+            avatarUrl,
+            profileUrl,
+            accountType,
             isConnected: true,
+            userId: session.userId,
           },
         });
         syncedAccounts.push(created);

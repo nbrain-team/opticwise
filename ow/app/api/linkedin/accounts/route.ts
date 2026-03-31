@@ -10,8 +10,8 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const localAccounts = await prisma.linkedInAccount.findMany({
-      where: { isConnected: true },
+    let localAccounts = await prisma.linkedInAccount.findMany({
+      where: { userId: session.userId, isConnected: true },
       orderBy: { connectedAt: 'desc' },
     });
 
@@ -19,32 +19,41 @@ export async function GET() {
       const { accounts: zernioAccounts } = await zernio.listAccounts();
       const linkedInAccounts = zernioAccounts.filter(a => a.platform === 'linkedin');
 
-      if (linkedInAccounts.length > 0) {
-        const created = [];
-        for (const acct of linkedInAccounts) {
-          const record = await prisma.linkedInAccount.upsert({
-            where: { zernioAccountId: acct._id },
-            create: {
-              zernioAccountId: acct._id,
-              zernioProfileId: acct.profileId ?? '',
-              platform: 'linkedin',
-              username: acct.username,
-              displayName: acct.name,
-              avatarUrl: acct.avatar,
-              accountType: acct.type,
-              isConnected: true,
-            },
-            update: {
-              isConnected: true,
-              username: acct.username,
-              displayName: acct.name,
-              avatarUrl: acct.avatar,
-            },
-          });
-          created.push(record);
-        }
-        return NextResponse.json({ accounts: created });
+      for (const acct of linkedInAccounts) {
+        const displayName = acct.displayName || acct.name || acct.metadata?.userProfile?.displayName || acct.username;
+        const avatarUrl = acct.profilePicture || acct.avatar || acct.metadata?.userProfile?.profilePicture;
+        const profileUrl = acct.profileUrl || acct.metadata?.userProfile?.profileUrl;
+        const accountType = acct.metadata?.accountType || acct.type;
+
+        await prisma.linkedInAccount.upsert({
+          where: { zernioAccountId: acct._id },
+          create: {
+            zernioAccountId: acct._id,
+            zernioProfileId: acct.profileId ?? '',
+            platform: 'linkedin',
+            username: acct.username,
+            displayName,
+            avatarUrl,
+            profileUrl,
+            accountType,
+            isConnected: true,
+            userId: session.userId,
+          },
+          update: {
+            isConnected: true,
+            username: acct.username,
+            displayName,
+            avatarUrl,
+            profileUrl,
+            userId: session.userId,
+          },
+        });
       }
+
+      localAccounts = await prisma.linkedInAccount.findMany({
+        where: { userId: session.userId, isConnected: true },
+        orderBy: { connectedAt: 'desc' },
+      });
     }
 
     return NextResponse.json({ accounts: localAccounts });

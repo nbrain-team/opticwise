@@ -56,9 +56,12 @@ export async function createProfile(name: string, description?: string) {
 
 export async function getConnectUrl(
   platform: string,
-  profileId: string
-): Promise<{ authUrl: string }> {
-  return zernioFetch(`/connect/${platform}?profileId=${profileId}`);
+  profileId: string,
+  redirectUrl?: string
+): Promise<{ authUrl: string; state: string }> {
+  const params = new URLSearchParams({ profileId });
+  if (redirectUrl) params.set('redirect_url', redirectUrl);
+  return zernioFetch(`/connect/${platform}?${params.toString()}`);
 }
 
 // ─── Accounts ────────────────────────────────────────
@@ -67,11 +70,22 @@ export interface ZernioAccountData {
   _id: string;
   platform: string;
   username?: string;
+  displayName?: string;
   name?: string;
   avatar?: string;
+  profilePicture?: string;
+  profileUrl?: string;
   profileId?: string;
   status?: string;
   type?: string;
+  metadata?: {
+    accountType?: string;
+    userProfile?: {
+      displayName?: string;
+      profilePicture?: string;
+      profileUrl?: string;
+    };
+  };
   createdAt: string;
   updatedAt: string;
 }

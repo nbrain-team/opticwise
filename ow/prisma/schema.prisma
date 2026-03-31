@@ -25,6 +25,7 @@ model User {
   deals        Deal[]   @relation("DealOwner")
   campaigns    Campaign[] @relation("CampaignOwner")
   passwordResetTokens PasswordResetToken[]
+  linkedInAccounts LinkedInAccount[]
 }
 
 model PasswordResetToken {
@@ -1389,10 +1390,15 @@ model LinkedInAccount {
   username        String?
   displayName     String?
   avatarUrl       String?
+  profileUrl      String?
   accountType     String?
   isConnected     Boolean  @default(true)
   connectedAt     DateTime @default(now())
   disconnectedAt  DateTime?
+
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -1400,6 +1406,7 @@ model LinkedInAccount {
 
   @@index([platform])
   @@index([isConnected])
+  @@index([userId])
 }
 
 model SocialPost {
