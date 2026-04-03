@@ -69,6 +69,7 @@ export default function SalesInboxPage() {
       })
       .catch(() => {});
     fetchThreads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchThreads = async (query?: string) => {

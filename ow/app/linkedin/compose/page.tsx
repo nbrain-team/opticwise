@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import NextImage from 'next/image';
 import {
   ArrowLeft, Sparkles, Image as ImageIcon, Calendar, Send, Save,
   Linkedin, Loader2, X, MessageSquareText, Clock,
@@ -270,7 +271,7 @@ export default function ComposePage() {
               {accounts.length > 0 && (
                 <div className="flex items-center gap-3 mb-4 pb-4 border-b">
                   {accounts[0].avatarUrl ? (
-                    <img src={accounts[0].avatarUrl} alt="" className="w-10 h-10 rounded-full" />
+                    <NextImage src={accounts[0].avatarUrl} alt="" width={40} height={40} className="w-10 h-10 rounded-full" unoptimized />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-[#0A66C2] flex items-center justify-center text-white font-semibold">
                       {(accounts[0].displayName || 'L').charAt(0)}
@@ -298,6 +299,7 @@ export default function ComposePage() {
                   {mediaItems.map((item, idx) => (
                     <div key={idx} className="relative group">
                       {item.preview ? (
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={item.preview} alt="" className="w-24 h-24 object-cover rounded-lg border" />
                       ) : (
                         <div className="w-24 h-24 rounded-lg border bg-gray-50 flex items-center justify-center">
@@ -578,6 +580,7 @@ export default function ComposePage() {
                     <button className="text-sm text-gray-500 mt-1 hover:text-gray-700">...see more</button>
                   )}
                   {mediaItems.length > 0 && mediaItems[0].preview && (
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={mediaItems[0].preview} alt="" className="w-full h-48 object-cover rounded-lg mt-3" />
                   )}
                   <div className="flex items-center gap-6 mt-4 pt-3 border-t text-xs text-gray-500">

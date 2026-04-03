@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   ArrowLeft, Linkedin, CheckCircle2, Clock, FileText, AlertCircle,
   Eye, Heart, MessageSquare, Share2, MousePointerClick, Sparkles,
@@ -235,7 +236,7 @@ export default function PostDetailPage() {
               {/* Author */}
               <div className="flex items-center gap-3 mb-4">
                 {post.account.avatarUrl ? (
-                  <img src={post.account.avatarUrl} alt="" className="w-12 h-12 rounded-full" />
+                  <Image src={post.account.avatarUrl} alt="" width={48} height={48} className="w-12 h-12 rounded-full" unoptimized />
                 ) : (
                   <div className="w-12 h-12 rounded-full bg-[#0A66C2] flex items-center justify-center text-white font-semibold text-lg">
                     {(post.account.displayName || 'L').charAt(0)}
@@ -319,7 +320,7 @@ export default function PostDetailPage() {
                     {/* Comment */}
                     <div className="flex items-start gap-3">
                       {comment.authorAvatar ? (
-                        <img src={comment.authorAvatar} alt="" className="w-9 h-9 rounded-full flex-shrink-0" />
+                        <Image src={comment.authorAvatar} alt="" width={36} height={36} className="w-9 h-9 rounded-full flex-shrink-0" unoptimized />
                       ) : (
                         <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium text-sm flex-shrink-0">
                           {comment.authorName.charAt(0)}

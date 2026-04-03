@@ -175,7 +175,7 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
             console.warn(`  ⚠️ Unexpected embedding dimensions: ${embedding.length} (expected 1024), discarding`);
             embedding = null;
           }
-        } catch (embeddingError) {
+        } catch {
           console.error(`  ⚠️ Embedding failed for message ${message.id}, storing without embedding`);
         }
 

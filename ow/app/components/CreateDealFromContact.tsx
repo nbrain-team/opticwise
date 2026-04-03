@@ -13,7 +13,7 @@ interface CreateDealFromContactProps {
 export function CreateDealFromContact({
   personId,
   personName,
-  organizationId,
+  organizationId: _organizationId,
   organizationName,
 }: CreateDealFromContactProps) {
   const router = useRouter();

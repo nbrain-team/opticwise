@@ -60,11 +60,6 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
     });
   }
 
-  function formatSyncDate(date: string) {
-    if (!mounted) return "";
-    return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-  }
-
   const [formData, setFormData] = useState({
     email: "",
     name: "",

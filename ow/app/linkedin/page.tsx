@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Linkedin, Plus, Calendar, BarChart3, MessageSquare, Clock,
   CheckCircle2, AlertCircle, FileText, Sparkles, RefreshCw,
@@ -48,7 +49,19 @@ interface Analytics {
   };
 }
 
-export default function LinkedInDashboard() {
+export default function LinkedInPage() {
+  return (
+    <Suspense fallback={
+      <div className="p-8 flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#0A66C2]" />
+      </div>
+    }>
+      <LinkedInDashboard />
+    </Suspense>
+  );
+}
+
+function LinkedInDashboard() {
   const searchParams = useSearchParams();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [recentPosts, setRecentPosts] = useState<Post[]>([]);
@@ -244,7 +257,7 @@ export default function LinkedInDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {accounts[0].avatarUrl ? (
-                <img src={accounts[0].avatarUrl} alt="" className="w-12 h-12 rounded-full border-2 border-[#0A66C2]/20" />
+                <Image src={accounts[0].avatarUrl} alt="" width={48} height={48} className="w-12 h-12 rounded-full border-2 border-[#0A66C2]/20" />
               ) : (
                 <div className="w-12 h-12 rounded-full bg-[#0A66C2] flex items-center justify-center text-white font-semibold text-lg">
                   {(accounts[0].displayName || 'L').charAt(0)}
