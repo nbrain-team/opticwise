@@ -6,6 +6,15 @@
 
 ---
 
+### 2026-03-31 — Ghost CMS Full Page Management
+
+- **All website pages are now manageable through Ghost CMS** — the client can create, edit, and manage any page (not just blog posts) directly from the Ghost admin panel at opticwise-ghost.onrender.com.
+- **Image management built-in** — Upload and swap images via drag-and-drop in Ghost's editor, set hero/banner images per page via feature images, and manage an image library stored on Ghost's persistent disk.
+- **Dynamic catch-all route** — A new `[...slug]` route automatically renders any Ghost page with the site's design system (hero, content, CTA, footer) and proper SEO metadata.
+- **Comprehensive Ghost content styling** — All Ghost editor card types (images, galleries, callouts, toggles, bookmarks, buttons, embeds) are styled to match the OpticWise design system.
+- **Migration script ready** — A bulk page creation script (`ghost-cms/create-pages.js`) can populate Ghost with all 12 existing marketing pages in one run.
+- **No disruption to existing site** — Hardcoded page routes remain active and take precedence until Ghost pages are confirmed working, ensuring zero downtime during migration.
+
 ### 2026-03-31 — LinkedIn Connect: Zernio Login Page Eliminated
 
 - **Eliminated the Zernio login page** that was appearing after LinkedIn authorization — users now go directly from LinkedIn OAuth back to the Opticwise platform with no third-party login screens.

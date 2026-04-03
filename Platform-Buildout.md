@@ -53,6 +53,20 @@
 - **UI Pages**: `/linkedin` (dashboard), `/linkedin/compose`, `/linkedin/calendar`, `/linkedin/posts`, `/linkedin/analytics`
 - **AI System Prompt**: Writes in Bill Demas's voice, Opticwise brand, smart building tech industry
 
+### Ghost CMS Full Page Management (Added 2026-03-31)
+- **Ghost Admin**: `https://opticwise-ghost.onrender.com/ghost/`
+- **Ghost Content API**: `https://opticwise-ghost.onrender.com` (key: `fd55f30a689a1212fb14ab2ab1`)
+- **Website**: `https://opticwise-website-v3.onrender.com` (`website-v3-nextjs/`)
+- **Architecture**: Headless CMS — Ghost provides content, Next.js renders pages
+- **Dynamic Route**: `website-v3-nextjs/app/(main)/[...slug]/page.tsx` — catch-all for Ghost pages
+- **Ghost API Client**: `website-v3-nextjs/lib/ghost.ts` — `getAllPages()`, `getPageBySlug()`, `getAllPosts()`, `getPostBySlug()`
+- **ISR Revalidation**: Webhook at `/api/revalidate` + 5-minute time-based revalidation
+- **Content Styling**: `.ghost-content` in `globals.css` — handles all Ghost card types
+- **Migration Script**: `ghost-cms/create-pages.js` — bulk-creates pages via Ghost Admin API
+- **Special Pages** (kept as hardcoded routes): FAQ (interactive tabs), schedule-review (form), cre-ai-readiness (redirect)
+- **Image Storage**: Ghost persistent disk at `/var/lib/ghost/content` (1GB on Render)
+- **Ghost Version**: 5.x (Alpine Docker image)
+
 ## Database Schema Highlights
 - 30+ models in Prisma schema
 - Migrations managed via `prisma migrate deploy` (runs during build)
