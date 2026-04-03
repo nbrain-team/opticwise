@@ -81,7 +81,8 @@ export async function selectLinkedInOrg(body: {
 // ─── Accounts ────────────────────────────────────────
 
 export interface ZernioAccountData {
-  _id: string;
+  _id?: string;
+  accountId?: string;
   platform: string;
   username?: string;
   displayName?: string;
@@ -92,6 +93,8 @@ export interface ZernioAccountData {
   profileId?: string;
   status?: string;
   type?: string;
+  accountType?: string;
+  isActive?: boolean;
   metadata?: {
     accountType?: string;
     userProfile?: {
@@ -102,6 +105,12 @@ export interface ZernioAccountData {
   };
   createdAt: string;
   updatedAt: string;
+}
+
+export function getAccountId(acct: ZernioAccountData): string {
+  const id = acct._id || acct.accountId;
+  if (!id) throw new Error('Zernio account has no _id or accountId');
+  return id;
 }
 
 export async function listAccounts(): Promise<{

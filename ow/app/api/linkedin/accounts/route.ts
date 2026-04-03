@@ -20,15 +20,16 @@ export async function GET() {
       const linkedInAccounts = zernioAccounts.filter(a => a.platform === 'linkedin');
 
       for (const acct of linkedInAccounts) {
+        const acctId = zernio.getAccountId(acct);
         const displayName = acct.displayName || acct.name || acct.metadata?.userProfile?.displayName || acct.username;
         const avatarUrl = acct.profilePicture || acct.avatar || acct.metadata?.userProfile?.profilePicture;
         const profileUrl = acct.profileUrl || acct.metadata?.userProfile?.profileUrl;
-        const accountType = acct.metadata?.accountType || acct.type;
+        const accountType = acct.accountType || acct.metadata?.accountType || acct.type;
 
         await prisma.linkedInAccount.upsert({
-          where: { zernioAccountId: acct._id },
+          where: { zernioAccountId: acctId },
           create: {
-            zernioAccountId: acct._id,
+            zernioAccountId: acctId,
             zernioProfileId: acct.profileId ?? '',
             platform: 'linkedin',
             username: acct.username,

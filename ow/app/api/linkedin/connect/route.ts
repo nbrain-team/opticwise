@@ -58,13 +58,14 @@ export async function POST() {
 
     const syncedAccounts = [];
     for (const acct of linkedInAccounts) {
+      const acctId = zernio.getAccountId(acct);
       const displayName = acct.displayName || acct.name || acct.metadata?.userProfile?.displayName || acct.username;
       const avatarUrl = acct.profilePicture || acct.avatar || acct.metadata?.userProfile?.profilePicture;
       const profileUrl = acct.profileUrl || acct.metadata?.userProfile?.profileUrl;
-      const accountType = acct.metadata?.accountType || acct.type;
+      const accountType = acct.accountType || acct.metadata?.accountType || acct.type;
 
       const existing = await prisma.linkedInAccount.findUnique({
-        where: { zernioAccountId: acct._id },
+        where: { zernioAccountId: acctId },
       });
 
       if (existing) {
@@ -85,7 +86,7 @@ export async function POST() {
       } else {
         const created = await prisma.linkedInAccount.create({
           data: {
-            zernioAccountId: acct._id,
+            zernioAccountId: acctId,
             zernioProfileId: acct.profileId ?? '',
             platform: 'linkedin',
             username: acct.username,

@@ -71,6 +71,7 @@ export async function GET(req: NextRequest) {
     }
 
     if (zernioAccount) {
+      const acctId = zernio.getAccountId(zernioAccount);
       const displayName =
         zernioAccount.displayName ||
         zernioAccount.name ||
@@ -83,12 +84,15 @@ export async function GET(req: NextRequest) {
       const profileUrl =
         zernioAccount.profileUrl ||
         zernioAccount.metadata?.userProfile?.profileUrl;
-      const accountType = zernioAccount.metadata?.accountType || zernioAccount.type;
+      const accountType =
+        zernioAccount.accountType ||
+        zernioAccount.metadata?.accountType ||
+        zernioAccount.type;
 
       await prisma.linkedInAccount.upsert({
-        where: { zernioAccountId: zernioAccount._id },
+        where: { zernioAccountId: acctId },
         create: {
-          zernioAccountId: zernioAccount._id,
+          zernioAccountId: acctId,
           zernioProfileId: profile._id,
           platform: 'linkedin',
           username: zernioAccount.username,
