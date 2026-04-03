@@ -33,7 +33,11 @@ export interface GhostPage {
   title: string;
   html: string | null;
   feature_image: string | null;
+  feature_image_alt: string | null;
   custom_excerpt: string | null;
+  meta_title: string | null;
+  meta_description: string | null;
+  og_image: string | null;
   updated_at: string | null;
 }
 
@@ -67,7 +71,7 @@ export async function getAllPages(): Promise<GhostPage[]> {
   try {
     return await api.pages.browse({
       limit: "all",
-      fields: "id,slug,title,html,feature_image,custom_excerpt,updated_at",
+      fields: "id,slug,title,html,feature_image,feature_image_alt,custom_excerpt,meta_title,meta_description,og_image,updated_at",
     }) as unknown as GhostPage[];
   } catch {
     return [];

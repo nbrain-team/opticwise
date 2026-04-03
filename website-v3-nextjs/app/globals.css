@@ -42,7 +42,11 @@
   .ghost-content { @apply prose prose-gray max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-strong:text-gray-900 prose-a:text-ow-blue prose-img:rounded-xl prose-img:shadow-md prose-img:mx-auto; }
 }
 
-/* Ghost CMS content image formatting */
+/* ===================================
+   GHOST CMS CONTENT STYLING
+   =================================== */
+
+/* --- Base Images --- */
 .ghost-content img {
   max-width: 100%; height: auto;
   border-radius: 12px; margin: 24px auto;
@@ -53,12 +57,236 @@
   font-size: .8rem; color: #94a3b8;
   margin-top: 8px; font-style: italic;
 }
+
+/* --- Image Cards --- */
 .ghost-content .kg-image-card,
 .ghost-content .kg-gallery-card { margin: 32px 0; }
 .ghost-content .kg-image-card img { width: 100%; }
+.ghost-content .kg-image-card.kg-width-wide img {
+  max-width: min(calc(100% + 80px), 100vw);
+  margin-left: -40px; width: calc(100% + 80px);
+}
+.ghost-content .kg-image-card.kg-width-full img {
+  max-width: 100vw; width: 100vw;
+  margin-left: calc(50% - 50vw);
+}
+
+/* --- Gallery Cards --- */
+.ghost-content .kg-gallery-container {
+  display: flex; flex-direction: column; gap: 12px;
+  margin: 32px 0;
+}
+.ghost-content .kg-gallery-row {
+  display: flex; gap: 12px;
+}
+.ghost-content .kg-gallery-image img {
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: 10px; margin: 0;
+}
+
+/* --- Bookmark Cards --- */
 .ghost-content .kg-bookmark-card {
   border: 1px solid #e2e8f0; border-radius: 12px;
-  overflow: hidden; margin: 24px 0;
+  overflow: hidden; margin: 24px 0; transition: border-color .2s;
+}
+.ghost-content .kg-bookmark-card:hover { border-color: rgba(43,108,176,.3); }
+.ghost-content .kg-bookmark-container {
+  display: flex; text-decoration: none; color: inherit;
+}
+.ghost-content .kg-bookmark-content {
+  flex: 1; padding: 20px;
+}
+.ghost-content .kg-bookmark-title {
+  font-size: 1rem; font-weight: 700; color: #0f172a;
+  margin-bottom: 6px;
+}
+.ghost-content .kg-bookmark-description {
+  font-size: .85rem; color: #64748b; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.ghost-content .kg-bookmark-metadata {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 10px; font-size: .75rem; color: #94a3b8;
+}
+.ghost-content .kg-bookmark-icon {
+  width: 16px; height: 16px; border-radius: 3px;
+}
+.ghost-content .kg-bookmark-thumbnail {
+  width: 180px; min-height: 100%;
+}
+.ghost-content .kg-bookmark-thumbnail img {
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: 0; margin: 0;
+}
+
+/* --- Callout Cards --- */
+.ghost-content .kg-callout-card {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 20px 24px; border-radius: 12px;
+  margin: 28px 0; font-size: .92rem; line-height: 1.7;
+}
+.ghost-content .kg-callout-card-grey {
+  background: #f8fafc; border: 1px solid #e2e8f0; color: #334155;
+}
+.ghost-content .kg-callout-card-white {
+  background: #fff; border: 1px solid #e2e8f0; color: #334155;
+}
+.ghost-content .kg-callout-card-blue {
+  background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af;
+}
+.ghost-content .kg-callout-card-green {
+  background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46;
+}
+.ghost-content .kg-callout-card-yellow {
+  background: #fefce8; border: 1px solid #fde68a; color: #854d0e;
+}
+.ghost-content .kg-callout-card-red {
+  background: #fef2f2; border: 1px solid #fecaca; color: #991b1b;
+}
+.ghost-content .kg-callout-card-pink {
+  background: #fdf2f8; border: 1px solid #fbcfe8; color: #9d174d;
+}
+.ghost-content .kg-callout-card-purple {
+  background: #faf5ff; border: 1px solid #e9d5ff; color: #6b21a8;
+}
+.ghost-content .kg-callout-card-accent {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border: 1px solid #bfdbfe; color: #1e40af;
+}
+.ghost-content .kg-callout-emoji {
+  font-size: 1.3rem; line-height: 1; flex-shrink: 0;
+}
+.ghost-content .kg-callout-text { flex: 1; }
+.ghost-content .kg-callout-text p { margin: 0; }
+
+/* --- Toggle Cards (Accordion) --- */
+.ghost-content .kg-toggle-card {
+  background: #fff; border: 1px solid #e2e8f0;
+  border-radius: 12px; margin: 16px 0;
+  overflow: hidden; transition: border-color .2s;
+}
+.ghost-content .kg-toggle-card:hover { border-color: rgba(43,108,176,.25); }
+.ghost-content .kg-toggle-heading {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; padding: 20px 24px; cursor: pointer;
+  font-size: .95rem; font-weight: 600; color: #0f172a;
+}
+.ghost-content .kg-toggle-card-icon svg {
+  width: 20px; height: 20px; color: #94a3b8;
+  transition: transform .2s;
+}
+.ghost-content .kg-toggle-content {
+  padding: 0 24px 20px;
+  font-size: .88rem; color: #64748b; line-height: 1.7;
+  border-top: 1px solid #f1f5f9; padding-top: 16px;
+}
+
+/* --- Button Cards --- */
+.ghost-content .kg-button-card {
+  text-align: center; margin: 32px 0;
+}
+.ghost-content .kg-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 600; border-radius: 999px; transition: all .2s;
+  text-decoration: none; cursor: pointer;
+  padding: 14px 32px; font-size: .95rem;
+}
+.ghost-content .kg-btn-accent {
+  background: #2B6CB0; color: #fff;
+  box-shadow: 0 4px 14px rgba(43,108,176,.3);
+}
+.ghost-content .kg-btn-accent:hover {
+  background: #1E4E8C; transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(43,108,176,.4);
+}
+
+/* --- Divider / HR --- */
+.ghost-content hr,
+.ghost-content .kg-divider-card {
+  border: none; border-top: 2px solid #e2e8f0;
+  margin: 48px auto; max-width: 120px;
+}
+
+/* --- Header Cards --- */
+.ghost-content .kg-header-card {
+  padding: 60px 40px; border-radius: 16px;
+  text-align: center; margin: 40px 0;
+}
+.ghost-content .kg-header-card.kg-style-dark {
+  background: #0f172a; color: #fff;
+}
+.ghost-content .kg-header-card.kg-style-light {
+  background: #f8fafc; color: #0f172a;
+}
+.ghost-content .kg-header-card.kg-style-accent {
+  background: linear-gradient(135deg, #2B6CB0, #1E4E8C); color: #fff;
+}
+.ghost-content .kg-header-card h2,
+.ghost-content .kg-header-card h3 {
+  font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800;
+  margin-bottom: 12px;
+}
+.ghost-content .kg-header-card p {
+  font-size: 1.05rem; opacity: .8; max-width: 600px; margin: 0 auto;
+}
+
+/* --- Video / Embed Cards --- */
+.ghost-content .kg-video-card,
+.ghost-content .kg-embed-card {
+  margin: 32px 0; border-radius: 12px; overflow: hidden;
+}
+.ghost-content .kg-embed-card iframe {
+  width: 100%; aspect-ratio: 16/9; border: 0;
+}
+
+/* --- Spacing and Typography Refinements --- */
+.ghost-content h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800;
+  color: #0f172a; margin-top: 56px; margin-bottom: 20px;
+  letter-spacing: -.02em; line-height: 1.2;
+}
+.ghost-content h3 {
+  font-size: 1.25rem; font-weight: 700;
+  color: #0f172a; margin-top: 40px; margin-bottom: 16px;
+}
+.ghost-content h4 {
+  font-size: 1.05rem; font-weight: 700;
+  color: #0f172a; margin-top: 32px; margin-bottom: 12px;
+}
+.ghost-content p {
+  font-size: 1rem; line-height: 1.75; color: #475569;
+  margin-bottom: 20px;
+}
+.ghost-content ul, .ghost-content ol {
+  padding-left: 24px; margin-bottom: 20px;
+}
+.ghost-content li {
+  font-size: 1rem; line-height: 1.75; color: #475569;
+  margin-bottom: 8px;
+}
+.ghost-content blockquote {
+  border-left: 4px solid #2B6CB0; padding: 16px 24px;
+  margin: 28px 0; background: #f8fafc;
+  border-radius: 0 12px 12px 0;
+  font-size: 1.05rem; color: #334155;
+  font-style: italic;
+}
+.ghost-content a {
+  color: #2B6CB0; text-decoration: underline;
+  text-underline-offset: 3px; transition: color .2s;
+}
+.ghost-content a:hover { color: #1E4E8C; }
+.ghost-content strong { color: #0f172a; font-weight: 700; }
+
+/* --- Responsive Tweaks --- */
+@media (max-width: 640px) {
+  .ghost-content .kg-bookmark-container { flex-direction: column; }
+  .ghost-content .kg-bookmark-thumbnail { width: 100%; height: 160px; }
+  .ghost-content .kg-header-card { padding: 40px 24px; }
+  .ghost-content .kg-image-card.kg-width-wide img {
+    max-width: 100%; margin-left: 0; width: 100%;
+  }
 }
 
 .mobile-menu-enter { animation: slideDown .2s ease-out; }
