@@ -299,7 +299,7 @@ export default function ComposePage() {
                   {mediaItems.map((item, idx) => (
                     <div key={idx} className="relative group">
                       {item.preview ? (
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={item.preview} alt="" className="w-24 h-24 object-cover rounded-lg border" />
                       ) : (
                         <div className="w-24 h-24 rounded-lg border bg-gray-50 flex items-center justify-center">
@@ -580,7 +580,7 @@ export default function ComposePage() {
                     <button className="text-sm text-gray-500 mt-1 hover:text-gray-700">...see more</button>
                   )}
                   {mediaItems.length > 0 && mediaItems[0].preview && (
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    // eslint-disable-next-line @next/next/no-img-element
                     <img src={mediaItems[0].preview} alt="" className="w-full h-48 object-cover rounded-lg mt-3" />
                   )}
                   <div className="flex items-center gap-6 mt-4 pt-3 border-t text-xs text-gray-500">
