@@ -51,7 +51,7 @@ export async function POST(
     const post = await prisma.socialPost.update({
       where: { id },
       data: {
-        zernioPostId: result.post._id,
+        zernioPostId: result.post._id || result.post.id || null,
         status: 'published',
         publishedAt: new Date(),
         errorMessage: null,

@@ -113,6 +113,15 @@ export function getAccountId(acct: ZernioAccountData): string {
   return id;
 }
 
+export function getProfileId(acct: ZernioAccountData): string {
+  const pid = acct.profileId;
+  if (!pid) return '';
+  if (typeof pid === 'object' && pid !== null) {
+    return (pid as Record<string, string>)._id || '';
+  }
+  return String(pid);
+}
+
 export async function listAccounts(): Promise<{
   accounts: ZernioAccountData[];
   hasAnalyticsAccess: boolean;
@@ -153,7 +162,8 @@ export interface CreatePostParams {
 }
 
 export interface ZernioPostData {
-  _id: string;
+  _id?: string;
+  id?: string;
   content: string;
   platforms: ZernioPlatformEntry[];
   mediaItems?: ZernioMediaItem[];

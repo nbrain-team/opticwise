@@ -87,7 +87,7 @@ export async function POST() {
         const created = await prisma.linkedInAccount.create({
           data: {
             zernioAccountId: acctId,
-            zernioProfileId: acct.profileId ?? '',
+            zernioProfileId: zernio.getProfileId(acct),
             platform: 'linkedin',
             username: acct.username,
             displayName,

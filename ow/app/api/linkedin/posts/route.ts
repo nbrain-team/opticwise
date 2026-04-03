@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
 
       try {
         const result = await zernio.createPost(postParams);
-        zernioPostId = result.post._id;
+        zernioPostId = result.post._id || result.post.id || null;
         if (result.post.status) status = result.post.status;
       } catch (zErr) {
         console.error('Zernio post creation error:', zErr);

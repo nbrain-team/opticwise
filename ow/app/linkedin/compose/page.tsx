@@ -70,10 +70,25 @@ export default function ComposePage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    fetch('/api/linkedin/accounts')
-      .then(r => r.json())
-      .then(data => setAccounts(data.accounts || []))
-      .catch(console.error);
+    const loadAccounts = async () => {
+      try {
+        const res = await fetch('/api/linkedin/accounts');
+        const data = await res.json();
+        const accts = data.accounts || [];
+        if (accts.length > 0) {
+          setAccounts(accts);
+          return;
+        }
+        const syncRes = await fetch('/api/linkedin/connect', { method: 'POST' });
+        const syncData = await syncRes.json();
+        if (syncData.accounts?.length > 0) {
+          setAccounts(syncData.accounts);
+        }
+      } catch (err) {
+        console.error('Failed to load accounts:', err);
+      }
+    };
+    loadAccounts();
   }, []);
 
   const charCount = content.length;

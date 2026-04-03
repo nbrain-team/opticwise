@@ -30,7 +30,7 @@ export async function GET() {
           where: { zernioAccountId: acctId },
           create: {
             zernioAccountId: acctId,
-            zernioProfileId: acct.profileId ?? '',
+            zernioProfileId: zernio.getProfileId(acct),
             platform: 'linkedin',
             username: acct.username,
             displayName,

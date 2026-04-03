@@ -73,16 +73,27 @@ function LinkedInDashboard() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [acctRes, postsRes, analyticsRes] = await Promise.all([
-        fetch('/api/linkedin/accounts'),
+      const acctRes = await fetch('/api/linkedin/accounts');
+      let accts: Account[] = [];
+      if (acctRes.ok) {
+        const data = await acctRes.json();
+        accts = data.accounts || [];
+      }
+
+      if (accts.length === 0) {
+        const syncRes = await fetch('/api/linkedin/connect', { method: 'POST' });
+        if (syncRes.ok) {
+          const syncData = await syncRes.json();
+          accts = syncData.accounts || [];
+        }
+      }
+      setAccounts(accts);
+
+      const [postsRes, analyticsRes] = await Promise.all([
         fetch('/api/linkedin/posts?limit=5'),
         fetch('/api/linkedin/analytics'),
       ]);
 
-      if (acctRes.ok) {
-        const data = await acctRes.json();
-        setAccounts(data.accounts || []);
-      }
       if (postsRes.ok) {
         const data = await postsRes.json();
         setRecentPosts(data.posts || []);
