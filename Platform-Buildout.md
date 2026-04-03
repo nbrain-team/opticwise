@@ -55,7 +55,7 @@
 
 ### Ghost CMS Full Page Management (Added 2026-03-31)
 - **Ghost Admin**: `https://opticwise-ghost.onrender.com/ghost/`
-- **Ghost Content API**: `https://opticwise-ghost.onrender.com` (key: `fd55f30a689a1212fb14ab2ab1`)
+- **Ghost Content API**: `https://opticwise-ghost.onrender.com` (key: `ba24a4b5a535accc72501c4571`)
 - **Website**: `https://opticwise-website-v3.onrender.com` (`website-v3-nextjs/`)
 - **Architecture**: Headless CMS — Ghost provides content, Next.js renders pages
 - **Dynamic Route**: `website-v3-nextjs/app/(main)/[...slug]/page.tsx` — catch-all for Ghost pages
