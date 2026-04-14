@@ -32,7 +32,7 @@ services:
 # =============================================
 databases:
   - name: payload-db
-    plan: starter
+    plan: basic-256mb
     region: oregon
     databaseName: payload_opticwise
     user: payload_user
