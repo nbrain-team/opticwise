@@ -1,30 +1,5 @@
 services:
   # =============================================
-  # MAIN CRM / PLATFORM APP
-  # =============================================
-  - type: web
-    name: opticwise-frontend
-    runtime: node
-    region: oregon
-    plan: starter
-    branch: main
-    buildCommand: cd ow && npm install && npx prisma generate && npm run build
-    startCommand: cd ow && npm start
-    envVars:
-      - key: DATABASE_URL
-        value: postgresql://opticwise_db_user:er6uVwAIHfgoiGZ1u2IUdlayvZ0ouRJo@dpg-d4eboeh5pdvs73fpagfg-a.oregon-postgres.render.com/opticwise_db
-      - key: AUTH_SECRET
-        generateValue: true
-      - key: NEXT_PUBLIC_BASE_URL
-        value: https://ownet.opticwise.com
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: GOOGLE_SERVICE_ACCOUNT_JSON
-        sync: false
-
-  # =============================================
   # PAYLOAD CMS WEBSITE (replaces Ghost CMS)
   # =============================================
   - type: web
@@ -51,24 +26,6 @@ services:
         value: production
       - key: PORT
         value: 10000
-
-  # =============================================
-  # CRON: EMAIL SYNC (every 15 min)
-  # =============================================
-  - type: cron
-    name: opticwise-email-sync
-    runtime: node
-    region: oregon
-    plan: starter
-    branch: main
-    schedule: "*/15 * * * *"
-    buildCommand: echo "no build needed"
-    startCommand: |
-      curl -s -X GET "https://ownet.opticwise.com/api/sales-inbox/sync?secret=$CRON_SECRET" \
-        -H "Content-Type: application/json" || echo "Sync request failed"
-    envVars:
-      - key: CRON_SECRET
-        generateValue: true
 
 # =============================================
 # DATABASES
