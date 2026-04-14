@@ -1,10 +1,23 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: March 31, 2026  
-**Latest Period**: February 14 - March 31, 2026  
-**Status**: Website Redesign, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched
+**Latest Update**: April 14, 2026  
+**Latest Period**: February 14 - April 14, 2026  
+**Status**: CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched
 
 ---
+
+### 2026-04-14 — Payload CMS Replaces Ghost CMS
+
+- **Migrated the entire website CMS from Ghost to Payload CMS** — a modern, open-source, Next.js-native CMS that runs inside the application instead of requiring a separate server and MySQL database.
+- **Full content management via the admin panel at `/admin`** — pages, blog posts, images, categories, navigation, and site settings are all editable from one unified dashboard.
+- **Block-based page builder** — pages can be built using reusable layout blocks (hero sections, content areas, card grids, CTAs, FAQ sections, timelines, deliverables) without any code changes.
+- **107 blog posts migrated** from Ghost with full HTML content, reading times, and published dates preserved. All content renders identically to the previous site.
+- **12 marketing pages migrated** with the same URL structure — no broken links, no SEO impact.
+- **Unified deployment** — eliminates the need for a separate Ghost server and MySQL database on Render, reducing infrastructure costs and complexity.
+- **Editable site-wide settings** — navigation menus, branding text, CTA copy, and footer links are all managed from the admin panel.
+- **SEO plugin integrated** — automatic meta titles, descriptions, and OpenGraph images configurable per page and post.
+- **Image management** — upload and manage images directly in the admin panel with automatic resizing (thumbnail, card, hero sizes).
+- **Ghost CMS archived** — the `ghost-cms/` directory is retained for reference but Ghost services can be sunset.
 
 ### 2026-03-31 — Ghost CMS Full Page Management
 

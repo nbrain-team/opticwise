@@ -1,4 +1,7 @@
 services:
+  # =============================================
+  # MAIN CRM / PLATFORM APP
+  # =============================================
   - type: web
     name: opticwise-frontend
     runtime: node
@@ -21,80 +24,37 @@ services:
       - key: GOOGLE_SERVICE_ACCOUNT_JSON
         sync: false
 
+  # =============================================
+  # PAYLOAD CMS WEBSITE (replaces Ghost CMS)
+  # =============================================
   - type: web
-    name: opticwise-website
+    name: opticwise-payload
     runtime: node
     region: oregon
     plan: starter
     branch: main
-    buildCommand: cd website-v2 && npm install --include=dev && npm run build
-    startCommand: cd website-v2 && npm start
+    rootDir: payload
+    buildCommand: npm install && npm run build
+    startCommand: npm start
     envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-
-  - type: web
-    name: opticwise-website-v3
-    runtime: node
-    region: oregon
-    plan: starter
-    branch: main
-    buildCommand: cd website-v3-nextjs && npm install --include=dev && npm run build
-    startCommand: cd website-v3-nextjs && npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-      - key: GHOST_URL
-        value: https://opticwise-ghost.onrender.com
-      - key: GHOST_CONTENT_KEY
-        value: ba24a4b5a535accc72501c4571
-      - key: GHOST_WEBHOOK_SECRET
+      - key: DATABASE_URI
+        fromDatabase:
+          name: payload-db
+          property: connectionString
+      - key: PAYLOAD_SECRET
         generateValue: true
+      - key: NEXT_PUBLIC_SERVER_URL
+        value: https://opticwise-payload.onrender.com
+      - key: NEXT_PUBLIC_OW_API_URL
+        value: https://ownet.opticwise.com
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
 
-  - type: web
-    name: opticwise-ghost
-    env: docker
-    region: oregon
-    plan: starter
-    branch: main
-    rootDir: ghost-cms
-    autoDeploy: false
-    disk:
-      name: ghost-content
-      mountPath: /var/lib/ghost/content
-      sizeGB: 1
-    envVars:
-      - key: database__client
-        value: mysql
-      - key: database__connection__host
-        fromService:
-          type: pserv
-          name: ghost-mysql
-          property: host
-      - key: database__connection__database
-        value: ghostdb
-      - key: database__connection__user
-        value: ghost
-      - key: database__connection__password
-        fromService:
-          type: pserv
-          name: ghost-mysql
-          envVarKey: MYSQL_PASSWORD
-      - key: mail__options__host
-        value: smtp.gmail.com
-      - key: mail__options__port
-        value: "587"
-      - key: mail__options__auth__user
-        sync: false
-      - key: mail__options__auth__pass
-        sync: false
-      - key: mail__from
-        value: "'Opticwise' <bill@opticwise.com>"
-
+  # =============================================
+  # CRON: EMAIL SYNC (every 15 min)
+  # =============================================
   - type: cron
     name: opticwise-email-sync
     runtime: node
@@ -110,23 +70,13 @@ services:
       - key: CRON_SECRET
         generateValue: true
 
-  - type: pserv
-    name: ghost-mysql
-    env: docker
-    region: oregon
+# =============================================
+# DATABASES
+# =============================================
+databases:
+  - name: payload-db
     plan: starter
-    repo: https://github.com/render-examples/mysql
-    autoDeploy: false
-    disk:
-      name: ghost-mysql-data
-      mountPath: /var/lib/mysql
-      sizeGB: 1
-    envVars:
-      - key: MYSQL_DATABASE
-        value: ghostdb
-      - key: MYSQL_USER
-        value: ghost
-      - key: MYSQL_PASSWORD
-        generateValue: true
-      - key: MYSQL_ROOT_PASSWORD
-        generateValue: true
+    region: oregon
+    databaseName: payload_opticwise
+    user: payload_user
+    ipAllowList: []

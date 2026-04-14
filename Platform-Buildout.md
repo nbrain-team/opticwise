@@ -53,19 +53,28 @@
 - **UI Pages**: `/linkedin` (dashboard), `/linkedin/compose`, `/linkedin/calendar`, `/linkedin/posts`, `/linkedin/analytics`
 - **AI System Prompt**: Writes in Bill Demas's voice, Opticwise brand, smart building tech industry
 
-### Ghost CMS Full Page Management (Added 2026-03-31)
-- **Ghost Admin**: `https://opticwise-ghost.onrender.com/ghost/`
-- **Ghost Content API**: `https://opticwise-ghost.onrender.com` (key: `ba24a4b5a535accc72501c4571`)
-- **Website**: `https://opticwise-website-v3.onrender.com` (`website-v3-nextjs/`)
-- **Architecture**: Headless CMS — Ghost provides content, Next.js renders pages
-- **Dynamic Route**: `website-v3-nextjs/app/(main)/[...slug]/page.tsx` — catch-all for Ghost pages
-- **Ghost API Client**: `website-v3-nextjs/lib/ghost.ts` — `getAllPages()`, `getPageBySlug()`, `getAllPosts()`, `getPostBySlug()`
-- **ISR Revalidation**: Webhook at `/api/revalidate` + 5-minute time-based revalidation
-- **Content Styling**: `.ghost-content` in `globals.css` — handles all Ghost card types
-- **Migration Script**: `ghost-cms/create-pages.js` — bulk-creates pages via Ghost Admin API
-- **Special Pages** (kept as hardcoded routes): FAQ (interactive tabs), schedule-review (form), cre-ai-readiness (redirect)
-- **Image Storage**: Ghost persistent disk at `/var/lib/ghost/content` (1GB on Render)
-- **Ghost Version**: 5.x (Alpine Docker image)
+### Payload CMS Website (Replacing Ghost CMS — Added 2026-04-14)
+- **Directory**: `/payload` — Next.js 15 + Payload CMS 3.x (unified app)
+- **Admin Panel**: `/admin` route within the Payload app
+- **Architecture**: Payload CMS runs inside Next.js (no separate CMS server)
+- **Database**: PostgreSQL via `@payloadcms/db-postgres`
+- **Rich Text**: Lexical editor via `@payloadcms/richtext-lexical`
+- **SEO**: `@payloadcms/plugin-seo` for pages and posts
+- **Collections**: `Pages` (block-based layout builder), `Posts` (blog/insights), `Media` (image uploads), `Categories`, `Users`
+- **Layout Blocks**: Hero, Content, Card Grid, CTA, Two-Layer Model, Lead Magnet, FAQ, Timeline, Deliverables
+- **Globals**: `SiteSettings` (branding, CTA defaults), `Navigation` (header/footer links)
+- **Frontend Routes**: `/(frontend)/(main)/` — home, insights, `[...slug]` catch-all for CMS pages
+- **Content Styling**: `.rich-content` and `.ghost-content` classes preserve existing design
+- **Seed Script**: `scripts/seed.ts` — imports 107 blog posts from `ghost-cms/scraped-posts.json` + 12 marketing pages + categories + globals
+- **Env Vars**: `DATABASE_URI`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `NEXT_PUBLIC_OW_API_URL`
+- **Deploy**: Render web service with PostgreSQL (replaces Ghost + MySQL stack)
+
+### Ghost CMS (ARCHIVED — Sunset 2026-04-14)
+- **Status**: Replaced by Payload CMS. Ghost CMS services can be shut down.
+- **Ghost Admin**: `https://opticwise-ghost.onrender.com/ghost/` (deprecated)
+- **Ghost Content API**: `https://opticwise-ghost.onrender.com` (deprecated)
+- **Old Website**: `https://opticwise-website-v3.onrender.com` (`website-v3-nextjs/`)
+- **Archive**: `ghost-cms/` directory retained for reference
 
 ## Database Schema Highlights
 - 30+ models in Prisma schema
