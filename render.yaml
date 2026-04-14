@@ -10,7 +10,7 @@ services:
     branch: main
     rootDir: payload
     buildCommand: npm install && npm run build
-    startCommand: npm run init-db && npm start
+    startCommand: npm start
     envVars:
       - key: DATABASE_URI
         fromDatabase:

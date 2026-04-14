@@ -6,7 +6,6 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "init-db": "NODE_ENV=development npx tsx scripts/init-db.mjs",
     "lint": "next lint",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap",
@@ -27,7 +26,7 @@
     "postcss": "^8.5.3",
     "autoprefixer": "^10.4.21",
     "@tailwindcss/typography": "^0.5.16",
-    "tsx": "^4.19.0"
+    "drizzle-kit": "^0.31.0"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",
