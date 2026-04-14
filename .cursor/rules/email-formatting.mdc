@@ -1,0 +1,17 @@
+---
+description: Email formatting rules for Gmail-friendly output. Applies whenever the user asks for an email to be written or drafted.
+alwaysApply: true
+---
+
+# Email Formatting — Gmail Friendly
+
+When writing emails for the user to copy and paste into Gmail:
+
+- **Never use markdown tables** — Gmail does not render them. Use plain text line items instead.
+- **Never use markdown formatting** that won't render in Gmail (no `**bold**`, no `# headers`, no `- [ ] checkboxes`).
+- Write in **plain text** that looks correct when pasted directly into a Gmail compose window.
+- Use line breaks and spacing for visual structure, not markdown syntax.
+- For lists, use plain dashes or bullet-style lines — not markdown bullet syntax.
+- For emphasis, just use natural language or CAPS sparingly — not asterisks or underscores.
+- Links should be full URLs on their own line so they auto-link in Gmail.
+- Keep the tone professional but conversational — match Danny's natural voice.

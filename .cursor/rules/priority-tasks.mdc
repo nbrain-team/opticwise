@@ -1,0 +1,46 @@
+---
+description: Manages the PRIORITY-TASKS.md file — a live task tracker for high-priority platform work items. Always consult and update this file during sessions.
+alwaysApply: true
+---
+
+# Priority Tasks Management
+
+## Files
+
+- **Task tracker**: `PRIORITY-TASKS.md` in the workspace root
+- **Client updates**: `WEEKLY-CLIENT-UPDATES.md` in the workspace root
+
+## When to Read PRIORITY-TASKS.md
+
+- At the **start of every session** where work will be done (not just Q&A)
+- Whenever the user asks to see, review, or discuss priority tasks
+- Before generating any client report or update email
+
+## When to Update PRIORITY-TASKS.md
+
+- **Adding**: When the user says to add a priority task, append it under `## Active Tasks` with a short description, priority level (P1/P2/P3), date added, and any context
+- **Progress notes**: While working on a task from the list, add timestamped notes under that task showing what was done
+- **Completing**: When a task is finished, move it from `## Active Tasks` to `## Completed Tasks` with a completion date and summary
+- **Log entry**: Every add, update, or completion gets a row in the `## Log` table at the bottom
+
+## Task Format
+
+```markdown
+### [P1] Short task title
+**Added:** YYYY-MM-DD
+**Status:** In Progress | Blocked | Done
+**Context:** Why this matters or who requested it
+
+- YYYY-MM-DD: Progress note here
+- YYYY-MM-DD: Another update
+```
+
+## Client Reporting Integration
+
+When the user asks for a client report, email, or weekly update:
+
+1. Read both `PRIORITY-TASKS.md` and `WEEKLY-CLIENT-UPDATES.md`
+2. Cross-reference active priority tasks with completed work in the weekly updates
+3. Ensure every completed priority task appears in the report with its outcome
+4. Flag any active/blocked priority tasks as ongoing items in the report
+5. Use client-friendly language — outcomes over implementation details

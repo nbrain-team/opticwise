@@ -1,0 +1,78 @@
+---
+description: PDF contract and document generation using Python reportlab. Use this process whenever the user asks for a PDF version of a document, contract, agreement, or scope of work.
+alwaysApply: false
+---
+
+# PDF Document Generation with ReportLab
+
+When the user asks for a PDF contract, agreement, scope of work, or any professional document in PDF format, **always** use the Python `reportlab` approach below. Do NOT use other PDF libraries (weasyprint, pdfkit, wkhtmltopdf, puppeteer, etc.) — reportlab produces the cleanest, most consistent results.
+
+## Reference Template
+
+Use `generate-pardee-pdf.py` in the workspace root as the canonical reference for style, spacing, and structure. Always re-read it before generating a new PDF to match formatting exactly.
+
+## Required Setup
+
+- Library: `reportlab` (install via `pip3 install reportlab` if needed)
+- Page size: `letter` (8.5 x 11)
+- Margins: `0.85in` top/bottom, `1.0in` left/right
+- Logo: `web/public/nbrain-2025-logo.png` (1.8in wide, 0.6in tall, centered)
+- Output to: `web/public/` for deployment to clients.nbrain.ai
+
+## Style Definitions (exact values)
+
+```python
+# All fonts use Times family for professional legal appearance
+DocTitle:     Times-Bold,  18pt, leading=22, centered
+DocSubtitle:  Times-Bold,  12pt, leading=16, centered
+SectionHead:  Times-Bold,  14pt, leading=18, keepWithNext
+SubHead:      Times-Bold,  12pt, leading=15, keepWithNext
+Body:         Times-Roman, 10.5pt, leading=14, justified
+BodyItalic:   Times-Italic, 10.5pt, leading=14, justified
+BulletText:   Times-Roman, 10.5pt, leading=14, leftIndent=18
+NumberedText:  Times-Roman, 10.5pt, leading=14, leftIndent=24
+LegalBody:    Times-Roman, 10pt, leading=13.5, justified
+SignatureLine: Times-Roman, 10.5pt, leading=20
+CenterBold:   Times-Bold,  11pt, leading=15, centered
+```
+
+## Document Structure
+
+1. **Logo** (centered, with HR below)
+2. **Title block** — "Services Agreement & Scope of Work" + company names + project name
+3. **Exhibit A: Scope of Work** — Summary, modules/services, deliverables, client requirements, pricing, payment schedule, timeline
+4. **PageBreak**
+5. **Services Agreement (MSA)** — Sections 1–9: Definitions, Services, Ownership, Pricing/Payment, Term/Termination, Confidentiality, Representations/Warranties, Indemnification/Liability, Miscellaneous
+6. **PageBreak**
+7. **Signature Page** — Both parties with signature lines (`"_" * 55`)
+
+## Helper Functions
+
+Always define these for consistency:
+```python
+def bullet(text):    # "•  {text}" with BulletText style
+def numbered(n, text):  # "{n}.  {text}" with NumberedText style
+def legal(text):     # LegalBody style
+def body(text):      # Body style
+def heading(text):   # SectionHead style
+def subheading(text): # SubHead style
+def spacer(h=0.15):  # Spacer in inches
+def hr():            # HRFlowable, thickness=1.5, black
+```
+
+## Key Rules
+
+- Use `<b>bold</b>` tags within reportlab Paragraph text for inline bold
+- Use `&amp;` for ampersands in text (reportlab uses XML parsing)
+- Use unicode for special chars: `\u2014` (em dash), `\u2019` (right quote), `\u201c`/`\u201d` (smart quotes), `\u2194` (arrows)
+- Signature lines: use fill lines (`"_" * 55`) for fields the client fills in (name, title, date, address if unknown)
+- nBrain signature block always includes: "5962 La Place Court, Suite 265, Carlsbad, CA 92008" and "Cary Johnson, Co-Founder"
+- Always use `PageBreak()` between SOW, MSA, and Signature pages
+- After generating, read the PDF back to verify content rendered correctly
+- Commit the PDF and the generator script, then push to deploy
+
+## Liability Cap Formula
+
+- Standard Cap: total fees paid (e.g., $31,000)
+- Elevated Cap: 2x fees paid (e.g., $62,000)
+- No Cap: willful misconduct, confidentiality breach, credential misuse

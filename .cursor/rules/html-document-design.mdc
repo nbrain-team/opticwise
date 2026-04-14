@@ -1,0 +1,59 @@
+---
+description: Default design template for all HTML documents (reports, follow-ups, proposals, summaries, etc.) unless the user explicitly requests a different design.
+alwaysApply: true
+---
+
+# HTML Document Design Template
+
+When creating any HTML document (reports, meeting follow-ups, call summaries, proposals, client deliverables, or any standalone HTML file the user requests), use the design system from `web/public/ecg-meeting-followup.html` as the reference template unless the user specifically asks for a different design.
+
+**Before generating an HTML document, always re-read `web/public/ecg-meeting-followup.html` to match its design exactly.**
+
+## Design System Summary
+
+### Font & Base
+- Google Font: `Inter` (weights: 300, 400, 500, 600, 700, 800) with system fallbacks
+- Body: `line-height: 1.7`, color `#1a1a2e`, white background
+- Container: `max-width: 1100px`, `padding: 0 40px`, centered
+
+### Header
+- Dark gradient: `linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #0f172a 100%)`
+- Decorative radial gradients (blue top-right, green bottom-left)
+- H1: `font-size: 2.8em`, `font-weight: 800`, gradient text (white to `#94a3b8`)
+- Subtitle: `font-size: 1.25em`, `rgba(255,255,255,0.75)`
+- Header logos bar: uppercase, `letter-spacing: 2px`, muted white
+- Meta bar: flex row with label/value pairs, separated by a top border
+
+### Sections
+- Padding: `60px 0`, separated by `1px solid #e5e7eb` borders
+- Section label: `0.7em`, uppercase, `letter-spacing: 2.5px`, blue `#3b82f6`, `font-weight: 600`
+- Section h2: `2em`, `font-weight: 700`, color `#0f172a`
+- Body text: `1.05em`, color `#475569`, max-width `800px`
+
+### Component Patterns
+- **Summary cards**: 2-column grid, `#f8fafc` background, `12px` border-radius, hover lift effect
+- **Highlight box**: gradient background (`#eff6ff` to `#f0fdf4`), blue border, `16px` radius
+- **Process steps**: vertical flow with numbered circle indicators (blue gradient), connecting lines
+- **Quote blocks**: left blue border, `#f8fafc` background, italic text with attribution
+- **Method/option cards**: border cards with colored top accent bars (blue/green/purple)
+- **Guide sections**: `#f8fafc` background container with numbered items
+- **Action items**: bordered cards with checkbox indicators and colored owner badges
+- **Timeline**: horizontal phased flow with colored backgrounds and arrow connectors
+- **FAQ items**: simple bordered list with bold question, muted answer
+- **CTA section**: dark rounded box (`20px` radius), centered content with contact info
+
+### Color Palette
+- Primary dark: `#0f172a`, `#1e293b`
+- Text: `#1a1a2e` (primary), `#475569` (body), `#64748b` (muted), `#334155` (medium)
+- Accent blue: `#3b82f6`, `#2563eb`, `#1e40af`, `#1d4ed8`
+- Accent green: `#10b981`, `#16a34a`, `#166534`
+- Accent purple: `#7c3aed`, `#6d28d9`
+- Accent amber: `#d97706`, `#ca8a04`, `#92400e`
+- Backgrounds: `#f8fafc`, `#f1f5f9`, `#eff6ff`, `#f0fdf4`, `#faf5ff`, `#fefce8`
+
+### Responsive
+- Breakpoint at `768px`: single-column grids, reduced padding, stacked timeline
+
+### Footer
+- Centered, `padding: 40px 0`, muted text `#94a3b8`, blue links
+- Format: `nBrain AI — Confidential [Document Type] — [Month Year]`

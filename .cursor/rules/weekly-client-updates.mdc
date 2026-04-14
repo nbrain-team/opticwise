@@ -1,0 +1,11 @@
+---
+description: Ensure WEEKLY-CLIENT-UPDATES.md is maintained after meaningful work
+alwaysApply: true
+---
+
+# Weekly Client Updates
+
+After completing any new feature, enhancement, or major bug fix, update `WEEKLY-CLIENT-UPDATES.md` in the workspace root.
+
+- New entries go at the **TOP** of the file, below the header.
+- Before ending any conversation that included qualifying work, verify this file was updated.

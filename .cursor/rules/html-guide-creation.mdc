@@ -1,0 +1,77 @@
+---
+description: Standards for creating educational HTML guides, industry guides, and LinkedIn-shareable content pieces
+globs: web/public/*-guide.html
+alwaysApply: false
+---
+
+# HTML Educational Guide Creation
+
+When asked to create an HTML guide, educational document, or industry guide, follow this complete process.
+
+## Design System
+
+Use the editorial publication style from `web/public/ai-training-myth-guide.html` and `web/public/hipaa-ai-healthcare-guide.html`:
+
+- **Font:** Georgia serif for body text, system sans-serif for labels, section numbers, cards, and UI elements
+- **Layout:** `max-width: 900px` for body content, `max-width: 1100px` for card grids and wide visuals
+- **Hero:** Dark gradient header (`#0f172a` to `#1e293b`) with uppercase label, large serif h1, sans-serif subtitle, and meta bar with border-top separator
+- **Sections:** Alternate between `#f8fafc` background and white. Each section gets a numbered label (e.g., "Section 01") in uppercase blue, a serif h2, and a `lead` paragraph
+- **Table of Contents:** Card with numbered list linking to section anchors
+
+## Required Visual Components
+
+Every guide must include at minimum:
+
+1. **Flow diagrams** — Dark background (`#0f172a`) panels with colored node pills and arrow connectors showing data flow or process steps
+2. **Comparison columns** — Side-by-side grid comparing two concepts (e.g., what you do vs. what you don't)
+3. **Card grids** — 2-column or 3-column card layouts with risk labels (safe/caution/danger) or category labels
+4. **Callout boxes** — Info (blue), warning (amber), danger (red), and safe (green) callout blocks with bold titles
+5. **Wall visual** — The dark/light split-panel graphic with red "API BOUNDARY" divider when comparing internal vs. external concepts
+
+## Color Palette
+
+- Safe/good: `#065f46` text, `#ecfdf5` bg, `#6ee7b7` border
+- Caution: `#92400e` text, `#fffbeb` bg, `#fbbf24` border
+- Danger: `#991b1b` text, `#fef2f2` bg, `#fca5a5` border
+- Info/primary: `#3b82f6` accent, `#eff6ff` bg
+- Navy: `#0f172a` for dark sections and hero
+- Key terms: Inline `key-term` spans with blue bg pill
+
+## LinkedIn Social Preview (Required)
+
+Every guide MUST include a matching social share image:
+
+1. **Generate an OG image** using the GenerateImage tool — 1200x630 ratio, dark navy background, clean typography, capturing the guide's core visual concept
+2. **Save to `web/public/`** as `[guide-slug]-og.png`
+3. **Add all meta tags** to the HTML `<head>`:
+   - `og:title` — Guide title
+   - `og:description` — 1-2 sentence summary
+   - `og:type` — "article"
+   - `og:image` — `https://clients.nbrain.ai/[guide-slug]-og.png`
+   - `og:image:width` — "1200"
+   - `og:image:height` — "630"
+   - `og:url` — `https://clients.nbrain.ai/[guide-slug].html`
+   - `twitter:card` — "summary_large_image"
+   - `twitter:title`, `twitter:description`, `twitter:image` — matching values
+
+## Footer Format
+
+```
+nBrain
+Custom AI platforms for [relevant industry descriptor].
+Disclaimer text about educational purposes.
+```
+
+## File Naming
+
+- Guide HTML: `web/public/[topic-slug]-guide.html`
+- OG image: `web/public/[topic-slug]-og.png`
+
+## Content Tone
+
+- Written for business leaders and decision-makers, not developers
+- Georgia serif body gives editorial authority
+- Sans-serif UI elements keep it modern
+- No jargon without explanation — use `key-term` spans for technical vocabulary
+- Analogies and plain-language explanations before technical details
+- End with a clear bottom-line section and a strong closing statement

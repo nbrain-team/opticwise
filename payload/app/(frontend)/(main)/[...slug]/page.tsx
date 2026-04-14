@@ -16,10 +16,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string[] };
+  params: Promise<{ slug: string[] }>;
 }): Promise<Metadata> {
-  const slug = params.slug.join("/");
-  const page = await getPageBySlug(slug);
+  const { slug } = await params;
+  const page = await getPageBySlug(slug.join("/"));
   if (!page) return {};
 
   const p = page as any;
@@ -37,10 +37,10 @@ export async function generateMetadata({
 export default async function PayloadPage({
   params,
 }: {
-  params: { slug: string[] };
+  params: Promise<{ slug: string[] }>;
 }) {
-  const slug = params.slug.join("/");
-  const page = await getPageBySlug(slug);
+  const { slug } = await params;
+  const page = await getPageBySlug(slug.join("/"));
   if (!page) return notFound();
 
   const p = page as any;

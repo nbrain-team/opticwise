@@ -11,8 +11,9 @@ export async function generateStaticParams() {
   return posts.map((p: any) => ({ slug: p.slug }));
 }
 
-export default async function InsightPostPage({ params }: { params: { slug: string } }) {
-  const post = await getPostBySlug(params.slug);
+export default async function InsightPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
   if (!post) return notFound();
 
   const featureImage = getMediaUrl((post as any).featureImage);
