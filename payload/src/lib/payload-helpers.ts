@@ -10,69 +10,97 @@ export async function getPayloadClient() {
 }
 
 export async function getHomePage() {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: "pages",
-    where: { isHomePage: { equals: true } },
-    limit: 1,
-    depth: 2,
-  });
-  return result.docs[0] || null;
+  try {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: "pages",
+      where: { isHomePage: { equals: true } },
+      limit: 1,
+      depth: 2,
+    });
+    return result.docs[0] || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getPageBySlug(slug: string) {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: "pages",
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 2,
-  });
-  return result.docs[0] || null;
+  try {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: "pages",
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 2,
+    });
+    return result.docs[0] || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getAllPages() {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: "pages",
-    limit: 100,
-    depth: 1,
-    where: { _status: { equals: "published" } },
-  });
-  return result.docs;
+  try {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: "pages",
+      limit: 100,
+      depth: 1,
+      where: { _status: { equals: "published" } },
+    });
+    return result.docs;
+  } catch {
+    return [];
+  }
 }
 
 export async function getAllPosts() {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: "posts",
-    limit: 200,
-    depth: 2,
-    sort: "-publishedAt",
-    where: { _status: { equals: "published" } },
-  });
-  return result.docs;
+  try {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: "posts",
+      limit: 200,
+      depth: 2,
+      sort: "-publishedAt",
+      where: { _status: { equals: "published" } },
+    });
+    return result.docs;
+  } catch {
+    return [];
+  }
 }
 
 export async function getPostBySlug(slug: string) {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: "posts",
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 2,
-  });
-  return result.docs[0] || null;
+  try {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: "posts",
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 2,
+    });
+    return result.docs[0] || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getSiteSettings() {
-  const payload = await getPayloadClient();
-  return payload.findGlobal({ slug: "site-settings", depth: 1 });
+  try {
+    const payload = await getPayloadClient();
+    return await payload.findGlobal({ slug: "site-settings", depth: 1 });
+  } catch {
+    return null;
+  }
 }
 
 export async function getNavigation() {
-  const payload = await getPayloadClient();
-  return payload.findGlobal({ slug: "navigation" });
+  try {
+    const payload = await getPayloadClient();
+    return await payload.findGlobal({ slug: "navigation" });
+  } catch {
+    return null;
+  }
 }
 
 export function getMediaUrl(media: any): string {
