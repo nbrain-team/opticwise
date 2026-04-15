@@ -6,6 +6,17 @@
 
 ---
 
+### 2026-04-15 — Customer Service AI Agent Built (Tier 1 Support Automation)
+
+- Built a complete autonomous customer service agent trained on 7 years of real OpticWise support data
+- Ingested and vectorized 4,250 support emails from support@opticwise.com and 89 helpdesk call transcripts for RAG-powered responses
+- Created a specialized system prompt with OpticWise tone of voice, issue taxonomy (connectivity, credentials, device setup, guest network, outages, billing), identity verification flow, first-call-resolution optimization, and escalation protocols
+- Built a polished customer-facing chat interface at /support-agent with quick-action buttons, conversation history, and feedback loop
+- Created dedicated API routes (/api/support/chat, /api/support/sessions, /api/support/feedback) with streaming responses and intent classification
+- Added database tables for session management, ticket creation, and customer feedback tracking
+- Agent uses Claude Sonnet 4 with historical support context retrieved via Pinecone vector search to provide accurate, consistent, and empathetic responses
+- Designed to reduce Tier 2/3 escalations and handle the most common customer inquiries autonomously
+
 ### 2026-04-15 — Full CMS Integration: Block Builder, Media Library, Posts & Pages Live
 
 - **Fixed posts not showing on frontend** — root cause was missing public read access on all collections (Pages, Posts, Categories, Media). Posts are now fully visible on the Insights page and individually accessible.

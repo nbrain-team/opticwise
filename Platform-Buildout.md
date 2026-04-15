@@ -80,6 +80,20 @@
 - **Old Website**: `https://opticwise-website-v3.onrender.com` (`website-v3-nextjs/`)
 - **Archive**: `ghost-cms/` directory retained for reference
 
+### Customer Service Agent (Added 2026-04-15)
+- **Purpose**: Autonomous Tier 1 support agent trained on real support data
+- **Data Sources**: 4,250 support emails (mbox) + 89 call transcripts
+- **Vector Store**: Pinecone namespace `support-agent` (same index as transcripts)
+- **AI Model**: Claude Sonnet 4 for response generation, OpenAI `text-embedding-3-large` for embeddings
+- **System Prompt**: `lib/support-agent-prompt.ts` — Tone of voice, issue taxonomy, identity verification, FCR optimization, escalation protocols
+- **API Routes**: `/api/support/chat`, `/api/support/sessions`, `/api/support/sessions/[id]`, `/api/support/feedback`
+- **UI Page**: `/support-agent` — Customer-facing chat interface with quick actions, conversation history, feedback
+- **Database Tables**: `SupportChatSession`, `SupportChatMessage`, `SupportTicket`, `SupportFeedback`, `SupportIngestionLog`
+- **Migration**: `prisma/migrations/020_support_agent_tables.sql`
+- **Data Ingestion**: `scripts/ingest-support-data.ts` (run via `npm run support:ingest`)
+- **Issue Categories**: Connectivity (40%), Credentials (20%), Device Setup (15%), Guest Network (10%), Outages (8%), Billing (7%)
+- **Key Features**: RAG from historical support data, auto-identity extraction, intent classification, session management, feedback loop
+
 ## Database Schema Highlights
 - 30+ models in Prisma schema
 - Migrations managed via `prisma migrate deploy` (runs during build)
