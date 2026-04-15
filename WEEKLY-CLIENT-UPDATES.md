@@ -6,6 +6,17 @@
 
 ---
 
+### 2026-04-15 — AI Artifacts: Live Visual Rendering for OWnet Agent
+
+- Added Claude Artifacts-style live rendering to the OWnet Agent — when the AI generates charts, diagrams, dashboards, or interactive HTML, it now renders live in a sandboxed panel alongside the conversation instead of showing raw code
+- Implemented a streaming-aware response parser that detects `<artifact>` tags in real-time, buffers content during generation, and splits the response into clean conversational text (chat) and visual output (render panel)
+- Built a side-by-side layout: chat on the left, artifact render panel on the right with sandboxed iframe, preview/code toggle, copy, download HTML, and fullscreen buttons
+- Supports multiple artifact types: HTML, SVG, Mermaid diagrams, Chart.js charts, and Markdown — all rendered with pre-loaded CDN libraries (Chart.js v4, D3.js v7, Mermaid v10, KaTeX)
+- Added artifact versioning: when the AI updates a previous artifact, versions are tracked with a version selector dropdown for history/undo
+- Clickable artifact indicator cards appear inline in chat messages, keeping the conversation clean while giving clear access to visual outputs
+- Security: all artifacts render inside a sandboxed iframe with Content Security Policy headers blocking network requests and parent page access
+- Updated the OWnet system prompt with artifact generation instructions so the AI knows when and how to create visual artifacts vs. plain text responses
+
 ### 2026-04-15 — Customer Service AI Agent Built (Tier 1 Support Automation)
 
 - Built a complete autonomous customer service agent trained on 7 years of real OpticWise support data

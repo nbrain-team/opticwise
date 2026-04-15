@@ -1,8 +1,28 @@
 "use client"
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface Artifact {
+  id: string
+  type: 'html' | 'svg' | 'mermaid' | 'chart' | 'markdown' | 'react'
+  title: string
+  content: string
+  version: number
+  timestamp: string
+  prompt: string
+}
+
+interface ArtifactGroup {
+  artifactId: string
+  title: string
+  type: string
+  versions: Artifact[]
+  currentVersion: number
+}
 
 interface Message {
   role: 'user' | 'assistant'
@@ -11,6 +31,7 @@ interface Message {
   messageId?: string
   plan?: { understanding: string; steps: Array<{ tool: string; reason: string }>; estimated_time: string }
   feedback?: { rating: number; comment?: string }
+  artifacts?: Artifact[]
 }
 
 interface Session {
@@ -25,6 +46,396 @@ interface FeedbackModalProps {
   onClose: () => void
   onSubmit: (comment: string, rating?: number) => void
 }
+
+// ─── Artifact Parser ─────────────────────────────────────────────────────────
+
+const ARTIFACT_REGEX = /<artifact\s+type="([^"]+)"\s+title="([^"]+)">([\s\S]*?)<\/artifact>/g
+
+let artifactIdCounter = 0
+
+function parseArtifacts(text: string, userPrompt: string): { cleanText: string; artifacts: Artifact[] } {
+  const artifacts: Artifact[] = []
+  let cleanText = text
+
+  const matches = [...text.matchAll(ARTIFACT_REGEX)]
+  for (const match of matches) {
+    const [fullMatch, type, title, content] = match
+    artifactIdCounter++
+    const artifact: Artifact = {
+      id: `artifact-${Date.now()}-${artifactIdCounter}`,
+      type: type as Artifact['type'],
+      title,
+      content: content.trim(),
+      version: 1,
+      timestamp: new Date().toISOString(),
+      prompt: userPrompt,
+    }
+    artifacts.push(artifact)
+    cleanText = cleanText.replace(fullMatch, `\n\n[artifact:${artifact.id}:${title}:${type}]\n\n`)
+  }
+
+  return { cleanText, artifacts }
+}
+
+function hasPartialArtifactTag(text: string): boolean {
+  const lastOpen = text.lastIndexOf('<artifact')
+  if (lastOpen === -1) return false
+  const afterOpen = text.slice(lastOpen)
+  return !afterOpen.includes('</artifact>')
+}
+
+// ─── Base HTML Template for iframe ───────────────────────────────────────────
+
+function buildArtifactHtml(artifact: Artifact): string {
+  const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://esm.sh https://cdnjs.cloudflare.com; img-src * data: blob:; font-src * data:; connect-src 'none'; frame-src 'none';">`
+
+  if (artifact.type === 'mermaid') {
+    return `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+${csp}
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"><\/script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 24px; background: #fff; color: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  .mermaid { max-width: 100%; }
+</style>
+</head><body>
+<div class="mermaid">${artifact.content}</div>
+<script>mermaid.initialize({ startOnLoad: true, theme: 'default' });<\/script>
+</body></html>`
+  }
+
+  if (artifact.type === 'chart') {
+    return `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+${csp}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"><\/script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 24px; background: #fff; color: #1a1a2e; }
+  canvas { max-width: 100%; }
+</style>
+</head><body>
+<canvas id="chart-canvas"></canvas>
+<script>
+try {
+  const config = ${artifact.content};
+  new Chart(document.getElementById('chart-canvas'), config);
+} catch(e) {
+  document.body.innerHTML = '<pre style="color:red;">Chart Error: ' + e.message + '<\/pre>';
+}
+<\/script>
+</body></html>`
+  }
+
+  if (artifact.type === 'svg') {
+    return `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+${csp}
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 24px; background: #fff; color: #1a1a2e; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  svg { max-width: 100%; height: auto; }
+</style>
+</head><body>
+${artifact.content}
+</body></html>`
+  }
+
+  if (artifact.type === 'markdown') {
+    return `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+${csp}
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"><\/script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 32px; background: #fff; color: #1a1a2e; line-height: 1.7; max-width: 800px; margin: 0 auto; }
+  h1 { font-size: 1.8em; margin: 1em 0 0.5em; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.3em; }
+  h2 { font-size: 1.4em; margin: 1em 0 0.4em; }
+  h3 { font-size: 1.15em; margin: 0.8em 0 0.3em; }
+  p { margin: 0.6em 0; }
+  ul, ol { margin: 0.5em 0; padding-left: 1.5em; }
+  code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; }
+  pre { background: #f1f5f9; padding: 16px; border-radius: 8px; overflow-x: auto; }
+  blockquote { border-left: 3px solid #3B6B8F; padding-left: 16px; margin: 1em 0; color: #475569; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { border: 1px solid #e5e7eb; padding: 8px 12px; text-align: left; }
+  th { background: #f8fafc; font-weight: 600; }
+</style>
+</head><body>
+<div id="content"></div>
+<script>
+  document.getElementById('content').innerHTML = marked.parse(${JSON.stringify(artifact.content)});
+<\/script>
+</body></html>`
+  }
+
+  // Default: html type — inject content into base template
+  const isFullHtml = artifact.content.trim().toLowerCase().startsWith('<!doctype') || artifact.content.trim().toLowerCase().startsWith('<html')
+  if (isFullHtml) {
+    return artifact.content
+  }
+
+  return `<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+${csp}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/d3@7"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"><\/script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 24px; background: #ffffff; color: #1a1a2e; line-height: 1.6; }
+  h1, h2, h3, h4 { color: #0f172a; margin-bottom: 0.5em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { border: 1px solid #e5e7eb; padding: 10px 14px; text-align: left; }
+  th { background: #f8fafc; font-weight: 600; color: #334155; }
+  tr:nth-child(even) { background: #fafbfc; }
+</style>
+</head><body>
+${artifact.content}
+<script>
+  if (document.querySelector('.mermaid')) {
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+  }
+<\/script>
+</body></html>`
+}
+
+// ─── Artifact Card in Chat ───────────────────────────────────────────────────
+
+function ArtifactCard({
+  artifact,
+  onClick,
+}: {
+  artifact: Artifact
+  onClick: () => void
+}) {
+  const typeIcons: Record<string, string> = {
+    html: '{ }',
+    svg: '◇',
+    mermaid: '⎔',
+    chart: '▥',
+    markdown: '¶',
+    react: '⚛',
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className="my-3 w-full text-left border border-[#3B6B8F]/20 rounded-lg p-3 bg-gradient-to-r from-[#3B6B8F]/5 to-transparent hover:from-[#3B6B8F]/10 hover:border-[#3B6B8F]/40 transition-all group cursor-pointer"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 rounded-lg bg-[#3B6B8F]/10 flex items-center justify-center text-[#3B6B8F] font-mono text-sm flex-shrink-0 group-hover:bg-[#3B6B8F]/20 transition-colors">
+          {typeIcons[artifact.type] || '◈'}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-sm text-gray-900 truncate">
+            {artifact.title}
+          </div>
+          <div className="text-xs text-gray-500">
+            {artifact.type.toUpperCase()} · Version {artifact.version}
+          </div>
+        </div>
+        <div className="text-xs text-[#3B6B8F] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+          Click to view →
+        </div>
+      </div>
+    </button>
+  )
+}
+
+// ─── Artifact Panel ──────────────────────────────────────────────────────────
+
+function ArtifactPanel({
+  artifactGroups,
+  activeArtifact,
+  onClose,
+  onSelectArtifact,
+  onVersionChange,
+}: {
+  artifactGroups: ArtifactGroup[]
+  activeArtifact: Artifact | null
+  onClose: () => void
+  onSelectArtifact: (artifact: Artifact) => void
+  onVersionChange: (groupId: string, version: number) => void
+}) {
+  const iframeRef = useRef<HTMLIFrameElement>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle')
+  const [activeTab, setActiveTab] = useState<'preview' | 'code'>('preview')
+
+  const activeGroup = useMemo(() => {
+    if (!activeArtifact) return null
+    return artifactGroups.find(g =>
+      g.versions.some(v => v.id === activeArtifact.id)
+    )
+  }, [activeArtifact, artifactGroups])
+
+  useEffect(() => {
+    if (activeArtifact && iframeRef.current && activeTab === 'preview') {
+      const html = buildArtifactHtml(activeArtifact)
+      iframeRef.current.srcdoc = html
+    }
+  }, [activeArtifact, activeTab])
+
+  const copyCode = useCallback(() => {
+    if (!activeArtifact) return
+    navigator.clipboard.writeText(activeArtifact.content).then(() => {
+      setCopyStatus('copied')
+      setTimeout(() => setCopyStatus('idle'), 2000)
+    })
+  }, [activeArtifact])
+
+  const downloadHtml = useCallback(() => {
+    if (!activeArtifact) return
+    const html = buildArtifactHtml(activeArtifact)
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${activeArtifact.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.html`
+    a.click()
+    URL.revokeObjectURL(url)
+  }, [activeArtifact])
+
+  const toggleFullscreen = useCallback(() => {
+    setIsFullscreen(f => !f)
+  }, [])
+
+  if (!activeArtifact) return null
+
+  const panelClasses = isFullscreen
+    ? 'fixed inset-0 z-50 bg-white flex flex-col'
+    : 'w-[45%] min-w-[400px] border-l border-gray-200 bg-white flex flex-col'
+
+  return (
+    <div className={panelClasses}>
+      {/* Panel Header */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50/80 flex-shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <h3 className="font-semibold text-sm text-gray-900 truncate">
+            {activeArtifact.title}
+          </h3>
+          <span className="text-xs px-2 py-0.5 bg-[#3B6B8F]/10 text-[#3B6B8F] rounded-full font-medium flex-shrink-0">
+            {activeArtifact.type.toUpperCase()}
+          </span>
+        </div>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {/* Version selector */}
+          {activeGroup && activeGroup.versions.length > 1 && (
+            <select
+              value={activeGroup.currentVersion}
+              onChange={(e) => onVersionChange(activeGroup.artifactId, Number(e.target.value))}
+              className="text-xs border border-gray-300 rounded px-2 py-1 bg-white mr-2"
+            >
+              {activeGroup.versions.map((v) => (
+                <option key={v.version} value={v.version}>
+                  v{v.version}
+                </option>
+              ))}
+            </select>
+          )}
+          {/* Tab toggle */}
+          <div className="flex bg-gray-200 rounded-md p-0.5 mr-2">
+            <button
+              onClick={() => setActiveTab('preview')}
+              className={`text-xs px-2.5 py-1 rounded transition-colors ${activeTab === 'preview' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              Preview
+            </button>
+            <button
+              onClick={() => setActiveTab('code')}
+              className={`text-xs px-2.5 py-1 rounded transition-colors ${activeTab === 'code' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              Code
+            </button>
+          </div>
+          {/* Action buttons */}
+          <button onClick={copyCode} className="p-1.5 rounded hover:bg-gray-200 transition-colors" title="Copy code">
+            {copyStatus === 'copied' ? (
+              <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            ) : (
+              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+            )}
+          </button>
+          <button onClick={downloadHtml} className="p-1.5 rounded hover:bg-gray-200 transition-colors" title="Download HTML">
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+          </button>
+          <button onClick={toggleFullscreen} className="p-1.5 rounded hover:bg-gray-200 transition-colors" title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}>
+            {isFullscreen ? (
+              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            ) : (
+              <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+            )}
+          </button>
+          <button onClick={onClose} className="p-1.5 rounded hover:bg-gray-200 transition-colors ml-1" title="Close panel">
+            <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Panel Content */}
+      <div className="flex-1 overflow-hidden relative">
+        {activeTab === 'preview' ? (
+          <iframe
+            ref={iframeRef}
+            sandbox="allow-scripts"
+            title={activeArtifact.title}
+            className="w-full h-full border-none"
+            style={{ borderRadius: '0' }}
+          />
+        ) : (
+          <div className="h-full overflow-auto p-4">
+            <pre className="text-xs font-mono text-gray-800 whitespace-pre-wrap break-words bg-gray-50 rounded-lg p-4 border border-gray-200">
+              {activeArtifact.content}
+            </pre>
+          </div>
+        )}
+      </div>
+
+      {/* Artifact History */}
+      {artifactGroups.length > 1 && (
+        <div className="border-t border-gray-200 px-4 py-2 bg-gray-50/50 flex-shrink-0">
+          <div className="text-xs font-medium text-gray-500 mb-1.5">All Artifacts</div>
+          <div className="flex gap-1.5 overflow-x-auto pb-1">
+            {artifactGroups.map((group) => {
+              const current = group.versions[group.currentVersion - 1] || group.versions[group.versions.length - 1]
+              const isActive = current.id === activeArtifact.id
+              return (
+                <button
+                  key={group.artifactId}
+                  onClick={() => onSelectArtifact(current)}
+                  className={`text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap transition-colors flex-shrink-0 ${
+                    isActive
+                      ? 'bg-[#3B6B8F] text-white'
+                      : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  {group.title}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── Feedback Modal ──────────────────────────────────────────────────────────
 
 function FeedbackModal({ isOpen, onClose, onSubmit }: FeedbackModalProps) {
   const [comment, setComment] = useState('')
@@ -66,7 +477,6 @@ function FeedbackModal({ isOpen, onClose, onSubmit }: FeedbackModalProps) {
         </div>
         
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* Rating */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               How helpful was this response?
@@ -91,7 +501,6 @@ function FeedbackModal({ isOpen, onClose, onSubmit }: FeedbackModalProps) {
             </div>
           </div>
 
-          {/* Comment */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Comments or suggestions
@@ -128,6 +537,8 @@ function FeedbackModal({ isOpen, onClose, onSubmit }: FeedbackModalProps) {
   )
 }
 
+// ─── Main Page Component ─────────────────────────────────────────────────────
+
 export default function OWnetAgentPage() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
@@ -141,23 +552,53 @@ export default function OWnetAgentPage() {
   }>({ isOpen: false, messageId: null, messageIndex: -1 })
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Load sessions on mount
+  // Artifact state
+  const [artifactGroups, setArtifactGroups] = useState<ArtifactGroup[]>([])
+  const [activeArtifact, setActiveArtifact] = useState<Artifact | null>(null)
+  const [showArtifactPanel, setShowArtifactPanel] = useState(false)
+  const lastUserPromptRef = useRef('')
+
   useEffect(() => {
     loadSessions()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Load messages when session changes
   useEffect(() => {
     if (currentSessionId) {
       loadMessages(currentSessionId)
+      setArtifactGroups([])
+      setActiveArtifact(null)
+      setShowArtifactPanel(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentSessionId])
 
-  // Auto-scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const addArtifactToGroups = useCallback((artifact: Artifact) => {
+    setArtifactGroups(prev => {
+      const existingGroupIndex = prev.findIndex(g => g.title === artifact.title && g.type === artifact.type)
+      if (existingGroupIndex >= 0) {
+        const updated = [...prev]
+        const group = { ...updated[existingGroupIndex] }
+        const newVersion = group.versions.length + 1
+        const versionedArtifact = { ...artifact, version: newVersion }
+        group.versions = [...group.versions, versionedArtifact]
+        group.currentVersion = newVersion
+        updated[existingGroupIndex] = group
+        return updated
+      }
+      return [...prev, {
+        artifactId: artifact.id,
+        title: artifact.title,
+        type: artifact.type,
+        versions: [artifact],
+        currentVersion: 1,
+      }]
+    })
+  }, [])
 
   const loadSessions = async () => {
     try {
@@ -168,7 +609,6 @@ export default function OWnetAgentPage() {
         if (!currentSessionId && data.sessions.length > 0) {
           setCurrentSessionId(data.sessions[0].id)
         } else if (data.sessions.length === 0) {
-          // Auto-create first session if none exist
           await createNewSession()
         }
       }
@@ -182,12 +622,16 @@ export default function OWnetAgentPage() {
       const res = await fetch(`/api/ownet/sessions/${sessionId}`)
       const data = await res.json()
       if (data.success) {
-        // Map messages to include messageId
-        const mappedMessages = data.messages.map((m: { role: 'user' | 'assistant'; content: string; id?: string }) => ({
-          role: m.role,
-          content: m.content,
-          messageId: m.id,
-        }))
+        const mappedMessages = data.messages.map((m: { role: 'user' | 'assistant'; content: string; id?: string }) => {
+          if (m.role === 'assistant') {
+            const { cleanText, artifacts } = parseArtifacts(m.content, '')
+            if (artifacts.length > 0) {
+              artifacts.forEach(a => addArtifactToGroups(a))
+              return { role: m.role, content: cleanText, messageId: m.id, artifacts }
+            }
+          }
+          return { role: m.role, content: m.content, messageId: m.id }
+        })
         setMessages(mappedMessages)
       }
     } catch (error) {
@@ -207,6 +651,9 @@ export default function OWnetAgentPage() {
         setSessions(prev => [data.session, ...prev])
         setCurrentSessionId(data.session.id)
         setMessages([])
+        setArtifactGroups([])
+        setActiveArtifact(null)
+        setShowArtifactPanel(false)
       }
     } catch (error) {
       console.error('Error creating session:', error)
@@ -218,13 +665,12 @@ export default function OWnetAgentPage() {
     if (!input.trim() || !currentSessionId || isLoading) return
 
     const userMessage = input.trim()
+    lastUserPromptRef.current = userMessage
     setInput('')
     setIsLoading(true)
 
-    // Add user message to UI immediately
     setMessages(prev => [...prev, { role: 'user', content: userMessage }])
 
-    // Add placeholder for assistant response
     const assistantIndex = messages.length + 1
     setMessages(prev => [...prev, { role: 'assistant', content: '' }])
 
@@ -242,7 +688,6 @@ export default function OWnetAgentPage() {
         throw new Error('Network response was not ok')
       }
 
-      // Handle streaming response
       const reader = res.body?.getReader()
       const decoder = new TextDecoder()
       let buffer = ''
@@ -253,7 +698,6 @@ export default function OWnetAgentPage() {
       if (reader) {
         while (true) {
           const { done, value } = await reader.read()
-          
           if (done) break
 
           buffer += decoder.decode(value, { stream: true })
@@ -266,7 +710,6 @@ export default function OWnetAgentPage() {
                 const data = JSON.parse(line.slice(6))
                 
                 if (data.type === 'progress') {
-                  // Update assistant message with progress indicator
                   setMessages(prev => {
                     const newMessages = [...prev]
                     newMessages[assistantIndex] = {
@@ -276,7 +719,6 @@ export default function OWnetAgentPage() {
                     return newMessages
                   })
                 } else if (data.type === 'plan') {
-                  // Show execution plan
                   const planText = `**Execution Plan:**\n\n${data.plan.understanding}\n\n**Steps:**\n${data.plan.steps.map((s: { tool: string; reason: string }, i: number) => `${i + 1}. ${s.tool} - ${s.reason}`).join('\n')}\n\n*Estimated time: ${data.plan.estimated_time}*\n\n---\n\n`
                   setMessages(prev => {
                     const newMessages = [...prev]
@@ -288,42 +730,78 @@ export default function OWnetAgentPage() {
                     return newMessages
                   })
                 } else if (data.type === 'content') {
-                  // Append content as it streams in
                   fullResponse += data.text
-                  setMessages(prev => {
-                    const newMessages = [...prev]
-                    newMessages[assistantIndex] = {
-                      role: 'assistant',
-                      content: fullResponse
+                  
+                  // While streaming, check for partial artifact tags and only show text outside them
+                  if (hasPartialArtifactTag(fullResponse)) {
+                    const lastArtifactOpen = fullResponse.lastIndexOf('<artifact')
+                    const displayText = fullResponse.slice(0, lastArtifactOpen)
+                    setMessages(prev => {
+                      const newMessages = [...prev]
+                      newMessages[assistantIndex] = {
+                        role: 'assistant',
+                        content: displayText + '\n\n*Generating artifact...*'
+                      }
+                      return newMessages
+                    })
+                  } else {
+                    // Parse complete artifacts from the stream
+                    const { cleanText, artifacts } = parseArtifacts(fullResponse, lastUserPromptRef.current)
+                    const newArtifacts = artifacts.length > 0 ? artifacts : undefined
+                    
+                    if (newArtifacts) {
+                      newArtifacts.forEach(a => {
+                        addArtifactToGroups(a)
+                        setActiveArtifact(a)
+                        setShowArtifactPanel(true)
+                      })
                     }
-                    return newMessages
-                  })
+                    
+                    setMessages(prev => {
+                      const newMessages = [...prev]
+                      newMessages[assistantIndex] = {
+                        role: 'assistant',
+                        content: cleanText,
+                        artifacts: newArtifacts,
+                      }
+                      return newMessages
+                    })
+                  }
                 } else if (data.type === 'meta') {
-                  // Handle meta messages (progress updates during deep analysis)
                   console.log('[OWnet] Meta:', data.message)
                 } else if (data.type === 'complete') {
-                  // Store metadata
                   messageId = data.messageId
                   sources = data.sources
-                  
-                  // Update final message with metadata
+
+                  // Final parse of the complete response
+                  const { cleanText, artifacts } = parseArtifacts(fullResponse, lastUserPromptRef.current)
+                  const finalArtifacts = artifacts.length > 0 ? artifacts : undefined
+
+                  if (finalArtifacts) {
+                    finalArtifacts.forEach(a => {
+                      addArtifactToGroups(a)
+                    })
+                    const last = finalArtifacts[finalArtifacts.length - 1]
+                    setActiveArtifact(last)
+                    setShowArtifactPanel(true)
+                  }
+
                   setMessages(prev => {
                     const newMessages = [...prev]
                     newMessages[assistantIndex] = {
                       role: 'assistant',
-                      content: fullResponse,
+                      content: cleanText,
                       sources: sources,
-                      messageId: messageId
+                      messageId: messageId,
+                      artifacts: finalArtifacts,
                     }
                     return newMessages
                   })
                   
-                  // Force scroll to bottom
                   setTimeout(() => {
                     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
                   }, 100)
                   
-                  // Refresh session list (with delay to allow DB update)
                   setTimeout(() => {
                     loadSessions()
                   }, 500)
@@ -383,7 +861,6 @@ export default function OWnetAgentPage() {
 
       const data = await res.json()
       if (data.success) {
-        // Show a brief success indicator
         console.log('Feedback submitted successfully')
       }
     } catch (error) {
@@ -403,10 +880,110 @@ export default function OWnetAgentPage() {
     })
   }
 
+  const handleArtifactVersionChange = useCallback((groupId: string, version: number) => {
+    setArtifactGroups(prev => {
+      const updated = prev.map(g => {
+        if (g.artifactId === groupId) {
+          const target = g.versions[version - 1]
+          if (target) {
+            setActiveArtifact(target)
+          }
+          return { ...g, currentVersion: version }
+        }
+        return g
+      })
+      return updated
+    })
+  }, [])
+
+  // Render artifact indicator inline in markdown
+  const renderMessageContent = useCallback((msg: Message, idx: number) => {
+    const artifactCardRegex = /\[artifact:([^\]:]+):([^\]:]+):([^\]]+)\]/g
+    const parts: (string | { artifactId: string; title: string; type: string })[] = []
+    let lastIndex = 0
+    let match
+
+    while ((match = artifactCardRegex.exec(msg.content)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(msg.content.slice(lastIndex, match.index))
+      }
+      parts.push({ artifactId: match[1], title: match[2], type: match[3] })
+      lastIndex = match.index + match[0].length
+    }
+    if (lastIndex < msg.content.length) {
+      parts.push(msg.content.slice(lastIndex))
+    }
+
+    return (
+      <>
+        {parts.map((part, partIdx) => {
+          if (typeof part === 'string') {
+            if (!part.trim()) return null
+            return (
+              <div key={partIdx} className="prose prose-sm max-w-none 
+                [&>h1]:text-black [&>h1]:font-bold [&>h1]:text-xl [&>h1]:mt-8 [&>h1]:mb-4 [&>h1]:pb-2 [&>h1]:border-b [&>h1]:border-gray-200
+                [&>h2]:text-black [&>h2]:font-bold [&>h2]:text-lg [&>h2]:mt-8 [&>h2]:mb-4
+                [&>h3]:text-black [&>h3]:font-semibold [&>h3]:text-base [&>h3]:mt-6 [&>h3]:mb-3
+                [&>h4]:text-gray-900 [&>h4]:font-semibold [&>h4]:mt-5 [&>h4]:mb-2
+                [&>p]:text-gray-800 [&>p]:leading-7 [&>p]:my-4
+                [&>ul]:my-4 [&>ul]:space-y-2 [&>ul]:ml-4
+                [&>ol]:my-4 [&>ol]:space-y-2 [&>ol]:ml-4
+                [&>li]:text-gray-800 [&>li]:leading-6
+                [&>strong]:text-black [&>strong]:font-bold
+                [&>hr]:my-8 [&>hr]:border-gray-300
+                [&>blockquote]:border-l-4 [&>blockquote]:border-blue-500 [&>blockquote]:pl-4 [&>blockquote]:my-6 [&>blockquote]:py-2 [&>blockquote]:bg-blue-50/50
+                [&>code]:bg-gray-100 [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-sm [&>code]:font-mono
+                [&_ul_ul]:mt-2 [&_ul_ul]:mb-0
+                [&_ol_ol]:mt-2 [&_ol_ol]:mb-0
+                [&_details]:my-4
+                [&_details>summary]:cursor-pointer [&_details>summary]:font-semibold [&_details>summary]:text-gray-900
+                [&_details>summary]:hover:text-[#3B6B8F] [&_details>summary]:transition-colors
+                [&_details>summary]:select-none [&_details>summary]:list-none
+                [&_details[open]>summary]:mb-3
+              ">
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{part}</ReactMarkdown>
+              </div>
+            )
+          }
+          // Render artifact card
+          const artifact = msg.artifacts?.find(a => a.id === part.artifactId)
+          if (artifact) {
+            return (
+              <ArtifactCard
+                key={partIdx}
+                artifact={artifact}
+                onClick={() => {
+                  setActiveArtifact(artifact)
+                  setShowArtifactPanel(true)
+                }}
+              />
+            )
+          }
+          // Fallback: look in all artifact groups
+          const group = artifactGroups.find(g => g.versions.some(v => v.id === part.artifactId))
+          if (group) {
+            const current = group.versions[group.currentVersion - 1] || group.versions[group.versions.length - 1]
+            return (
+              <ArtifactCard
+                key={partIdx}
+                artifact={current}
+                onClick={() => {
+                  setActiveArtifact(current)
+                  setShowArtifactPanel(true)
+                }}
+              />
+            )
+          }
+          return null
+        })}
+      </>
+    )
+  }, [artifactGroups])
+
   return (
     <div className="flex h-[calc(100vh-4rem)] bg-gray-50">
       {/* Sidebar - Chat History */}
-      <div className="w-72 bg-white border-r border-gray-200 flex flex-col shadow-sm">
+      <div className="w-72 bg-white border-r border-gray-200 flex flex-col shadow-sm flex-shrink-0">
         <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-[#3B6B8F]/5 to-transparent">
           <button
             onClick={createNewSession}
@@ -467,9 +1044,29 @@ export default function OWnetAgentPage() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
-        <div className="bg-white border-b border-gray-200 p-4">
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="bg-white border-b border-gray-200 p-4 flex items-center justify-between flex-shrink-0">
           <h1 className="text-2xl font-bold text-[#50555C]">OWnet Agent</h1>
+          {artifactGroups.length > 0 && !showArtifactPanel && (
+            <button
+              onClick={() => {
+                if (activeArtifact) {
+                  setShowArtifactPanel(true)
+                } else {
+                  const lastGroup = artifactGroups[artifactGroups.length - 1]
+                  const last = lastGroup.versions[lastGroup.currentVersion - 1] || lastGroup.versions[lastGroup.versions.length - 1]
+                  setActiveArtifact(last)
+                  setShowArtifactPanel(true)
+                }
+              }}
+              className="flex items-center gap-2 text-sm px-3 py-1.5 bg-[#3B6B8F]/10 text-[#3B6B8F] rounded-lg hover:bg-[#3B6B8F]/20 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+              </svg>
+              Show Artifacts ({artifactGroups.length})
+            </button>
+          )}
         </div>
 
         {/* Messages */}
@@ -482,9 +1079,15 @@ export default function OWnetAgentPage() {
                 </svg>
               </div>
               <p className="text-lg mb-2">Ask me anything about Opticwise!</p>
-              <p className="text-sm">
+              <p className="text-sm mb-4">
                 I can search through call transcripts, find client information, and help with your CRM.
               </p>
+              <div className="flex flex-wrap justify-center gap-2 max-w-lg mx-auto">
+                <span className="text-xs px-3 py-1.5 bg-white border border-gray-200 rounded-full text-gray-600">Charts & Dashboards</span>
+                <span className="text-xs px-3 py-1.5 bg-white border border-gray-200 rounded-full text-gray-600">Process Diagrams</span>
+                <span className="text-xs px-3 py-1.5 bg-white border border-gray-200 rounded-full text-gray-600">Data Visualizations</span>
+                <span className="text-xs px-3 py-1.5 bg-white border border-gray-200 rounded-full text-gray-600">Interactive Tools</span>
+              </div>
             </div>
           )}
 
@@ -502,29 +1105,7 @@ export default function OWnetAgentPage() {
               >
                 {msg.role === 'assistant' ? (
                   <>
-                    <div className="prose prose-sm max-w-none 
-                      [&>h1]:text-black [&>h1]:font-bold [&>h1]:text-xl [&>h1]:mt-8 [&>h1]:mb-4 [&>h1]:pb-2 [&>h1]:border-b [&>h1]:border-gray-200
-                      [&>h2]:text-black [&>h2]:font-bold [&>h2]:text-lg [&>h2]:mt-8 [&>h2]:mb-4
-                      [&>h3]:text-black [&>h3]:font-semibold [&>h3]:text-base [&>h3]:mt-6 [&>h3]:mb-3
-                      [&>h4]:text-gray-900 [&>h4]:font-semibold [&>h4]:mt-5 [&>h4]:mb-2
-                      [&>p]:text-gray-800 [&>p]:leading-7 [&>p]:my-4
-                      [&>ul]:my-4 [&>ul]:space-y-2 [&>ul]:ml-4
-                      [&>ol]:my-4 [&>ol]:space-y-2 [&>ol]:ml-4
-                      [&>li]:text-gray-800 [&>li]:leading-6
-                      [&>strong]:text-black [&>strong]:font-bold
-                      [&>hr]:my-8 [&>hr]:border-gray-300
-                      [&>blockquote]:border-l-4 [&>blockquote]:border-blue-500 [&>blockquote]:pl-4 [&>blockquote]:my-6 [&>blockquote]:py-2 [&>blockquote]:bg-blue-50/50
-                      [&>code]:bg-gray-100 [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-sm [&>code]:font-mono
-                      [&_ul_ul]:mt-2 [&_ul_ul]:mb-0
-                      [&_ol_ol]:mt-2 [&_ol_ol]:mb-0
-                      [&_details]:my-4
-                      [&_details>summary]:cursor-pointer [&_details>summary]:font-semibold [&_details>summary]:text-gray-900
-                      [&_details>summary]:hover:text-[#3B6B8F] [&_details>summary]:transition-colors
-                      [&_details>summary]:select-none [&_details>summary]:list-none
-                      [&_details[open]>summary]:mb-3
-                    ">
-                      <ReactMarkdown rehypePlugins={[rehypeRaw]}>{msg.content}</ReactMarkdown>
-                    </div>
+                    {renderMessageContent(msg, idx)}
                     
                     {/* Feedback buttons */}
                     {msg.messageId && !msg.feedback && (
@@ -583,7 +1164,7 @@ export default function OWnetAgentPage() {
                     
                     {msg.feedback && (
                       <div className="text-xs text-gray-500 mt-2 pt-2 border-t border-gray-100">
-                        ✓ Feedback received
+                        Feedback received
                       </div>
                     )}
                   </>
@@ -597,7 +1178,6 @@ export default function OWnetAgentPage() {
                   </div>
                 )}
                 
-                {/* Feedback button for assistant messages */}
                 {msg.role === 'assistant' && (
                   <div className="mt-3 pt-2 border-t border-gray-100 flex justify-end">
                     <button
@@ -635,13 +1215,13 @@ export default function OWnetAgentPage() {
         </div>
 
         {/* Input */}
-        <div className="bg-white border-t border-gray-200 p-4">
+        <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
           <form onSubmit={sendMessage} className="flex gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about transcripts, deals, or anything else..."
+              placeholder="Ask about transcripts, deals, or request a visualization..."
               className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
               disabled={isLoading || !currentSessionId}
             />
@@ -661,6 +1241,17 @@ export default function OWnetAgentPage() {
           )}
         </div>
       </div>
+
+      {/* Artifact Panel - slides in from right */}
+      {showArtifactPanel && (
+        <ArtifactPanel
+          artifactGroups={artifactGroups}
+          activeArtifact={activeArtifact}
+          onClose={() => setShowArtifactPanel(false)}
+          onSelectArtifact={(artifact) => setActiveArtifact(artifact)}
+          onVersionChange={handleArtifactVersionChange}
+        />
+      )}
 
       {/* Feedback Modal */}
       <FeedbackModal

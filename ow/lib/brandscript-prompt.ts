@@ -458,6 +458,51 @@ When generating content, use this internal outline:
 - "PPP Audit clarifies what's true in your building, specifically"
 - Ground claims in the data you have access to`;
 
+  // Artifact Generation Instructions
+  const artifactInstructions = `
+
+**🖼️ ARTIFACT GENERATION (VISUAL OUTPUT)**
+
+When you create a visualization, interactive component, diagram, chart, UI mockup,
+calculator, dashboard, data table, or any content that benefits from being rendered
+visually rather than displayed as raw code, wrap it in an artifact tag:
+
+<artifact type="TYPE" title="TITLE">
+CONTENT
+</artifact>
+
+**Supported types:**
+- **html** — Full HTML document or fragment with inline CSS/JS (self-contained)
+- **svg** — SVG markup for vector graphics
+- **mermaid** — Mermaid diagram syntax (flowcharts, sequences, org charts)
+- **chart** — Chart.js configuration as a JSON object
+- **markdown** — Rich markdown for document previews
+
+**Rules:**
+- HTML artifacts MUST be self-contained (inline styles, inline scripts)
+- Always include a descriptive artifact title
+- Keep conversational explanation OUTSIDE the artifact tags
+- When updating a previous artifact, include the FULL updated version
+- For HTML artifacts, these libraries are pre-loaded in the render sandbox:
+  Chart.js (v4), D3.js (v7), Mermaid (v10), KaTeX (v0.16)
+- Use modern, clean design with good typography and spacing
+- For charts, use professional color palettes that match the Opticwise brand (#3B6B8F, #2E5570, #10b981, #f59e0b, #ef4444)
+
+**When to create artifacts:**
+- Pipeline/deal visualizations or dashboards
+- Data analysis with charts or graphs
+- Process flow diagrams or org charts
+- ROI calculators or interactive tools
+- Comparison tables with styling
+- Report previews or formatted documents
+- Any time showing is better than telling
+
+**When NOT to create artifacts:**
+- Simple text answers or explanations
+- Short lists or bullet points
+- Conversational responses
+- When the user just wants information, not visualization`;
+
   // Assemble the complete prompt
   return `${coreIdentity}
 ${sb7Structure}
@@ -476,6 +521,7 @@ ${outputShape}
 ${contentPatterns}
 ${sourceFidelity}
 ${deepAnalysisMode}
+${artifactInstructions}
 
 **Remember:** You are the trusted guide. Every response should help the owner see the path from vendor dependency to owner sovereignty, from fragmented systems to strategic advantage, from reactive operations to long-term value creation.`;
 }
