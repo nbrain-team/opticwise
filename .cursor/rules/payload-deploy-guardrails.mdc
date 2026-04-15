@@ -78,11 +78,23 @@ access: {
 },
 ```
 
-## 5. Pre-deploy checklist
+## 5. Adding new fields to existing collections requires DB schema sync
+
+Adding a new field (especially `type: "blocks"`) to an existing collection will cause **500 errors** on every query to that collection if the database doesn't have the corresponding columns/tables.
+
+The `payload.config.ts` has `push: true` on the postgres adapter, which auto-syncs schema on startup. But if the deploy fails for ANY reason before reaching startup, the schema never syncs and the collection is broken.
+
+**Rule**: When adding new fields to an existing collection:
+- Verify `push: true` is set in the DB adapter config
+- Test that the build succeeds BEFORE pushing (a failed build means push never runs)
+- If a field addition breaks a collection, the fastest fix is to revert the field and redeploy
+
+## 6. Pre-deploy checklist
 
 Before pushing changes to `payload/`:
 
 1. Search for `"use client"` files — verify none import from `payload-helpers.ts` or any `@payloadcms/*` package
 2. Check for `JSX.IntrinsicElements` — use explicit tags or `import type { JSX } from "react"`
 3. Verify `access.read` exists on any new collection
-4. Run `npx tsc --noEmit` locally in the `payload/` directory if possible to catch type errors before deploy
+4. If adding fields to existing collections, confirm `push: true` is in the DB config
+5. Run `npx tsc --noEmit` locally in the `payload/` directory if possible to catch type errors before deploy
