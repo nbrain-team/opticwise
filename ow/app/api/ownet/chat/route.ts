@@ -215,15 +215,76 @@ export async function POST(request: NextRequest) {
       budget
     });
 
-    // 1. Search transcripts using Pinecone with OpenAI embeddings (ENHANCED)
-    console.log('[OWnet] Searching transcripts for:', message);
-    
+    // 1. Load ALL transcript metadata (titles, dates, participants) — always available
+    // This ensures the agent knows what transcripts exist even when semantic search doesn't match
     let transcriptContext = '';
+    let transcriptMetadataContext = '';
     try {
-      // Generate embedding for the query
-      const openai = new (await import('openai')).default({
-        apiKey: process.env.OPENAI_API_KEY,
-      });
+      // Load Fathom call transcripts
+      const allTranscripts = await db.query(
+        `SELECT id, title, "startTime", "endTime", participants, summary
+         FROM "CallTranscript"
+         ORDER BY "startTime" DESC NULLS LAST`
+      );
+
+      // Also load Read AI meeting transcripts
+      let readAiMeetings: { rows: Array<{ id: string; title: string; startTime: string; endTime: string; participants: unknown; summary: string }> } = { rows: [] };
+      try {
+        readAiMeetings = await db.query(
+          `SELECT id, title, "startTime", "endTime", participants, summary
+           FROM "ReadAIMeeting"
+           ORDER BY "startTime" DESC NULLS LAST`
+        );
+      } catch { /* ReadAIMeeting may not exist */ }
+
+      const totalCount = allTranscripts.rows.length + readAiMeetings.rows.length;
+
+      if (totalCount > 0) {
+        transcriptMetadataContext = `\n\n**All Available Call Transcripts & Meetings (${totalCount} total):**\n\n`;
+
+        const formatRow = (t: { title: string; startTime: string; endTime: string; participants: unknown; summary: string }, idx: number, source: string) => {
+          const startDate = t.startTime ? new Date(t.startTime).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown date';
+          const startISO = t.startTime ? new Date(t.startTime).toISOString().split('T')[0] : 'unknown';
+          const duration = t.startTime && t.endTime
+            ? Math.round((new Date(t.endTime).getTime() - new Date(t.startTime).getTime()) / 60000) + ' min'
+            : 'Unknown duration';
+          let participantList = '';
+          if (t.participants) {
+            try {
+              const parts = typeof t.participants === 'string' ? JSON.parse(t.participants) : t.participants;
+              if (Array.isArray(parts)) {
+                participantList = parts.map((p: { name?: string; email?: string }) => p.name || p.email || '').filter(Boolean).join(', ');
+              }
+            } catch { /* ignore parse errors */ }
+          }
+          return `${idx + 1}. **${t.title}** [${source}] — ${startDate} (${startISO}) (${duration})${participantList ? `\n   Participants: ${participantList}` : ''}${t.summary ? `\n   Summary: ${t.summary.slice(0, 200)}` : ''}`;
+        };
+
+        let idx = 0;
+        // Combine and sort by date (most recent first)
+        const combined = [
+          ...allTranscripts.rows.map(r => ({ ...r, source: 'Fathom' })),
+          ...readAiMeetings.rows.map(r => ({ ...r, source: 'ReadAI' })),
+        ].sort((a, b) => {
+          const aTime = a.startTime ? new Date(a.startTime).getTime() : 0;
+          const bTime = b.startTime ? new Date(b.startTime).getTime() : 0;
+          return bTime - aTime;
+        });
+
+        transcriptMetadataContext += combined.map(t => {
+          idx++;
+          return formatRow(t, idx, t.source);
+        }).join('\n\n');
+
+        console.log('[OWnet] Loaded metadata for', totalCount, 'transcripts/meetings');
+      }
+    } catch (error) {
+      console.log('[OWnet] Transcript metadata query error:', error);
+    }
+
+    // 1b. Search transcripts using Pinecone for semantic content matching
+    try {
+      const index = pc.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
       
       const embeddingResponse = await openai.embeddings.create({
         model: 'text-embedding-3-large',
@@ -233,10 +294,6 @@ export async function POST(request: NextRequest) {
       
       const queryEmbedding = embeddingResponse.data[0].embedding;
       
-      // Search Pinecone
-      const pc = getPinecone();
-      const index = pc.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
-      
       const searchResults = await index.query({
         topK: 5,
         vector: queryEmbedding,
@@ -244,8 +301,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (searchResults.matches && searchResults.matches.length > 0) {
-        // Format transcript context naturally without metadata clutter
-        transcriptContext = '\n\n**Relevant Information from Sales Calls:**\n\n' + 
+        transcriptContext = '\n\n**Relevant Content from Sales Calls (Semantic Search):**\n\n' + 
           searchResults.matches
             .map((m) => {
               const callInfo = `${m.metadata?.title || 'Call'} (${new Date(m.metadata?.date as string || '').toLocaleDateString()})`;
@@ -253,10 +309,10 @@ export async function POST(request: NextRequest) {
             })
             .join('\n\n');
         
-        console.log('[OWnet] Found', searchResults.matches.length, 'relevant transcript chunks');
+        console.log('[OWnet] Found', searchResults.matches.length, 'relevant transcript chunks from Pinecone');
       }
     } catch (error) {
-      console.log('[OWnet] Transcript search error:', error);
+      console.log('[OWnet] Pinecone transcript search error:', error);
     }
 
     // 2. Search Google Workspace data (emails, calendar, drive)
@@ -271,8 +327,7 @@ export async function POST(request: NextRequest) {
     // Generate embedding once for all vector searches (email, drive, knowledge base)
     let queryVector: number[] | null = null;
     try {
-      const openaiForSearch = new (await import('openai')).default({ apiKey: process.env.OPENAI_API_KEY });
-      const searchEmbedding = await openaiForSearch.embeddings.create({
+      const searchEmbedding = await openai.embeddings.create({
         model: 'text-embedding-3-large',
         input: message,
         dimensions: 1024,
@@ -593,13 +648,32 @@ When the user asks for customer or prospect questions from emails:
 5. Prioritize emails with substantive content (ignore automated notifications, invoices, newsletters)
 6. If the available emails are mostly administrative, say so directly and offer alternatives`;
     
+    // Build context from loadContextWithinBudget results (pgvector search)
+    let ragContext = '';
+    for (const ctx of contexts) {
+      if (ctx.type === 'chat_history') continue; // handled separately via history
+      if (ctx.content && ctx.content.trim()) {
+        const label = {
+          transcript: 'Transcript Data (pgvector)',
+          email: 'Email Data',
+          calendar: 'Calendar Data',
+          drive: 'Drive Documents',
+          crm: 'CRM Data',
+          knowledge_base: 'Knowledge Base'
+        }[ctx.type] || ctx.type;
+        ragContext += `\n\n**${label} (${ctx.tokenCount} tokens, ${typeof ctx.metadata === 'object' ? JSON.stringify(ctx.metadata).slice(0, 100) : ''}):**\n${ctx.content}`;
+      }
+    }
+
     // Combine with available data context
     const systemPrompt = brandScriptPrompt + `
 
 **AVAILABLE INFORMATION:**
+${transcriptMetadataContext || ''}
 ${crmContext || ''}
 ${transcriptContext || ''}
 ${googleContext || ''}
+${ragContext || ''}
 ${customerQuestionsGuidance}`;
 
     // 4. Call Claude with enhanced parameters
