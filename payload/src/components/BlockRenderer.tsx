@@ -598,9 +598,15 @@ function LexicalNode({ node }: { node: any }) {
   switch (node.type) {
     case "paragraph":
       return <p>{children}</p>;
-    case "heading":
-      const Tag = (node.tag || "h2") as keyof JSX.IntrinsicElements;
-      return <Tag>{children}</Tag>;
+    case "heading": {
+      const tag = node.tag || "h2";
+      if (tag === "h1") return <h1>{children}</h1>;
+      if (tag === "h3") return <h3>{children}</h3>;
+      if (tag === "h4") return <h4>{children}</h4>;
+      if (tag === "h5") return <h5>{children}</h5>;
+      if (tag === "h6") return <h6>{children}</h6>;
+      return <h2>{children}</h2>;
+    }
     case "list":
       if (node.listType === "number") return <ol>{children}</ol>;
       return <ul>{children}</ul>;
