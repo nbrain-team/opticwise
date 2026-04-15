@@ -65,9 +65,13 @@
 - **Globals**: `SiteSettings` (branding, CTA defaults), `Navigation` (header/footer links)
 - **Frontend Routes**: `/(frontend)/(main)/` — home, insights, `[...slug]` catch-all for CMS pages
 - **Content Styling**: `.rich-content` and `.ghost-content` classes preserve existing design
-- **Seed Script**: `scripts/seed.ts` — imports 107 blog posts from `ghost-cms/scraped-posts.json` + 12 marketing pages + categories + globals
+- **Seed Scripts**: `scripts/seed-via-api.mjs` (content), `scripts/seed-full.mjs` (images + page blocks)
+- **Media Library**: 10 images uploaded (hero, projects, logos, book cover) — managed via admin panel
+- **Access Control**: Public read access on Pages, Posts, Categories, Media; write requires authentication
 - **Env Vars**: `DATABASE_URI`, `PAYLOAD_SECRET`, `NEXT_PUBLIC_SERVER_URL`, `NEXT_PUBLIC_OW_API_URL`
 - **Deploy**: Render web service with PostgreSQL (replaces Ghost + MySQL stack)
+- **Production URL**: https://opticwise-payload.onrender.com
+- **Admin Panel**: https://opticwise-payload.onrender.com/admin
 
 ### Ghost CMS (ARCHIVED — Sunset 2026-04-14)
 - **Status**: Replaced by Payload CMS. Ghost CMS services can be shut down.

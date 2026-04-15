@@ -6,6 +6,16 @@
 
 ---
 
+### 2026-04-15 — Full CMS Integration: Block Builder, Media Library, Posts & Pages Live
+
+- **Fixed posts not showing on frontend** — root cause was missing public read access on all collections (Pages, Posts, Categories, Media). Posts are now fully visible on the Insights page and individually accessible.
+- **Uploaded 10 site images to Payload Media library** — hero backgrounds, project photos, logos, and the PPP book cover are now managed through the CMS media library and editable via the admin panel.
+- **Built complete block renderer system** — all 9 layout block types (Hero, Content, Card Grid, CTA, Two-Layer Model, Lead Magnet, FAQ, Timeline, Deliverables) now render on the frontend from CMS data.
+- **Populated all 12 pages with real CMS block content** — every page now has editable layout blocks (not empty layouts). Content editors can add, remove, and rearrange blocks directly in the admin panel.
+- **Added layout blocks to blog posts** — posts now support optional CMS blocks (Content, Card Grid, CTA, FAQ) below the main article content for richer post layouts.
+- **Home page is CMS-ready** — when a home page is configured with layout blocks in the CMS, the site renders those blocks. Static fallback preserves the current design until the CMS version is fully configured.
+- **All images, pages, and posts are fully manageable** via the Payload admin panel at https://opticwise-payload.onrender.com/admin
+
 ### 2026-04-15 — Payload Admin Panel Fully Operational with Content
 
 - **Fixed Payload admin panel styling** — resolved a critical missing CSS import (`@payloadcms/next/css`) that was preventing the admin panel from displaying correctly. The 306KB admin stylesheet is now properly loaded.
