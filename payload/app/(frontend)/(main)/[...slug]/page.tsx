@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPageBySlug, getAllPages, getMediaUrl } from "@/lib/payload-helpers";
 import { SubpageHero } from "@/components/SubpageHero";
-import { RichContent } from "@/components/RichContent";
+import { BlockRenderer } from "@/components/BlockRenderer";
 import { CTASection } from "@/components/CTASection";
 import { SITE } from "@/lib/site";
 
@@ -44,6 +44,7 @@ export default async function PayloadPage({
   if (!page) return notFound();
 
   const p = page as any;
+  const hasBlocks = p.layout && p.layout.length > 0;
 
   return (
     <>
@@ -54,15 +55,12 @@ export default async function PayloadPage({
         bgImage={getMediaUrl(p.heroImage) || undefined}
       />
 
-      {/* Render layout blocks if present */}
-      {p.layout && p.layout.length > 0 ? (
-        p.layout.map((block: any, index: number) => (
-          <LayoutBlock key={block.id || index} block={block} />
-        ))
+      {hasBlocks ? (
+        <BlockRenderer blocks={p.layout} />
       ) : (
         <section className="ow-section bg-white">
-          <div className="ow-container">
-            <RichContent html={null} />
+          <div className="ow-container max-w-3xl mx-auto text-center">
+            <p className="text-gray-400">This page is being built. Check back soon.</p>
           </div>
         </section>
       )}
@@ -71,47 +69,9 @@ export default async function PayloadPage({
 
       <section className="bg-ow-navy py-14">
         <div className="ow-container text-center">
-          <p className="text-sm text-white/70 font-medium">
-            {SITE.closingLine}
-          </p>
+          <p className="text-sm text-white/70 font-medium">{SITE.closingLine}</p>
         </div>
       </section>
     </>
-  );
-}
-
-function LayoutBlock({ block }: { block: any }) {
-  switch (block.blockType) {
-    case "content":
-      return <ContentBlockRenderer block={block} />;
-    case "cta":
-      return <CTASection />;
-    default:
-      return null;
-  }
-}
-
-function ContentBlockRenderer({ block }: { block: any }) {
-  const bgClass = block.backgroundColor === "gray" ? "bg-gray-50" : block.backgroundColor === "dark" ? "bg-ow-navy" : "bg-white";
-  const textClass = block.backgroundColor === "dark" ? "text-white" : "";
-
-  return (
-    <section className={`ow-section ${bgClass}`}>
-      <div className={`ow-container ${block.layout === "narrow" ? "max-w-3xl mx-auto" : ""}`}>
-        {block.eyebrow && (
-          <span className={`text-xs font-bold uppercase tracking-widest ${block.backgroundColor === "dark" ? "text-blue-300" : "text-ow-blue"} mb-3 block`}>
-            {block.eyebrow}
-          </span>
-        )}
-        {block.heading && (
-          <h2 className={`text-3xl lg:text-4xl font-extrabold ${block.backgroundColor === "dark" ? "text-white" : "text-gray-900"} leading-tight mb-6`}>
-            {block.heading}
-          </h2>
-        )}
-        <div className={`rich-content ${textClass}`}>
-          {/* Rich text content would be serialized here */}
-        </div>
-      </div>
-    </section>
   );
 }

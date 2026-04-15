@@ -11,6 +11,9 @@ import { DeliverablesBlock } from "../blocks/Deliverables";
 
 export const Pages: CollectionConfig = {
   slug: "pages",
+  access: {
+    read: () => true,
+  },
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "slug", "status", "updatedAt"],

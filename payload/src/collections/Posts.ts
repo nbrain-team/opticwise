@@ -1,7 +1,14 @@
 import type { CollectionConfig } from "payload";
+import { ContentBlock } from "../blocks/Content";
+import { CardGridBlock } from "../blocks/CardGrid";
+import { CTABlock } from "../blocks/CTA";
+import { FAQBlock } from "../blocks/FAQ";
 
 export const Posts: CollectionConfig = {
   slug: "posts",
+  access: {
+    read: () => true,
+  },
   admin: {
     useAsTitle: "title",
     defaultColumns: ["title", "category", "status", "publishedAt"],
@@ -69,6 +76,14 @@ export const Posts: CollectionConfig = {
       admin: {
         description: "Legacy HTML content imported from Ghost. Used as fallback when rich text is empty.",
       },
+    },
+    {
+      name: "layout",
+      type: "blocks",
+      admin: {
+        description: "Optional layout blocks for rich blog posts. When present, these render below the main content.",
+      },
+      blocks: [ContentBlock, CardGridBlock, CTABlock, FAQBlock],
     },
     {
       name: "publishedAt",

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { getHomePage, getMediaUrl } from "@/lib/payload-helpers";
+import { BlockRenderer } from "@/components/BlockRenderer";
 import { CTASection } from "@/components/CTASection";
 import { SITE } from "@/lib/site";
 import { ScheduleReviewButton } from "@/components/ScheduleReviewPopup";
@@ -7,6 +9,29 @@ import { LeadMagnetForm } from "@/components/LeadMagnetForm";
 export const revalidate = 300;
 
 export default async function HomePage() {
+  const homePage = await getHomePage();
+  const hasBlocks = homePage?.layout && (homePage as any).layout.length > 0;
+
+  if (hasBlocks) {
+    const p = homePage as any;
+    return (
+      <>
+        <BlockRenderer blocks={p.layout} />
+        <section className="bg-ow-navy py-20">
+          <div className="ow-container text-center max-w-2xl mx-auto">
+            <h2 className="text-2xl font-extrabold text-white mb-4">The Infinite Game</h2>
+            <p className="text-lg text-white/70 mb-6">Don&rsquo;t play for next quarter&mdash;build for the next decade.</p>
+            <p className="text-base text-white/85 font-semibold">{SITE.closingLine}</p>
+          </div>
+        </section>
+      </>
+    );
+  }
+
+  return <StaticHomePage />;
+}
+
+function StaticHomePage() {
   return (
     <>
       {/* ==================== HERO ==================== */}
@@ -30,7 +55,7 @@ export default async function HomePage() {
           </div>
           <div className="flex flex-wrap gap-4 justify-center">
             <ScheduleReviewButton className="btn btn-primary btn-lg" label="Schedule Your Review" />
-            <Link href="/digital-infrastructure-noi-ai/" className="btn btn-outline-light btn-lg">Explore the Pillars</Link>
+            <Link href="/digital-infrastructure-noi-ai" className="btn btn-outline-light btn-lg">Explore the Pillars</Link>
           </div>
         </div>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 text-white/30 animate-[bounce_2s_infinite]">
@@ -117,7 +142,7 @@ export default async function HomePage() {
               <h3 className="text-xl font-extrabold text-gray-900 mb-1">Managed Data &amp; Digital Infrastructure</h3>
               <p className="text-sm text-gray-500 mb-5">The foundation you own</p>
               <ul className="space-y-3">
-                {[["Design:", "repeatable standards across properties"], ["Implementation:", "governance baked in (segmentation, access rules, documentation)"], ["Operations:", "ongoing digital management to keep performance high and operational risk low\u2014without taxing your on-site engineers or property managers"]].map(([b, t], i) => (
+                {[["Design:", "repeatable standards across properties"], ["Implementation:", "governance baked in (segmentation, access rules, documentation)"], ["Operations:", "ongoing digital management to keep performance high and operational risk low"]].map(([b, t], i) => (
                   <li key={i} className="flex items-start gap-2.5 text-sm text-gray-700">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2B6CB0" strokeWidth="2.5" className="flex-shrink-0 mt-0.5"><path d="M5 13l4 4L19 7" /></svg>
                     <span><strong className="text-gray-900">{b}</strong> {t}</span>
@@ -133,7 +158,7 @@ export default async function HomePage() {
               <h3 className="text-xl font-extrabold text-gray-900 mb-1">Owner-Controlled Intelligence Layer</h3>
               <p className="text-sm text-gray-500 mb-5">OpticWise Brain</p>
               <p className="text-sm text-gray-700 leading-relaxed mb-5">
-                A vendor- and LLM-agnostic <strong className="text-gray-900">Property Intelligence Layer</strong>: a governed <strong className="text-gray-900">data plane + trust plane</strong> enabling autonomous activities and intelligence&mdash;so you can plug in any systems and decision engines you want, and swap them over time.
+                A vendor- and LLM-agnostic <strong className="text-gray-900">Property Intelligence Layer</strong>: a governed <strong className="text-gray-900">data plane + trust plane</strong> enabling autonomous activities and intelligence.
               </p>
               <div className="flex items-center gap-3 flex-wrap bg-emerald-500/8 rounded-lg px-5 py-3.5 text-sm font-semibold text-emerald-800">
                 <span>One standard intelligence substrate</span>
