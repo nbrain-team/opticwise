@@ -1,0 +1,88 @@
+---
+description: Payload CMS deploy guardrails — prevent known build failures on Render
+globs: payload/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Payload CMS Deploy Guardrails
+
+Lessons from real deploy failures. Check these BEFORE committing changes to the `payload/` directory.
+
+## 1. Never import server-only modules in client components
+
+`"use client"` components are bundled for the browser. Any import chain that reaches Payload's server modules (`payload`, `@payload-config`, `@payloadcms/db-postgres`, etc.) will fail with:
+
+```
+Module not found: Can't resolve 'fs' / 'dns' / 'net' / 'pg'
+```
+
+**Rule**: If a file has `"use client"`, it MUST NOT import (directly or transitively) from:
+- `payload-helpers.ts` (imports `payload` and `@payload-config`)
+- Any file that imports `payload`, `@payloadcms/*` server packages, or Node.js built-ins
+
+**Fix pattern**: Extract pure utility functions (like `getMediaUrl`) into a separate file (e.g. `src/lib/media-utils.ts`) with zero server imports. Import that file in client components instead.
+
+```typescript
+// BAD — BlockRenderer.tsx ("use client")
+import { getMediaUrl } from "@/lib/payload-helpers"; // pulls in payload → fs, pg, dns
+
+// GOOD — BlockRenderer.tsx ("use client")
+import { getMediaUrl } from "@/lib/media-utils"; // pure function, no server deps
+```
+
+## 2. No JSX namespace in React 19
+
+React 19 does not expose a global `JSX` namespace. Using `keyof JSX.IntrinsicElements` will fail:
+
+```
+Type error: Cannot find namespace 'JSX'.
+```
+
+**Fix**: Use explicit element checks or import from React:
+
+```typescript
+// BAD
+const Tag = (node.tag || "h2") as keyof JSX.IntrinsicElements;
+
+// GOOD — explicit checks
+if (tag === "h1") return <h1>{children}</h1>;
+if (tag === "h3") return <h3>{children}</h3>;
+return <h2>{children}</h2>;
+
+// ALSO GOOD — import from React
+import type { JSX } from "react";
+```
+
+## 3. Payload media uploads require `_payload` JSON field
+
+When uploading to the Media collection via REST API, field data (like `alt`) must be sent inside a `_payload` JSON form field — not as separate form fields.
+
+```javascript
+// BAD — alt field not received
+form.append("alt", "My image");
+form.append("file", blob, "image.jpg");
+
+// GOOD — wrap fields in _payload
+body += 'Content-Disposition: form-data; name="_payload"\r\n';
+body += 'Content-Type: application/json\r\n\r\n';
+body += JSON.stringify({ alt: "My image" });
+```
+
+## 4. Collections need explicit public read access
+
+Payload CMS denies unauthenticated reads by default. If pages or posts aren't showing on the frontend, check that collections have:
+
+```typescript
+access: {
+  read: () => true,
+},
+```
+
+## 5. Pre-deploy checklist
+
+Before pushing changes to `payload/`:
+
+1. Search for `"use client"` files — verify none import from `payload-helpers.ts` or any `@payloadcms/*` package
+2. Check for `JSX.IntrinsicElements` — use explicit tags or `import type { JSX } from "react"`
+3. Verify `access.read` exists on any new collection
+4. Run `npx tsc --noEmit` locally in the `payload/` directory if possible to catch type errors before deploy
