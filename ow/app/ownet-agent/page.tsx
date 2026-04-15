@@ -49,29 +49,57 @@ interface FeedbackModalProps {
 
 // ─── Artifact Parser ─────────────────────────────────────────────────────────
 
-const ARTIFACT_REGEX = /<artifact\s+type="([^"]+)"\s+title="([^"]+)">([\s\S]*?)<\/artifact>/g
+// Flexible regex: matches <artifact ...> with attributes in any order
+const ARTIFACT_TAG_REGEX = /<artifact\b([^>]*)>([\s\S]*?)<\/artifact>/g
+
+function extractAttribute(attrs: string, name: string): string {
+  const match = attrs.match(new RegExp(`${name}\\s*=\\s*["']([^"']*?)["']`))
+  return match ? match[1] : ''
+}
 
 let artifactIdCounter = 0
+
+// Stable ID map: same content produces the same artifact ID (prevents duplicates during streaming)
+const artifactIdMap = new Map<string, string>()
+
+function getStableArtifactId(type: string, title: string, contentHash: string): string {
+  const key = `${type}::${title}::${contentHash}`
+  if (!artifactIdMap.has(key)) {
+    artifactIdCounter++
+    artifactIdMap.set(key, `artifact-${artifactIdCounter}-${Date.now()}`)
+  }
+  return artifactIdMap.get(key)!
+}
 
 function parseArtifacts(text: string, userPrompt: string): { cleanText: string; artifacts: Artifact[] } {
   const artifacts: Artifact[] = []
   let cleanText = text
 
-  const matches = [...text.matchAll(ARTIFACT_REGEX)]
+  // Reset the regex lastIndex
+  ARTIFACT_TAG_REGEX.lastIndex = 0
+  const matches = [...text.matchAll(ARTIFACT_TAG_REGEX)]
+
   for (const match of matches) {
-    const [fullMatch, type, title, content] = match
-    artifactIdCounter++
+    const [fullMatch, attrs, content] = match
+    const type = extractAttribute(attrs, 'type') || 'html'
+    const title = extractAttribute(attrs, 'title') || 'Artifact'
+    const trimmedContent = content.trim()
+
+    // Use a hash of the first 200 chars for stable ID generation
+    const contentHash = trimmedContent.slice(0, 200)
+    const id = getStableArtifactId(type, title, contentHash)
+
     const artifact: Artifact = {
-      id: `artifact-${Date.now()}-${artifactIdCounter}`,
+      id,
       type: type as Artifact['type'],
       title,
-      content: content.trim(),
+      content: trimmedContent,
       version: 1,
       timestamp: new Date().toISOString(),
       prompt: userPrompt,
     }
     artifacts.push(artifact)
-    cleanText = cleanText.replace(fullMatch, `\n\n[artifact:${artifact.id}:${title}:${type}]\n\n`)
+    cleanText = cleanText.replace(fullMatch, `\n\n[artifact:${id}:${title}:${type}]\n\n`)
   }
 
   return { cleanText, artifacts }
@@ -82,6 +110,13 @@ function hasPartialArtifactTag(text: string): boolean {
   if (lastOpen === -1) return false
   const afterOpen = text.slice(lastOpen)
   return !afterOpen.includes('</artifact>')
+}
+
+// Strip any raw <artifact> tags that might slip into display content
+function sanitizeForDisplay(text: string): string {
+  return text
+    .replace(/<artifact\b[^>]*>/g, '')
+    .replace(/<\/artifact>/g, '')
 }
 
 // ─── Base HTML Template for iframe ───────────────────────────────────────────
@@ -581,13 +616,26 @@ export default function OWnetAgentPage() {
     setArtifactGroups(prev => {
       const existingGroupIndex = prev.findIndex(g => g.title === artifact.title && g.type === artifact.type)
       if (existingGroupIndex >= 0) {
+        const group = prev[existingGroupIndex]
+        // Skip if this exact artifact ID already exists (streaming re-parse)
+        if (group.versions.some(v => v.id === artifact.id)) {
+          // Update the content of the existing version (may have grown during streaming)
+          const updated = [...prev]
+          const updatedGroup = { ...group }
+          updatedGroup.versions = group.versions.map(v =>
+            v.id === artifact.id ? { ...v, content: artifact.content } : v
+          )
+          updated[existingGroupIndex] = updatedGroup
+          return updated
+        }
+        // New version of an existing artifact
         const updated = [...prev]
-        const group = { ...updated[existingGroupIndex] }
+        const updatedGroup = { ...group }
         const newVersion = group.versions.length + 1
         const versionedArtifact = { ...artifact, version: newVersion }
-        group.versions = [...group.versions, versionedArtifact]
-        group.currentVersion = newVersion
-        updated[existingGroupIndex] = group
+        updatedGroup.versions = [...group.versions, versionedArtifact]
+        updatedGroup.currentVersion = newVersion
+        updated[existingGroupIndex] = updatedGroup
         return updated
       }
       return [...prev, {
@@ -735,33 +783,34 @@ export default function OWnetAgentPage() {
                   // While streaming, check for partial artifact tags and only show text outside them
                   if (hasPartialArtifactTag(fullResponse)) {
                     const lastArtifactOpen = fullResponse.lastIndexOf('<artifact')
-                    const displayText = fullResponse.slice(0, lastArtifactOpen)
+                    const displayText = sanitizeForDisplay(fullResponse.slice(0, lastArtifactOpen))
                     setMessages(prev => {
                       const newMessages = [...prev]
                       newMessages[assistantIndex] = {
                         role: 'assistant',
-                        content: displayText + '\n\n*Generating artifact...*'
+                        content: displayText + '\n\n*Generating visual artifact...*'
                       }
                       return newMessages
                     })
                   } else {
                     // Parse complete artifacts from the stream
-                    const { cleanText, artifacts } = parseArtifacts(fullResponse, lastUserPromptRef.current)
-                    const newArtifacts = artifacts.length > 0 ? artifacts : undefined
+                    const { cleanText, artifacts: parsedArtifacts } = parseArtifacts(fullResponse, lastUserPromptRef.current)
+                    const newArtifacts = parsedArtifacts.length > 0 ? parsedArtifacts : undefined
                     
                     if (newArtifacts) {
                       newArtifacts.forEach(a => {
                         addArtifactToGroups(a)
-                        setActiveArtifact(a)
-                        setShowArtifactPanel(true)
                       })
+                      const latest = newArtifacts[newArtifacts.length - 1]
+                      setActiveArtifact(latest)
+                      setShowArtifactPanel(true)
                     }
                     
                     setMessages(prev => {
                       const newMessages = [...prev]
                       newMessages[assistantIndex] = {
                         role: 'assistant',
-                        content: cleanText,
+                        content: sanitizeForDisplay(cleanText),
                         artifacts: newArtifacts,
                       }
                       return newMessages
@@ -774,8 +823,8 @@ export default function OWnetAgentPage() {
                   sources = data.sources
 
                   // Final parse of the complete response
-                  const { cleanText, artifacts } = parseArtifacts(fullResponse, lastUserPromptRef.current)
-                  const finalArtifacts = artifacts.length > 0 ? artifacts : undefined
+                  const { cleanText, artifacts: finalParsed } = parseArtifacts(fullResponse, lastUserPromptRef.current)
+                  const finalArtifacts = finalParsed.length > 0 ? finalParsed : undefined
 
                   if (finalArtifacts) {
                     finalArtifacts.forEach(a => {
@@ -790,7 +839,7 @@ export default function OWnetAgentPage() {
                     const newMessages = [...prev]
                     newMessages[assistantIndex] = {
                       role: 'assistant',
-                      content: cleanText,
+                      content: sanitizeForDisplay(cleanText),
                       sources: sources,
                       messageId: messageId,
                       artifacts: finalArtifacts,
@@ -941,7 +990,7 @@ export default function OWnetAgentPage() {
                 [&_details>summary]:select-none [&_details>summary]:list-none
                 [&_details[open]>summary]:mb-3
               ">
-                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{part}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{sanitizeForDisplay(part)}</ReactMarkdown>
               </div>
             )
           }
