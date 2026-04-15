@@ -6,6 +6,15 @@
 
 ---
 
+### 2026-04-15 — Fixed OWnet Agent Transcript Context Loading (Critical Bug Fix)
+
+- Fixed two critical bugs that prevented the OWnet Agent from accessing transcript data:
+  1. RAG context from pgvector search (transcripts, emails, knowledge base) was being loaded and token-counted but never actually injected into the AI's system prompt — all that retrieved context was silently discarded
+  2. No transcript metadata query existed — the agent only had semantic content search, so it couldn't answer questions about call frequency, dates, or counts because it never had a list of what transcripts exist
+- Agent now always loads a full inventory of all call transcripts (Fathom + ReadAI) with titles, dates, durations, participants, and summaries
+- All RAG context from pgvector (transcript chunks, emails, KB docs) now properly flows into the system prompt
+- Removed redundant OpenAI client instantiations to reduce latency
+
 ### 2026-04-15 — AI Artifacts: Live Visual Rendering for OWnet Agent
 
 - Added Claude Artifacts-style live rendering to the OWnet Agent — when the AI generates charts, diagrams, dashboards, or interactive HTML, it now renders live in a sandboxed panel alongside the conversation instead of showing raw code
