@@ -1,6 +1,6 @@
 "use client";
 
-import { getMediaUrl } from "@/lib/payload-helpers";
+import { getMediaUrl } from "@/lib/media-utils";
 import { ScheduleReviewButton } from "./ScheduleReviewPopup";
 import { LeadMagnetForm } from "./LeadMagnetForm";
 
