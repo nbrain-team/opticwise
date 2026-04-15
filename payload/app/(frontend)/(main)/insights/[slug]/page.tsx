@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getPostBySlug, getAllPosts, getMediaUrl } from "@/lib/payload-helpers";
 import { RichContent } from "@/components/RichContent";
-import { BlockRenderer } from "@/components/BlockRenderer";
 import { CTASection } from "@/components/CTASection";
 
 export const revalidate = 300;
@@ -20,9 +19,6 @@ export default async function InsightPostPage({ params }: { params: Promise<{ sl
   const p = post as any;
   const featureImage = getMediaUrl(p.featureImage);
   const categoryName = typeof p.category === "object" ? p.category?.title : null;
-  const hasRichText = p.content?.root?.children?.length > 0;
-  const hasHtml = !!p.htmlContent;
-  const hasBlocks = p.layout && p.layout.length > 0;
 
   return (
     <>
@@ -56,21 +52,11 @@ export default async function InsightPostPage({ params }: { params: Promise<{ sl
         </div>
       </section>
 
-      {(hasRichText || hasHtml) && (
-        <section className="ow-section bg-white">
-          <div className="ow-container max-w-3xl mx-auto">
-            {hasRichText ? (
-              <div className="rich-content">
-                {/* Lexical rich text would be rendered here once content is authored in Payload */}
-              </div>
-            ) : (
-              <RichContent html={p.htmlContent} />
-            )}
-          </div>
-        </section>
-      )}
-
-      {hasBlocks && <BlockRenderer blocks={p.layout} />}
+      <section className="ow-section bg-white">
+        <div className="ow-container max-w-3xl mx-auto">
+          <RichContent html={p.htmlContent} />
+        </div>
+      </section>
 
       <CTASection />
     </>
