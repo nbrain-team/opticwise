@@ -71,11 +71,29 @@ function getStableArtifactId(type: string, title: string, contentHash: string): 
   return artifactIdMap.get(key)!
 }
 
+// Fenced code-block fallback regex (```html ... ```, ```svg ... ```, ```mermaid ... ```)
+const FENCED_VISUAL_REGEX = /```(html|svg|mermaid|chart)\s*\n([\s\S]*?)```/g
+
+// Heuristic: detect raw HTML document content not wrapped in any tag/fence
+function looksLikeFullHtmlDocument(text: string): boolean {
+  const lower = text.toLowerCase()
+  return (
+    (lower.includes('<!doctype html') || lower.includes('<html')) &&
+    lower.includes('</html>')
+  )
+}
+
+function deriveTitleFromPrompt(prompt: string, fallback = 'Visualization'): string {
+  if (!prompt) return fallback
+  const trimmed = prompt.trim().slice(0, 80)
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1)
+}
+
 function parseArtifacts(text: string, userPrompt: string): { cleanText: string; artifacts: Artifact[] } {
   const artifacts: Artifact[] = []
   let cleanText = text
 
-  // Reset the regex lastIndex
+  // Pass 1: explicit <artifact> tags
   ARTIFACT_TAG_REGEX.lastIndex = 0
   const matches = [...text.matchAll(ARTIFACT_TAG_REGEX)]
 
@@ -85,7 +103,6 @@ function parseArtifacts(text: string, userPrompt: string): { cleanText: string; 
     const title = extractAttribute(attrs, 'title') || 'Artifact'
     const trimmedContent = content.trim()
 
-    // Use a hash of the first 200 chars for stable ID generation
     const contentHash = trimmedContent.slice(0, 200)
     const id = getStableArtifactId(type, title, contentHash)
 
@@ -102,6 +119,66 @@ function parseArtifacts(text: string, userPrompt: string): { cleanText: string; 
     cleanText = cleanText.replace(fullMatch, `\n\n[artifact:${id}:${title}:${type}]\n\n`)
   }
 
+  // Pass 2: fenced code-block fallback for ```html / ```svg / ```mermaid / ```chart
+  // Only run if no explicit artifact tags were found (avoid double-extraction)
+  if (artifacts.length === 0) {
+    FENCED_VISUAL_REGEX.lastIndex = 0
+    const fencedMatches = [...cleanText.matchAll(FENCED_VISUAL_REGEX)]
+
+    for (const match of fencedMatches) {
+      const [fullMatch, lang, content] = match
+      const type = lang.toLowerCase() as Artifact['type']
+      const trimmedContent = content.trim()
+      // Skip tiny snippets (e.g. inline tag examples)
+      if (trimmedContent.length < 80) continue
+
+      const title = deriveTitleFromPrompt(userPrompt, `${type.toUpperCase()} Visualization`)
+      const contentHash = trimmedContent.slice(0, 200)
+      const id = getStableArtifactId(type, title, contentHash)
+
+      const artifact: Artifact = {
+        id,
+        type,
+        title,
+        content: trimmedContent,
+        version: 1,
+        timestamp: new Date().toISOString(),
+        prompt: userPrompt,
+      }
+      artifacts.push(artifact)
+      cleanText = cleanText.replace(fullMatch, `\n\n[artifact:${id}:${title}:${type}]\n\n`)
+    }
+  }
+
+  // Pass 3: raw full-HTML-document fallback (no fence, no tag — Claude dumped a doc)
+  if (artifacts.length === 0 && looksLikeFullHtmlDocument(cleanText)) {
+    // Extract from <!DOCTYPE or <html through </html>
+    const lower = cleanText.toLowerCase()
+    const startDoctype = lower.indexOf('<!doctype html')
+    const startHtml = lower.indexOf('<html')
+    const start = startDoctype !== -1 ? startDoctype : startHtml
+    const endTag = '</html>'
+    const endIdx = lower.lastIndexOf(endTag)
+    if (start !== -1 && endIdx !== -1 && endIdx > start) {
+      const fullDoc = cleanText.slice(start, endIdx + endTag.length)
+      const title = deriveTitleFromPrompt(userPrompt, 'Visualization')
+      const contentHash = fullDoc.slice(0, 200)
+      const id = getStableArtifactId('html', title, contentHash)
+
+      const artifact: Artifact = {
+        id,
+        type: 'html',
+        title,
+        content: fullDoc,
+        version: 1,
+        timestamp: new Date().toISOString(),
+        prompt: userPrompt,
+      }
+      artifacts.push(artifact)
+      cleanText = cleanText.replace(fullDoc, `\n\n[artifact:${id}:${title}:html]\n\n`)
+    }
+  }
+
   return { cleanText, artifacts }
 }
 
@@ -110,6 +187,34 @@ function hasPartialArtifactTag(text: string): boolean {
   if (lastOpen === -1) return false
   const afterOpen = text.slice(lastOpen)
   return !afterOpen.includes('</artifact>')
+}
+
+// Detect an unclosed ```html / ```svg / ```mermaid / ```chart fence during streaming
+function hasPartialVisualFence(text: string): { partial: boolean; openIdx: number } {
+  const fenceRegex = /```(html|svg|mermaid|chart)\s*\n/gi
+  let match: RegExpExecArray | null
+  let lastOpen = -1
+  while ((match = fenceRegex.exec(text)) !== null) {
+    lastOpen = match.index
+  }
+  if (lastOpen === -1) return { partial: false, openIdx: -1 }
+  const afterOpen = text.slice(lastOpen + 3) // skip past the opening ```
+  const closing = afterOpen.indexOf('```')
+  return { partial: closing === -1, openIdx: lastOpen }
+}
+
+// Detect raw HTML document being streamed (no fence, no artifact tag)
+function hasPartialRawHtml(text: string): { partial: boolean; openIdx: number } {
+  const lower = text.toLowerCase()
+  // Look for the LAST <!doctype or <html opening
+  const lastDoctype = lower.lastIndexOf('<!doctype html')
+  const lastHtmlOpen = lower.lastIndexOf('<html')
+  const openIdx = Math.max(lastDoctype, lastHtmlOpen)
+  if (openIdx === -1) return { partial: false, openIdx: -1 }
+  // If we already have </html> AFTER this opening, it's complete
+  const afterOpen = lower.slice(openIdx)
+  const hasClose = afterOpen.includes('</html>')
+  return { partial: !hasClose, openIdx }
 }
 
 // Strip any raw <artifact> tags that might slip into display content
@@ -780,10 +885,21 @@ export default function OWnetAgentPage() {
                 } else if (data.type === 'content') {
                   fullResponse += data.text
                   
-                  // While streaming, check for partial artifact tags and only show text outside them
-                  if (hasPartialArtifactTag(fullResponse)) {
-                    const lastArtifactOpen = fullResponse.lastIndexOf('<artifact')
-                    const displayText = sanitizeForDisplay(fullResponse.slice(0, lastArtifactOpen))
+                  // While streaming, check for partial artifact tags / fenced visuals / raw HTML docs
+                  // and hide them from the chat (they'll render in the artifact panel once complete)
+                  const partialArtifact = hasPartialArtifactTag(fullResponse)
+                  const partialFence = !partialArtifact ? hasPartialVisualFence(fullResponse) : { partial: false, openIdx: -1 }
+                  const partialRawHtml = (!partialArtifact && !partialFence.partial)
+                    ? hasPartialRawHtml(fullResponse)
+                    : { partial: false, openIdx: -1 }
+
+                  if (partialArtifact || partialFence.partial || partialRawHtml.partial) {
+                    let cutIdx = fullResponse.length
+                    if (partialArtifact) cutIdx = fullResponse.lastIndexOf('<artifact')
+                    else if (partialFence.partial) cutIdx = partialFence.openIdx
+                    else if (partialRawHtml.partial) cutIdx = partialRawHtml.openIdx
+
+                    const displayText = sanitizeForDisplay(fullResponse.slice(0, cutIdx))
                     setMessages(prev => {
                       const newMessages = [...prev]
                       newMessages[assistantIndex] = {

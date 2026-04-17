@@ -1,10 +1,17 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: April 14, 2026  
-**Latest Period**: February 14 - April 14, 2026  
+**Latest Update**: April 15, 2026  
+**Latest Period**: February 14 - April 15, 2026  
 **Status**: CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched
 
 ---
+
+### 2026-04-15 — AI Artifacts: Hardened Auto-Detection of Visual Output
+
+- Strengthened the OWnet Agent's artifact rendering pipeline so that visualizations always appear in the side panel — never as raw code dumped into the chat
+- Promoted the artifact wrapping rule to the top of the system prompt with explicit examples of correct vs. incorrect behavior, so the AI prioritizes wrapping HTML, CSS, SVG, Mermaid, and chart content in artifact tags
+- Added three layers of fallback parsing: explicit `<artifact>` tags (primary), fenced code blocks like ` ```html` (fallback), and raw `<!DOCTYPE html>` documents (last resort) — even if the AI forgets the wrapper, visual output still renders correctly in the panel
+- Streaming display now hides partial fenced code blocks and raw HTML documents in addition to partial artifact tags, replacing them with a "Generating visual artifact..." indicator until the visual is complete
 
 ### 2026-04-15 — Fixed OWnet Agent Transcript Context Loading (Critical Bug Fix)
 

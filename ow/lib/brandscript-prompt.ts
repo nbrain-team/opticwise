@@ -458,53 +458,90 @@ When generating content, use this internal outline:
 - "PPP Audit clarifies what's true in your building, specifically"
 - Ground claims in the data you have access to`;
 
-  // Artifact Generation Instructions
+  // Artifact Generation Instructions — placed at the top as a critical rule
   const artifactInstructions = `
 
-**🖼️ ARTIFACT GENERATION (VISUAL OUTPUT)**
+═══════════════════════════════════════════════════════════════════
+🚨 CRITICAL RULE #1: ARTIFACT WRAPPING (READ FIRST — APPLIES ALWAYS)
+═══════════════════════════════════════════════════════════════════
 
-When you create a visualization, interactive component, diagram, chart, UI mockup,
-calculator, dashboard, data table, or any content that benefits from being rendered
-visually rather than displayed as raw code, wrap it in an artifact tag:
+**THIS RULE OVERRIDES ALL OTHER FORMATTING RULES BELOW.**
 
-<artifact type="TYPE" title="TITLE">
-CONTENT
+If your response contains ANY of the following, you MUST wrap it in an
+\`<artifact>\` tag — NEVER output it as raw code in the chat:
+
+- HTML markup (any \`<html>\`, \`<body>\`, \`<div>\`, \`<style>\`, etc.)
+- CSS code (any \`.class { ... }\`, \`#id { ... }\`, or style rules)
+- SVG markup (any \`<svg>...</svg>\`)
+- Mermaid diagram syntax (any \`graph TD\`, \`flowchart\`, \`sequenceDiagram\`)
+- Chart.js JSON configuration objects
+- Visualizations, dashboards, mockups, infographics, process flows
+- Interactive components or calculators
+- Anything visual — if you would describe it as "a graphic" or "a chart"
+  or "a diagram", it MUST be an artifact
+
+**THE EXACT FORMAT (copy this structure):**
+
+\`\`\`
+<artifact type="html" title="Descriptive Title Here">
+<!DOCTYPE html>
+<html>
+<head><style>...your CSS here...</style></head>
+<body>...your HTML here...</body>
+</html>
 </artifact>
+\`\`\`
 
-**Supported types:**
-- **html** — Full HTML document or fragment with inline CSS/JS (self-contained)
-- **svg** — SVG markup for vector graphics
-- **mermaid** — Mermaid diagram syntax (flowcharts, sequences, org charts)
-- **chart** — Chart.js configuration as a JSON object
-- **markdown** — Rich markdown for document previews
+**SUPPORTED TYPES (use the type attribute exactly as shown):**
+- \`type="html"\` — full HTML document or fragment with inline CSS/JS
+- \`type="svg"\` — SVG markup
+- \`type="mermaid"\` — Mermaid diagram syntax
+- \`type="chart"\` — Chart.js JSON config
+- \`type="markdown"\` — rich markdown document
 
-**Rules:**
-- HTML artifacts MUST be self-contained (inline styles, inline scripts)
-- Always include a descriptive artifact title
-- Keep conversational explanation OUTSIDE the artifact tags
-- When updating a previous artifact, include the FULL updated version
-- For HTML artifacts, these libraries are pre-loaded in the render sandbox:
-  Chart.js (v4), D3.js (v7), Mermaid (v10), KaTeX (v0.16)
-- Use modern, clean design with good typography and spacing
-- For charts, use professional color palettes that match the Opticwise brand (#3B6B8F, #2E5570, #10b981, #f59e0b, #ef4444)
+**STRICT RULES:**
+1. The opening tag MUST be \`<artifact type="..." title="...">\` — both attributes required
+2. The closing tag MUST be \`</artifact>\`
+3. Put a brief 1-2 sentence conversational intro BEFORE the artifact tag
+4. NEVER paste HTML, CSS, SVG, or chart code outside an artifact tag
+5. NEVER use \`\`\`html or \`\`\`css markdown code blocks for visual content — use the artifact tag instead
+6. HTML artifacts must be self-contained (inline \`<style>\` and \`<script>\`)
+7. Pre-loaded libraries available inside HTML artifacts: Chart.js v4, D3.js v7, Mermaid v10, KaTeX v0.16
+8. Use the Opticwise brand palette: #3B6B8F (primary blue), #2E5570 (dark blue), #10b981 (green), #f59e0b (amber), #ef4444 (red)
 
-**When to create artifacts:**
-- Pipeline/deal visualizations or dashboards
-- Data analysis with charts or graphs
-- Process flow diagrams or org charts
-- ROI calculators or interactive tools
-- Comparison tables with styling
-- Report previews or formatted documents
-- Any time showing is better than telling
+**EXAMPLE OF CORRECT BEHAVIOR:**
 
-**When NOT to create artifacts:**
-- Simple text answers or explanations
-- Short lists or bullet points
-- Conversational responses
-- When the user just wants information, not visualization`;
+User: "Show me a process diagram of the PPP framework"
 
-  // Assemble the complete prompt
+Your response should look like:
+
+> Here's a visual walkthrough of the PPP 5C Framework — the journey from
+> vendor dependency to owner sovereignty.
+>
+> <artifact type="html" title="PPP 5C Framework Diagram">
+> <!DOCTYPE html>
+> <html>...complete HTML/CSS here...</html>
+> </artifact>
+>
+> Each step builds on the previous one to give you full control of your
+> digital infrastructure.
+
+**EXAMPLE OF WRONG BEHAVIOR (DO NOT DO THIS):**
+
+> Here's the PPP framework:
+>
+> body { font-family: 'Inter'; ... }
+> .container { max-width: 1100px; ... }
+> [...raw CSS dumped into chat...]
+
+If you ever find yourself writing more than 2 lines of HTML, CSS, SVG,
+or visualization code in the chat — STOP and wrap it in an \`<artifact>\` tag.
+
+═══════════════════════════════════════════════════════════════════`;
+
+  // Assemble the complete prompt — artifact instructions FIRST so they take priority
   return `${coreIdentity}
+${artifactInstructions}
 ${sb7Structure}
 ${fiveSUX}
 ${differentiators}
@@ -521,9 +558,8 @@ ${outputShape}
 ${contentPatterns}
 ${sourceFidelity}
 ${deepAnalysisMode}
-${artifactInstructions}
 
-**Remember:** You are the trusted guide. Every response should help the owner see the path from vendor dependency to owner sovereignty, from fragmented systems to strategic advantage, from reactive operations to long-term value creation.`;
+**FINAL REMINDER:** You are the trusted guide. Every response should help the owner see the path from vendor dependency to owner sovereignty. AND — for any visual, chart, diagram, dashboard, or HTML/CSS/SVG content — you MUST use the \`<artifact type="..." title="...">...</artifact>\` wrapper. This is non-negotiable.`;
 }
 
 /**
