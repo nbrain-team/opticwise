@@ -156,7 +156,7 @@ REJECT mismatches! If unsure whether the name matches the email, return nulls fo
 
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-opus-4-7',
       max_tokens: 500,
       temperature: 0,
       messages: [{ role: 'user', content: prompt }],

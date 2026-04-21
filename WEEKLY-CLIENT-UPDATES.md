@@ -6,6 +6,13 @@
 
 ---
 
+### 2026-04-15 — Upgraded OWnet Agent to Claude Opus 4.7 + Eliminated Token Truncation
+
+- Migrated all agent runtime calls from Claude Opus 4.6 to **Claude Opus 4.7** (released Apr 16, 2026), Anthropic's newest frontier model with stronger multi-step reasoning, better instruction following, and a 1M-token context window — same pricing as Opus 4.6
+- Files updated across the agent pipeline: main OWnet chat endpoint, plan generation, chatbot endpoint, execution planner, hybrid search, feedback learning, email voice analyzer, and all background processing scripts
+- **Fixed visualization truncation:** added a dedicated "visualization" intent classifier so prompts like "create a visual graphic of the PPP process" automatically route to a 64,000-token output budget — large enough to render full multi-step HTML diagrams, dashboards, and infographics without cutting off mid-stream
+- Bumped all token tiers across the board to take advantage of Opus 4.7's 128k output ceiling: max-detail 96k (was 64k), deep-analysis 64k (was 32k), research 24k (was 12k), creative 16k (was 8k), follow-ups 12k (was 8k), default 8k (was 4k) — every tier now has at least 2x more headroom
+
 ### 2026-04-15 — Cleaner Top Navigation with "More" Dropdown
 
 - Consolidated the top navigation by moving lower-frequency items into a single "More" dropdown menu: LinkedIn, Transcripts, Conferences, Campaigns, and Profile

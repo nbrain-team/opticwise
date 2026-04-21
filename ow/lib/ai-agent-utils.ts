@@ -88,23 +88,50 @@ export function classifyQuery(query: string): QueryIntent {
   const needsMultipleItems = /\b(\d+|multiple|several|bunch|variety|range)\b/.test(lowerQuery);
   const hasContextRequest = needsDetailSignals.some(signal => lowerQuery.includes(signal));
   const isFollowUp = /\b(no|not|more|better|different|instead|actually)\b/.test(lowerQuery) && query.length < 150;
-  
+
+  // VISUALIZATION INTENT - takes precedence over deep_analysis when the user
+  // is asking for a graphic / diagram / chart / dashboard / mockup / artifact.
+  // These require high token budgets so the rendered HTML/CSS/SVG isn't truncated.
+  const visualizationKeywords = [
+    'visual', 'visualize', 'visualization', 'graphic', 'diagram', 'chart',
+    'dashboard', 'infographic', 'flow chart', 'flowchart', 'mockup',
+    'mock-up', 'mockups', 'mock up', 'render', 'wireframe', 'illustration',
+    'org chart', 'org-chart', 'process map', 'sankey', 'gantt', 'timeline graphic',
+    'visual graphic', 'visual representation', 'visual walkthrough',
+    'show me a chart', 'show me a graph', 'create a graphic', 'create a chart',
+    'create a diagram', 'create a dashboard', 'build a chart', 'build a dashboard',
+    'design a', 'render a', 'plot ', 'pie chart', 'bar chart', 'line chart',
+    'svg', 'html visual', 'interactive', 'artifact'
+  ];
+  const isVisualizationRequest = visualizationKeywords.some(kw => lowerQuery.includes(kw));
+  if (isVisualizationRequest) {
+    return {
+      type: 'deep_analysis',
+      confidence: 0.95,
+      keywords: ['visualization', ...visualizationKeywords.filter(kw => lowerQuery.includes(kw))],
+      requiresDeepSearch: true,
+      // Visualizations frequently need 30-60k tokens of HTML/CSS for multi-step
+      // diagrams, dashboards, and infographics. Give them a generous budget.
+      suggestedMaxTokens: 64000,
+      suggestedTemperature: 0.7
+    };
+  }
+
   // SPECIAL COMMANDS - Override with maximum tokens
-  // Enhanced detection for max token requests
   const maxTokensCommand = /\b(max[_\s]?tokens?|max|maximum|exhaustive|ultra[-\s]?detailed|analyze[_\s]all|all[_\s]of[_\s]them|provide[_\s]a?[_\s]deep|deep[_\s]analysis)\b/i.test(lowerQuery);
-  
-  // If user explicitly requests maximum detail
+
+  // If user explicitly requests maximum detail — push toward Opus 4.7's 128k ceiling
   if (maxTokensCommand) {
     return {
       type: 'deep_analysis',
       confidence: 1.0,
       keywords: ['max_tokens', 'maximum_detail', 'deep_analysis'],
       requiresDeepSearch: true,
-      suggestedMaxTokens: 64000, // Increased from 32768 for ultra-deep analysis
+      suggestedMaxTokens: 96000, // Opus 4.7 supports 128k — leave a bit of headroom
       suggestedTemperature: 0.7
     };
   }
-  
+
   // Check for deep analysis
   if (deepAnalysisKeywords.some(kw => lowerQuery.includes(kw))) {
     return {
@@ -112,11 +139,11 @@ export function classifyQuery(query: string): QueryIntent {
       confidence: 0.95,
       keywords: deepAnalysisKeywords.filter(kw => lowerQuery.includes(kw)),
       requiresDeepSearch: true,
-      suggestedMaxTokens: 32000, // Increased from 16384 for comprehensive analysis
+      suggestedMaxTokens: 64000,
       suggestedTemperature: 0.7
     };
   }
-  
+
   // Check for research
   if (researchKeywords.some(kw => lowerQuery.includes(kw))) {
     return {
@@ -124,26 +151,25 @@ export function classifyQuery(query: string): QueryIntent {
       confidence: 0.85,
       keywords: researchKeywords.filter(kw => lowerQuery.includes(kw)),
       requiresDeepSearch: true,
-      suggestedMaxTokens: 12288,
+      suggestedMaxTokens: 24000,
       suggestedTemperature: 0.6
     };
   }
-  
+
   // Upgrade quick_answer to research if it needs detail/multiple items
   if (quickKeywords.some(kw => lowerQuery.includes(kw))) {
-    // If asking for multiple items with context/details, upgrade to research
     if ((needsMultipleItems || hasContextRequest) && query.length > 50) {
       return {
         type: 'research',
         confidence: 0.8,
         keywords: [...quickKeywords.filter(kw => lowerQuery.includes(kw)), ...needsDetailSignals.filter(s => lowerQuery.includes(s))],
         requiresDeepSearch: true,
-        suggestedMaxTokens: 12288,
+        suggestedMaxTokens: 24000,
         suggestedTemperature: 0.6
       };
     }
   }
-  
+
   // Check for action
   if (actionKeywords.some(kw => lowerQuery.includes(kw))) {
     return {
@@ -151,11 +177,11 @@ export function classifyQuery(query: string): QueryIntent {
       confidence: 0.85,
       keywords: actionKeywords.filter(kw => lowerQuery.includes(kw)),
       requiresDeepSearch: false,
-      suggestedMaxTokens: 4096,
+      suggestedMaxTokens: 8000,
       suggestedTemperature: 0.4
     };
   }
-  
+
   // Check for creative
   if (creativeKeywords.some(kw => lowerQuery.includes(kw))) {
     return {
@@ -163,30 +189,30 @@ export function classifyQuery(query: string): QueryIntent {
       confidence: 0.75,
       keywords: creativeKeywords.filter(kw => lowerQuery.includes(kw)),
       requiresDeepSearch: false,
-      suggestedMaxTokens: 8192,
+      suggestedMaxTokens: 16000,
       suggestedTemperature: 0.8
     };
   }
-  
-  // Follow-up questions: inherit context from previous but allow moderate tokens
+
+  // Follow-up questions
   if (isFollowUp) {
     return {
       type: 'quick_answer',
       confidence: 0.7,
       keywords: ['follow-up'],
       requiresDeepSearch: false,
-      suggestedMaxTokens: 8192, // Higher for follow-ups
+      suggestedMaxTokens: 12000,
       suggestedTemperature: 0.7
     };
   }
-  
+
   // Default to quick answer
   return {
     type: 'quick_answer',
     confidence: 0.6,
     keywords: quickKeywords.filter(kw => lowerQuery.includes(kw)),
     requiresDeepSearch: false,
-    suggestedMaxTokens: 4096,
+    suggestedMaxTokens: 8000,
     suggestedTemperature: 0.7
   };
 }

@@ -63,7 +63,7 @@ async function generateResponse(question: string, questionNumber: number): Promi
   console.log(`Q: ${question.substring(0, 100)}${question.length > 100 ? '...' : ''}\n`);
 
   const message = await anthropic.messages.create({
-    model: 'claude-opus-4-6',
+    model: 'claude-opus-4-7',
     max_tokens: 2048,
     temperature: 0.7,
     system: systemPrompt,
