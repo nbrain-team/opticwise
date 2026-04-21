@@ -3,9 +3,27 @@
 ## Repository & Deployment
 - **Repo**: https://github.com/nbrain-team/opticwise
 - **Platform**: Render (web service)
+- **Render Workspace**: OpticWise's workspace (`tea-d4ahvl3ipnbc73aam4o0`, owner bill@opticwise.com), created Nov 2025
+- **Render Region**: All services in **Oregon**
 - **Main App**: `/ow` — Next.js 15 (App Router)
 - **Database**: PostgreSQL via Prisma ORM
 - **Auth**: Custom JWT (httpOnly cookie `ow_auth`, HS256, 7-day expiry)
+
+### Render Services
+- `opticwise-frontend` (`srv-d69lnrmsb7us73ctuvi0`) — main `/ow` Next.js app, starter plan
+- `Opticwise-Backend` (`srv-d4ecr5rgk3sc73blsjag`) — `/ow` Next.js, standard plan
+- `opticwise-payload` (`srv-d7fbravaqgkc739n6aqg`) — Payload CMS, standard plan
+- `opticwise-payload-92pd` (`srv-d7fbu0l7vvec73a9fbd0`) — Payload CMS, starter plan
+- `opticwise-email-sync` (`crn-d6c9sv3h46gs738e4isg`) — cron, every 15 min, calls `/api/sales-inbox/sync`
+
+### Render Outbound IP Whitelisting
+When a third party API requires whitelisting Render's outbound IPs:
+- Render does **not** publish IP ranges publicly — they must be pulled from the Render Dashboard.
+- Outbound IPs are **shared across all services in the same region**, so any one Oregon service gives the full list.
+- Steps: Render Dashboard → open any Oregon service (e.g. `opticwise-frontend`) → **Connect** dropdown (top right) → **Outbound** tab → copy the CIDR list.
+- Direct dashboard URL: https://dashboard.render.com/web/srv-d69lnrmsb7us73ctuvi0
+- Render migrated to new outbound IP ranges on **Nov 13, 2025** — old/cached IPs from before that date are retired and should not be used.
+- Workspaces created before Jan 23, 2022 don't get fixed Oregon IPs (does NOT apply here — our workspace was created Nov 2025).
 
 ## Environment Variables (Required on Render)
 
