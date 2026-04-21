@@ -152,7 +152,6 @@ function parseArtifacts(text: string, userPrompt: string): { cleanText: string; 
 
   // Pass 3: raw full-HTML-document fallback (no fence, no tag — Claude dumped a doc)
   if (artifacts.length === 0 && looksLikeFullHtmlDocument(cleanText)) {
-    // Extract from <!DOCTYPE or <html through </html>
     const lower = cleanText.toLowerCase()
     const startDoctype = lower.indexOf('<!doctype html')
     const startHtml = lower.indexOf('<html')
@@ -176,6 +175,90 @@ function parseArtifacts(text: string, userPrompt: string): { cleanText: string; 
       }
       artifacts.push(artifact)
       cleanText = cleanText.replace(fullDoc, `\n\n[artifact:${id}:${title}:html]\n\n`)
+    }
+  }
+
+  // Pass 4: HTML fragment (no <html>/doctype, but has <style> and/or substantial body markup)
+  // This catches the common Claude failure mode of dumping <style>...</style><div>...</div>
+  // without any document wrapper.
+  if (artifacts.length === 0) {
+    const styleStart = cleanText.toLowerCase().indexOf('<style')
+    if (styleStart !== -1) {
+      // Find the start of the visual content — back up to the start of the line containing <style
+      const beforeStyle = cleanText.slice(0, styleStart)
+      const lineStart = beforeStyle.lastIndexOf('\n')
+      const start = lineStart === -1 ? styleStart : lineStart + 1
+      // The visual content extends to the end of the message (everything from <style onward)
+      const fragment = cleanText.slice(start).trim()
+      if (fragment.length > 100) {
+        const title = deriveTitleFromPrompt(userPrompt, 'Visualization')
+        const contentHash = fragment.slice(0, 200)
+        const id = getStableArtifactId('html', title, contentHash)
+
+        // Wrap fragment in a minimal HTML doc so it renders in the iframe
+        const wrappedHtml = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body>${fragment}</body></html>`
+
+        const artifact: Artifact = {
+          id,
+          type: 'html',
+          title,
+          content: wrappedHtml,
+          version: 1,
+          timestamp: new Date().toISOString(),
+          prompt: userPrompt,
+        }
+        artifacts.push(artifact)
+        cleanText = cleanText.slice(0, start).trimEnd() + `\n\n[artifact:${id}:${title}:html]\n\n`
+      }
+    }
+  }
+
+  // Pass 5: raw CSS dump (no <style>, no HTML tags) — Claude sometimes outputs ONLY CSS
+  // Detect 3+ CSS rule lines like "selector { ... }" or block comments
+  if (artifacts.length === 0) {
+    const cssRulePattern = /(?:^|\n)\s*(?:\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\/\s*)?[.#]?[a-zA-Z_*][\w-]*(?:\s*[>+~,]\s*[.#]?[a-zA-Z_*][\w-]*)*\s*\{/g
+    const ruleMatches = [...cleanText.matchAll(cssRulePattern)]
+    if (ruleMatches.length >= 3) {
+      // Find the start of the first CSS rule's line (or its preceding comment)
+      const firstMatch = ruleMatches[0]
+      const matchIdx = firstMatch.index ?? 0
+      // Back up to find the line start (and pull in any leading /* comment block */ lines)
+      const beforeFirst = cleanText.slice(0, matchIdx)
+      const lineStart = beforeFirst.lastIndexOf('\n')
+      const start = lineStart === -1 ? matchIdx : lineStart + 1
+
+      const cssDump = cleanText.slice(start).trim()
+      if (cssDump.length > 100) {
+        const title = deriveTitleFromPrompt(userPrompt, 'Visualization')
+        const contentHash = cssDump.slice(0, 200)
+        const id = getStableArtifactId('html', title, contentHash)
+
+        // Wrap the raw CSS in a minimal HTML doc with a placeholder body so something renders
+        const wrappedHtml = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>${cssDump}</style>
+</head>
+<body>
+<div class="container">
+<div class="header"><div class="eyebrow">Visualization</div><h1>${title}</h1></div>
+<p style="color:#666;text-align:center;padding:40px;">CSS-only output detected. The original response did not include matching HTML markup, so only styles are loaded. Please ask the agent to regenerate with full HTML.</p>
+</div>
+</body></html>`
+
+        const artifact: Artifact = {
+          id,
+          type: 'html',
+          title,
+          content: wrappedHtml,
+          version: 1,
+          timestamp: new Date().toISOString(),
+          prompt: userPrompt,
+        }
+        artifacts.push(artifact)
+        cleanText = cleanText.slice(0, start).trimEnd() + `\n\n[artifact:${id}:${title}:html]\n\n`
+      }
     }
   }
 
@@ -206,15 +289,45 @@ function hasPartialVisualFence(text: string): { partial: boolean; openIdx: numbe
 // Detect raw HTML document being streamed (no fence, no artifact tag)
 function hasPartialRawHtml(text: string): { partial: boolean; openIdx: number } {
   const lower = text.toLowerCase()
-  // Look for the LAST <!doctype or <html opening
   const lastDoctype = lower.lastIndexOf('<!doctype html')
   const lastHtmlOpen = lower.lastIndexOf('<html')
   const openIdx = Math.max(lastDoctype, lastHtmlOpen)
   if (openIdx === -1) return { partial: false, openIdx: -1 }
-  // If we already have </html> AFTER this opening, it's complete
   const afterOpen = lower.slice(openIdx)
   const hasClose = afterOpen.includes('</html>')
   return { partial: !hasClose, openIdx }
+}
+
+// Detect raw <style> block being streamed (no doctype, no artifact tag, no fence)
+function hasPartialStyleFragment(text: string): { partial: boolean; openIdx: number } {
+  const lower = text.toLowerCase()
+  const styleIdx = lower.indexOf('<style')
+  if (styleIdx === -1) return { partial: false, openIdx: -1 }
+  // Back up to start of the line containing <style so the entire fragment is hidden
+  const beforeStyle = text.slice(0, styleIdx)
+  const lineStart = beforeStyle.lastIndexOf('\n')
+  const openIdx = lineStart === -1 ? styleIdx : lineStart + 1
+  // Always treat as partial during streaming until the message completes —
+  // the final-pass parser will extract it at end-of-stream.
+  return { partial: true, openIdx }
+}
+
+// Detect a raw CSS dump being streamed (3+ "selector {" rule lines, no <style> wrapper)
+function hasPartialCssDump(text: string): { partial: boolean; openIdx: number } {
+  // Don't trigger if there's an HTML/style/artifact context — those are handled separately
+  const lower = text.toLowerCase()
+  if (lower.includes('<style') || lower.includes('<html') || lower.includes('<!doctype') || lower.includes('<artifact')) {
+    return { partial: false, openIdx: -1 }
+  }
+  const cssRulePattern = /(?:^|\n)\s*(?:\/\*[^*]*\*+(?:[^/*][^*]*\*+)*\/\s*)?[.#]?[a-zA-Z_*][\w-]*(?:\s*[>+~,]\s*[.#]?[a-zA-Z_*][\w-]*)*\s*\{/g
+  const ruleMatches = [...text.matchAll(cssRulePattern)]
+  if (ruleMatches.length < 3) return { partial: false, openIdx: -1 }
+  const firstMatch = ruleMatches[0]
+  const matchIdx = firstMatch.index ?? 0
+  const beforeFirst = text.slice(0, matchIdx)
+  const lineStart = beforeFirst.lastIndexOf('\n')
+  const openIdx = lineStart === -1 ? matchIdx : lineStart + 1
+  return { partial: true, openIdx }
 }
 
 // Strip any raw <artifact> tags that might slip into display content
@@ -885,19 +998,28 @@ export default function OWnetAgentPage() {
                 } else if (data.type === 'content') {
                   fullResponse += data.text
                   
-                  // While streaming, check for partial artifact tags / fenced visuals / raw HTML docs
-                  // and hide them from the chat (they'll render in the artifact panel once complete)
+                  // While streaming, check for partial artifact tags / fenced visuals /
+                  // raw HTML docs / <style> fragments / raw CSS dumps and hide them from the chat
+                  // (they'll render in the artifact panel once complete)
                   const partialArtifact = hasPartialArtifactTag(fullResponse)
                   const partialFence = !partialArtifact ? hasPartialVisualFence(fullResponse) : { partial: false, openIdx: -1 }
                   const partialRawHtml = (!partialArtifact && !partialFence.partial)
                     ? hasPartialRawHtml(fullResponse)
                     : { partial: false, openIdx: -1 }
+                  const partialStyle = (!partialArtifact && !partialFence.partial && !partialRawHtml.partial)
+                    ? hasPartialStyleFragment(fullResponse)
+                    : { partial: false, openIdx: -1 }
+                  const partialCss = (!partialArtifact && !partialFence.partial && !partialRawHtml.partial && !partialStyle.partial)
+                    ? hasPartialCssDump(fullResponse)
+                    : { partial: false, openIdx: -1 }
 
-                  if (partialArtifact || partialFence.partial || partialRawHtml.partial) {
+                  if (partialArtifact || partialFence.partial || partialRawHtml.partial || partialStyle.partial || partialCss.partial) {
                     let cutIdx = fullResponse.length
                     if (partialArtifact) cutIdx = fullResponse.lastIndexOf('<artifact')
                     else if (partialFence.partial) cutIdx = partialFence.openIdx
                     else if (partialRawHtml.partial) cutIdx = partialRawHtml.openIdx
+                    else if (partialStyle.partial) cutIdx = partialStyle.openIdx
+                    else if (partialCss.partial) cutIdx = partialCss.openIdx
 
                     const displayText = sanitizeForDisplay(fullResponse.slice(0, cutIdx))
                     setMessages(prev => {
