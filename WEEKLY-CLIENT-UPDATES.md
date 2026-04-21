@@ -6,6 +6,13 @@
 
 ---
 
+### 2026-04-15 — Artifacts: Auto-Inject Missing Chart/Diagram Libraries
+
+- Fixed an issue where artifact charts and diagrams rendered as blank canvases when the AI generated a full HTML document but forgot to include the corresponding library script tag (Chart.js, D3, Mermaid, or KaTeX)
+- The artifact renderer now scans every full HTML artifact for library references (e.g. `new Chart(...)`, `mermaid.initialize`, `d3.select`, `katex.render`) and automatically injects any missing CDN script tags before the document is loaded into the iframe
+- Added a visible error overlay inside the artifact iframe so any silent JavaScript failure in AI-generated code now shows a clear red banner at the bottom instead of leaving the canvas blank
+- Auto-detects Mermaid diagrams (`class="mermaid"`) and injects an initialize call if the AI forgot one
+
 ### 2026-04-15 — Upgraded OWnet Agent to Claude Opus 4.7 + Eliminated Token Truncation
 
 - Migrated all agent runtime calls from Claude Opus 4.6 to **Claude Opus 4.7** (released Apr 16, 2026), Anthropic's newest frontier model with stronger multi-step reasoning, better instruction following, and a 1M-token context window — same pricing as Opus 4.6

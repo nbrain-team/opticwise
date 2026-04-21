@@ -435,7 +435,7 @@ ${csp}
   // Default: html type — inject content into base template
   const isFullHtml = artifact.content.trim().toLowerCase().startsWith('<!doctype') || artifact.content.trim().toLowerCase().startsWith('<html')
   if (isFullHtml) {
-    return artifact.content
+    return injectMissingDependencies(artifact.content)
   }
 
   return `<!DOCTYPE html>
@@ -457,14 +457,105 @@ ${csp}
   th { background: #f8fafc; font-weight: 600; color: #334155; }
   tr:nth-child(even) { background: #fafbfc; }
 </style>
+${ARTIFACT_ERROR_OVERLAY_SCRIPT}
 </head><body>
 ${artifact.content}
 <script>
-  if (document.querySelector('.mermaid')) {
+  if (document.querySelector('.mermaid') && typeof mermaid !== 'undefined') {
     mermaid.initialize({ startOnLoad: true, theme: 'default' });
   }
 <\/script>
 </body></html>`
+}
+
+// Visible error overlay so silent JS failures inside the iframe are reported
+const ARTIFACT_ERROR_OVERLAY_SCRIPT = `<script>
+(function() {
+  function showError(msg) {
+    var el = document.getElementById('__artifact_error__');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = '__artifact_error__';
+      el.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:99999;padding:10px 14px;background:#fef2f2;border-top:2px solid #ef4444;color:#991b1b;font:12px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-height:40vh;overflow:auto;';
+      document.body && document.body.appendChild(el);
+    }
+    el.innerHTML += '<div><strong>Artifact error:</strong> ' + String(msg).replace(/[<>]/g, '') + '</div>';
+  }
+  window.addEventListener('error', function(e) {
+    showError((e.message || 'Unknown error') + (e.filename ? ' (' + e.filename + ':' + (e.lineno||'?') + ')' : ''));
+  });
+  window.addEventListener('unhandledrejection', function(e) {
+    showError('Unhandled rejection: ' + (e.reason && e.reason.message ? e.reason.message : e.reason));
+  });
+})();
+<\/script>`
+
+// Detect which CDN libraries the user code references and inject any that
+// are missing from the document. Claude often writes \`new Chart(...)\` or
+// \`mermaid.initialize\` without including the corresponding script tag,
+// which leaves the canvas/diagram silently blank.
+function injectMissingDependencies(html: string): string {
+  const lower = html.toLowerCase()
+
+  const CDN: Array<{
+    needle: RegExp           // pattern that means "this lib is used"
+    presence: RegExp         // pattern that means "this lib is already loaded"
+    tag: string              // script tag to inject if missing
+  }> = [
+    {
+      needle: /\bnew\s+chart\s*\(|chart\.js|chart\.register/i,
+      presence: /chart\.js|chartjs|chart\.min\.js/i,
+      tag: '<script src="https://cdn.jsdelivr.net/npm/chart.js@4"><\/script>',
+    },
+    {
+      needle: /\bmermaid\.|class\s*=\s*["']mermaid["']/i,
+      presence: /mermaid(\.min)?\.js/i,
+      tag: '<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"><\/script>',
+    },
+    {
+      needle: /\bd3\.\w/i,
+      presence: /\/d3@|\/d3\.min\.js|d3\.v\d/i,
+      tag: '<script src="https://cdn.jsdelivr.net/npm/d3@7"><\/script>',
+    },
+    {
+      needle: /\bkatex\.|class\s*=\s*["']katex/i,
+      presence: /katex(\.min)?\.js/i,
+      tag: '<script src="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.js"><\/script>\n<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16/dist/katex.min.css">',
+    },
+  ]
+
+  const tagsToInject: string[] = []
+  for (const lib of CDN) {
+    if (lib.needle.test(lower) && !lib.presence.test(lower)) {
+      tagsToInject.push(lib.tag)
+    }
+  }
+
+  let patched = html
+
+  // Always inject the visible error overlay so silent JS failures surface
+  const allInjections = [ARTIFACT_ERROR_OVERLAY_SCRIPT, ...tagsToInject].join('\n')
+
+  // Try to insert before </head>; otherwise before </body>; otherwise prepend
+  if (/<\/head>/i.test(patched)) {
+    patched = patched.replace(/<\/head>/i, `${allInjections}\n</head>`)
+  } else if (/<\/body>/i.test(patched)) {
+    patched = patched.replace(/<\/body>/i, `${allInjections}\n</body>`)
+  } else {
+    patched = allInjections + '\n' + patched
+  }
+
+  // If mermaid is referenced but no initialize call exists, add one at the end
+  if (/class\s*=\s*["']mermaid["']/i.test(lower) && !/mermaid\.initialize/i.test(lower)) {
+    const initScript = `<script>if (typeof mermaid !== 'undefined') { mermaid.initialize({ startOnLoad: true, theme: 'default' }); }<\/script>`
+    if (/<\/body>/i.test(patched)) {
+      patched = patched.replace(/<\/body>/i, `${initScript}\n</body>`)
+    } else {
+      patched += '\n' + initScript
+    }
+  }
+
+  return patched
 }
 
 // ─── Artifact Card in Chat ───────────────────────────────────────────────────
