@@ -6,6 +6,13 @@
 
 ---
 
+### 2026-04-15 — Cleaner Top Navigation with "More" Dropdown
+
+- Consolidated the top navigation by moving lower-frequency items into a single "More" dropdown menu: LinkedIn, Transcripts, Conferences, Campaigns, and Profile
+- Primary nav now shows the highest-traffic items only — Dashboard, Deals, Contacts, Organizations, Sales Inbox, OWnet Agent, CS Agent — with the "More" menu sitting cleanly between them
+- Dropdown uses click-to-toggle (not hover) with outside-click and Escape-key dismissal for accessible, predictable behavior
+- Profile moved out of the top-right corner into the dropdown alongside the other utility links; Logout remains in its dedicated top-right slot
+
 ### 2026-04-15 — AI Artifacts: Hardened Auto-Detection of Visual Output (v2)
 
 - Strengthened the OWnet Agent's artifact rendering pipeline so that visualizations always appear in the side panel — never as raw code dumped into the chat
