@@ -189,7 +189,62 @@ export async function getFormBySlugWithFields(slug: string) {
 type FormForProcessing = NonNullable<Awaited<ReturnType<typeof getFormBySlugWithFields>>>;
 
 /**
- * Pull mapped values out of the raw submission payload, keyed by mapping target.
+ * Heuristically guess a CRM mapping from a field's key + label when the form
+ * admin didn't explicitly set `mapsTo`. Lets us still create a Person/Org
+ * even when the form was built quickly without the mapping configured.
+ *
+ * Only used as a fallback. Explicit `mapsTo` always wins.
+ */
+function guessMapping(fieldKey: string, label: string): FormFieldMapping | null {
+  const haystack = `${fieldKey} ${label}`.toLowerCase();
+  // Email
+  if (/(^|[^a-z])e[\W_-]?mail([^a-z]|$)/.test(haystack) || /e_?mail/.test(haystack)) {
+    return "person_email";
+  }
+  // First name
+  if (/\b(first[\W_-]?name|fname|given[\W_-]?name)\b/.test(haystack)) {
+    return "person_firstName";
+  }
+  // Last name
+  if (/\b(last[\W_-]?name|lname|surname|family[\W_-]?name)\b/.test(haystack)) {
+    return "person_lastName";
+  }
+  // Full name (we'll split it downstream)
+  if (/^name$|\bfull[\W_-]?name\b|\byour[\W_-]?name\b/.test(haystack)) {
+    return "person_firstName"; // marker — will be split into first/last below
+  }
+  // Phone
+  if (/\b(phone|tel|mobile|cell|contact[\W_-]?number)\b/.test(haystack)) {
+    return "person_phone";
+  }
+  // Title / role
+  if (/\b(job[\W_-]?title|title|position|role)\b/.test(haystack) && !/company|org|business/.test(haystack)) {
+    return "person_title";
+  }
+  // Company / org
+  if (/\b(company|organization|organisation|business|employer|firm)\b/.test(haystack) && !/website|url|domain/.test(haystack)) {
+    return "organization_name";
+  }
+  // Website / URL
+  if (/\b(website|web[\W_-]?site|url|company[\W_-]?url)\b/.test(haystack)) {
+    return "organization_websiteUrl";
+  }
+  // Domain
+  if (/\bdomain\b/.test(haystack)) {
+    return "organization_domain";
+  }
+  // Notes / message
+  if (/\b(message|notes?|comments?|tell[\W_-]?us|how[\W_-]?can|inquiry)\b/.test(haystack)) {
+    return "deal_notes";
+  }
+  return null;
+}
+
+/**
+ * Pull mapped values out of the raw submission payload, keyed by mapping
+ * target. Falls back to heuristic mapping when the field has no explicit
+ * `mapsTo` set, so contacts/companies still get created when the form admin
+ * forgot to configure the CRM mapping.
  */
 function extractMapped(
   form: FormForProcessing,
@@ -197,11 +252,31 @@ function extractMapped(
 ): Record<FormFieldMapping, string | undefined> {
   const out = {} as Record<FormFieldMapping, string | undefined>;
   for (const field of form.fields) {
-    if (!field.mapsTo) continue;
     const raw = payload[field.fieldKey];
     if (raw === undefined || raw === null) continue;
     const v = Array.isArray(raw) ? raw.join(", ") : String(raw);
-    if (v.trim()) out[field.mapsTo] = v.trim();
+    if (!v.trim()) continue;
+
+    const mapping: FormFieldMapping | null =
+      field.mapsTo ?? guessMapping(field.fieldKey, field.label);
+    if (!mapping) continue;
+
+    // Special case: if a single "Name" field is mapped to firstName, split it.
+    if (mapping === "person_firstName" && !field.mapsTo) {
+      const fullName = v.trim();
+      const looksLikeFullName =
+        /\s/.test(fullName) && !/^(first|f)[\W_-]?name?$/i.test(field.fieldKey);
+      if (looksLikeFullName) {
+        const parts = fullName.split(/\s+/);
+        if (!out.person_firstName) out.person_firstName = parts[0];
+        if (!out.person_lastName) out.person_lastName = parts.slice(1).join(" ");
+        continue;
+      }
+    }
+
+    // Don't let heuristic mapping overwrite an explicit one already set
+    if (out[mapping]) continue;
+    out[mapping] = v.trim();
   }
   return out;
 }
@@ -242,6 +317,27 @@ export async function processFormSubmission(
   delete cleanPayload[form.honeypotFieldName];
 
   const mapped = extractMapped(form, cleanPayload);
+
+  // Last-resort: scan all values for an email-shaped string if no email was
+  // mapped. Lets us still create a contact when a form has no email field
+  // mapping but the visitor typed their email somewhere in a text field.
+  if (!mapped.person_email) {
+    for (const v of Object.values(cleanPayload)) {
+      if (typeof v !== "string") continue;
+      const m = v.match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i);
+      if (m) {
+        mapped.person_email = m[0].toLowerCase();
+        break;
+      }
+    }
+  }
+
+  console.log("[forms] processing submission for slug=", form.slug, "mapped=", {
+    hasEmail: !!mapped.person_email,
+    hasFirstName: !!mapped.person_firstName,
+    hasLastName: !!mapped.person_lastName,
+    hasCompany: !!mapped.organization_name,
+  });
 
   try {
     // ----- Organization (find-or-create by name) -----
@@ -361,6 +457,35 @@ export async function processFormSubmission(
         customFields: customFields as Prisma.InputJsonValue,
       },
     });
+
+    // ----- DealContact (Stakeholder) -----
+    // The deal page's "Stakeholders" section is powered by the DealContact
+    // junction table — separate from the legacy Deal.personId pointer.
+    // We always add the form submitter as a stakeholder marked primary so
+    // they appear in the Stakeholders list immediately.
+    if (personId) {
+      try {
+        await prisma.dealContact.upsert({
+          where: { dealId_personId: { dealId: deal.id, personId } },
+          create: {
+            dealId: deal.id,
+            personId,
+            isPrimary: true,
+            role: null,
+            notes: `Auto-added from website form: ${form.name}`,
+          },
+          update: {},
+        });
+      } catch (dcErr) {
+        console.error("[forms] failed to create DealContact stakeholder:", dcErr);
+      }
+    } else {
+      console.warn(
+        "[forms] no person was created/matched — deal has no stakeholder. " +
+          "Form may be missing person_email / person_firstName / person_lastName field mappings.",
+        { formSlug: form.slug, formId: form.id }
+      );
+    }
 
     // ----- Persist submission row -----
     const submission = await prisma.formSubmission.create({
