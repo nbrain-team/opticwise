@@ -3,6 +3,7 @@
 import { getMediaUrl } from "@/lib/media-utils";
 import { ScheduleReviewButton } from "./ScheduleReviewPopup";
 import { LeadMagnetForm } from "./LeadMagnetForm";
+import { FormEmbed } from "./FormEmbed";
 
 const ICON_PATHS: Record<string, string> = {
   "chart-up": "M13 7h8m0 0v8m0-8l-8 8-4-4-6 6",
@@ -67,6 +68,17 @@ function RenderBlock({ block }: { block: any }) {
       return <TimelineRenderer block={block} />;
     case "deliverables":
       return <DeliverablesRenderer block={block} />;
+    case "formEmbed":
+      return (
+        <FormEmbed
+          formSlug={block.formSlug}
+          eyebrow={block.eyebrow}
+          heading={block.heading}
+          description={block.description}
+          theme={block.theme}
+          alignment={block.alignment}
+        />
+      );
     default:
       return null;
   }

@@ -1,10 +1,24 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: April 15, 2026  
-**Latest Period**: February 14 - April 15, 2026  
-**Status**: CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched
+**Latest Update**: April 28, 2026  
+**Latest Period**: February 14 - April 28, 2026  
+**Status**: CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live
 
 ---
+
+### 2026-04-28 — Marketing Forms → CRM Bridge: Capture Leads from OpticWise.com Directly into the Platform
+
+- Built a complete forms system that connects OpticWise.com (the Payload CMS marketing site on Vercel) to the OpticWise platform (the CRM on Render). Every form submission on the marketing site now creates a contact + company and a brand-new deal in a designated pipeline, stage, and owner — no manual re-entry, no Zapier glue, no third-party form tool
+- **New "Forms" admin section** on the platform (under the More menu): list view of all forms, full visual form builder for creating/editing forms with drag-orderable fields, and a per-form submissions view showing every lead with deep links to the created contact, company, and deal
+- **Fully dynamic field builder** — define unlimited fields per form (text, email, phone, multi-line, dropdown, radio, checkbox, number, URL, date), set required vs. optional, add help text and placeholders. Each field can be mapped to a CRM destination (Contact first/last name, email, phone, title; Company name, website, domain; Deal notes) or stored as custom data on the deal
+- **Per-form routing**: each form picks its own destination pipeline, stage, and deal owner when created. Editable later. The deal title is fully templatable with merge tags like `{firstName} {lastName} @ {company}` so deal lists stay scannable in the CRM
+- **Smart de-duplication**: contacts are matched by email first (then name + company), companies are matched by name. Duplicate contacts and companies are NOT created — but a fresh deal is always logged so every form submission tracks intent
+- **New `FormEmbed` block in Payload CMS** so content authors can drop any form into any page on opticwise.com just by referencing its slug (e.g. "demo-request"). The form renders natively on the page in either light or dark theme, fetches its definition live from the platform, and posts submissions directly back with full CORS protection
+- **Spam protection** via an invisible honeypot field that bots fill in but humans never see; spam submissions are silently captured and never reach the CRM
+- **Owner notification email** sent automatically to the deal owner the moment a submission lands, with the full submission data and a one-click deep link to the new deal in the platform
+- **Full audit trail**: every submission (processed, failed, or spam) is stored on the platform with IP, user agent, referrer, page URL, and full UTM attribution (utm_source, utm_medium, utm_campaign, utm_term, utm_content) automatically captured from the submitter's browser
+- Added three new database tables (`Form`, `FormField`, `FormSubmission`) with proper foreign-key integrity to existing pipelines, stages, users, contacts, companies, and deals so historical submissions remain navigable forever
+- Two new env vars to configure on first deploy: `MARKETING_SITE_ORIGINS` on Render (CORS allow-list) and `NEXT_PUBLIC_OPTICWISE_PLATFORM_URL` on Vercel (points the marketing site at the platform)
 
 ### 2026-04-15 — Artifacts: Auto-Inject Missing Chart/Diagram Libraries
 

@@ -8,6 +8,7 @@ import { LeadMagnetBlock } from "../blocks/LeadMagnet";
 import { FAQBlock } from "../blocks/FAQ";
 import { TimelineBlock } from "../blocks/Timeline";
 import { DeliverablesBlock } from "../blocks/Deliverables";
+import { FormEmbedBlock } from "../blocks/FormEmbed";
 
 export const Pages: CollectionConfig = {
   slug: "pages",
@@ -84,6 +85,7 @@ export const Pages: CollectionConfig = {
         FAQBlock,
         TimelineBlock,
         DeliverablesBlock,
+        FormEmbedBlock,
       ],
     },
   ],

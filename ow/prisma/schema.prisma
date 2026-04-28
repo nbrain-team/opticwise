@@ -8,24 +8,26 @@ datasource db {
 }
 
 model User {
-  id               String   @id @default(cuid())
-  email            String   @unique
+  id               String    @id @default(cuid())
+  email            String    @unique
   name             String?
   passwordHash     String
-  role             String   @default("user") // admin, user
-  isActive         Boolean  @default(true)
-  department       String?  // finance, marketing, ops (placeholder for future permissions)
-  emailSyncEnabled Boolean  @default(false)
+  role             String    @default("user") // admin, user
+  isActive         Boolean   @default(true)
+  department       String? // finance, marketing, ops (placeholder for future permissions)
+  emailSyncEnabled Boolean   @default(false)
   lastEmailSync    DateTime?
-  emailSyncStatus  String?  // ok, error, syncing
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  createdBy        String?  // User ID of admin who created this user
+  emailSyncStatus  String? // ok, error, syncing
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  createdBy        String? // User ID of admin who created this user
 
-  deals        Deal[]   @relation("DealOwner")
-  campaigns    Campaign[] @relation("CampaignOwner")
+  deals               Deal[]               @relation("DealOwner")
+  campaigns           Campaign[]           @relation("CampaignOwner")
   passwordResetTokens PasswordResetToken[]
-  linkedInAccounts LinkedInAccount[]
+  linkedInAccounts    LinkedInAccount[]
+  ownedForms          Form[]               @relation("FormOwner")
+  createdForms        Form[]               @relation("FormCreatedBy")
 }
 
 model PasswordResetToken {
@@ -35,22 +37,23 @@ model PasswordResetToken {
   expiresAt DateTime
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
-  
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([token])
   @@index([userId])
   @@index([expiresAt])
 }
 
 model Pipeline {
-  id        String  @id @default(cuid())
-  name      String  @unique
+  id        String   @id @default(cuid())
+  name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  stages    Stage[]
-  deals     Deal[]
+  stages Stage[]
+  deals  Deal[]
+  forms  Form[]
 }
 
 model Stage {
@@ -63,77 +66,79 @@ model Stage {
 
   pipeline Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
   deals    Deal[]
+  forms    Form[]
 
   @@unique([pipelineId, name])
   @@unique([pipelineId, orderIndex])
 }
 
 model Organization {
-  id           String   @id @default(cuid())
-  name         String   @unique
-  address      String?  // Legacy full address
-  websiteUrl   String?
-  domain       String?
-  linkedInProfile String?
-  industry     String?
-  annualRevenue String?
+  id                String  @id @default(cuid())
+  name              String  @unique
+  address           String? // Legacy full address
+  websiteUrl        String?
+  domain            String?
+  linkedInProfile   String?
+  industry          String?
+  annualRevenue     String?
   numberOfEmployees String?
-  doors        String?
-  labels       String?
-  profilePicture String?
-  
+  doors             String?
+  labels            String?
+  profilePicture    String?
+
   // Detailed address fields
-  streetAddress String?  // Street/road name
-  houseNumber  String?   // House number
+  streetAddress  String? // Street/road name
+  houseNumber    String? // House number
   apartmentSuite String? // Apartment/suite no
-  district     String?   // District/sublocality
-  city         String?   // City/town/village/locality
-  state        String?   // State/county
-  region       String?   // Region
-  country      String?   // Country
-  zipCode      String?   // ZIP/Postal code
-  fullAddress  String?   // Full/combined address
-  latitude     String?
-  longitude    String?
-  
+  district       String? // District/sublocality
+  city           String? // City/town/village/locality
+  state          String? // State/county
+  region         String? // Region
+  country        String? // Country
+  zipCode        String? // ZIP/Postal code
+  fullAddress    String? // Full/combined address
+  latitude       String?
+  longitude      String?
+
   // Activity tracking from Pipedrive
-  openDeals      Int?
-  wonDeals       Int?
-  lostDeals      Int?
-  closedDeals    Int?
-  totalActivities Int?
-  doneActivities Int?
-  activitiesToDo Int?
+  openDeals          Int?
+  wonDeals           Int?
+  lostDeals          Int?
+  closedDeals        Int?
+  totalActivities    Int?
+  doneActivities     Int?
+  activitiesToDo     Int?
   emailMessagesCount Int?
-  nextActivityDate DateTime?
-  lastActivityDate DateTime?
-  
+  nextActivityDate   DateTime?
+  lastActivityDate   DateTime?
+
   customFields Json?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  people Person[]
-  deals  Deal[]
-  emailThreads EmailThread[]
-  callTranscripts CallTranscript[]
-  gmailMessages GmailMessage[]
-  calendarEvents CalendarEvent[]
-  driveFiles DriveFile[]
-  noteRecords Note[]
-  activities Activity[]
-  auditRequests AuditRequest[]
-  bookRequests BookRequest[]
+  people              Person[]
+  deals               Deal[]
+  emailThreads        EmailThread[]
+  callTranscripts     CallTranscript[]
+  gmailMessages       GmailMessage[]
+  calendarEvents      CalendarEvent[]
+  driveFiles          DriveFile[]
+  noteRecords         Note[]
+  activities          Activity[]
+  auditRequests       AuditRequest[]
+  bookRequests        BookRequest[]
   conferenceAttendees ConferenceAttendee[]
-  readAIMeetings ReadAIMeeting[]
+  readAIMeetings      ReadAIMeeting[]
+  formSubmissions     FormSubmission[]
 }
 
 model Person {
-  id             String   @id @default(cuid())
-  name           String?  // Full name for easy display
+  id             String  @id @default(cuid())
+  name           String? // Full name for easy display
   firstName      String
   lastName       String
-  email          String?  @unique
-  phone          String?  // Keep for backward compat
+  email          String? @unique
+  phone          String? // Keep for backward compat
   phoneWork      String?
   phoneHome      String?
   phoneMobile    String?
@@ -141,69 +146,70 @@ model Person {
   emailWork      String?
   emailHome      String?
   emailOther     String?
-  title          String?  // Job title
+  title          String? // Job title
   labels         String?
   contactType    String?
   organizationId String?
-  
+
   // Address fields
-  postalAddress  String?  // Full combined address
-  streetAddress  String?  // Street/road name
-  houseNumber    String?  // House number
-  apartmentSuite String?  // Apartment/suite no
-  city           String?  // City/town/village/locality
-  state          String?  // State/county
-  region         String?  // Region
-  country        String?  // Country
-  zipCode        String?  // ZIP/Postal code
+  postalAddress  String? // Full combined address
+  streetAddress  String? // Street/road name
+  houseNumber    String? // House number
+  apartmentSuite String? // Apartment/suite no
+  city           String? // City/town/village/locality
+  state          String? // State/county
+  region         String? // Region
+  country        String? // Country
+  zipCode        String? // ZIP/Postal code
   latitude       String?
   longitude      String?
-  
-  // Personal info
-  birthday       DateTime?
-  notes          String?
-  linkedInProfile String?
-  qwilrProposal  String?
-  classification String?
-  instantMessenger String?
-  marketingStatus String?
-  doubleOptIn    String?
-  profilePicture String?
-  
-  // Activity tracking from Pipedrive
-  openDeals      Int?
-  wonDeals       Int?
-  lostDeals      Int?
-  closedDeals    Int?
-  totalActivities Int?
-  doneActivities Int?
-  activitiesToDo Int?
-  emailMessagesCount Int?
-  nextActivityDate DateTime?
-  lastActivityDate DateTime?
-  lastEmailReceived DateTime?
-  lastEmailSent  DateTime?
-  
-  customFields   Json?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
 
-  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  deals        Deal[]
-  dealContacts DealContact[]
-  emailThreads EmailThread[]
-  callTranscripts CallTranscript[]
-  gmailMessages GmailMessage[]
-  calendarEvents CalendarEvent[]
-  driveFiles DriveFile[]
-  noteRecords Note[]
-  activities Activity[]
-  campaignLeads CampaignLead[]
-  auditRequests AuditRequest[]
-  bookRequests BookRequest[]
-  conferenceAttendees ConferenceAttendee[]
+  // Personal info
+  birthday         DateTime?
+  notes            String?
+  linkedInProfile  String?
+  qwilrProposal    String?
+  classification   String?
+  instantMessenger String?
+  marketingStatus  String?
+  doubleOptIn      String?
+  profilePicture   String?
+
+  // Activity tracking from Pipedrive
+  openDeals          Int?
+  wonDeals           Int?
+  lostDeals          Int?
+  closedDeals        Int?
+  totalActivities    Int?
+  doneActivities     Int?
+  activitiesToDo     Int?
+  emailMessagesCount Int?
+  nextActivityDate   DateTime?
+  lastActivityDate   DateTime?
+  lastEmailReceived  DateTime?
+  lastEmailSent      DateTime?
+
+  customFields Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  organization         Organization?         @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  deals                Deal[]
+  dealContacts         DealContact[]
+  emailThreads         EmailThread[]
+  callTranscripts      CallTranscript[]
+  gmailMessages        GmailMessage[]
+  calendarEvents       CalendarEvent[]
+  driveFiles           DriveFile[]
+  noteRecords          Note[]
+  activities           Activity[]
+  campaignLeads        CampaignLead[]
+  auditRequests        AuditRequest[]
+  bookRequests         BookRequest[]
+  conferenceAttendees  ConferenceAttendee[]
   chatbotConversations ChatbotConversation[]
-  readAIMeetings ReadAIMeeting[]
+  readAIMeetings       ReadAIMeeting[]
+  formSubmissions      FormSubmission[]
 }
 
 enum DealStatus {
@@ -214,11 +220,11 @@ enum DealStatus {
 }
 
 model Deal {
-  id                String      @id @default(cuid())
+  id                String     @id @default(cuid())
   title             String
-  value             Decimal     @default(0)
-  currency          String      @default("USD")
-  status            DealStatus  @default(open)
+  value             Decimal    @default(0)
+  currency          String     @default("USD")
+  status            DealStatus @default(open)
   probability       Int?
   expectedCloseDate DateTime?
   wonTime           DateTime?
@@ -226,64 +232,64 @@ model Deal {
   lostReason        String?
   label             String?
   labels            String?
-  
+
   // Activity tracking
-  nextActivityDate  DateTime?
-  lastActivityDate  DateTime?
-  totalActivities   Int?
-  doneActivities    Int?
-  activitiesToDo    Int?
-  
+  nextActivityDate DateTime?
+  lastActivityDate DateTime?
+  totalActivities  Int?
+  doneActivities   Int?
+  activitiesToDo   Int?
+
   // Email tracking
-  lastEmailReceived DateTime?
-  lastEmailSent     DateTime?
+  lastEmailReceived  DateTime?
+  lastEmailSent      DateTime?
   emailMessagesCount Int?
-  
+
   // Products
-  productQuantity   String?
-  productAmount     Decimal?
-  productName       String?
-  mrr               Decimal?
-  mrrCurrency       String?
-  arr               Decimal?
-  arrCurrency       String?
-  acv               Decimal?
-  acvCurrency       String?
-  
+  productQuantity String?
+  productAmount   Decimal?
+  productName     String?
+  mrr             Decimal?
+  mrrCurrency     String?
+  arr             Decimal?
+  arrCurrency     String?
+  acv             Decimal?
+  acvCurrency     String?
+
   // Source tracking
-  sourceOrigin      String?
-  sourceOriginId    String?
-  sourceChannel     String?
-  sourceChannelId   String?
-  
+  sourceOrigin    String?
+  sourceOriginId  String?
+  sourceChannel   String?
+  sourceChannelId String?
+
   // Custom Opticwise fields
-  goLiveTarget      String?
-  propertyAddress   String?
-  propertyType      String?
-  qty               String?  // units, beds, sqft
-  arrForecast       Decimal?
-  arrForecastCurrency String?
-  capexRom          Decimal?
-  capexRomCurrency  String?
-  roiNoiBomSheet    String?
-  printsPlansExternal String?
-  printsPlansDropbox String?
-  leadSource        String?
-  technicalPOC      String?
-  icpSegment        String?
-  leadSourcePPP     String?
-  readinessScore    String?
-  ddiAuditStatus    String?
-  auditValue        Decimal?
-  auditValueCurrency String?
+  goLiveTarget          String?
+  propertyAddress       String?
+  propertyType          String?
+  qty                   String? // units, beds, sqft
+  arrForecast           Decimal?
+  arrForecastCurrency   String?
+  capexRom              Decimal?
+  capexRomCurrency      String?
+  roiNoiBomSheet        String?
+  printsPlansExternal   String?
+  printsPlansDropbox    String?
+  leadSource            String?
+  technicalPOC          String?
+  icpSegment            String?
+  leadSourcePPP         String?
+  readinessScore        String?
+  ddiAuditStatus        String?
+  auditValue            Decimal?
+  auditValueCurrency    String?
   arrExpansionPotential Decimal?
-  arrExpansionCurrency String?
-  
-  addTime           DateTime    @default(now())
-  updateTime        DateTime    @updatedAt
-  stageChangeTime   DateTime    @default(now()) // When deal entered current stage
-  position          Int         @default(0) // ordering within a stage
-  customFields      Json?       // For any additional dynamic fields
+  arrExpansionCurrency  String?
+
+  addTime         DateTime @default(now())
+  updateTime      DateTime @updatedAt
+  stageChangeTime DateTime @default(now()) // When deal entered current stage
+  position        Int      @default(0) // ordering within a stage
+  customFields    Json? // For any additional dynamic fields
 
   pipelineId     String
   stageId        String
@@ -291,26 +297,27 @@ model Deal {
   personId       String?
   ownerId        String
 
-  pipeline     Pipeline     @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
-  stage        Stage        @relation(fields: [stageId], references: [id], onDelete: Cascade)
+  pipeline     Pipeline      @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  stage        Stage         @relation(fields: [stageId], references: [id], onDelete: Cascade)
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
   owner        User          @relation("DealOwner", fields: [ownerId], references: [id], onDelete: SetNull)
 
-  dealContacts DealContact[]
-  emailThreads EmailThread[]
-  callTranscripts CallTranscript[]
-  gmailMessages GmailMessage[]
-  calendarEvents CalendarEvent[]
-  driveFiles DriveFile[]
-  noteRecords Note[]
-  activities Activity[]
-  campaignLeadsConverted CampaignLead[]
-  auditRequestsConverted AuditRequest[]
-  bookRequestsConverted BookRequest[]
-  conferenceAttendeesConverted ConferenceAttendee[]
+  dealContacts                  DealContact[]
+  emailThreads                  EmailThread[]
+  callTranscripts               CallTranscript[]
+  gmailMessages                 GmailMessage[]
+  calendarEvents                CalendarEvent[]
+  driveFiles                    DriveFile[]
+  noteRecords                   Note[]
+  activities                    Activity[]
+  campaignLeadsConverted        CampaignLead[]
+  auditRequestsConverted        AuditRequest[]
+  bookRequestsConverted         BookRequest[]
+  conferenceAttendeesConverted  ConferenceAttendee[]
   chatbotConversationsConverted ChatbotConversation[]
-  readAIMeetings ReadAIMeeting[]
+  readAIMeetings                ReadAIMeeting[]
+  formSubmissions               FormSubmission[]
 
   @@index([pipelineId, stageId])
   @@index([ownerId])
@@ -322,7 +329,7 @@ model DealContact {
   id        String   @id @default(cuid())
   dealId    String
   personId  String
-  role      String?  // champion, decision_maker, technical_evaluator, influencer, end_user
+  role      String? // champion, decision_maker, technical_evaluator, influencer, end_user
   isPrimary Boolean  @default(false)
   notes     String?
   createdAt DateTime @default(now())
@@ -342,72 +349,72 @@ enum EmailDirection {
 }
 
 model EmailThread {
-  id             String         @id @default(cuid())
+  id             String   @id @default(cuid())
   subject        String
   dealId         String?
   personId       String?
   organizationId String?
   syncUserId     String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
-  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
-  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  deal         Deal?          @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  person       Person?        @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organization Organization?  @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   messages     EmailMessage[]
 }
 
 model EmailMessage {
-  id        String         @id @default(cuid())
-  threadId  String
-  sender    String
+  id         String         @id @default(cuid())
+  threadId   String
+  sender     String
   recipients String
-  cc        String?
-  bcc       String?
-  body      String
-  direction EmailDirection
-  sentAt    DateTime
-  createdAt DateTime       @default(now())
+  cc         String?
+  bcc        String?
+  body       String
+  direction  EmailDirection
+  sentAt     DateTime
+  createdAt  DateTime       @default(now())
 
   thread EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 }
 
 // Fathom.ai Call Transcripts
 model CallTranscript {
-  id                String   @id @default(cuid())
-  fathomCallId      String   @unique  // External ID from Fathom
-  title             String
-  transcript        String   @db.Text  // Full transcript text
-  transcriptJson    Json?    // Structured transcript with speakers and timestamps
-  summary           String?  @db.Text  // AI-generated summary if provided by Fathom
-  
+  id             String  @id @default(cuid())
+  fathomCallId   String  @unique // External ID from Fathom
+  title          String
+  transcript     String  @db.Text // Full transcript text
+  transcriptJson Json? // Structured transcript with speakers and timestamps
+  summary        String? @db.Text // AI-generated summary if provided by Fathom
+
   // Call metadata
-  startTime         DateTime
-  endTime           DateTime?
-  duration          Int?     // Duration in seconds
-  recordingUrl      String?
-  
+  startTime    DateTime
+  endTime      DateTime?
+  duration     Int? // Duration in seconds
+  recordingUrl String?
+
   // Participants (stored as JSON array)
-  participants      Json?    // [{name: string, email?: string}]
-  
+  participants Json? // [{name: string, email?: string}]
+
   // Linking to CRM entities
-  dealId            String?
-  personId          String?
-  organizationId    String?
-  
+  dealId         String?
+  personId       String?
+  organizationId String?
+
   // Metadata
-  metadata          Json?    // Raw data from Fathom
-  vectorized        Boolean  @default(false) // Flag for AI vectorization status
-  vectorEmbedding   String?  @db.Text // Embedding for semantic search (if using)
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  metadata        Json? // Raw data from Fathom
+  vectorized      Boolean @default(false) // Flag for AI vectorization status
+  vectorEmbedding String? @db.Text // Embedding for semantic search (if using)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
   person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  
+
   @@index([fathomCallId])
   @@index([dealId])
   @@index([personId])
@@ -417,45 +424,45 @@ model CallTranscript {
 
 // Read AI Meeting Notes (via webhook)
 model ReadAIMeeting {
-  id                String   @id @default(cuid())
-  sessionId         String   @unique
-  trigger           String?  // meeting_end, manual
+  id                String  @id @default(cuid())
+  sessionId         String  @unique
+  trigger           String? // meeting_end, manual
   title             String
-  platform          String?  // meet, zoom, teams, etc.
+  platform          String? // meet, zoom, teams, etc.
   platformMeetingId String?
 
   // Timing
-  startTime         DateTime
-  endTime           DateTime?
+  startTime DateTime
+  endTime   DateTime?
 
   // Content
-  summary           String?  @db.Text
-  transcript        String?  @db.Text
-  transcriptJson    Json?    // Raw speaker_blocks from ReadAI
-  actionItems       Json?    // [{text: string}]
-  keyQuestions      Json?    // [{text: string}]
-  topics            Json?    // [{text: string}]
-  chapterSummaries  Json?    // [{title, description, topics}]
+  summary          String? @db.Text
+  transcript       String? @db.Text
+  transcriptJson   Json? // Raw speaker_blocks from ReadAI
+  actionItems      Json? // [{text: string}]
+  keyQuestions     Json? // [{text: string}]
+  topics           Json? // [{text: string}]
+  chapterSummaries Json? // [{title, description, topics}]
 
   // Owner and participants
-  owner             Json?    // {name, first_name, last_name, email}
-  participants      Json?    // [{name, first_name, last_name, email}]
+  owner        Json? // {name, first_name, last_name, email}
+  participants Json? // [{name, first_name, last_name, email}]
 
   // Links
-  reportUrl         String?
+  reportUrl String?
 
   // CRM linking
-  dealId            String?
-  personId          String?
-  organizationId    String?
+  dealId         String?
+  personId       String?
+  organizationId String?
 
   // Metadata
-  rawPayload        Json?    // Full original webhook payload
-  vectorized        Boolean  @default(false)
-  vectorEmbedding   String?  @db.Text
+  rawPayload      Json? // Full original webhook payload
+  vectorized      Boolean @default(false)
+  vectorEmbedding String? @db.Text
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
   person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
@@ -472,44 +479,44 @@ model ReadAIMeeting {
 // Google Workspace Integration Models
 
 model GmailMessage {
-  id              String   @id @default(cuid())
-  gmailMessageId  String   @unique  // Google's message ID
-  threadId        String
-  subject         String?
-  snippet         String?  // Short preview
-  body            String?  @db.Text  // Full email body
-  bodyHtml        String?  @db.Text  // HTML version
-  
+  id             String  @id @default(cuid())
+  gmailMessageId String  @unique // Google's message ID
+  threadId       String
+  subject        String?
+  snippet        String? // Short preview
+  body           String? @db.Text // Full email body
+  bodyHtml       String? @db.Text // HTML version
+
   // Participants
-  from            String
-  to              String?  @db.Text  // Can be multiple, comma-separated
-  cc              String?  @db.Text
-  bcc             String?  @db.Text
-  
+  from String
+  to   String? @db.Text // Can be multiple, comma-separated
+  cc   String? @db.Text
+  bcc  String? @db.Text
+
   // Metadata
-  date            DateTime
-  labels          String?  // JSON array of labels
-  attachments     Json?    // Array of attachment metadata
-  
+  date        DateTime
+  labels      String? // JSON array of labels
+  attachments Json? // Array of attachment metadata
+
   // Vectorization for AI search
-  vectorized      Boolean  @default(false)
-  embedding       String?  @db.Text  // JSON array of embedding vector
-  
+  vectorized Boolean @default(false)
+  embedding  String? @db.Text // JSON array of embedding vector
+
   // Linking to CRM
-  dealId          String?
-  personId        String?
-  organizationId  String?
-  
+  dealId         String?
+  personId       String?
+  organizationId String?
+
   // Data isolation: which user's mailbox this email was synced from
-  syncUserId      String?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  syncUserId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
   person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  
+
   @@index([gmailMessageId])
   @@index([threadId])
   @@index([date])
@@ -522,46 +529,46 @@ model GmailMessage {
 }
 
 model CalendarEvent {
-  id              String   @id @default(cuid())
-  googleEventId   String   @unique  // Google's event ID
-  summary         String
-  description     String?  @db.Text
-  location        String?
-  
+  id            String  @id @default(cuid())
+  googleEventId String  @unique // Google's event ID
+  summary       String
+  description   String? @db.Text
+  location      String?
+
   // Time
-  startTime       DateTime
-  endTime         DateTime
-  timezone        String?
-  allDay          Boolean  @default(false)
-  
+  startTime DateTime
+  endTime   DateTime
+  timezone  String?
+  allDay    Boolean  @default(false)
+
   // Participants
-  organizer       String?
-  attendees       Json?    // Array of {email, name, responseStatus}
-  
+  organizer String?
+  attendees Json? // Array of {email, name, responseStatus}
+
   // Meeting details
-  meetingLink     String?  // Google Meet or other video link
-  conferenceData  Json?    // Full conference details
-  
+  meetingLink    String? // Google Meet or other video link
+  conferenceData Json? // Full conference details
+
   // Status
-  status          String?  // confirmed, tentative, cancelled
-  visibility      String?  // default, public, private
-  
+  status     String? // confirmed, tentative, cancelled
+  visibility String? // default, public, private
+
   // Vectorization for AI search
-  vectorized      Boolean  @default(false)
-  embedding       String?  @db.Text
-  
+  vectorized Boolean @default(false)
+  embedding  String? @db.Text
+
   // Linking to CRM
-  dealId          String?
-  personId        String?
-  organizationId  String?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  dealId         String?
+  personId       String?
+  organizationId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
   person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  
+
   @@index([googleEventId])
   @@index([startTime])
   @@index([organizer])
@@ -572,51 +579,51 @@ model CalendarEvent {
 }
 
 model DriveFile {
-  id              String   @id @default(cuid())
-  googleFileId    String   @unique  // Google's file ID
-  name            String
-  mimeType        String
-  description     String?  @db.Text
-  
+  id           String  @id @default(cuid())
+  googleFileId String  @unique // Google's file ID
+  name         String
+  mimeType     String
+  description  String? @db.Text
+
   // File metadata
-  size            BigInt?
-  webViewLink     String?
-  thumbnailLink   String?
-  iconLink        String?
-  
+  size          BigInt?
+  webViewLink   String?
+  thumbnailLink String?
+  iconLink      String?
+
   // Content for search
-  content         String?  @db.Text  // Extracted text content for documents
-  
+  content String? @db.Text // Extracted text content for documents
+
   // Timestamps
-  createdTime     DateTime?
-  modifiedTime    DateTime?
-  viewedTime      DateTime?
-  
+  createdTime  DateTime?
+  modifiedTime DateTime?
+  viewedTime   DateTime?
+
   // Ownership
-  ownedByMe       Boolean  @default(false)
-  owners          Json?    // Array of owner info
-  sharedWith      Json?    // Array of people with access
-  
+  ownedByMe  Boolean @default(false)
+  owners     Json? // Array of owner info
+  sharedWith Json? // Array of people with access
+
   // Organization
-  parents         Json?    // Array of parent folder IDs
-  folderPath      String?  // Computed folder path
-  
+  parents    Json? // Array of parent folder IDs
+  folderPath String? // Computed folder path
+
   // Vectorization for AI search
-  vectorized      Boolean  @default(false)
-  embedding       String?  @db.Text
-  
+  vectorized Boolean @default(false)
+  embedding  String? @db.Text
+
   // Linking to CRM
-  dealId          String?
-  personId        String?
-  organizationId  String?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  dealId         String?
+  personId       String?
+  organizationId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
   person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  
+
   @@index([googleFileId])
   @@index([mimeType])
   @@index([createdTime])
@@ -629,24 +636,24 @@ model DriveFile {
 
 // Notes - Manual notes added to deals, people, organizations
 model Note {
-  id              String   @id @default(cuid())
-  content         String   @db.Text
-  
+  id      String @id @default(cuid())
+  content String @db.Text
+
   // Linking to CRM entities
-  dealId          String?
-  personId        String?
-  organizationId  String?
-  
+  dealId         String?
+  personId       String?
+  organizationId String?
+
   // Author tracking
-  createdBy       String?  // User email or name
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  createdBy String? // User email or name
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: Cascade)
   person       Person?       @relation(fields: [personId], references: [id], onDelete: Cascade)
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
+
   @@index([dealId])
   @@index([personId])
   @@index([organizationId])
@@ -670,37 +677,37 @@ enum ActivityStatus {
 }
 
 model Activity {
-  id              String         @id @default(cuid())
-  subject         String
-  note            String?        @db.Text
-  type            ActivityType   @default(task)
-  status          ActivityStatus @default(pending)
-  
+  id      String         @id @default(cuid())
+  subject String
+  note    String?        @db.Text
+  type    ActivityType   @default(task)
+  status  ActivityStatus @default(pending)
+
   // Scheduling
-  dueDate         DateTime?
-  dueTime         String?        // Time in HH:MM format
-  duration        Int?           // Duration in minutes
-  
+  dueDate  DateTime?
+  dueTime  String? // Time in HH:MM format
+  duration Int? // Duration in minutes
+
   // Linking to CRM entities
-  dealId          String?
-  personId        String?
-  organizationId  String?
-  
+  dealId         String?
+  personId       String?
+  organizationId String?
+
   // Assignment
-  assignedTo      String?        // User email or name
-  createdBy       String?        // User email or name
-  
+  assignedTo String? // User email or name
+  createdBy  String? // User email or name
+
   // Completion tracking
-  doneTime        DateTime?
-  markedAsDoneBy  String?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  doneTime       DateTime?
+  markedAsDoneBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: Cascade)
   person       Person?       @relation(fields: [personId], references: [id], onDelete: Cascade)
   organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  
+
   @@index([dealId])
   @@index([personId])
   @@index([organizationId])
@@ -711,32 +718,32 @@ model Activity {
 
 // Website Pages - Scraped and vectorized web pages from sitemap
 model WebPage {
-  id              String   @id @default(cuid())
-  url             String   @unique  // Full URL of the page
-  slug            String?           // Path/slug portion of URL
-  title           String?           // Page title from <title> tag
-  metaDescription String?  @db.Text  // Meta description
-  
+  id              String  @id @default(cuid())
+  url             String  @unique // Full URL of the page
+  slug            String? // Path/slug portion of URL
+  title           String? // Page title from <title> tag
+  metaDescription String? @db.Text // Meta description
+
   // Content
-  content         String?  @db.Text  // Extracted text content from page
-  headings        Json?              // Array of headings [{level, text}]
-  
+  content  String? @db.Text // Extracted text content from page
+  headings Json? // Array of headings [{level, text}]
+
   // Metadata
-  lastModified    DateTime?          // From sitemap lastmod
-  changeFreq      String?            // From sitemap changefreq
-  
+  lastModified DateTime? // From sitemap lastmod
+  changeFreq   String? // From sitemap changefreq
+
   // Vectorization for AI search
-  vectorized      Boolean  @default(false)
-  embedding       String?  @db.Text  // JSON array of embedding vector
-  
+  vectorized Boolean @default(false)
+  embedding  String? @db.Text // JSON array of embedding vector
+
   // Scraping metadata
-  scrapedAt       DateTime?
-  scrapeStatus    String?  @default("pending")  // pending, success, failed
-  scrapeError     String?  @db.Text
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  scrapedAt    DateTime?
+  scrapeStatus String?   @default("pending") // pending, success, failed
+  scrapeError  String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([url])
   @@index([vectorized])
   @@index([scrapeStatus])
@@ -749,39 +756,39 @@ model WebPage {
 
 // Marketing Campaigns - Main campaign container
 model Campaign {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  description String?  @db.Text
-  type        String   // email, multi-channel, conference, book-distribution
-  status      String   @default("draft") // draft, active, paused, completed, archived
-  
+  description String? @db.Text
+  type        String // email, multi-channel, conference, book-distribution
+  status      String  @default("draft") // draft, active, paused, completed, archived
+
   // Workflow definition (JSON for visual workflow builder)
-  workflow    Json?    // Stores node/edge configuration
-  
+  workflow Json? // Stores node/edge configuration
+
   // Scheduling
-  startDate   DateTime?
-  endDate     DateTime?
-  
+  startDate DateTime?
+  endDate   DateTime?
+
   // Goals and metrics
-  goalType    String?  // demo_booked, audit_requested, deal_created, meeting_scheduled
-  goalTarget  Int?     // Target number of conversions
-  
+  goalType   String? // demo_booked, audit_requested, deal_created, meeting_scheduled
+  goalTarget Int? // Target number of conversions
+
   // Owner
-  ownerId     String?
-  owner       User?    @relation("CampaignOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  
+  ownerId String?
+  owner   User?   @relation("CampaignOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+
   // Metadata
-  tags        String?  // Comma-separated tags
-  metadata    Json?    // Additional campaign data
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  tags     String? // Comma-separated tags
+  metadata Json? // Additional campaign data
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
-  leads       CampaignLead[]
-  sequences   CampaignSequence[]
-  analytics   CampaignAnalytics[]
-  
+  leads     CampaignLead[]
+  sequences CampaignSequence[]
+  analytics CampaignAnalytics[]
+
   @@index([status])
   @@index([ownerId])
   @@index([type])
@@ -790,56 +797,56 @@ model Campaign {
 
 // Campaign Leads - People enrolled in campaigns
 model CampaignLead {
-  id              String   @id @default(cuid())
-  campaignId      String
-  
+  id         String @id @default(cuid())
+  campaignId String
+
   // Link to CRM contact (if exists)
-  personId        String?
-  person          Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
-  
+  personId String?
+  person   Person? @relation(fields: [personId], references: [id], onDelete: SetNull)
+
   // Or standalone lead data
-  email           String
-  firstName       String?
-  lastName        String?
-  company         String?
-  title           String?
-  phone           String?
-  
+  email     String
+  firstName String?
+  lastName  String?
+  company   String?
+  title     String?
+  phone     String?
+
   // Campaign status
-  status          String   @default("new") // new, contacted, engaged, qualified, converted, unsubscribed, bounced
-  leadScore       Int      @default(0) // 0-100 lead score
-  
+  status    String @default("new") // new, contacted, engaged, qualified, converted, unsubscribed, bounced
+  leadScore Int    @default(0) // 0-100 lead score
+
   // Workflow tracking
-  currentNodeId   String?  // Current position in workflow
-  completedNodes  Json?    // Array of completed node IDs
-  
+  currentNodeId  String? // Current position in workflow
+  completedNodes Json? // Array of completed node IDs
+
   // Engagement tracking
-  emailsSent      Int      @default(0)
-  emailsOpened    Int      @default(0)
-  emailsClicked   Int      @default(0)
-  emailsReplied   Int      @default(0)
-  lastEngagement  DateTime?
-  
+  emailsSent     Int       @default(0)
+  emailsOpened   Int       @default(0)
+  emailsClicked  Int       @default(0)
+  emailsReplied  Int       @default(0)
+  lastEngagement DateTime?
+
   // Conversion tracking
-  convertedAt     DateTime?
+  convertedAt       DateTime?
   convertedToDealId String?
-  convertedToDeal Deal?    @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
-  
+  convertedToDeal   Deal?     @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
+
   // Metadata
-  source          String?  // conference, website, book-download, manual-import
-  sourceMetadata  Json?    // Additional source data
-  customFields    Json?    // Custom lead fields
-  
+  source         String? // conference, website, book-download, manual-import
+  sourceMetadata Json? // Additional source data
+  customFields   Json? // Custom lead fields
+
   // Unsubscribe
-  unsubscribedAt  DateTime?
+  unsubscribedAt    DateTime?
   unsubscribeReason String?
-  
-  enrolledAt      DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  campaign        Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  touchpoints     CampaignTouchpoint[]
-  
+
+  enrolledAt DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaign    Campaign             @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  touchpoints CampaignTouchpoint[]
+
   @@index([campaignId])
   @@index([personId])
   @@index([email])
@@ -850,37 +857,37 @@ model CampaignLead {
 
 // Campaign Touchpoints - Individual interactions
 model CampaignTouchpoint {
-  id              String   @id @default(cuid())
-  leadId          String
-  campaignId      String?  // Denormalized for easier queries
-  
+  id         String  @id @default(cuid())
+  leadId     String
+  campaignId String? // Denormalized for easier queries
+
   // Touchpoint details
-  type            String   // email, voicemail, linkedin, sms, audit-tool, chatbot
-  subject         String?
-  content         String?  @db.Text
-  
+  type    String // email, voicemail, linkedin, sms, audit-tool, chatbot
+  subject String?
+  content String? @db.Text
+
   // Delivery tracking
-  sentAt          DateTime @default(now())
-  deliveredAt     DateTime?
-  bouncedAt       DateTime?
-  bounceReason    String?
-  
+  sentAt       DateTime  @default(now())
+  deliveredAt  DateTime?
+  bouncedAt    DateTime?
+  bounceReason String?
+
   // Engagement tracking
-  opened          Boolean  @default(false)
-  openedAt        DateTime?
-  clicked         Boolean  @default(false)
-  clickedAt       DateTime?
-  replied         Boolean  @default(false)
-  repliedAt       DateTime?
-  
+  opened    Boolean   @default(false)
+  openedAt  DateTime?
+  clicked   Boolean   @default(false)
+  clickedAt DateTime?
+  replied   Boolean   @default(false)
+  repliedAt DateTime?
+
   // Links clicked
-  linksClicked    Json?    // Array of clicked URLs
-  
+  linksClicked Json? // Array of clicked URLs
+
   // Metadata
-  metadata        Json?    // Provider-specific data (email ID, SMS ID, etc.)
-  
-  lead            CampaignLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  
+  metadata Json? // Provider-specific data (email ID, SMS ID, etc.)
+
+  lead CampaignLead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
   @@index([leadId])
   @@index([campaignId])
   @@index([type])
@@ -889,74 +896,74 @@ model CampaignTouchpoint {
 
 // Campaign Sequences - Reusable email/message sequences
 model CampaignSequence {
-  id              String   @id @default(cuid())
-  campaignId      String?
-  
-  name            String
-  description     String?  @db.Text
-  type            String   // email, sms, linkedin, multi-channel
-  
+  id         String  @id @default(cuid())
+  campaignId String?
+
+  name        String
+  description String? @db.Text
+  type        String // email, sms, linkedin, multi-channel
+
   // Sequence steps (JSON array)
-  steps           Json     // [{delay: 0, type: 'email', subject: '...', content: '...'}]
-  
+  steps Json // [{delay: 0, type: 'email', subject: '...', content: '...'}]
+
   // Status
-  isActive        Boolean  @default(true)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  campaign        Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaign Campaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
   @@index([campaignId])
   @@index([type])
 }
 
 // Campaign Analytics - Daily aggregated metrics
 model CampaignAnalytics {
-  id              String   @id @default(cuid())
-  campaignId      String
-  date            DateTime @db.Date
-  
+  id         String   @id @default(cuid())
+  campaignId String
+  date       DateTime @db.Date
+
   // Volume metrics
-  leadsAdded      Int      @default(0)
-  leadsActive     Int      @default(0)
-  
+  leadsAdded  Int @default(0)
+  leadsActive Int @default(0)
+
   // Email metrics
-  emailsSent      Int      @default(0)
-  emailsDelivered Int      @default(0)
-  emailsBounced   Int      @default(0)
-  emailsOpened    Int      @default(0)
-  emailsClicked   Int      @default(0)
-  emailsReplied   Int      @default(0)
-  
+  emailsSent      Int @default(0)
+  emailsDelivered Int @default(0)
+  emailsBounced   Int @default(0)
+  emailsOpened    Int @default(0)
+  emailsClicked   Int @default(0)
+  emailsReplied   Int @default(0)
+
   // SMS metrics
-  smsSent         Int      @default(0)
-  smsDelivered    Int      @default(0)
-  smsReplied      Int      @default(0)
-  
+  smsSent      Int @default(0)
+  smsDelivered Int @default(0)
+  smsReplied   Int @default(0)
+
   // Voicemail metrics
-  voicemailsSent  Int      @default(0)
-  voicemailsDelivered Int   @default(0)
-  
+  voicemailsSent      Int @default(0)
+  voicemailsDelivered Int @default(0)
+
   // LinkedIn metrics
-  linkedinSent    Int      @default(0)
-  linkedinAccepted Int     @default(0)
-  linkedinReplied Int      @default(0)
-  
+  linkedinSent     Int @default(0)
+  linkedinAccepted Int @default(0)
+  linkedinReplied  Int @default(0)
+
   // Conversion metrics
-  qualified       Int      @default(0)
-  demosBooked     Int      @default(0)
-  auditsRequested Int      @default(0)
-  dealsCreated    Int      @default(0)
-  
+  qualified       Int @default(0)
+  demosBooked     Int @default(0)
+  auditsRequested Int @default(0)
+  dealsCreated    Int @default(0)
+
   // Engagement metrics
-  avgLeadScore    Float?
+  avgLeadScore      Float?
   avgEngagementRate Float?
-  
-  createdAt       DateTime @default(now())
-  
-  campaign        Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  
+
+  createdAt DateTime @default(now())
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
   @@unique([campaignId, date])
   @@index([campaignId])
   @@index([date])
@@ -964,70 +971,70 @@ model CampaignAnalytics {
 
 // Interactive Audit Tool - Lead qualification tool
 model AuditRequest {
-  id                  String   @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Contact info
-  email               String
-  name                String?
-  firstName           String?
-  lastName            String?
-  company             String?
-  title               String?
-  phone               String?
-  
+  email     String
+  name      String?
+  firstName String?
+  lastName  String?
+  company   String?
+  title     String?
+  phone     String?
+
   // Link to CRM
-  personId            String?
-  person              Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
-  organizationId      String?
-  organization        Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  
+  personId       String?
+  person         Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
   // Audit questions
-  propertyType        String?  // office, apartment, hospitality, mixed-use
-  propertySize        String?  // square footage or units
-  numberOfUnits       Int?
-  independentSystems  Int?     // How many separate systems
-  physicalNetworks    Int?     // How many networks
-  currentVendors      String?  @db.Text // List of current vendors
-  painPoints          String?  @db.Text // Described pain points
-  
+  propertyType       String? // office, apartment, hospitality, mixed-use
+  propertySize       String? // square footage or units
+  numberOfUnits      Int?
+  independentSystems Int? // How many separate systems
+  physicalNetworks   Int? // How many networks
+  currentVendors     String? @db.Text // List of current vendors
+  painPoints         String? @db.Text // Described pain points
+
   // Additional qualification
-  decisionMaker       Boolean  @default(false)
-  budget              String?  // budget range
-  timeline            String?  // implementation timeline
-  
+  decisionMaker Boolean @default(false)
+  budget        String? // budget range
+  timeline      String? // implementation timeline
+
   // Lead scoring
-  score               Int?     @default(0) // 0-100
-  qualification       String?  @default("new") // new, qualified, not-qualified, contacted
-  
+  score         Int?    @default(0) // 0-100
+  qualification String? @default("new") // new, qualified, not-qualified, contacted
+
   // Booking
-  bookingUrl          String?  // Calendly link
-  bookingCompleted    Boolean  @default(false)
+  bookingUrl          String? // Calendly link
+  bookingCompleted    Boolean   @default(false)
   bookedAt            DateTime?
   meetingScheduledFor DateTime?
-  
+
   // Conversion
-  convertedToDealId   String?
-  convertedToDeal     Deal?    @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
-  convertedAt         DateTime?
-  
+  convertedToDealId String?
+  convertedToDeal   Deal?     @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
+  convertedAt       DateTime?
+
   // Source tracking
-  source              String?  // website, campaign, conference
-  campaignId          String?
-  utmSource           String?
-  utmMedium           String?
-  utmCampaign         String?
-  
+  source      String? // website, campaign, conference
+  campaignId  String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+
   // Status
-  status              String   @default("pending") // pending, contacted, qualified, converted, lost
-  
+  status String @default("pending") // pending, contacted, qualified, converted, lost
+
   // Follow-up
-  contactedAt         DateTime?
-  contactedBy         String?
-  notes               String?  @db.Text
-  
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  
+  contactedAt DateTime?
+  contactedBy String?
+  notes       String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([email])
   @@index([personId])
   @@index([organizationId])
@@ -1039,64 +1046,64 @@ model AuditRequest {
 
 // Book Distribution - Track book requests and engagement
 model BookRequest {
-  id              String   @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Contact info
-  email           String
-  name            String
-  firstName       String?
-  lastName        String?
-  company         String?
-  title           String?
-  phone           String?
-  
+  email     String
+  name      String
+  firstName String?
+  lastName  String?
+  company   String?
+  title     String?
+  phone     String?
+
   // Link to CRM
-  personId        String?
-  person          Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
-  organizationId  String?
-  organization    Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  
+  personId       String?
+  person         Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
   // Request details
-  type            String   // digital, physical, both
-  format          String?  // pdf, epub, kindle (for digital)
-  
+  type   String // digital, physical, both
+  format String? // pdf, epub, kindle (for digital)
+
   // Shipping (for physical)
-  shippingAddress String?  @db.Text
+  shippingAddress String? @db.Text
   shippingCity    String?
   shippingState   String?
   shippingZip     String?
   shippingCountry String?
-  
+
   // Fulfillment
-  status          String   @default("pending") // pending, processing, shipped, delivered, downloaded
-  downloadedAt    DateTime?
-  downloadCount   Int      @default(0)
-  shippedAt       DateTime?
-  trackingNumber  String?
-  deliveredAt     DateTime?
-  
+  status         String    @default("pending") // pending, processing, shipped, delivered, downloaded
+  downloadedAt   DateTime?
+  downloadCount  Int       @default(0)
+  shippedAt      DateTime?
+  trackingNumber String?
+  deliveredAt    DateTime?
+
   // Engagement tracking
-  lastAccessedAt  DateTime?
-  chaptersRead    Json?    // Array of chapter numbers/names read
-  timeSpentReading Int?    // Minutes
-  
+  lastAccessedAt   DateTime?
+  chaptersRead     Json? // Array of chapter numbers/names read
+  timeSpentReading Int? // Minutes
+
   // Source tracking
-  source          String?  // website, campaign, conference, manual
-  campaignId      String?
-  utmSource       String?
-  utmMedium       String?
-  utmCampaign     String?
-  
+  source      String? // website, campaign, conference, manual
+  campaignId  String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+
   // Conversion
   convertedToDealId String?
-  convertedToDeal   Deal?  @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
+  convertedToDeal   Deal?     @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
   convertedAt       DateTime?
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  engagements     BookEngagement[]
-  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  engagements BookEngagement[]
+
   @@index([email])
   @@index([personId])
   @@index([organizationId])
@@ -1107,128 +1114,274 @@ model BookRequest {
 
 // Book Engagement - Track reading activity
 model BookEngagement {
-  id              String   @id @default(cuid())
-  requestId       String
-  
+  id        String @id @default(cuid())
+  requestId String
+
   // Engagement details
-  chapter         String?  // Chapter number or name
-  page            Int?
-  action          String   // opened, read, clicked_link, downloaded
-  linkClicked     String?  // URL if clicked
-  
+  chapter     String? // Chapter number or name
+  page        Int?
+  action      String // opened, read, clicked_link, downloaded
+  linkClicked String? // URL if clicked
+
   // Metadata
-  deviceType      String?  // desktop, mobile, tablet
-  location        String?  // IP-based location
-  
-  timestamp       DateTime @default(now())
-  
-  request         BookRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
-  
+  deviceType String? // desktop, mobile, tablet
+  location   String? // IP-based location
+
+  timestamp DateTime @default(now())
+
+  request BookRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
   @@index([requestId])
   @@index([timestamp])
 }
 
+// =====================
+// Marketing-site Forms → CRM bridge
+// Author forms in the OpticWise platform; render them on opticwise.com
+// (Payload CMS) via a public API. Submissions create Org + Person + Deal.
+// =====================
+
+enum FormFieldType {
+  text
+  email
+  tel
+  textarea
+  select
+  radio
+  checkbox
+  number
+  url
+  date
+}
+
+enum FormFieldMapping {
+  person_firstName
+  person_lastName
+  person_email
+  person_phone
+  person_title
+  organization_name
+  organization_websiteUrl
+  organization_domain
+  deal_notes
+}
+
+enum FormSubmissionStatus {
+  processed
+  failed
+  spam
+}
+
+model Form {
+  id          String  @id @default(cuid())
+  name        String
+  slug        String  @unique
+  description String?
+  isActive    Boolean @default(true)
+
+  // Routing — every submission lands in this pipeline/stage owned by this user
+  pipelineId String
+  stageId    String
+  ownerId    String
+
+  // Deal generation
+  dealTitleTemplate String @default("{formName} — {firstName} {lastName} @ {company}")
+
+  // Submission UX
+  submitButtonLabel String @default("Submit")
+  successMessage    String @default("Thanks — we'll be in touch shortly.")
+
+  // Spam protection: an invisible field name that bots will fill in.
+  // Configurable so we can rotate it if bots adapt.
+  honeypotFieldName String @default("website_url_extra")
+
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  pipeline  Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Restrict)
+  stage     Stage    @relation(fields: [stageId], references: [id], onDelete: Restrict)
+  owner     User     @relation("FormOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  createdBy User?    @relation("FormCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  fields      FormField[]
+  submissions FormSubmission[]
+
+  @@index([slug])
+  @@index([isActive])
+  @@index([ownerId])
+}
+
+model FormField {
+  id         String @id @default(cuid())
+  formId     String
+  orderIndex Int    @default(0)
+
+  label     String // Display label shown to the user
+  fieldKey  String // Machine name; used in submission JSON + merge tags
+  fieldType FormFieldType @default(text)
+
+  required    Boolean @default(false)
+  placeholder String?
+  helpText    String?
+  options     Json? // Array of {label, value} for select/radio/checkbox
+
+  // If set, the value of this field is used to populate the corresponding
+  // Person/Organization/Deal field on submission. If null, the value is
+  // stored on FormSubmission.rawData and Deal.customFields.
+  mapsTo FormFieldMapping?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@unique([formId, fieldKey])
+  @@index([formId, orderIndex])
+}
+
+model FormSubmission {
+  id     String @id @default(cuid())
+  formId String
+
+  // Raw values keyed by FormField.fieldKey
+  rawData Json
+
+  status       FormSubmissionStatus @default(processed)
+  errorMessage String?              @db.Text
+
+  // Created/linked CRM records
+  personId       String?
+  organizationId String?
+  dealId         String?
+
+  // Request context
+  ipAddress String?
+  userAgent String? @db.Text
+  referrer  String? @db.Text
+  pageUrl   String? @db.Text
+
+  // Attribution
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
+
+  createdAt DateTime @default(now())
+
+  form         Form          @relation(fields: [formId], references: [id], onDelete: Cascade)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
+
+  @@index([formId, createdAt])
+  @@index([status])
+  @@index([dealId])
+  @@index([personId])
+}
+
 // Conference Campaigns - Event-based marketing
 model Conference {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  description String?  @db.Text
-  
+  description String? @db.Text
+
   // Event details
-  location    String?
-  venue       String?
-  startDate   DateTime
-  endDate     DateTime
-  
+  location  String?
+  venue     String?
+  startDate DateTime
+  endDate   DateTime
+
   // Website and registration
-  websiteUrl  String?
+  websiteUrl      String?
   registrationUrl String?
-  
+
   // Booth/presence info
   boothNumber String?
-  teamMembers Json?    // Array of team member names/emails
-  
+  teamMembers Json? // Array of team member names/emails
+
   // Goals
-  targetMeetings Int?
-  targetLeads    Int?
+  targetMeetings    Int?
+  targetLeads       Int?
   booksToDistribute Int?
-  
+
   // Status
-  status      String   @default("upcoming") // upcoming, active, completed, cancelled
-  
+  status String @default("upcoming") // upcoming, active, completed, cancelled
+
   // Campaign links
   preCampaignId  String?
   postCampaignId String?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  attendees   ConferenceAttendee[]
-  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attendees ConferenceAttendee[]
+
   @@index([startDate])
   @@index([status])
 }
 
 // Conference Attendees - People at events
 model ConferenceAttendee {
-  id            String   @id @default(cuid())
-  conferenceId  String
-  
+  id           String @id @default(cuid())
+  conferenceId String
+
   // Contact info
-  email         String
-  name          String?
-  firstName     String?
-  lastName      String?
-  company       String?
-  title         String?
-  phone         String?
-  linkedInUrl   String?
-  
+  email       String
+  name        String?
+  firstName   String?
+  lastName    String?
+  company     String?
+  title       String?
+  phone       String?
+  linkedInUrl String?
+
   // Link to CRM
-  personId      String?
-  person        Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
+  personId       String?
+  person         Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
   organizationId String?
-  organization  Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
-  
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
   // Event interaction
-  metAtEvent    Boolean  @default(false)
-  metBy         String?  // Team member who met them
-  metAt         DateTime?
-  boothVisit    Boolean  @default(false)
-  
+  metAtEvent Boolean   @default(false)
+  metBy      String? // Team member who met them
+  metAt      DateTime?
+  boothVisit Boolean   @default(false)
+
   // Book distribution
-  bookReceived  Boolean  @default(false)
+  bookReceived   Boolean   @default(false)
   bookReceivedAt DateTime?
-  
+
   // Meeting scheduling
-  meetingBooked Boolean  @default(false)
-  meetingBookedAt DateTime?
+  meetingBooked       Boolean   @default(false)
+  meetingBookedAt     DateTime?
   meetingScheduledFor DateTime?
-  
+
   // Follow-up
-  followedUp    Boolean  @default(false)
-  followedUpAt  DateTime?
-  
+  followedUp   Boolean   @default(false)
+  followedUpAt DateTime?
+
   // Conversion
   convertedToDealId String?
-  convertedToDeal   Deal?  @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
+  convertedToDeal   Deal?     @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
   convertedAt       DateTime?
-  
+
   // Source
-  source        String?  // attendee-list, booth-visit, networking, manual
-  importedFrom  String?  // CSV filename or source
-  
+  source       String? // attendee-list, booth-visit, networking, manual
+  importedFrom String? // CSV filename or source
+
   // Lead score
-  score         Int      @default(0)
-  qualification String?  // hot, warm, cold, not-qualified
-  
-  notes         String?  @db.Text
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  conference    Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
-  
+  score         Int     @default(0)
+  qualification String? // hot, warm, cold, not-qualified
+
+  notes String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  conference Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
+
   @@index([conferenceId])
   @@index([email])
   @@index([personId])
@@ -1239,84 +1392,84 @@ model ConferenceAttendee {
 
 // Email Templates - Reusable email templates
 model EmailTemplate {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  description String?  @db.Text
-  
+  description String? @db.Text
+
   // Template content
-  subject     String
-  bodyText    String   @db.Text  // Plain text version
-  bodyHtml    String   @db.Text  // HTML version
-  
+  subject  String
+  bodyText String @db.Text // Plain text version
+  bodyHtml String @db.Text // HTML version
+
   // Variables/placeholders
-  variables   Json?    // Array of variable names: ['firstName', 'company', etc.]
-  
+  variables Json? // Array of variable names: ['firstName', 'company', etc.]
+
   // Category
-  category    String?  // welcome, follow-up, nurture, conference, book-offer
-  
+  category String? // welcome, follow-up, nurture, conference, book-offer
+
   // Status
-  isActive    Boolean  @default(true)
-  
+  isActive Boolean @default(true)
+
   // Usage tracking
-  timesUsed   Int      @default(0)
-  lastUsedAt  DateTime?
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  timesUsed  Int       @default(0)
+  lastUsedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([category])
   @@index([isActive])
 }
 
 // Chatbot Conversations - External website chatbot
 model ChatbotConversation {
-  id              String   @id @default(cuid())
-  
+  id String @id @default(cuid())
+
   // Visitor info
-  visitorId       String   // Anonymous ID or email
-  email           String?
-  name            String?
-  company         String?
-  
+  visitorId String // Anonymous ID or email
+  email     String?
+  name      String?
+  company   String?
+
   // Link to CRM
-  personId        String?
-  person          Person?  @relation(fields: [personId], references: [id], onDelete: SetNull)
-  
+  personId String?
+  person   Person? @relation(fields: [personId], references: [id], onDelete: SetNull)
+
   // Conversation status
-  status          String   @default("active") // active, qualified, converted, abandoned
-  
+  status String @default("active") // active, qualified, converted, abandoned
+
   // Qualification
-  isQualified     Boolean  @default(false)
-  qualifiedAt     DateTime?
-  leadScore       Int      @default(0)
-  
+  isQualified Boolean   @default(false)
+  qualifiedAt DateTime?
+  leadScore   Int       @default(0)
+
   // Conversion
-  goalAchieved    String?  // audit-requested, meeting-booked, demo-scheduled
-  convertedAt     DateTime?
+  goalAchieved      String? // audit-requested, meeting-booked, demo-scheduled
+  convertedAt       DateTime?
   convertedToDealId String?
-  convertedToDeal   Deal?  @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
-  
+  convertedToDeal   Deal?     @relation(fields: [convertedToDealId], references: [id], onDelete: SetNull)
+
   // Source tracking
-  pageUrl         String?
-  referrer        String?
-  utmSource       String?
-  utmMedium       String?
-  utmCampaign     String?
-  
+  pageUrl     String?
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+
   // Session info
-  startedAt       DateTime @default(now())
-  endedAt         DateTime?
-  duration        Int?     // Seconds
-  
+  startedAt DateTime  @default(now())
+  endedAt   DateTime?
+  duration  Int? // Seconds
+
   // Metadata
-  ipAddress       String?
-  userAgent       String?
-  location        String?  // IP-based location
-  
-  updatedAt       DateTime @updatedAt
-  
-  messages        ChatbotMessage[]
-  
+  ipAddress String?
+  userAgent String?
+  location  String? // IP-based location
+
+  updatedAt DateTime @updatedAt
+
+  messages ChatbotMessage[]
+
   @@index([visitorId])
   @@index([email])
   @@index([personId])
@@ -1327,54 +1480,55 @@ model ChatbotConversation {
 
 // Chatbot Messages - Individual messages in conversations
 model ChatbotMessage {
-  id              String   @id @default(cuid())
-  conversationId  String
-  
+  id             String @id @default(cuid())
+  conversationId String
+
   // Message details
-  role            String   // user, assistant, system
-  content         String   @db.Text
-  
+  role    String // user, assistant, system
+  content String @db.Text
+
   // Intent detection
-  intent          String?  // greeting, question, qualification, booking
-  confidence      Float?
-  
+  intent     String? // greeting, question, qualification, booking
+  confidence Float?
+
   // Extracted data
-  extractedData   Json?    // Structured data extracted from message
-  
-  timestamp       DateTime @default(now())
-  
-  conversation    ChatbotConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  
+  extractedData Json? // Structured data extracted from message
+
+  timestamp DateTime @default(now())
+
+  conversation ChatbotConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
   @@index([conversationId])
   @@index([timestamp])
 }
 
 // Knowledge Base - User-uploaded documents
 model KnowledgeDocument {
-  id          String   @id @default(cuid())
-  name        String
-  fileName    String
-  mimeType    String
-  fileSize    Int
-  fileData    String   @db.Text
-  content     String?  @db.Text
-  comment     String?  @db.Text
-  category    String?
-  uploadedBy  String?
-  vectorized  Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  chunks      KnowledgeChunk[]
+  id         String           @id @default(cuid())
+  name       String
+  fileName   String
+  mimeType   String
+  fileSize   Int
+  fileData   String           @db.Text
+  content    String?          @db.Text
+  comment    String?          @db.Text
+  category   String?
+  uploadedBy String?
+  vectorized Boolean          @default(false)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  chunks     KnowledgeChunk[]
 }
 
 model KnowledgeChunk {
-  id          String   @id @default(cuid())
-  documentId  String
-  chunkIndex  Int
-  chunkText   String   @db.Text
-  wordCount   Int?
-  createdAt   DateTime @default(now())
-  document    KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  id         String            @id @default(cuid())
+  documentId String
+  chunkIndex Int
+  chunkText  String            @db.Text
+  wordCount  Int?
+  createdAt  DateTime          @default(now())
+  document   KnowledgeDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
   @@unique([documentId, chunkIndex])
 }
 
@@ -1383,26 +1537,26 @@ model KnowledgeChunk {
 // ============================================
 
 model LinkedInAccount {
-  id              String   @id @default(cuid())
-  zernioAccountId String   @unique
+  id              String    @id @default(cuid())
+  zernioAccountId String    @unique
   zernioProfileId String
-  platform        String   @default("linkedin")
+  platform        String    @default("linkedin")
   username        String?
   displayName     String?
   avatarUrl       String?
   profileUrl      String?
   accountType     String?
-  isConnected     Boolean  @default(true)
-  connectedAt     DateTime @default(now())
+  isConnected     Boolean   @default(true)
+  connectedAt     DateTime  @default(now())
   disconnectedAt  DateTime?
 
-  userId          String?
-  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  posts           SocialPost[]
+  posts SocialPost[]
 
   @@index([platform])
   @@index([isConnected])
@@ -1410,39 +1564,39 @@ model LinkedInAccount {
 }
 
 model SocialPost {
-  id              String    @id @default(cuid())
-  zernioPostId    String?   @unique
-  accountId       String
-  account         LinkedInAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  id           String          @id @default(cuid())
+  zernioPostId String?         @unique
+  accountId    String
+  account      LinkedInAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
 
-  content         String    @db.Text
-  firstComment    String?   @db.Text
-  mediaItems      Json?
-  mediaType       String?
+  content      String  @db.Text
+  firstComment String? @db.Text
+  mediaItems   Json?
+  mediaType    String?
 
-  status          String    @default("draft")
-  publishedAt     DateTime?
-  scheduledFor    DateTime?
-  timezone        String    @default("America/Denver")
+  status       String    @default("draft")
+  publishedAt  DateTime?
+  scheduledFor DateTime?
+  timezone     String    @default("America/Denver")
 
-  aiGenerated     Boolean   @default(false)
-  aiPrompt        String?   @db.Text
+  aiGenerated     Boolean @default(false)
+  aiPrompt        String? @db.Text
   aiTopicCategory String?
 
-  impressions     Int       @default(0)
-  likes           Int       @default(0)
-  commentCount    Int       @default(0)
-  shares          Int       @default(0)
-  clicks          Int       @default(0)
-  reach           Int       @default(0)
+  impressions  Int @default(0)
+  likes        Int @default(0)
+  commentCount Int @default(0)
+  shares       Int @default(0)
+  clicks       Int @default(0)
+  reach        Int @default(0)
 
-  errorMessage    String?   @db.Text
+  errorMessage String? @db.Text
 
-  createdBy       String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  comments        PostComment[]
+  comments PostComment[]
 
   @@index([status])
   @@index([scheduledFor])
@@ -1452,29 +1606,29 @@ model SocialPost {
 }
 
 model PostComment {
-  id              String    @id @default(cuid())
-  zernioCommentId String?   @unique
+  id              String     @id @default(cuid())
+  zernioCommentId String?    @unique
   postId          String
   post            SocialPost @relation(fields: [postId], references: [id], onDelete: Cascade)
 
-  authorName      String
-  authorUsername  String?
-  authorAvatar    String?
+  authorName       String
+  authorUsername   String?
+  authorAvatar     String?
   authorProfileUrl String?
-  content         String    @db.Text
+  content          String  @db.Text
 
-  isReply         Boolean   @default(false)
+  isReply         Boolean       @default(false)
   parentCommentId String?
-  parentComment   PostComment? @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: SetNull)
+  parentComment   PostComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: SetNull)
   replies         PostComment[] @relation("CommentReplies")
 
-  aiSuggestedReply String?  @db.Text
-  repliedWith     String?   @db.Text
-  repliedAt       DateTime?
+  aiSuggestedReply String?   @db.Text
+  repliedWith      String?   @db.Text
+  repliedAt        DateTime?
 
-  commentedAt     DateTime
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  commentedAt DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([postId])
   @@index([commentedAt])
