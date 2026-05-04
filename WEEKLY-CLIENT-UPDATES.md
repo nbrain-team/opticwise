@@ -1,10 +1,19 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: April 28, 2026  
-**Latest Period**: February 14 - April 28, 2026  
-**Status**: CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live
+**Latest Update**: May 4, 2026  
+**Latest Period**: February 14 - May 4, 2026  
+**Status**: CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Self-Serve Password Reset Live
 
 ---
+
+### 2026-05-04 — Self-Serve Password Reset on the Login Page
+
+- Added a "Forgot password?" link on the platform login page so users can recover access on their own without contacting an administrator
+- New `/forgot-password` page lets users enter their email address and request a secure reset link. The page mirrors the existing login and reset-password styling for a fully consistent visual experience
+- Reset emails are sent from **bill@opticwise.com** (via Bill's authenticated Google Workspace mailbox) with branded Opticwise styling, a one-click reset button, and a clear 1-hour expiration window
+- After a successful reset, users automatically receive a confirmation email — also from bill@opticwise.com — so any unexpected change is immediately visible
+- Security best practices baked in: tokens are single-use, expire after 1 hour, are tied to a specific user, and the request endpoint never reveals whether an email is registered (prevents enumeration). Passwords must be at least 8 characters
+- Zero new infrastructure required — the existing reset API routes, database table, and email service were already in place; this update wires up the missing user-facing entry points
 
 ### 2026-04-28 — Marketing Forms → CRM Bridge: Capture Leads from OpticWise.com Directly into the Platform
 

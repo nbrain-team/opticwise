@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 function LoginForm() {
   const [email, setEmail] = useState("");
@@ -73,7 +74,15 @@ function LoginForm() {
             />
           </div>
           <div className="space-y-2">
-            <label htmlFor="login-password" className="block text-sm font-medium text-[#2E2E2F]">Password</label>
+            <div className="flex items-center justify-between">
+              <label htmlFor="login-password" className="block text-sm font-medium text-[#2E2E2F]">Password</label>
+              <Link
+                href="/forgot-password"
+                className="text-sm text-[#3B6B8F] hover:text-[#2E5570] font-medium"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <input
               id="login-password"
               name="password"
