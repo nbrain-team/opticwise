@@ -1,10 +1,23 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: May 4, 2026  
-**Latest Period**: February 14 - May 4, 2026  
-**Status**: CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Self-Serve Password Reset Live
+**Latest Update**: May 6, 2026  
+**Latest Period**: February 14 - May 6, 2026  
+**Status**: CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
 
 ---
+
+### 2026-05-06 — Five Production Forms Seeded for OpticWise.com (Schedule Review, Contact, PPP Audit, PPP Starter Kit, Newsletter)
+
+- Inventoried every form surface across OpticWise.com — homepage hero CTA, every "Schedule Your Review" button site-wide, the homepage PPP Starter Kit lead magnet, the `/contact` page, the `/ppp-audit` page (whose CTA was previously a dead `href="#"` link), and the legacy newsletter slot in the footer
+- Built **five canonical forms** in the platform's Form Builder so every lead-capture surface on opticwise.com now lands directly in the CRM as a contact + company + deal — owned by Bill, in the **Landing Pages Leads** pipeline, routed to the appropriate stage per form (Landing pages, OW website inbound, or PPP book leads)
+- **Schedule Your Review** (`schedule-review`) — 7 fields (first name, last name, email, company, phone, property type, message). Replaces the hardcoded popup that previously POSTed to a separate API route; now flows through the same CRM bridge as every other form. Preserves the two existing submissions (form id is unchanged)
+- **Send a Message** (`inbound-contact`) — 6 fields including a required free-text "What you're working on" message. Wires the `/contact` page directly to the CRM for the first time. Also preserves existing submissions on the same form id
+- **PPP Audit Request** (`ppp-audit-request`) — 9 fields including property type, portfolio size, and the specific property to audit. Fixes a long-standing issue where the "Schedule Your PPP Audit" CTA on `/ppp-audit` was a dead link with no form behind it
+- **PPP Starter Kit Download** (`ppp-starter-kit`) — 4-field lead magnet (full name, work email, company, portfolio size) replacing the homepage hardcoded download form. Now feeds into the same pipeline so book downloads compete for attention alongside other inbound leads in the same stage
+- **Insights Newsletter** (`insights-newsletter`) — lightweight 3-field signup designed to live in the site footer so every page captures newsletter intent. New surface — wasn't possible before
+- Wrote a **reproducible seed script** (`ow/scripts/seed-website-forms.ts`, runnable via `npm run seed:website-forms`) that idempotently upserts all five forms by slug — re-runs converge to spec without losing existing form ids or historical submissions. Validated against production database before commit
+- Delivered a **complete snippet handoff doc** (`WEBSITE-FORMS-SNIPPETS.md`) for the marketing-site team showing exactly which file to edit (`ScheduleReviewPopup.tsx`, `LeadMagnetForm.tsx`, `SiteFooter.tsx`) plus the CMS-block JSON to add to `/contact` and `/ppp-audit` via the Payload Admin. Each snippet is tagged with its target file path so the other Cursor project can apply them mechanically
+- After the marketing site cuts over to the new snippets: every existing CTA across opticwise.com flows leads into the same CRM with consistent owner, pipeline, dedup logic, attribution (UTMs, referrer, page URL), spam protection (honeypot), and email notifications to Bill — and all five forms are editable from `https://ownet.opticwise.com/forms` without redeploying the marketing site
 
 ### 2026-05-04 — Self-Serve Password Reset on the Login Page
 

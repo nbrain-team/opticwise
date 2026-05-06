@@ -22,7 +22,8 @@
     "brand:populate": "tsx scripts/populate-style-guide.ts",
     "brand:test": "tsx scripts/test-style-examples.ts",
     "agent:test": "tsx scripts/test-enhanced-features.ts",
-    "support:ingest": "tsx scripts/ingest-support-data.ts"
+    "support:ingest": "tsx scripts/ingest-support-data.ts",
+    "seed:website-forms": "tsx scripts/seed-website-forms.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.76.0",
