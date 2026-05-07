@@ -339,20 +339,19 @@ export function validateSB7Structure(text: string): {
  * Inject reframing line if appropriate context exists but line is missing
  */
 export function injectReframingLineIfNeeded(text: string): string {
-  // If talking about vendors, ownership, or control but missing the reframing line
   const hasVendorContext = /vendor|bulk.*agreement|isp|comcast|at&t|spectrum/i.test(text);
   const hasOwnershipContext = /own|control|dependency|lock.*in/i.test(text);
-  const hasReframingLine = /if you don't own.*infrastructure.*vendors do/i.test(text);
-  
+  const hasReframingLine =
+    /if you don['’]t own.*(?:data\s*&\s*digital infrastructure|digital infrastructure).*vendors do/i.test(text);
+
   if ((hasVendorContext || hasOwnershipContext) && !hasReframingLine && text.length > 200) {
-    // Find a good place to inject it (after first paragraph or before plan)
     const firstParagraphEnd = text.indexOf('\n\n');
     if (firstParagraphEnd > 0 && firstParagraphEnd < 500) {
       const injection = `\n\n> **Key Insight:** ${COPY_BLOCKS.reframingLine}\n`;
       return text.slice(0, firstParagraphEnd) + injection + text.slice(firstParagraphEnd);
     }
   }
-  
+
   return text;
 }
 
