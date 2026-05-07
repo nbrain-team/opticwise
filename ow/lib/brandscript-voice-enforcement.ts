@@ -1,49 +1,64 @@
 /**
- * OpticWise BrandScript Voice Enforcement
- * 
- * Post-processing functions to ensure responses follow brand voice guidelines
+ * OpticWise BrandScript Voice Enforcement (May 2026 canon)
+ *
+ * Post-processing functions to ensure responses follow brand voice guidelines.
  */
 
 import { COPY_BLOCKS } from './brandscript-prompt';
 
 /**
- * Enforce all brand voice rules on generated text
+ * Enforce all brand voice rules on generated text.
+ *
+ * Order matters: terminology fixes run first, then phrasing replacements,
+ * then trademark first-use, then drift-only checks (PPP 5C order).
  */
 export function enforceBrandVoice(text: string): string {
   let corrected = text;
-  
-  // 1. Ensure "digital infrastructure" (already implemented)
-  corrected = enforceDigitalInfrastructure(corrected);
-  
-  // 2. Replace PropTech framing with strategic asset framing
+
+  corrected = enforceDataAndDigitalInfrastructure(corrected);
   corrected = replacePropTechFraming(corrected);
-  
-  // 3. Ensure PPP 5C order is correct
+  corrected = replaceBannedWords(corrected);
   corrected = enforcePPP5COrder(corrected);
-  
-  // 4. Ensure 5S UX is correctly defined
   corrected = enforce5SUX(corrected);
-  
-  // 5. Replace vendor language with guide language
   corrected = replaceVendorLanguage(corrected);
-  
+  corrected = enforceTrademarkFirstUse(corrected);
+
   return corrected;
 }
 
 /**
- * Ensure "infrastructure" is always "digital infrastructure"
+ * Ensure "infrastructure" is always "data & digital infrastructure" or
+ * "digital infrastructure" with surrounding context. Order of operations:
+ *   1. Repair the canonical pair "data & digital infrastructure" if any
+ *      partial form was generated.
+ *   2. Promote bare "digital infrastructure" to the canonical pair UNLESS
+ *      it sits inside a fixed phrase like "Layer 1: Managed digital
+ *      infrastructure".
+ *   3. Promote bare "infrastructure" to "digital infrastructure".
  */
-function enforceDigitalInfrastructure(text: string): string {
-  return text.replace(
-    /(?<!digital\s)(?<!Digital\s)\b([Ii]nfrastructure)\b/g,
-    (match, p1) => {
-      if (p1[0] === 'I') {
-        return 'Digital Infrastructure';
-      } else {
-        return 'digital infrastructure';
-      }
+function enforceDataAndDigitalInfrastructure(text: string): string {
+  let out = text;
+
+  // Step 1: bare "infrastructure" -> "digital infrastructure"
+  out = out.replace(
+    /(?<!data\s&\s)(?<!data\sand\s)(?<!digital\s)(?<!Digital\s)\b([Ii])nfrastructure\b/g,
+    (_m, first: string) => (first === 'I' ? 'Digital Infrastructure' : 'digital infrastructure')
+  );
+
+  // Step 2: promote first bare "digital infrastructure" in a paragraph to the
+  // canonical pair, but only when it's not already preceded by "data &".
+  // We avoid replacing inside the literal phrase "managed digital
+  // infrastructure" which is permitted.
+  out = out.replace(
+    /(?<!data\s&\s)(?<!data\sand\s)(?<!Managed\s)(?<!managed\s)\b([Dd])igital ([Ii])nfrastructure\b/g,
+    (match, d: string, i: string) => {
+      // Preserve case
+      if (d === 'D' && i === 'I') return 'Data & Digital Infrastructure';
+      return 'data & digital infrastructure';
     }
   );
+
+  return out;
 }
 
 /**
