@@ -393,3 +393,150 @@ export function tieFeaturesToOutcomes(text: string): string {
   
   return enhanced;
 }
+
+/**
+ * Score a response against the May 2026 brand canon. Returns a 0–100 score
+ * plus a list of failures. Used by the eval harness in
+ * `scripts/run-content-engine-eval.ts` and (optionally) at request time to
+ * surface drift to the feedback-learning service.
+ */
+export interface CanonAdherenceReport {
+  score: number; // 0..100
+  passes: string[];
+  failures: string[];
+}
+
+export function scoreCanonAdherence(text: string): CanonAdherenceReport {
+  const passes: string[] = [];
+  const failures: string[] = [];
+  let earned = 0;
+  const max = 12;
+
+  // 1. Uses canonical pair "data & digital infrastructure" at least once
+  if (/data\s*&\s*digital infrastructure/i.test(text)) {
+    passes.push('Uses canonical "data & digital infrastructure"');
+    earned++;
+  } else {
+    failures.push('Missing canonical phrase "data & digital infrastructure"');
+  }
+
+  // 2. No bare "infrastructure" without "digital" (or "data &") in front
+  const bareInfra = /(?<!data\s&\s)(?<!data\sand\s)(?<!digital\s)(?<!Digital\s)\b[Ii]nfrastructure\b/.test(
+    text
+  );
+  if (!bareInfra) {
+    passes.push('No bare "infrastructure"');
+    earned++;
+  } else {
+    failures.push('Found bare "infrastructure" without "digital" prefix');
+  }
+
+  // 3. No banned words
+  const banned = /\b(leverage|synergy|ecosystem|holistic|cutting[-\s]edge|ESG|best[-\s]in[-\s]class|world[-\s]class|turnkey|next[-\s]gen)\b/i;
+  if (!banned.test(text)) {
+    passes.push('No banned words');
+    earned++;
+  } else {
+    const m = text.match(banned);
+    failures.push(`Banned word present: "${m?.[0]}"`);
+  }
+
+  // 4. Reframing line present (if vendor/ownership context exists)
+  const hasReframingContext = /vendor|own|control|lock.*in/i.test(text);
+  if (hasReframingContext) {
+    if (/if you don['’]t own.*(?:data\s*&\s*digital infrastructure|digital infrastructure).*vendors do/i.test(text)) {
+      passes.push('Reframing line present');
+      earned++;
+    } else {
+      failures.push('Reframing line missing despite vendor/ownership context');
+    }
+  } else {
+    earned++; // n/a
+  }
+
+  // 5. PPP 5C in canonical order if mentioned
+  const ppp = text.match(
+    /\b(Clarify|Connect|Collect|Coordinate|Control)\b[\s\S]{0,300}?\b(Clarify|Connect|Collect|Coordinate|Control)\b/i
+  );
+  if (ppp) {
+    if (
+      /Clarify[\s\S]{0,400}?Connect[\s\S]{0,400}?Collect[\s\S]{0,400}?Coordinate[\s\S]{0,400}?Control/i.test(
+        text
+      )
+    ) {
+      passes.push('PPP 5C in canonical order');
+      earned++;
+    } else {
+      failures.push('PPP 5C order is not canonical (Clarify → Connect → Collect → Coordinate → Control)');
+    }
+  } else {
+    earned++; // n/a
+  }
+
+  // 6. Two-layer model phrasing
+  if (/Property Brain.*Portfolio Brain|Portfolio Intelligence|Property Intelligence/i.test(text)) {
+    passes.push('Two-layer / Property→Portfolio Brain present');
+    earned++;
+  }
+
+  // 7. Trademark first-use (if Property Brain mentioned)
+  if (/Property Brain/i.test(text)) {
+    if (/Property Brain[™®]/.test(text)) {
+      passes.push('Property Brain trademark on first use');
+      earned++;
+    } else {
+      failures.push('Missing trademark symbol on Property Brain');
+    }
+  } else {
+    earned++;
+  }
+
+  // 8. PropTech not used as OpticWise label
+  if (/OpticWise[^.]*\bPropTech\b/i.test(text)) {
+    failures.push('OpticWise described as PropTech (banned)');
+  } else {
+    passes.push('OpticWise not labeled as PropTech');
+    earned++;
+  }
+
+  // 9. Mentions an outcome lever (NOI / cap rate / refi / DSCR / retention)
+  if (/\b(NOI|cap rate|refi(?:nance|nancing)?|DSCR|retention|valuation)\b/i.test(text)) {
+    passes.push('Outcome lever (NOI / cap rate / refi / DSCR / retention) present');
+    earned++;
+  } else {
+    failures.push('No outcome lever mentioned');
+  }
+
+  // 10. Owner POV ("you")
+  if (/\byou\b/i.test(text) && /\byour\b/i.test(text)) {
+    passes.push('Owner POV ("you/your") present');
+    earned++;
+  } else {
+    failures.push('Missing owner POV ("you/your")');
+  }
+
+  // 11. CTA present
+  if (/audit|review|call|schedule|book|pilot|next step/i.test(text)) {
+    passes.push('CTA present');
+    earned++;
+  } else {
+    failures.push('No CTA');
+  }
+
+  // 12. No invented numbers without source (heuristic: dollar amounts or
+  //     percentages followed by "we" or "our client" without a citation)
+  const inventedClaim =
+    /\$[\d,]+(?:k|K|M|B)?\s+(?:we|our client|our clients|in NOI lift|saved)/i.test(text);
+  if (!inventedClaim) {
+    passes.push('No obviously invented client metric');
+    earned++;
+  } else {
+    failures.push('Possible invented client metric (heuristic)');
+  }
+
+  return {
+    score: Math.round((earned / max) * 100),
+    passes,
+    failures,
+  };
+}
