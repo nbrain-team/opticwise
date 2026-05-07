@@ -630,12 +630,54 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.log('[OWnet] Error fetching style examples:', error);
     }
-    
+
+    // Voice exemplars — only retrieved for content-generation intents (writing
+    // a blog post, LinkedIn article, short post, or weekly briefing). The
+    // exemplars are previously published OpticWise pieces ingested by
+    // `scripts/ingest-voice-exemplars.ts` and stored in StyleGuide with
+    // category = 'voice_exemplar'.
+    const isContentGenIntent =
+      /\b(blog post|linkedin post|linkedin article|short[- ]form post|weekly briefing|content engine|draft (a|me)? (post|article|blog)|write (a|me)? (post|article|blog))\b/i.test(
+        message
+      );
+    if (isContentGenIntent) {
+      try {
+        const requestedAuthor: 'Bill' | 'Drew' | undefined = /\bdrew\b/i.test(message)
+          ? 'Drew'
+          : /\bbill\b/i.test(message)
+            ? 'Bill'
+            : undefined;
+        const requestedSubcat = /\blinkedin (?:short|post)\b/i.test(message)
+          ? 'linkedin_short'
+          : /\blinkedin article\b/i.test(message)
+            ? 'linkedin_article'
+            : 'blog';
+        const exemplars = await getVoiceExemplars(message, db, openai, {
+          topK: 3,
+          subcategory: requestedSubcat as 'blog' | 'linkedin_article' | 'linkedin_short',
+          author: requestedAuthor,
+        });
+        if (exemplars.length > 0) {
+          styleContext += formatVoiceExemplars(exemplars);
+          console.log(`[OWnet] Injected ${exemplars.length} voice exemplars for content gen.`);
+        }
+      } catch (err) {
+        console.log('[OWnet] Voice exemplar retrieval skipped:', (err as Error).message);
+      }
+    }
+
     // Generate BrandScript-compliant system prompt
+    const requestedAuthor: 'bill' | 'drew' | 'opticwise' = /\bdrew\b/i.test(message)
+      ? 'drew'
+      : /\bbill\b/i.test(message) && isContentGenIntent
+        ? 'bill'
+        : 'opticwise';
     const brandScriptPrompt = generateBrandScriptPrompt({
       isDeepAnalysis,
       includeStyleContext: styleContext,
-      currentDate
+      currentDate,
+      author: requestedAuthor,
+      contentEngineMode: isContentGenIntent,
     });
     
     // Add specific context about customer questions (operational requirement)
