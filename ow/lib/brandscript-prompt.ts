@@ -846,23 +846,35 @@ ${deepAnalysisMode}
 }
 
 /**
- * Copy blocks for quick reference
+ * Copy blocks for quick reference (May 2026 canon)
  */
 export const COPY_BLOCKS = {
-  oneLiner: `OpticWise helps you own your digital infrastructure so you can grow NOI, improve tenant experience, and run your buildings with real operational control—ready for the next decade, not just next quarter.`,
-  
-  elevatorPitch: `You already own the building. But most owners don't own the infrastructure and data running through it—vendors do. OpticWise helps you take that back. We start with a PPP Audit to clarify what you actually own and where value is leaking. Then we connect your property into a resilient digital backbone, collect usable data, coordinate operations, and put you back in control. The result: higher NOI potential, better tenant experience, fewer vendor fire drills, and real AI readiness.`,
-  
+  oneLiner: `OpticWise helps you turn data & digital infrastructure into owner-controlled digital assets — so Property Intelligence becomes Portfolio Intelligence.`,
+
+  elevatorPitch: `You already own the building. But most owners don't own the data & digital infrastructure running through it — their vendors do. OpticWise helps you take that back. Layer 1 is managed data & digital infrastructure, owner-controlled and repeatable property to property. Layer 2 is Property Brain™ → Portfolio Brain™, a vendor- and LLM-agnostic intelligence layer where any decision engine can plug in under owner permissions. The path is the PPP 5C™ plan: Clarify, Connect, Collect, Coordinate, Control. The result: higher NOI, vendor independence, real AI readiness, and a portfolio standard that compounds across buildings.`,
+
   beforeAfterContrast: {
-    before: 'Fragmented systems, vendor dashboards, reactive ops, tenant complaints, wasted CapEx',
-    after: 'Owner-controlled backbone, structured data, coordinated ops, 5S® tenant experience, future-proof advantage'
+    before: 'Fragmented systems, vendor dashboards, reactive ops, tenant complaints, wasted CapEx, the building\'s intelligence becoming someone else\'s asset',
+    after: 'Owner-controlled data & digital infrastructure, governed data plane + trust plane, 5S® tenant experience, vendor- and LLM-agnostic intelligence that compounds portfolio-wide'
   },
-  
-  reframingLine: `If you don't own your digital infrastructure, your vendors do.`,
-  
+
+  reframingLine: `If you don't own your data & digital infrastructure, your vendors do.`,
+
+  canonicalSignoff: `Own your data & digital infrastructure. Operate with strategic foresight. Build for the long game.`,
+
+  modelIsCommodity: `The model is the commodity. The moat is the layer above it.`,
+
+  fourMoats: [
+    'Proprietary data — captured and made portable (Clarify + Collect)',
+    'Operating workflows — the monthly and weekly plays that turn data into action (Coordinate)',
+    'Orchestration layer — the governed plane that decides which model, vendor, or decision engine acts under what rules (Control)',
+    'Institutional knowledge encoded into systems — the owner\'s operating standard, made repeatable across the portfolio (the two-layer model itself)'
+  ],
+
   infiniteGameLines: [
-    "Don't play for next quarter—build for the next decade",
-    "Own your digital infrastructure. Operate with strategic foresight. Build for the long game",
-    "Digital infrastructure is a long-term value engine, not a line item"
+    "Don't play for next quarter — build for the next decade",
+    "Own your data & digital infrastructure. Operate with strategic foresight. Build for the long game",
+    "Data & digital infrastructure is a long-term value engine, not a line item",
+    "Property Brain → Portfolio Brain is built to outlast any single model, any single vendor, any single platform."
   ]
 };
