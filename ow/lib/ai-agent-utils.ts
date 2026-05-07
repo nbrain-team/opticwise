@@ -908,6 +908,119 @@ export async function getStyleExamples(
 }
 
 // ============================================
+// VOICE EXEMPLAR RETRIEVAL (May 2026 canon)
+// ============================================
+
+export interface VoiceExemplar {
+  subcategory: 'blog' | 'linkedin_article' | 'linkedin_short' | string;
+  author: string; // 'Bill' | 'Drew' | 'Mixed'
+  content: string;
+  context: string | null;
+  similarity: number;
+  metadata: Record<string, unknown> | null;
+}
+
+/**
+ * Retrieve top-K voice exemplars semantically similar to `query`,
+ * optionally filtered by subcategory (blog / linkedin_article /
+ * linkedin_short) and author (Bill / Drew). Returns published
+ * gold-standard pieces ingested by `scripts/ingest-voice-exemplars.ts`
+ * so they can be injected as few-shot examples in the system prompt.
+ *
+ * Uses pgvector cosine distance on the StyleGuide.embedding column.
+ */
+export async function getVoiceExemplars(
+  query: string,
+  db: Pool,
+  openai: OpenAI,
+  options: {
+    topK?: number;
+    subcategory?: 'blog' | 'linkedin_article' | 'linkedin_short';
+    author?: 'Bill' | 'Drew';
+    minSimilarity?: number;
+  } = {}
+): Promise<VoiceExemplar[]> {
+  const { topK = 3, subcategory, author, minSimilarity = 0.3 } = options;
+
+  try {
+    const emb = await openai.embeddings.create({
+      model: 'text-embedding-3-large',
+      input: query.slice(0, 8000),
+      dimensions: 1024,
+    });
+    const vec = `[${emb.data[0].embedding.join(',')}]`;
+
+    const filters: string[] = [
+      `category = 'voice_exemplar'`,
+      `vectorized = true`,
+      `embedding IS NOT NULL`,
+    ];
+    const params: Array<string | number> = [vec];
+    if (subcategory) {
+      params.push(subcategory);
+      filters.push(`subcategory = $${params.length}`);
+    }
+    if (author) {
+      params.push(author);
+      filters.push(`author = $${params.length}`);
+    }
+    params.push(topK);
+    const limitParam = `$${params.length}`;
+
+    const sql = `
+      SELECT subcategory, author, content, context, metadata,
+             1 - (embedding <=> $1::vector) AS similarity
+      FROM "StyleGuide"
+      WHERE ${filters.join(' AND ')}
+      ORDER BY embedding <=> $1::vector
+      LIMIT ${limitParam}
+    `;
+    const result = await db.query(sql, params);
+
+    return result.rows
+      .filter((r) => Number(r.similarity) >= minSimilarity)
+      .map((r) => ({
+        subcategory: r.subcategory,
+        author: r.author,
+        content: r.content,
+        context: r.context,
+        similarity: Number(r.similarity),
+        metadata: r.metadata ?? null,
+      }));
+  } catch (error) {
+    console.error('Error fetching voice exemplars:', error);
+    return [];
+  }
+}
+
+/**
+ * Format a list of voice exemplars as a few-shot block for the system prompt.
+ * Truncates each exemplar to keep total token count under control.
+ */
+export function formatVoiceExemplars(
+  exemplars: VoiceExemplar[],
+  maxCharsPerExample = 2400
+): string {
+  if (!exemplars.length) return '';
+  const blocks = exemplars.map((ex, i) => {
+    const trimmed =
+      ex.content.length > maxCharsPerExample
+        ? ex.content.slice(0, maxCharsPerExample) + '\n…[truncated]'
+        : ex.content;
+    return `[Voice Exemplar ${i + 1} — author: ${ex.author}, type: ${ex.subcategory}, similarity: ${ex.similarity.toFixed(2)}]
+${trimmed}`;
+  });
+  return `
+
+**VOICE EXEMPLARS — match this voice (these are previously published OpticWise pieces, not fabricated):**
+
+${blocks.join('\n\n---\n\n')}
+
+When generating new content, mirror the rhythm, sentence length, openings, transitions, and signoff patterns shown above. Do not copy phrases verbatim. Do not invent client metrics — use only what is in the user's data or in the approved Wins & Nightmares Library.
+`;
+}
+
+// ============================================
 // DETECT INTENT FOR DATA SOURCES
 // ============================================
 
