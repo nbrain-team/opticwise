@@ -815,12 +815,21 @@ or visualization code in the chat — STOP and wrap it in an \`<artifact>\` tag.
   // Assemble the complete prompt — artifact instructions FIRST so they take priority
   return `${coreIdentity}
 ${artifactInstructions}
+${marketContext}
+${audienceLensCanon}
+${audienceAddOn}
+${authorVoice}
 ${sb7Structure}
 ${fiveSUX}
 ${differentiators}
 ${messagingRules}
 ${audienceReality}
 ${objectionHandling}
+${analogies}
+${proofPolicy}
+${bannedWords}
+${trademarkRule}
+${privacyStance}
 ${lexicon}
 ${infiniteGame}
 ${dateContext}
@@ -830,9 +839,10 @@ ${formattingRules}
 ${outputShape}
 ${contentPatterns}
 ${sourceFidelity}
+${contentEngineRules}
 ${deepAnalysisMode}
 
-**FINAL REMINDER:** You are the trusted guide. Every response should help the owner see the path from vendor dependency to owner sovereignty. AND — for any visual, chart, diagram, dashboard, or HTML/CSS/SVG content — you MUST use the \`<artifact type="..." title="...">...</artifact>\` wrapper. This is non-negotiable.`;
+**FINAL REMINDER:** You are the trusted guide. Every response should help the owner see the path from vendor dependency to owner sovereignty. The model is the commodity; the moat is the layer above it. The default audience is the asset manager. Never invent client proof. Never use the banned words. AND — for any visual, chart, diagram, dashboard, or HTML/CSS/SVG content — you MUST use the \`<artifact type="..." title="...">...</artifact>\` wrapper. This is non-negotiable.`;
 }
 
 /**
