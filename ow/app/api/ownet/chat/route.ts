@@ -17,7 +17,9 @@ import {
   checkSemanticCache,
   saveToSemanticCache,
   estimateTokens,
-  formatSourceCitations
+  formatSourceCitations,
+  getVoiceExemplars,
+  formatVoiceExemplars
 } from '@/lib/ai-agent-utils';
 import { generateBrandScriptPrompt } from '@/lib/brandscript-prompt';
 import { 
