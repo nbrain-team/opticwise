@@ -62,28 +62,124 @@ function enforceDataAndDigitalInfrastructure(text: string): string {
 }
 
 /**
- * Replace PropTech framing with strategic asset framing
+ * Replace PropTech framing with strategic asset framing.
+ * "PropTech" is allowed when discussing the broader market (e.g., M&A or
+ * vendor consolidation) but NOT when describing OpticWise itself.
  */
 function replacePropTechFraming(text: string): string {
   const replacements: Record<string, string> = {
-    'PropTech stack': 'digital infrastructure platform',
-    'proptech stack': 'digital infrastructure platform',
-    'PropTech solution': 'digital infrastructure solution',
-    'proptech solution': 'digital infrastructure solution',
+    'PropTech stack': 'data & digital infrastructure platform',
+    'proptech stack': 'data & digital infrastructure platform',
+    'PropTech solution': 'data & digital infrastructure approach',
+    'proptech solution': 'data & digital infrastructure approach',
+    'PropTech vendor': 'platform vendor',
+    'proptech vendor': 'platform vendor',
     'smart building gadgets': 'building systems',
-    'smart building technology': 'digital infrastructure',
+    'smart building technology': 'data & digital infrastructure',
     'IoT devices': 'connected building systems',
-    'tech upgrade': 'digital infrastructure transformation',
-    'technology stack': 'digital infrastructure platform'
+    'tech upgrade': 'data & digital infrastructure transformation',
+    'technology stack': 'data & digital infrastructure platform'
   };
-  
+
   let corrected = text;
   Object.entries(replacements).forEach(([wrong, right]) => {
     const regex = new RegExp(wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
     corrected = corrected.replace(regex, right);
   });
-  
+
   return corrected;
+}
+
+/**
+ * Strip banned words and phrases per the May 2026 canon.
+ *
+ * Hard removals: leverage, synergy, ecosystem, holistic, seamless (outside
+ * "Seamless Mobility" in 5S), cutting-edge, ESG, best-in-class, world-class,
+ * robust, turnkey, next-gen.
+ *
+ * "ESG" is rewritten to neutral operating-language. The other banned words
+ * are rewritten to plain alternatives. We do not silently delete sentences;
+ * we substitute and let the reader / next pass catch any awkwardness.
+ */
+function replaceBannedWords(text: string): string {
+  let out = text;
+
+  // ESG -> operations / utilities / risk / data, contextually:
+  // - "ESG compliance" -> "operating compliance"
+  // - "ESG reporting" -> "operations and risk reporting"
+  // - "ESG goals" -> "operating goals"
+  // - bare "ESG" -> "operations and risk"
+  out = out.replace(/\bESG\s+compliance\b/g, 'operating compliance');
+  out = out.replace(/\bESG\s+reporting\b/g, 'operations and risk reporting');
+  out = out.replace(/\bESG\s+goals\b/g, 'operating goals');
+  out = out.replace(/\bESG\s+performance\b/g, 'operating performance');
+  out = out.replace(/\bESG\s+(non[-\s]?compliance)\b/gi, 'operating non-compliance');
+  out = out.replace(/\bESG\b/g, 'operations and risk');
+
+  // Verb "leverage" -> "use"; noun "leverage" of capability/infrastructure -> "use"
+  out = out.replace(/\bleverage\b/g, 'use');
+  out = out.replace(/\bLeverage\b/g, 'Use');
+  out = out.replace(/\bleveraging\b/gi, 'using');
+
+  const swaps: Record<string, string> = {
+    'synergy': 'fit',
+    'synergies': 'shared lift',
+    'ecosystem': 'environment',
+    'holistic': 'end-to-end',
+    'cutting-edge': 'modern',
+    'cutting edge': 'modern',
+    'best-in-class': 'top-tier',
+    'world-class': 'top-tier',
+    'robust': 'resilient',
+    'turnkey': 'ready-to-run',
+    'next-gen': 'modern',
+    'next generation': 'modern',
+  };
+  Object.entries(swaps).forEach(([wrong, right]) => {
+    const regex = new RegExp(`\\b${wrong.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+    out = out.replace(regex, right);
+  });
+
+  // "seamless" -> "smooth" UNLESS the next word is "Mobility" (5S preserved)
+  out = out.replace(/\bseamless\b(?!\s+Mobility)/gi, (match) =>
+    match[0] === match[0].toUpperCase() ? 'Smooth' : 'smooth'
+  );
+
+  return out;
+}
+
+/**
+ * Enforce trademark first-use. On the first occurrence of each protected
+ * term in the response, append the trademark symbol if missing. Subsequent
+ * uses are left alone. Operates conservatively (skips when text already
+ * has the symbol on the first occurrence).
+ */
+function enforceTrademarkFirstUse(text: string): string {
+  const firstUseList: Array<{ term: string; symbol: '™' | '®' }> = [
+    { term: 'Property Brain', symbol: '™' },
+    { term: 'Portfolio Brain', symbol: '™' },
+    { term: 'PPP Audit', symbol: '™' },
+    { term: 'PPP 5C', symbol: '™' },
+    { term: 'Peak Property Performance', symbol: '®' },
+    { term: 'BoT', symbol: '®' },
+    { term: 'ElasticISP', symbol: '®' },
+    { term: 'SIC', symbol: '®' },
+    { term: '5S', symbol: '®' },
+  ];
+
+  let out = text;
+  for (const { term, symbol } of firstUseList) {
+    // Find the first occurrence; if it's already followed by ™/®, skip.
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`\\b${escaped}\\b(?!\\s*[™®])`);
+    const match = out.match(re);
+    if (match && match.index !== undefined) {
+      const before = out.slice(0, match.index + match[0].length);
+      const after = out.slice(match.index + match[0].length);
+      out = before + symbol + after;
+    }
+  }
+  return out;
 }
 
 /**
