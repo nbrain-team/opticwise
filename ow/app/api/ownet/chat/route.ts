@@ -642,20 +642,20 @@ export async function POST(request: NextRequest) {
       );
     if (isContentGenIntent) {
       try {
-        const requestedAuthor: 'Bill' | 'Drew' | undefined = /\bdrew\b/i.test(message)
+        const exemplarAuthor: 'Bill' | 'Drew' | undefined = /\bdrew\b/i.test(message)
           ? 'Drew'
           : /\bbill\b/i.test(message)
             ? 'Bill'
             : undefined;
-        const requestedSubcat = /\blinkedin (?:short|post)\b/i.test(message)
+        const exemplarSubcat = /\blinkedin (?:short|post)\b/i.test(message)
           ? 'linkedin_short'
           : /\blinkedin article\b/i.test(message)
             ? 'linkedin_article'
             : 'blog';
         const exemplars = await getVoiceExemplars(message, db, openai, {
           topK: 3,
-          subcategory: requestedSubcat as 'blog' | 'linkedin_article' | 'linkedin_short',
-          author: requestedAuthor,
+          subcategory: exemplarSubcat as 'blog' | 'linkedin_article' | 'linkedin_short',
+          author: exemplarAuthor,
         });
         if (exemplars.length > 0) {
           styleContext += formatVoiceExemplars(exemplars);
