@@ -1,32 +1,54 @@
 import { getServiceAccountClient, getGmailClient } from './google';
 
 /**
- * Send email via Gmail API using Bill's service account
+ * Encode a header value that may contain non-ASCII characters (display names
+ * with accents, em-dashes, etc.) per RFC 2047. Pure ASCII strings pass
+ * through unchanged so debugging stays readable.
+ */
+function encodeHeaderValue(value: string): string {
+  if (/^[\x00-\x7F]*$/.test(value)) return value;
+  return `=?utf-8?B?${Buffer.from(value, 'utf-8').toString('base64')}?=`;
+}
+
+/**
+ * Send email via Gmail API using Bill's service account.
+ * From address is always bill@opticwise.com (the impersonated user); the
+ * display name is configurable via `fromName`. Reply-To routes replies to
+ * a different inbox without changing the From header.
  */
 export async function sendEmail({
   to,
   subject,
   htmlBody,
+  fromName,
+  replyTo,
 }: {
   to: string;
   subject: string;
   htmlBody: string;
   textBody: string;
+  fromName?: string;
+  replyTo?: string | null;
 }) {
   try {
     const auth = getServiceAccountClient();
     const gmail = await getGmailClient(auth);
 
-    // Create email in RFC 2822 format
-    const email = [
+    const displayName = (fromName || 'Opticwise').trim();
+    const fromHeader = `${encodeHeaderValue(displayName)} <bill@opticwise.com>`;
+
+    const headers: string[] = [
       `To: ${to}`,
-      `From: Opticwise <bill@opticwise.com>`,
-      `Subject: ${subject}`,
-      'MIME-Version: 1.0',
-      'Content-Type: text/html; charset=utf-8',
-      '',
-      htmlBody,
-    ].join('\n');
+      `From: ${fromHeader}`,
+      `Subject: ${encodeHeaderValue(subject)}`,
+    ];
+    if (replyTo && replyTo.trim()) {
+      headers.push(`Reply-To: ${replyTo.trim()}`);
+    }
+    headers.push('MIME-Version: 1.0');
+    headers.push('Content-Type: text/html; charset=utf-8');
+
+    const email = [...headers, '', htmlBody].join('\r\n');
 
     // Encode email in base64url format
     const encodedEmail = Buffer.from(email)

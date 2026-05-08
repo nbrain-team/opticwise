@@ -85,6 +85,16 @@ export async function POST(request: NextRequest) {
       submitButtonLabel: body.submitButtonLabel?.trim() || "Submit",
       successMessage: body.successMessage?.trim() || "Thanks — we'll be in touch shortly.",
       honeypotFieldName: body.honeypotFieldName.trim(),
+      confirmationEmailEnabled: !!body.confirmationEmailEnabled,
+      confirmationEmailSubject: body.confirmationEmailEnabled
+        ? body.confirmationEmailSubject?.trim() || null
+        : null,
+      confirmationEmailFromName:
+        body.confirmationEmailFromName?.trim() || "Bill Demas",
+      confirmationEmailReplyTo: body.confirmationEmailReplyTo?.trim() || null,
+      confirmationEmailHtml: body.confirmationEmailEnabled
+        ? body.confirmationEmailHtml?.trim() || null
+        : null,
       createdById: session.userId,
       fields: {
         create: body.fields.map((f, i) => ({

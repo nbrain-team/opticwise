@@ -1,10 +1,20 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: May 7, 2026  
-**Latest Period**: February 14 - May 7, 2026  
-**Status**: OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
+**Latest Update**: May 8, 2026  
+**Latest Period**: February 14 - May 8, 2026  
+**Status**: Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
 
 ---
+
+### 2026-05-08 — Form Builder Now Sends a Templated Confirmation Email to Every Submitter (Auto-Reply from Bill@Opticwise.com)
+
+- Added a new **Confirmation Email** section to the Form Builder in OWnet (`/forms`) so that when someone fills out a form on opticwise.com, they automatically receive a personalized email back from **Bill@Opticwise.com** within seconds — closing the loop on every inbound lead without anyone touching their inbox
+- The form admin checks **"Send a confirmation email to the person who submits this form"** and a full email composer appears inline: subject line, sender display name, optional reply-to, and a **WYSIWYG (rich text) email editor** with bold/italic/underline, headings, bulleted and numbered lists, alignment, link insertion, text color, paragraph styles, and a one-click switch between visual editing and raw HTML for power users
+- **Personalization built in**: every submission field becomes a merge tag — click `{firstName}`, `{company}`, `{email}`, `{message}`, or any custom field key, and it inserts at the cursor. The same merge tags work in the subject line. Example subject saved as default: *"Thanks for reaching out, {firstName}"*
+- **Sent FROM `Bill@Opticwise.com`** every time, using the existing OpticWise Gmail service account — the same trusted sending infrastructure already used for password reset emails. Display name defaults to *Bill Demas* but is configurable per form. Reply-to is configurable per form so different campaigns can route replies to different inboxes if needed
+- **Safe by design**: confirmation emails only fire when the submitter actually provided an email address (the form has a field mapped to *Contact — Email*), and the send is best-effort — if Gmail throttles or fails, the deal still gets created and the owner notification still goes out. The submitter's email is automatically wrapped in a clean, mobile-responsive HTML container so it renders consistently in Gmail, Outlook, and Apple Mail
+- A clear **blue info banner** in the editor explains the From address policy so admins always know exactly what envelope the email will ship under
+- Backed by a Postgres migration that adds five new columns to the `Form` table (`confirmationEmailEnabled`, `confirmationEmailSubject`, `confirmationEmailFromName`, `confirmationEmailReplyTo`, `confirmationEmailHtml`) — all five existing production forms (Schedule Review, Send a Message, PPP Audit, PPP Starter Kit, Insights Newsletter) inherit the new feature with confirmation emails turned **off** by default, so nothing changes until a human enables it per form
 
 ### 2026-05-07 — OWnet Agent Advanced Training: Full OpticWise Content Engine Canon Loaded, Brand Voice Rewritten to May 2026 Standard, Content Engine Workflow Now Lives Inside the Platform
 
@@ -16,6 +26,15 @@
 - **Track 4 — Content Engine mode shipped inside the platform.** New `ow/lib/content-engine.ts` orchestrator runs the full weekly workflow: pulls source emails from a Gmail label (or accepts a pre-pulled list for testing), uses Claude to identify exactly two trends — one for Bill (strategy / markets / AI / capital), one for Drew (architecture / systems / OT) — applying the 3+ source rule, cross-signal synthesis preference, and four-moats fit; generates each author's three deliverables with the new prompt + voice exemplars + brand-voice post-processor; produces the Weekly Intelligence Briefing and Content Summary; and builds the `createFullWeek` payload for the Drive Bridge. New API route `POST /api/content-engine/run` (auth-gated, supports internal-key for cron) and a new admin page at `/content-engine` let Bill kick off a dry run or full run from the browser, inspect every artifact (trends, packages with per-package canon-adherence scores, briefing, summary, Drive payload), and POST to the Drive Bridge in one click
 - **Track 5 — Regression eval set built from the gold exemplars.** New `ow/scripts/build-content-eval-set.ts` reads every published `.docx` blog package, parses it into (input → gold output) shape, infers the moat from tags + body, extracts inline source URLs, and writes one JSON eval case per piece under `ow/data/content-engine-eval/`. Companion `ow/scripts/run-content-engine-eval.ts` regenerates each piece using the live prompt + voice exemplar pipeline, scores both gold and generated outputs against the canon, and writes a markdown report comparing scores side by side — a stable regression baseline for every future prompt change
 - Net result: the OWnet agent moves from "agent that talks roughly like Bill" to "agent that ships Bill's weekly content engine, in Bill's or Drew's voice, against the same canon Bill writes against." Existing `/ownet-agent` chat behavior is preserved (all new prompt parameters default to current behavior); the new Content Engine mode is a separate page and route
+
+### 2026-05-08 — Cursor MCP Bridge Connected to Live Platform Data Sources
+
+- Wired the developer environment directly to the live Opticwise platform data so the AI assistant inside Cursor can query real production data without anyone copy-pasting connection strings, exporting CSVs, or building one-off scripts
+- **What's now connected**: the production Postgres CRM database (read-only), the Pinecone vector store (transcripts and support knowledge base), the Fathom meeting library (every recorded sales call, transcript, summary, and action item), and the Opticwise Google Drive (any folder shared with the integration service account)
+- **Production safety**: a dedicated `mcp_readonly` database role was created so the assistant can only `SELECT` data — it physically cannot delete, modify, or drop anything in the live CRM. Verified end-to-end (read works, every write attempt is blocked at the database level)
+- **What this enables for the team in practice**: ask the assistant "show me deals stuck in the proposal stage for >30 days" and it queries the live CRM directly; ask "what action items came out of last week's calls" and it pulls from Fathom; ask "find every transcript that mentions catalyst" and it searches Pinecone — all from inside the same chat window we already use for code work
+- **What's deferred**: Slack is configured but disabled until the Slack bot has read scopes (`users:read`, `channels:read`, `channels:history`) added in the Slack app dashboard — about a 2-minute config change. Custom Fathom and Drive bridges were built in-house since neither vendor publishes an official one
+- All MCP credentials live in a gitignored config — no secrets in the public repo
 
 ### 2026-05-06 — Five Production Forms Seeded for OpticWise.com (Schedule Review, Contact, PPP Audit, PPP Starter Kit, Newsletter)
 

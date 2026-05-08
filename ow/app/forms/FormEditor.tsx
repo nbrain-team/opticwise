@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import RichTextEmailEditor from "./RichTextEmailEditor";
 
 // Local mirrors of types that live in /lib/forms.ts. We re-declare them here
 // so this file has no server imports (pure client component).
@@ -60,6 +61,13 @@ type FormShape = {
   submitButtonLabel: string;
   successMessage: string;
   honeypotFieldName: string;
+  // Confirmation email — when enabled, the submitter receives a templated
+  // email after successful submission. Sent FROM bill@opticwise.com.
+  confirmationEmailEnabled: boolean;
+  confirmationEmailSubject: string;
+  confirmationEmailFromName: string;
+  confirmationEmailReplyTo: string;
+  confirmationEmailHtml: string;
   fields: FormField[];
 };
 
@@ -67,6 +75,11 @@ type Lookups = {
   pipelines: { id: string; name: string; stages: { id: string; name: string }[] }[];
   users: { id: string; name: string | null; email: string }[];
 };
+
+const DEFAULT_CONFIRMATION_EMAIL_HTML = `<p>Hi {firstName},</p>
+<p>Thanks for reaching out to OpticWise — we received your submission and we'll be in touch shortly.</p>
+<p>In the meantime, if you have anything to add, just reply to this email.</p>
+<p>Best,<br>Bill Demas<br>OpticWise</p>`;
 
 const DEFAULT_FORM: FormShape = {
   name: "",
@@ -80,6 +93,11 @@ const DEFAULT_FORM: FormShape = {
   submitButtonLabel: "Submit",
   successMessage: "Thanks — we'll be in touch shortly.",
   honeypotFieldName: "website_url_extra",
+  confirmationEmailEnabled: false,
+  confirmationEmailSubject: "Thanks for reaching out, {firstName}",
+  confirmationEmailFromName: "Bill Demas",
+  confirmationEmailReplyTo: "",
+  confirmationEmailHtml: DEFAULT_CONFIRMATION_EMAIL_HTML,
   fields: [
     starterField("First name", "first_name", "text", "person_firstName", true),
     starterField("Last name", "last_name", "text", "person_lastName", true),
@@ -510,6 +528,99 @@ export default function FormEditor({
             className="ow-input"
           />
         </Field>
+      </Section>
+
+      {/* SECTION 4.5 — Confirmation Email */}
+      <Section
+        title="Confirmation Email"
+        subtitle="Optionally send a templated email to the submitter right after they submit"
+      >
+        <label className="inline-flex items-center gap-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={form.confirmationEmailEnabled}
+            onChange={(e) => update("confirmationEmailEnabled", e.target.checked)}
+            className="h-4 w-4"
+          />
+          Send a confirmation email to the person who submits this form
+        </label>
+
+        {form.confirmationEmailEnabled && (
+          <div className="space-y-5 mt-4 pt-4 border-t border-gray-100">
+            <div className="bg-blue-50 border border-blue-200 text-blue-900 rounded-lg px-4 py-3 text-xs">
+              <strong>From:</strong> Bill@Opticwise.com (always — uses the
+              shared OpticWise sending account). The display name and reply-to
+              are configurable below. The email is only sent when the form has
+              an email field mapped to <code className="font-mono">Contact — Email</code>.
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <Field label="From name (display)">
+                <input
+                  type="text"
+                  value={form.confirmationEmailFromName}
+                  onChange={(e) => update("confirmationEmailFromName", e.target.value)}
+                  className="ow-input"
+                  placeholder="Bill Demas"
+                />
+              </Field>
+              <Field
+                label="Reply-to (optional)"
+                help="If set, replies route here instead of bill@opticwise.com"
+              >
+                <input
+                  type="email"
+                  value={form.confirmationEmailReplyTo}
+                  onChange={(e) => update("confirmationEmailReplyTo", e.target.value)}
+                  className="ow-input"
+                  placeholder="hello@opticwise.com"
+                />
+              </Field>
+            </div>
+
+            <Field
+              label="Subject *"
+              help="Supports merge tags. Example: Thanks for reaching out, {firstName}"
+            >
+              <input
+                type="text"
+                value={form.confirmationEmailSubject}
+                onChange={(e) => update("confirmationEmailSubject", e.target.value)}
+                className="ow-input"
+                placeholder="Thanks for reaching out, {firstName}"
+              />
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {mergeTags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() =>
+                      update(
+                        "confirmationEmailSubject",
+                        `${form.confirmationEmailSubject} {${tag}}`.trim()
+                      )
+                    }
+                    className="text-[11px] font-mono bg-gray-100 hover:bg-gray-200 text-gray-700 px-2 py-0.5 rounded border border-gray-200"
+                  >
+                    {`{${tag}}`}
+                  </button>
+                ))}
+              </div>
+            </Field>
+
+            <Field
+              label="Email body *"
+              help="Use the toolbar to format. Insert any merge tag below to personalize the message."
+            >
+              <RichTextEmailEditor
+                value={form.confirmationEmailHtml}
+                onChange={(html) => update("confirmationEmailHtml", html)}
+                mergeTags={mergeTags}
+                placeholder="Write the email your submitter will receive…"
+              />
+            </Field>
+          </div>
+        )}
       </Section>
 
       {/* SECTION 5 — Embed */}

@@ -59,6 +59,14 @@ export type FormInput = {
   submitButtonLabel: string;
   successMessage: string;
   honeypotFieldName: string;
+  // Confirmation email sent to the submitter after successful submission.
+  // When `confirmationEmailEnabled` is true, the email is rendered with merge
+  // tags and sent FROM bill@opticwise.com (display name configurable).
+  confirmationEmailEnabled: boolean;
+  confirmationEmailSubject?: string | null;
+  confirmationEmailFromName?: string | null;
+  confirmationEmailReplyTo?: string | null;
+  confirmationEmailHtml?: string | null;
   fields: FormFieldInput[];
 };
 
@@ -83,6 +91,22 @@ export function fieldKeyFromLabel(label: string): string {
     .replace(/^_+|_+$/g, "")
     .slice(0, 40);
   return cleaned || "field";
+}
+
+/**
+ * Strip HTML tags and decode common entities for length validation only.
+ * Not for sanitization — the email body is rendered as-is into the outgoing
+ * email since it's authored by an authenticated CRM admin.
+ */
+function stripHtmlForValidation(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /**
@@ -124,6 +148,21 @@ export function validateFormInput(input: FormInput): string[] {
   if (!input.ownerId) errors.push("Owner is required.");
   if (!input.dealTitleTemplate?.trim()) errors.push("Deal title template is required.");
   if (!input.honeypotFieldName?.trim()) errors.push("Honeypot field name is required.");
+
+  if (input.confirmationEmailEnabled) {
+    if (!input.confirmationEmailSubject?.trim()) {
+      errors.push("Confirmation email subject is required when confirmation emails are enabled.");
+    }
+    if (!input.confirmationEmailHtml?.trim() || stripHtmlForValidation(input.confirmationEmailHtml).length < 10) {
+      errors.push("Confirmation email body is required (write the message you want to send the submitter).");
+    }
+    if (input.confirmationEmailReplyTo && input.confirmationEmailReplyTo.trim()) {
+      const replyTo = input.confirmationEmailReplyTo.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo)) {
+        errors.push("Confirmation email reply-to must be a valid email address.");
+      }
+    }
+  }
 
   if (!Array.isArray(input.fields) || input.fields.length === 0) {
     errors.push("Add at least one form field.");
@@ -513,6 +552,15 @@ export async function processFormSubmission(
       console.error("[forms] owner email notification failed:", err);
     });
 
+    // ----- Confirmation email to the submitter (best-effort) -----
+    // Only fires when the form admin has opted in AND the submitter provided
+    // an email address. We never block submission on email failure.
+    if (form.confirmationEmailEnabled && mapped.person_email) {
+      sendSubmitterConfirmation(form, mapped.person_email, mapped, cleanPayload).catch((err) => {
+        console.error("[forms] submitter confirmation email failed:", err);
+      });
+    }
+
     return {
       ok: true,
       submissionId: submission.id,
@@ -611,4 +659,121 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/**
+ * Build the merge-tag dictionary used to render the confirmation email's
+ * subject and HTML body. Includes both the standard mapped fields and every
+ * raw form field by its `fieldKey`, so admins can reference any submitted
+ * value with `{fieldKey}` syntax.
+ */
+function buildEmailMergeValues(
+  form: FormForProcessing,
+  mapped: Record<FormFieldMapping, string | undefined>,
+  payload: Record<string, unknown>
+): Record<string, string> {
+  const firstName = mapped.person_firstName?.trim() || "";
+  const lastName = mapped.person_lastName?.trim() || "";
+  const fullName = `${firstName} ${lastName}`.trim();
+
+  const out: Record<string, string> = {
+    formName: form.name,
+    firstName,
+    lastName,
+    fullName,
+    name: fullName || firstName,
+    email: mapped.person_email?.trim() || "",
+    phone: mapped.person_phone?.trim() || "",
+    title: mapped.person_title?.trim() || "",
+    company: mapped.organization_name?.trim() || "",
+    website: mapped.organization_websiteUrl?.trim() || "",
+  };
+
+  // Surface every raw form field by its key so the admin can use {fieldKey}
+  // for any custom field they added to the form.
+  for (const field of form.fields) {
+    const v = payload[field.fieldKey];
+    if (v === undefined || v === null) continue;
+    const display = Array.isArray(v) ? v.join(", ") : String(v);
+    out[field.fieldKey] = display;
+  }
+
+  return out;
+}
+
+/**
+ * Render a string template with `{tag}` placeholders. Unknown tags become
+ * empty strings; whitespace is collapsed at the end so partial values don't
+ * leave stray gaps.
+ */
+function renderEmailTemplate(template: string, values: Record<string, string>): string {
+  return template.replace(/\{(\w+)\}/g, (_, key) => {
+    const v = values[key];
+    return v === undefined || v === null ? "" : String(v);
+  });
+}
+
+/**
+ * Send the templated confirmation email to the form submitter.
+ * Best-effort — failures are logged but never block the submission flow.
+ *
+ * The email is sent from `bill@opticwise.com` (via the existing service
+ * account in lib/email.ts). The display name and reply-to are configurable
+ * per form so different forms can use different from-names if needed.
+ */
+async function sendSubmitterConfirmation(
+  form: FormForProcessing,
+  toEmail: string,
+  mapped: Record<FormFieldMapping, string | undefined>,
+  payload: Record<string, unknown>
+) {
+  if (!form.confirmationEmailEnabled) return;
+  if (!form.confirmationEmailHtml?.trim()) return;
+  if (!form.confirmationEmailSubject?.trim()) return;
+
+  const values = buildEmailMergeValues(form, mapped, payload);
+  const subject = renderEmailTemplate(form.confirmationEmailSubject, values);
+  const htmlBodyContent = renderEmailTemplate(form.confirmationEmailHtml, values);
+
+  // Wrap the admin's HTML in a clean responsive container so emails render
+  // consistently across clients (Gmail strips <head>, etc.).
+  const wrappedHtml = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f5f5f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;color:#1a2434;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5;padding:32px 12px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.06);max-width:600px;width:100%;">
+          <tr>
+            <td style="padding:32px 36px;font-size:15px;line-height:1.6;color:#1a2434;">
+              ${htmlBodyContent}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  // Plain-text fallback derived from the HTML — strips tags and collapses
+  // whitespace. Good enough for clients that prefer text/plain.
+  const textBody = stripHtmlForValidation(htmlBodyContent);
+
+  const fromName = (form.confirmationEmailFromName || "Bill Demas").trim();
+  const replyTo = form.confirmationEmailReplyTo?.trim() || null;
+
+  await sendEmail({
+    to: toEmail,
+    subject,
+    htmlBody: wrappedHtml,
+    textBody,
+    fromName,
+    replyTo,
+  });
 }

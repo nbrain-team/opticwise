@@ -98,6 +98,15 @@ When a third party API requires whitelisting Render's outbound IPs:
 - **Old Website**: `https://opticwise-website-v3.onrender.com` (`website-v3-nextjs/`)
 - **Archive**: `ghost-cms/` directory retained for reference
 
+### Form Builder (Forms → CRM Bridge)
+- **UI Pages**: `/forms` (list), `/forms/new` (create), `/forms/[id]` (edit), `/forms/[id]/submissions` (submissions log)
+- **Editor Component**: `app/forms/FormEditor.tsx` (sections: Basics, Routing & Deal, Fields, Submission Experience, **Confirmation Email**, Embed)
+- **API Routes**: `/api/forms` (list/create), `/api/forms/[id]` (read/update/deactivate), `/api/forms/[id]/submissions`, `/api/forms/lookups`, `/api/public/forms/[slug]` (public read), `/api/public/forms/[slug]/submit` (public submit)
+- **Submission processing**: `lib/forms.ts` → upserts Organization → upserts Person → creates Deal → adds DealContact stakeholder → emails owner (best-effort) → emails submitter (if confirmation enabled)
+- **Confirmation Email (Added 2026-05-08)**: Per-form opt-in. Authored in a built-in WYSIWYG editor (`app/forms/RichTextEmailEditor.tsx`) with merge tags from any submission field. Sent FROM `bill@opticwise.com` via the existing Gmail service account in `lib/email.ts`. Display name + reply-to configurable per form. Migration: `20260508140000_add_form_confirmation_email`. New columns on `Form`: `confirmationEmailEnabled`, `confirmationEmailSubject`, `confirmationEmailFromName`, `confirmationEmailReplyTo`, `confirmationEmailHtml`.
+- **Email sending**: `lib/email.ts` `sendEmail()` — supports optional `fromName` (display name) and `replyTo` headers. From address is always `bill@opticwise.com` (the impersonated service account).
+- **Spam protection**: Per-form configurable honeypot field name; submissions with non-empty honeypot are stored with `status='spam'` and bots receive a normal success response.
+
 ### Customer Service Agent (Added 2026-04-15)
 - **Purpose**: Autonomous Tier 1 support agent trained on real support data
 - **Data Sources**: 4,250 support emails (mbox) + 89 call transcripts

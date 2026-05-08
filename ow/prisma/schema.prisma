@@ -1195,6 +1195,16 @@ model Form {
   // Configurable so we can rotate it if bots adapt.
   honeypotFieldName String @default("website_url_extra")
 
+  // Confirmation email — when enabled, the submitter is emailed a templated
+  // HTML message authored in the form builder. Sent FROM bill@opticwise.com
+  // via the existing Gmail service account. Subject + HTML support merge
+  // tags like {firstName}, {company}, etc. (rendered server-side).
+  confirmationEmailEnabled  Boolean @default(false)
+  confirmationEmailSubject  String?
+  confirmationEmailFromName String  @default("Bill Demas")
+  confirmationEmailReplyTo  String?
+  confirmationEmailHtml     String? @db.Text
+
   createdById String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
