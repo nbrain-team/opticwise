@@ -52,10 +52,13 @@ Once you fill in the question blocks we tackle them one section at a time — I'
        - **Codified as a Cursor project rule:** `.cursor/rules/bill-drew-digital-twin-voice.mdc` (alwaysApply: true).
        - **Build task implied:** ingest both files into the OWnet knowledge base as `category = "Canon — Digital Twin"` with `author = "Bill" | "Drew"`, and update the OWnet agent's system prompt so explicit "Bill's voice" / "Drew's voice" requests load the corresponding file as the persona.
   2. For Danny (DH) — he offered to dump his customGPT exports into per-person folders. Has that landed anywhere yet? If not, what's the ETA so we can ingest?
+     - **Moot (2026-05-11):** Twin is defined by the AI OS file, not by ingested personal correspondence. No customGPT dump required for v1.
   3. Is there any class of personal correspondence (medical, legal, family) that must be **excluded** from the twin training set?
+     - **Moot (2026-05-11):** Same as #2 — no personal correspondence is being ingested for the twin, so exclusion rules don't apply for v1.
   4. Should the twins be **callable as named agents** inside OWnet (e.g., `/agent/wd` and `/agent/dh` chat surfaces) or just **as personas** the main agent adopts when asked?
-- **Recommended approach:** Once (1) is answered — if (b)/(c), build a `Persona` table + persona-aware retrieval that pulls from `email_thread` + `MeetingTranscript` filtered to that person as speaker, and create a `/agent/[persona]` route reusing the existing agent chat shell.
-- **Effort:** `M` if voice-only (mostly done), `L` if decision-agent.
+     - **Answer (2026-05-11):** Both. Expose dedicated chat surfaces (`/agent/bill` and `/agent/drew`) that always open in that persona, **and** keep the main OWnet agent capable of adopting either persona when a user asks "in Bill's voice" / "as Drew."
+- **Recommended approach:** Build a `Persona` config + named chat routes `/agent/bill` and `/agent/drew` that load the corresponding AI OS file into the system prompt, and add the same persona-load logic to the main `/ownet-agent` route when the user's request explicitly names Bill or Drew.
+- **Effort:** `M` (voice-only persona load; AI OS files are the canon, no behavioral corpus to gather).
 
 ## 1.3 2 customGPTs fully imported, or rebuilt (Marketing & Sales)
 - **PDF:** "includes objection handling from GPT's and WD emails"
