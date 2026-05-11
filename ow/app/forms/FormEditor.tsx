@@ -288,9 +288,14 @@ export default function FormEditor({
     }
   }
 
-  const embedSnippet = `<FormEmbed formSlug="${form.slug || "your-slug"}" />`;
-  const publicGetUrl = `${publicHost}/api/public/forms/${form.slug || "your-slug"}`;
-  const publicPostUrl = `${publicHost}/api/public/forms/${form.slug || "your-slug"}/submit`;
+  // HTML embed snippet — drops into any HTML page (no framework required).
+  // The loader script auto-mounts every [data-opticwise-form] container.
+  const slugForEmbed = form.slug || "your-slug";
+  const embedScriptUrl = `${publicHost}/forms/embed.js`;
+  const embedPlaceholderHtml = `<div data-opticwise-form="${slugForEmbed}"></div>`;
+  const embedScriptHtml = `<script src="${embedScriptUrl}" defer></script>`;
+  const publicGetUrl = `${publicHost}/api/public/forms/${slugForEmbed}`;
+  const publicPostUrl = `${publicHost}/api/public/forms/${slugForEmbed}/submit`;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -625,19 +630,91 @@ export default function FormEditor({
 
       {/* SECTION 5 — Embed */}
       <Section
-        title="Embed on opticwise.com"
-        subtitle="Drop this block into any page in the Payload CMS"
+        title="Embed on any HTML page"
+        subtitle="Drop two lines into any page on opticwise.com (or any other HTML site) — no framework required"
       >
         <p className="text-sm text-gray-600 mb-4">
-          In Payload, edit any page, add a <strong>FormEmbed</strong> block, and set the
-          slug to <code className="bg-gray-100 px-1.5 py-0.5 rounded font-mono text-xs">{form.slug || "(set slug above)"}</code>.
+          Paste the placeholder <code className="bg-gray-100 px-1.5 py-0.5 rounded font-mono text-xs">&lt;div&gt;</code> wherever
+          you want the form to appear, and add the loader script once per page (near the closing
+          {" "}
+          <code className="bg-gray-100 px-1.5 py-0.5 rounded font-mono text-xs">&lt;/body&gt;</code> tag is fine). The script
+          finds every <code className="bg-gray-100 px-1.5 py-0.5 rounded font-mono text-xs">data-opticwise-form</code> on the
+          page and renders the form in place.
         </p>
-        <div className="bg-gray-900 text-gray-100 rounded-lg p-4 font-mono text-xs overflow-x-auto">
-          <div className="text-gray-500 mb-1">{`// Block config in Payload`}</div>
-          <div>{embedSnippet}</div>
-          <div className="mt-3 text-gray-500">{`// Public API used by the marketing site`}</div>
-          <div className="text-blue-300">GET {publicGetUrl}</div>
-          <div className="text-emerald-300">POST {publicPostUrl}</div>
+
+        <div className="bg-gray-900 text-gray-100 rounded-lg p-4 font-mono text-xs overflow-x-auto space-y-3">
+          <div>
+            <div className="text-gray-500 mb-1">{`<!-- 1. Where the form should appear -->`}</div>
+            <div className="text-blue-300 break-all">{embedPlaceholderHtml}</div>
+          </div>
+          <div>
+            <div className="text-gray-500 mb-1">{`<!-- 2. Loader script (once per page, anywhere) -->`}</div>
+            <div className="text-emerald-300 break-all">{embedScriptHtml}</div>
+          </div>
+        </div>
+
+        <div className="mt-5">
+          <h3 className="text-sm font-semibold text-gray-900 mb-1.5">Optional customization</h3>
+          <p className="text-xs text-gray-600 mb-2">
+            Add any of these <code className="bg-gray-100 px-1 py-0.5 rounded font-mono">data-*</code> attributes to the
+            placeholder div to override defaults. The form definition (fields, labels, success message) always comes from
+            this builder.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border border-gray-200 rounded-lg overflow-hidden">
+              <thead className="bg-gray-50 text-gray-700">
+                <tr>
+                  <th className="text-left px-3 py-2 font-medium">Attribute</th>
+                  <th className="text-left px-3 py-2 font-medium">Values</th>
+                  <th className="text-left px-3 py-2 font-medium">Effect</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                <tr>
+                  <td className="px-3 py-2 font-mono text-gray-700">data-theme</td>
+                  <td className="px-3 py-2 font-mono text-gray-600">light | dark</td>
+                  <td className="px-3 py-2 text-gray-600">Switch to dark theme for hero/dark sections</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-mono text-gray-700">data-align</td>
+                  <td className="px-3 py-2 font-mono text-gray-600">center | left</td>
+                  <td className="px-3 py-2 text-gray-600">Header alignment (form fields are always left-aligned)</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-mono text-gray-700">data-eyebrow</td>
+                  <td className="px-3 py-2 font-mono text-gray-600">any text</td>
+                  <td className="px-3 py-2 text-gray-600">Small uppercase line shown above the heading</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-mono text-gray-700">data-heading</td>
+                  <td className="px-3 py-2 font-mono text-gray-600">any text</td>
+                  <td className="px-3 py-2 text-gray-600">Override the form name as the heading</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-mono text-gray-700">data-description</td>
+                  <td className="px-3 py-2 font-mono text-gray-600">any text</td>
+                  <td className="px-3 py-2 text-gray-600">Override the description shown below the heading</td>
+                </tr>
+                <tr>
+                  <td className="px-3 py-2 font-mono text-gray-700">data-show-header</td>
+                  <td className="px-3 py-2 font-mono text-gray-600">true | false</td>
+                  <td className="px-3 py-2 text-gray-600">Hide the eyebrow / heading / description block entirely</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="mt-5">
+          <h3 className="text-sm font-semibold text-gray-900 mb-1.5">Public API (advanced — for fully custom HTML)</h3>
+          <p className="text-xs text-gray-600 mb-2">
+            If you&apos;d rather hand-roll the HTML and just POST submissions, use these endpoints directly. Both are CORS-enabled
+            for opticwise.com.
+          </p>
+          <div className="bg-gray-900 text-gray-100 rounded-lg p-4 font-mono text-xs overflow-x-auto">
+            <div className="text-blue-300 break-all">GET {publicGetUrl}</div>
+            <div className="text-emerald-300 break-all">POST {publicPostUrl}</div>
+          </div>
         </div>
       </Section>
     </div>

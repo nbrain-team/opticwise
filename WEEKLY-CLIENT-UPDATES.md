@@ -1,10 +1,24 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: May 8, 2026  
-**Latest Period**: February 14 - May 8, 2026  
-**Status**: Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CMS Migration to Payload CMS, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
+**Latest Update**: May 11, 2026  
+**Latest Period**: February 14 - May 11, 2026  
+**Status**: Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
 
 ---
+
+### 2026-05-11 — Forms Now Drop Into Any HTML Page in Two Lines (Payload-Free Embed)
+
+- The marketing site is moving off Payload CMS to a plain HTML stack, so we shipped a brand-new **standalone JavaScript embed** for OpticWise forms that drops into any `.html` page with two lines and zero build tooling
+- **Two-line snippet (the entire integration):**
+  ```
+  <div data-opticwise-form="ppp-starter-kit"></div>
+  <script src="https://ownet.opticwise.com/forms/embed.js" defer></script>
+  ```
+- The loader script (served from the platform itself at `https://ownet.opticwise.com/forms/embed.js`) auto-finds every `[data-opticwise-form]` placeholder on the page, fetches the form definition from the same OpticWise API the CRM uses, renders the fields with brand-matched styling, captures referrer + UTM attribution at submit time, and posts the submission back so it lands as a Contact + Company + Deal in the CRM (and triggers the confirmation email if enabled) — exactly like the old Payload embed did
+- **Per-page customization without changing the form** — drop in any of these `data-*` attributes on the placeholder `<div>` to control presentation: `data-theme="light|dark"` (dark mode for hero sections), `data-align="center|left"`, `data-eyebrow="WORK WITH US"`, `data-heading="Get in touch"`, `data-description="..."`, `data-show-header="false"` (hide the header block entirely if the page already provides its own copy)
+- **Form Builder UI updated to match.** The "Embed" section in `https://ownet.opticwise.com/forms/[id]` no longer references Payload — it now shows the two-line HTML snippet pre-filled with the current form's slug, a full reference table for every customization attribute, and the raw GET/POST endpoints for anyone who wants to hand-roll a custom HTML form instead of using the loader
+- **Zero impact on existing form data or behavior.** Same database, same submission processing, same owner notifications, same per-form confirmation email, same honeypot spam protection, same UTM/referrer attribution. Only the front-end embed mechanism changed — so the five production forms (Schedule Review, Send a Message, PPP Audit, PPP Starter Kit, Insights Newsletter) now work on the new HTML site exactly the way they used to work on the Payload pages
+- **CSS-isolated by design.** Every style rule the embed injects is namespaced under `.ow-form-embed` so it cannot leak into or fight with the host page's CSS. Inherits the host page's font automatically. Mobile-responsive out of the box. Fires a `opticwise:form:submitted` CustomEvent on success so the host page can hook analytics/conversion tracking if desired
 
 ### 2026-05-08 — Form Builder Now Sends a Templated Confirmation Email to Every Submitter (Auto-Reply from Bill@Opticwise.com)
 
