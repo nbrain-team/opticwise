@@ -207,6 +207,7 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 - **Where we are today:** I see `app/deal/`, `app/deals/` routes but no obvious file-upload widget. Need to confirm if there's a `DealFile` table.
 - **Questions for Bill:**
   1. Files = uploaded from desktop, or linked from Google Drive, or both? (Strong rec: both — upload for one-offs, Drive link for shared/RBAC'd assets.)
+     - **Answer (2026-05-11):** **Both.** Upload from desktop for one-off artifacts (proposals, signed NDAs, term sheets, scans) AND link from Google Drive for shared/RBAC'd assets. The Drive link path preserves the source-of-truth in Drive (versioned, ACL'd) instead of copying.
   2. Max size we should support per file? (10 MB / 100 MB / unlimited?)
   3. Should files attached to a deal be **searchable** by the agent (extracted text vectorized into the knowledge base scoped to that deal)?
 - **Recommended approach:** S3-backed file storage on the deal + a "Link from Drive" button. Optional vectorization toggle per file.
