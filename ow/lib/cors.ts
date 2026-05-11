@@ -18,15 +18,27 @@ export function getAllowedOrigins(): string[] {
   const defaults = [
     "https://opticwise.com",
     "https://www.opticwise.com",
+    // Static HTML mirror of opticwise.com hosted on Render (see
+    // github.com/nbrain-team/opticwise-html — deploys to
+    // opticwise-html.onrender.com and any custom domain pointed at it).
+    "https://opticwise-html.onrender.com",
+    // peakpropertyperformance.com — host for the ppp-review form.
+    "https://www.peakpropertyperformance.com",
+    "https://peakpropertyperformance.com",
   ];
 
   return Array.from(new Set([...fromEnv, ...defaults]));
 }
 
 /**
- * If the request Origin is allow-listed (or matches *.vercel.app for Payload
- * preview deploys), echo it back. Otherwise return null and the route should
- * NOT include any CORS headers (browser will reject).
+ * If the request Origin is allow-listed (or matches one of our preview-deploy
+ * patterns), echo it back. Otherwise return null and the route should NOT
+ * include any CORS headers (browser will reject).
+ *
+ * Preview-deploy patterns (always allowed regardless of env config):
+ *   - *.vercel.app                       — Payload marketing site previews
+ *   - opticwise-html-*.onrender.com      — Render PR/branch previews of the
+ *                                          static HTML mirror
  */
 export function resolveAllowedOrigin(requestOrigin: string | null): string | null {
   if (!requestOrigin) return null;
@@ -34,11 +46,20 @@ export function resolveAllowedOrigin(requestOrigin: string | null): string | nul
   const list = getAllowedOrigins();
   if (list.includes(normalized)) return normalized;
 
-  // Allow Vercel preview deploys for the Payload site by default. Tighten
-  // later if needed by setting MARKETING_SITE_ORIGINS to a strict list.
   try {
     const u = new URL(normalized);
     if (u.hostname.endsWith(".vercel.app")) return normalized;
+    // Render PR / branch previews for the static HTML mirror are named
+    // like `opticwise-html-pr-12.onrender.com` or
+    // `opticwise-html-staging.onrender.com`. We deliberately scope this
+    // to the opticwise-html service prefix — *.onrender.com on its own
+    // would allow any other Render customer's app to talk to our API.
+    if (
+      u.hostname.endsWith(".onrender.com") &&
+      u.hostname.startsWith("opticwise-html")
+    ) {
+      return normalized;
+    }
   } catch {
     return null;
   }
