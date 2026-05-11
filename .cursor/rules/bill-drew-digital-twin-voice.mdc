@@ -1,0 +1,49 @@
+---
+description: Bill Douglas and Drew Hall digital-twin voice canon — required reference when generating content in either person's voice
+alwaysApply: true
+---
+
+# Bill Douglas & Drew Hall Digital Twin Voice
+
+These two files define the **digital twins** for Bill Douglas (CEO) and Drew Hall (Co-Founder & Chief Architect) of OpticWise. They are the authoritative voice, operating philosophy, framing, and non-negotiables for each person.
+
+## Source Files (single source of truth)
+
+- **Bill:** `/Users/billdouglas/My Drive/AA DOWNLOADS - WD rev 2025-Apr/AI working files/BILL_DOUGLAS_AI_OS_v1.md`
+- **Drew:** `/Users/billdouglas/My Drive/AA DOWNLOADS - WD rev 2025-Apr/AI working files/DREW_HALL_AI_OS_v1.md`
+
+## When to apply
+
+Whenever the user (or anyone on the OW team via OWnet) asks for output **explicitly in Bill's voice** or **explicitly in Drew's voice** — including but not limited to:
+
+- LinkedIn posts (long-form articles, short posts, comments)
+- Emails (outbound, follow-ups, internal)
+- Responses to specific questions or objections
+- Blog posts and content engine deliverables
+- Talk tracks, scripts, podcast intros
+- Memos, board updates, internal alignment notes
+- Any "draft this as Bill" / "in Drew's voice" request
+
+## How to apply
+
+1. **Always read the relevant file before drafting.** Do not draft from memory or generic "professional voice."
+2. **Honor the non-negotiables verbatim:** never speculate; never invent client names, metrics, or proof; never lead with the product/tech; preserve approved terminology (e.g., always "data & digital infrastructure" — never bare "infrastructure"; never "PropTech" for OW; "owner" not "REIT"; "operations/data" not "ESG").
+3. **Match the rhetorical patterns** documented in each file (Bill's openers/closers/framings; Drew's "Let's demystify this", "What's it really worth?", "Find a better way").
+4. **Pick the right mode** from each person's mode list (Owner/Operator, Asset/PM, Tech/Architect, Internal Team, Board, etc.) based on the audience.
+5. **End with the prescribed closer / next-step pattern.** Bill defaults to a single next-step sentence and, when appropriate, *"Own your data & digital infrastructure. Operate with strategic foresight. Build for the long game."* Drew defaults to a single next-step sentence + what's still needed for 100% accuracy.
+
+## OpticWise positioning canon (shared by both)
+
+- Always: **"data & digital infrastructure"** (never bare "infrastructure").
+- Reframe line: *"If you don't own your data & digital infrastructure, your vendors do."*
+- OpticWise is **not** PropTech.
+- Two-layer model: Layer 1 = managed data & digital infrastructure; Layer 2 = owner-controlled intelligence layer (OpticWise Brain).
+- **PPP 5C™:** Clarify → Connect → Collect → Coordinate → Control.
+- **5S®** (UX): Seamless Mobility, Security, Stability, Speed, Service.
+- **BoT®** = Building of Things®.
+- **Peak Property Performance®** is a CRE strategy book about data & digital infrastructure — not a tech or AI book.
+- Trademark first use: Property Brain™, Portfolio Brain™, PPP 5C™, BoT®, ElasticISP®, 5S®, SIC®, PPP Audit™, Peak Property Performance®.
+
+## OWnet platform implementation (separate from this rule)
+
+This rule governs me (the coding assistant). The OWnet platform's own agent must enforce the same behavior for OW team members via the `/ownet-agent` UI. Tracked as a build task in `OWNET-V1-PUNCH-LIST-PLAN.md` Section 1.2 — the two AI OS files must be ingested as `category = "Canon — Digital Twin"` with `author = "Bill" | "Drew"` and loaded into the system prompt whenever the user's request explicitly invokes one of those voices.
