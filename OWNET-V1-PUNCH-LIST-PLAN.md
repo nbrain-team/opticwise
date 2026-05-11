@@ -45,6 +45,12 @@ Once you fill in the question blocks we tackle them one section at a time — I'
 - **Gap to "done":** Decide whether "digital twin" = voice (done) or behavioral/decision twin (not done). If behavioral, we need a persona prompt + a personal-correspondence corpus (emails, Slack DMs, meeting transcripts where you're the speaker).
 - **Questions for Bill:**
   1. Define "digital twin" for each of WD and DH: **(a) voice clone for writing**, **(b) decision/advisor agent that responds to questions as if it were you**, or **(c) both**?
+     - **Answer (2026-05-11):** Digital twins are defined by two existing files that are now the single source of truth:
+       - Bill: `/Users/billdouglas/My Drive/AA DOWNLOADS - WD rev 2025-Apr/AI working files/BILL_DOUGLAS_AI_OS_v1.md`
+       - Drew: `/Users/billdouglas/My Drive/AA DOWNLOADS - WD rev 2025-Apr/AI working files/DREW_HALL_AI_OS_v1.md`
+       - When OW employees ask OWnet for LinkedIn posts, responses, emails, or any content **explicitly in Bill's voice or Drew's voice**, the OWnet agent must refer to the matching file as the persona/voice canon.
+       - **Codified as a Cursor project rule:** `.cursor/rules/bill-drew-digital-twin-voice.mdc` (alwaysApply: true).
+       - **Build task implied:** ingest both files into the OWnet knowledge base as `category = "Canon — Digital Twin"` with `author = "Bill" | "Drew"`, and update the OWnet agent's system prompt so explicit "Bill's voice" / "Drew's voice" requests load the corresponding file as the persona.
   2. For Danny (DH) — he offered to dump his customGPT exports into per-person folders. Has that landed anywhere yet? If not, what's the ETA so we can ingest?
   3. Is there any class of personal correspondence (medical, legal, family) that must be **excluded** from the twin training set?
   4. Should the twins be **callable as named agents** inside OWnet (e.g., `/agent/wd` and `/agent/dh` chat surfaces) or just **as personas** the main agent adopts when asked?
