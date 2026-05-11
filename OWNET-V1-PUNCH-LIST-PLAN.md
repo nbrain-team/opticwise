@@ -295,13 +295,15 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 - **Effort:** `L` (per-user OAuth, refresh-token storage, retrieval-layer rewrite, banner UI, regression tests across all four groups in the matrix).
 
 ## 4.3 Slack — intelligent AI chat & assistance
-- **Where we are today:** Slack bot deployed (per recent updates), MCP Slack is configured but disabled pending the `users:read` / `channels:read` / `channels:history` scopes.
-- **Gap to "done":** Add the missing Slack scopes (2-minute change), then verify intelligent assistance works in DMs and threads.
+- **Where we are today:** Slack bot deployed (per recent updates), MCP Slack is configured but disabled pending the `users:read` / `channels:read` / `channels:history` scopes. **Important discovery (2026-05-11):** the OWnet Slack app was created by Danny DeMichele at nBrain under his developer account; Bill is NOT a collaborator, so Bill cannot edit OAuth scopes himself. Confirmed via Slack marketplace screenshot.
+- **Gap to "done":** Add the missing Slack scopes (2-minute change), then verify intelligent assistance works in DMs and threads. **Blocked on Danny** until he adds Bill as a Collaborator + adds the three scopes.
 - **Questions for Bill:**
   1. Who has admin on the OW Slack workspace to add the scopes? (You, Roxana, Danny?)
+     - **Answer (2026-05-11):** **Blocked on Danny.** Tracked as item 1 in `DANNY-TODOS.md` (`opticwise/DANNY-TODOS.md`). Two-part ask: (1a) add Bill as Collaborator on the OWnet Slack app for long-term self-serve; (1b) add the three Bot Token Scopes (`users:read`, `channels:read`, `channels:history`) and Reinstall to Workspace. Suggested message-to-Danny is in the TODO file. Once Danny completes, Bill verifies via https://api.slack.com/apps showing the `ownet` app in his list with the new scopes visible.
+     - **DM verification side-note:** the DM Bill tried to send the bot ("what channels can you see?") failed with "Slack couldn't send this message" because the bot is not configured for DM conversation (would need `im:history`, `im:read`, an event subscription for `message.im`, and a handler). That's a separate capability from the three read scopes — addressed in question 2 below.
   2. Do you want the bot to respond in every channel or only when @-mentioned?
   3. Should the bot **write to Slack** (post summaries, action items) or only **answer questions**?
-- **Effort:** `S`
+- **Effort:** `S` (once Danny unblocks).
 
 ## 4.4 Gmail
 - **Status:** Live for forms, password reset, owner notifications, etc.
