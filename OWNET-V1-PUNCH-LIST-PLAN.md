@@ -175,9 +175,20 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 - **PDF:** "deal has all emails in in. very confusing"
 - **Questions for Bill:**
   1. Can you confirm whether the issue is (a) emails showing in the wrong deal, (b) emails duplicated, (c) emails attached but unreadable, or (d) something else?
+     - **Answer (2026-05-11):** **(a) Wrong emails showing.** The deal pulls **the entire inbox**, not just the emails associated with the deal's contacts/companies. Reproduced on this exact deal (URL: `https://ownet.opticwise.com/deal/cmouc146f00l5oa2ah68a4l5k`). UI shows `Email Messages: 0` (correct — nothing explicitly linked) yet the Emails tab below renders unrelated emails: Gemini trading promo, CDIA Vegas sponsorship to Charley, PPP Podcast invite to Chad, Realcomm Webinars, etc. None of these touch Aspen Oak or anyone associated with this deal.
   2. Is this still broken **today** in the current build, or was it a snapshot from before the email-linking fixes?
-- **Recommended approach:** I'll pull this deal's email associations from the DB, screenshot the UI, and we either fix-forward or do a manual cleanup script. This may resolve once 3.5 (email-linked-to-deal) is fixed.
-- **Effort:** `S`–`M`
+     - **Answer (2026-05-11):** **Still broken today.** Bill created this deal new on 5/6/2026 and the bug is present in the current production build (as of 5/11/2026). Confirmed reproduction at the URL above. Not a stale-state issue — this is a live bug in `app/deal/[id]/page.tsx`.
+- **Root-cause diagnosis (2026-05-11):**
+  - File: `opticwise/ow/app/deal/[id]/page.tsx` lines 94–124 (the `addressMatched` block).
+  - The block matches **any inbox email** whose `from` OR `to` contains the deal's person email OR the deal's organization domain. If the org domain is generic (`opticwise.com`, `gmail.com`, `yahoo.com`, `outlook.com`, etc.) OR the person email is the deal owner's own email (e.g., `bill@opticwise.com`), the OR clause matches half the inbox.
+  - Secondary risk: lines 80–92 (`threadLinkedEmails`) join by `subject` only, so threads with short/generic/empty subjects can spuriously match. Currently masked by the bigger bug but will surface after the primary fix.
+- **Fix (Sprint 1 — `S` effort):**
+  1. **Guard against generic-domain matching.** Skip the `addressMatched` domain branch entirely if `deal.organization.domain` is in a deny-list (`gmail.com`, `yahoo.com`, `hotmail.com`, `outlook.com`, `icloud.com`, `aol.com`, `me.com`, plus the current OW user's own domain `opticwise.com` when that domain matches the logged-in user's email domain — i.e., never address-match on the trainer's own domain).
+  2. **Guard against owner=contact.** If `deal.person.email` matches the current logged-in user's email, skip the person-email branch of `addressMatched`. (You should never address-match on yourself.)
+  3. **Fix `threadLinkedEmails`.** Require subject to be non-empty AND personId OR syncUserId to be set; never match by subject alone.
+  4. **Add UI control.** A "Show inferred matches" toggle (off by default) on the Deal Emails tab so the only thing rendered by default is `directlyLinked` + properly-filtered `threadLinkedEmails`. The inferred-matches view becomes an opt-in widening, not the default.
+  5. **Verify on the Harlow/Aspen Oak deal** — the Emails tab should render an empty state until you explicitly link an email or add a properly-scoped contact.
+- **Effort:** `S` (single-file change + regression test).
 
 ## 3.2 Add companies/contacts inline when creating a deal
 - **PDF:** "when creating a new deal I need the ability to add companies and contacts rather than just find them from a very long list"
