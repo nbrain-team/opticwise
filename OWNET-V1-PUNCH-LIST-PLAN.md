@@ -152,47 +152,20 @@ Once you fill in the question blocks we tackle them one section at a time — I'
 
 ---
 
-# 2. PPP Website (peakpropertyperformance.com)
+# 2. PPP & OW Websites
 
-## 2.1 PPP website built new
-- **PDF:** "this only needs forms working to be done"
-- **Where we are today (per 2026-05-11 update):** PPP Review form is **live**, PPP Starter Kit Download is **live**, PPP Audit Request is **live**, Newsletter is **live**. Two-line HTML embed (`<div data-opticwise-form="…">` + `embed.js`) drops into any page. Submissions land in CRM with attribution. ✅ likely already done.
-- **Gap to "done":** Verify every CTA on the PPP site is using the embed snippet and lands a deal in the correct pipeline stage. The marketing-site team needs to apply the snippet doc.
-- **Questions for Bill:**
-  1. Is the PPP site cutover to the new HTML stack complete (off Payload)? If not, what's the date and who's executing?
-  2. Are there any PPP CTAs we missed in the inventory? (Walk me through the sitemap if so.)
-  3. Confirm pipeline routing: PPP Review + Starter Kit + Audit → **PPP book leads** stage. Newsletter → ? (PPP brand or shared with OW?)
-- **Effort:** `S` (verification + any missed CTAs)
+## Section 2 — CLOSED (executive call, 2026-05-11)
 
-## 2.2 AEO (Answer Engine Optimization) — PPP and OW
-- **PDF:** "AEO?" and "both websites optimized for SEO and AEO"
-- **Where we are today:** Nothing AEO-specific in the codebase. SEO basics likely exist on the marketing sites but not measured.
-- **Gap to "done":** AEO = getting cited by ChatGPT/Perplexity/Claude/Gemini answers. Concrete deliverables: (1) **llms.txt** + **llms-full.txt** on both sites listing canonical pages with summaries; (2) structured FAQ/HowTo/Article schema on every long-form page; (3) clean, citation-ready summaries at the top of each page; (4) a monitoring loop that asks the major LLMs ~25 target queries weekly and tracks whether OW/PPP is cited.
-- **Questions for Bill:**
-  1. What are the **25 target queries** you most want AI assistants to answer with OW/PPP as a source? (e.g., "How do asset managers benchmark internet performance across a multifamily portfolio?")
-  2. Acceptable to publish `llms.txt` and structured schema on both sites? (No downside but worth confirming.)
-  3. Do you want the AEO monitoring tool to live **inside OWnet** (recommended — it's brand intelligence) or as an external dashboard?
-- **Recommended approach:** Phase 1 — publish `llms.txt` + schema (S). Phase 2 — build `/aeo-monitor` page inside OWnet that runs the 25 queries weekly against 4 LLMs, scores citation, and trends it (M).
-- **Effort:** `M`
+**Bill's decision (2026-05-11):** Everything relative to both websites (PPP and OW) is considered **done**. No additional scope, verification, or follow-on work required from OWnet for v1.
 
-## 2.3 Spinning up future landing pages
-- **PDF:** "How do I spin up landing pages in the future?"
-- **Where we are today:** PPP and OW are static HTML now; landing pages are hand-coded. No CMS.
-- **Gap to "done":** A repeatable pattern. Three real options:
-  - **Option A:** Each new landing page is a folder of HTML files committed to the marketing-site repo, copied from a `_template/` directory. Cheap, technical.
-  - **Option B:** Bring back a thin headless CMS (Payload-lite, or just MDX in a Next.js project) so non-devs can publish.
-  - **Option C:** Build a `/landing-pages` admin inside OWnet that generates static HTML and pushes it to the marketing site repo (CMS without a CMS).
-- **Questions for Bill:**
-  1. Who's the typical author of a new landing page going forward — you, Roxana, an outside marketer?
-  2. How often — monthly, weekly, ad-hoc per campaign?
-  3. Do you want the landing page builder to embed OWnet forms by default (yes obviously, just confirming)?
-- **Recommended approach:** Option A short-term (template + clear docs), Option C medium-term if frequency > 2/month.
-- **Effort:** `S` (Option A) → `L` (Option C)
+This applies to all four originally tracked items:
 
-## 2.4 OW website
-- **PDF:** "No action required on the below. WD will handle these." — `data-digital-cre-review.opticwise.com`, `stop-flying-blind.opticwise.com`, need forms→CRM, SEO+AEO.
-- **Status:** Forms→CRM is **done** per recent updates. SEO/AEO covered in 2.2.
-- **Action:** None for me unless you flag a specific subdomain CTA still not wired.
+- **2.1 PPP website built new** — done.
+- **2.2 AEO (Answer Engine Optimization) — PPP + OW** — done (or out of scope for v1).
+- **2.3 Future landing page workflow** — done (or out of scope for v1).
+- **2.4 OW website** — done (WD-owned per original PDF; no further action).
+
+If a website-related gap surfaces later, re-open as a new line item. Until then this section is parked.
 
 ---
 
