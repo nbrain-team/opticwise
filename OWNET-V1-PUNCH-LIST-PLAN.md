@@ -66,7 +66,25 @@ Once you fill in the question blocks we tackle them one section at a time — I'
 - **Gap to "done":** (1) Get the customGPT export OR rebuild from prompt + knowledge files; (2) ingest objection-handling corpus from WD emails; (3) decide if these become **modes** of the OWnet agent or **separate sub-agents**.
 - **Questions for Bill:**
   1. Did ChatGPT ever return the customGPT export? If not, do we have the **system prompts** and the **knowledge file list** captured anywhere (screenshots, copy/paste in Slack)?
-     - **Answer (2026-05-11):** ChatGPT never returned the export. Bill instead built a **combined Marketing + Sales Claude project** that supersedes the original customGPTs and is more recent/consolidated. The Claude project content is captured locally in `/Users/billdouglas/My Drive/AA DOWNLOADS - WD rev 2025-Apr/AI working files/` — including the consolidated project instructions (`OpticWise_Cowork_Project_Instructions_UPDATED (2).md`), `SALES_PLAYBOOK.md`, `WD2_Sales_Reframe_Playbook.md`, `2026-May_OpticWise_Canonical_SB7_BrandScript.md`, `OW_Brandscript_best_examples.md`, `OpticWise_Wins_Nightmares_Library_Canonical_v2026-05c.md`, `OW_Big_Three_Plays_Diagnostic.md`, `OW_KeyCrew_*`, `OW_AssetManager_Mindset_Overlay_v1.md`, the competitive landscape + battlecards, the market context brief, `opticwise_execution_brain_trust_export.md`, and `Creighton_Archetype_Playbook_for_Slack.md`. (Bill's and Drew's AI OS files are already handled in 1.2 and are kept separate.) Bill's Claude account itself is not accessible programmatically — the local files are the rebuild corpus.
+     - **Answer (2026-05-11):** ChatGPT never returned the export. Bill instead built a **combined Marketing + Sales Claude project** that supersedes the original customGPTs and is more recent/consolidated. The Claude project content is captured locally in `/Users/billdouglas/My Drive/AA DOWNLOADS - WD rev 2025-Apr/AI working files/`. Bill's Claude account itself is not accessible programmatically — the local files are the rebuild corpus.
+     - **Key finding (2026-05-11):** The OWnet canon ingester already runs against `/Users/billdouglas/My Drive/AA DOWNLOADS - WD rev 2025-Apr/Claude CoWork Projects/OpticWise Content Engine/` and has already ingested the SB7 BrandScript, Sales Playbook, Bill+Drew AI OS, AssetManager Overlay, BrandVoice KeyCrew, Brandscript Best Examples, PPP book, Drew transfer pack, CLAUDE.md, CONTENT_BACKLOG, OW Blog exemplars, and OpticWise_Content_Engine_FINAL.md. **No re-ingestion of those needed.**
+     - **Net-new files in `AI working files/` to ADD** (decision 2026-05-11): ingest all of these once Bill's parallel edits settle —
+       - `OpticWise_Wins_Nightmares_Library_Canonical_v2026-05c.md` *(actively being edited in another chat — coordinate before re-ingest)*
+       - `OpticWise_Competitive_Landscape_2026-Apr.md`
+       - `OpticWise_Succinct_Competitive_Battlecard_v2.txt`
+       - `OpticWise_Competition_Battlecard_Full_Transcript.json` *(requires ingester to stop skipping `.json`, or convert to `.md` first)*
+       - `OW_KeyCrew_Canonical_Updates.md`
+       - `OW_KeyCrew_Content_Pack.md`
+       - `OW_Big_Three_Plays_Diagnostic.md`
+       - `WD2_Sales_Reframe_Playbook.md`
+       - `Creighton_Archetype_Playbook_for_Slack.md`
+       - `OpticWise_Market_Context_Brief_April2026.docx.md`
+       - `PPP Podcast Transcript Automation Spec.md`
+     - **Explicit exclusions:**
+       - `OpticWise_Cowork_Project_Instructions_UPDATED (2).md` — **DO NOT INGEST.** Bill is not using Claude Cowork; its contents would confuse the agent.
+       - `opticwise_execution_brain_trust_export.md` — in the WEISS subfolder; treat as client-specific until Bill says otherwise.
+       - `from ChatGPT - OpticWise Content Operating System (2026).md` — older small file likely outdated; skip unless Bill flags it.
+     - **Build task implied:** (1) extend `ingest-content-engine-canon.ts` classifier patterns to recognize the new file types (`wins_nightmares` → `Canon — Sales Library`, `competitive_landscape`/`competition_battlecard` → `Canon — Competitive`, `keycrew` → `Canon — Voice/Sales`, `big_three_plays` → `Canon — Sales Plays`, `sales_reframe` → `Canon — Sales Playbook`, `creighton_archetype` → `Canon — Persona Archetype`, `market_context_brief` → `Canon — Market Context`, `ppp podcast transcript automation` → `Canon — Workflow`); (2) optionally stop skipping `.json` so the battlecard transcript can be ingested; (3) add a hard exclusion list with the Cowork file; (4) run after Bill confirms Wins & Nightmares edits are stable.
   2. For "objection handling from WD emails" — which mailbox/label is the source corpus? Is there a Gmail label I should target (e.g., `objection-handling`, or specific senders)?
   3. Marketing GPT and Sales GPT: do you want them as **two visible modes** on the OWnet agent dropdown (alongside "Content Engine"), or as **two separate `/agent/marketing` and `/agent/sales` pages**?
   4. Who is allowed to use each? (Sales GPT might leak pricing strategy — RBAC matters here.)
