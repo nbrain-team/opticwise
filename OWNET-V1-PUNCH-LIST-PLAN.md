@@ -217,14 +217,7 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 
 ## 3.4 Edit and add pipelines + MTU Tenant Pipeline missing
 - **PDF:** "Need the ability to edit and add pipelines" and "There is no 'MTU Tenant Pipeline'. There's only one pipeline and nothing changes when I click the pipeline differentiators buttons to the right of 'Deals' text"
-- **Where we are today:** There's an `app/api/pipelines/` route and an `actions/pipelines.ts`. UI-side it sounds like the pipeline selector is broken or hardcoded.
-- **Gap to "done":** (1) Build pipeline CRUD admin UI; (2) fix the deals-page pipeline filter so it actually filters; (3) seed the MTU Tenant Pipeline (and any others you're missing).
-- **Questions for Bill:**
-  1. List every pipeline you need to exist by name. I see references to *Landing Pages Leads*, *PPP book leads*, *OW website inbound*, *MTU Tenant*. Anything else?
-  2. For each pipeline, list the stages in order. (I'll pre-fill a draft for your sign-off based on what's already in the DB.)
-  3. Should a deal be able to **move between pipelines**, or is pipeline an immutable property at create-time?
-- **Recommended approach:** Pipeline admin page → CRUD pipelines + stages → fix the deals-page filter bug as a discrete commit → seed missing pipelines.
-- **Effort:** `M`
+- **Status (2026-05-11):** **CLOSED — corrected separately by Danny.** Pipeline CRUD, the deals-page filter, and the missing MTU Tenant Pipeline are all resolved outside this punch list. No further action required from this scope.
 
 ## 3.5 Emails linked to deal don't actually show in the deal
 - **PDF:** "ref: Oakiq: Copper Creek (Lenexa, KS) deal and emails to/from Aaron Leatherdale"
