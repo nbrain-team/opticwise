@@ -27,9 +27,9 @@ const PIPELINE_NAME = "Landing Pages Leads";
 const STAGE_FOR_SLUG: Record<string, string> = {
   "schedule-review": "Landing pages",
   "inbound-contact": "OW website inbound",
-  "ppp-audit-request": "PPP book leads",
   "ppp-starter-kit": "PPP book leads",
   "insights-newsletter": "Landing pages",
+  "ppp-review": "PPP book leads",
 };
 
 type SeedField = {
@@ -268,19 +268,24 @@ const FORMS: SeedForm[] = [
   },
 
   // ---------------------------------------------------------------------
-  // 4. PPP AUDIT REQUEST
-  // Replaces: the broken "Schedule Your PPP Audit →" link on /ppp-audit
-  // (currently href="#"). New form lands the request directly in CRM.
+  // 4. PPP REVIEW (peakpropertyperformance.com)
+  // The single form for peakpropertyperformance.com — used on /ppp-review
+  // and as the destination for every "Request a PPP Review" CTA on the
+  // book/podcast brand site (home, /5c-framework, /for-owners,
+  // /for-asset-managers, /for-property-managers, /for-it-managers, /about).
+  // Functionally the same workflow as schedule-review, but kept as a
+  // separate slug so the source channel (book/podcast brand vs. OW corp
+  // brand) is preserved in the CRM for attribution.
   // ---------------------------------------------------------------------
   {
-    slug: "ppp-audit-request",
-    name: "PPP Audit Request",
+    slug: "ppp-review",
+    name: "PPP Review Request",
     description:
-      "Complimentary working session for one building — map who owns what, where data lives, and where operational burden stacks up against your KPIs.",
-    submitButtonLabel: "Request Your PPP Audit",
+      "Complimentary CRE Data & Digital Review. One building. 45 minutes. No software pitch. No rip-and-replace. Submitted from peakpropertyperformance.com.",
+    submitButtonLabel: "Request Your PPP Review",
     successMessage:
-      "Thanks! We've received your PPP Audit request. We'll reach out within one business day to schedule your working session.",
-    dealTitleTemplate: "PPP Audit — {firstName} {lastName} @ {company}",
+      "Thanks! We've received your PPP Review request. The OpticWise team will reach out within one business day to schedule your 45-minute working session.",
+    dealTitleTemplate: "PPP Review — {firstName} {lastName} @ {company}",
     fields: [
       {
         label: "First Name",
@@ -297,7 +302,7 @@ const FORMS: SeedForm[] = [
         mapsTo: "person_lastName",
       },
       {
-        label: "Email",
+        label: "Work Email",
         fieldKey: "email",
         fieldType: "email",
         required: true,
@@ -311,6 +316,14 @@ const FORMS: SeedForm[] = [
         mapsTo: "organization_name",
       },
       {
+        label: "Title / Role",
+        fieldKey: "title",
+        fieldType: "text",
+        required: false,
+        placeholder: "e.g. Asset Manager, COO, Director of IT",
+        mapsTo: "person_title",
+      },
+      {
         label: "Phone",
         fieldKey: "phone",
         fieldType: "tel",
@@ -321,7 +334,7 @@ const FORMS: SeedForm[] = [
         label: "Property Type",
         fieldKey: "property_type",
         fieldType: "select",
-        required: true,
+        required: false,
         placeholder: "Select…",
         options: PROPERTY_TYPE_OPTIONS,
       },
@@ -334,7 +347,7 @@ const FORMS: SeedForm[] = [
         options: PORTFOLIO_SIZE_OPTIONS,
       },
       {
-        label: "Property to Audit",
+        label: "Building You'd Like Reviewed",
         fieldKey: "property_name",
         fieldType: "text",
         required: false,
@@ -342,11 +355,11 @@ const FORMS: SeedForm[] = [
         helpText: "The single building we'll focus on for the working session.",
       },
       {
-        label: "Current Priorities",
+        label: "What You'd Like to Cover",
         fieldKey: "message",
         fieldType: "textarea",
         required: false,
-        placeholder: "Top 1–3 priorities or pain points…",
+        placeholder: "Top 1–3 priorities, current challenges, or what brought you to PPP…",
         mapsTo: "deal_notes",
       },
     ],
@@ -476,7 +489,7 @@ async function upsertForm(
             required: f.required,
             placeholder: f.placeholder ?? null,
             helpText: f.helpText ?? null,
-            options: (f.options ?? null) as any,
+            options: (f.options ?? undefined) as never,
             mapsTo: f.mapsTo ?? null,
           })),
         },
@@ -509,7 +522,7 @@ async function upsertForm(
           required: f.required,
           placeholder: f.placeholder ?? null,
           helpText: f.helpText ?? null,
-          options: (f.options ?? null) as any,
+          options: (f.options ?? undefined) as never,
           mapsTo: f.mapsTo ?? null,
         })),
       },
