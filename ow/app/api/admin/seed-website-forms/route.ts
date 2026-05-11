@@ -10,9 +10,11 @@ import type { FormFieldMapping, FormFieldType } from "@prisma/client";
  * Idempotent: re-running converges to the spec without changing existing
  * Form ids or breaking historical FormSubmission rows.
  *
- * Auth: pass the platform AUTH_SECRET as `x-admin-key` header.
+ * Auth: pass SEED_FORMS_SECRET (or AUTH_SECRET as fallback) as the
+ * `x-admin-key` header.
+ *
  *   curl -X POST https://ownet.opticwise.com/api/admin/seed-website-forms \
- *     -H "x-admin-key: $AUTH_SECRET"
+ *     -H "x-admin-key: $SEED_FORMS_SECRET"
  *
  * This route mirrors `scripts/seed-website-forms.ts` so it can be triggered
  * from anywhere (no Render Shell required). Both paths are kept in sync.
@@ -272,7 +274,8 @@ const FORMS: SeedForm[] = [
 
 export async function POST(request: NextRequest) {
   const authKey = request.headers.get("x-admin-key");
-  if (!authKey || authKey !== process.env.AUTH_SECRET) {
+  const expected = process.env.SEED_FORMS_SECRET || process.env.AUTH_SECRET;
+  if (!expected || !authKey || authKey !== expected) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
