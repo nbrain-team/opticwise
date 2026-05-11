@@ -2,9 +2,18 @@
 
 **Latest Update**: May 11, 2026  
 **Latest Period**: February 14 - May 11, 2026  
-**Status**: Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
+**Status**: Peak Property Performance® Site Now Wired Into the OpticWise CRM (PPP Review Form Live), Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
 
 ---
+
+### 2026-05-11 — Peak Property Performance® Site Wired Into the OpticWise CRM (5 Production Forms Live for Both Websites)
+
+- Audited every page of **opticwise.com** and **peakpropertyperformance.com** to inventory the full set of lead capture forms each site needs, then created/refreshed all of them in the OpticWise Form Builder so the new HTML versions of both sites can drop a single two-line snippet on each page and have submissions flow directly into the CRM as Contacts + Companies + Deals
+- **New PPP Review form launched** for the Peak Property Performance® brand (book/podcast site) — kept as a separate slug from the OpticWise corporate "Schedule Your Review" so source attribution is preserved in the CRM (PPP-brand leads route to the *PPP book leads* pipeline stage, OW-brand leads route to *Landing pages*). Includes role/title, property type, portfolio size, building name, and free-form context fields so the working session is pre-loaded with the right detail
+- **Re-seeded the Insights Newsletter** signup form (3 fields, lightweight) so any page on either site can host a footer or sidebar subscribe block that still creates a tracked Contact + Deal in the CRM for newsletter conversion attribution
+- **Confirmed the existing three production forms remain live and routed correctly:** Schedule Your Review (7 fields → Landing pages stage), Send a Message (6 fields → OW website inbound stage), and PPP Starter Kit Download (4 fields → PPP book leads stage). All five forms share the same submission processing — Person/Org/Deal creation, owner notification, optional submitter confirmation email, honeypot anti-spam, and UTM/referrer attribution
+- **Shipped a one-shot admin endpoint** (`POST /api/admin/seed-website-forms`, secret-protected) so the canonical marketing-site form set can be re-seeded from anywhere in seconds — no Render Shell, no manual SQL — making future form additions or refreshes a single curl call. Mirrors the standalone seed script so both paths stay in sync
+- **Outcome for the marketing team:** the new HTML versions of opticwise.com and peakpropertyperformance.com now have a complete, ready-to-paste embed code list — page by page — so the front-end build can wire every CTA on both sites into the OpticWise CRM with the same drop-in `<div data-opticwise-form="…">` pattern
 
 ### 2026-05-11 — Forms Now Drop Into Any HTML Page in Two Lines (Payload-Free Embed)
 
