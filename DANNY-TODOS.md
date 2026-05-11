@@ -29,18 +29,34 @@ Each item lists: what's needed, why, who's blocked, suggested wording for the Sl
 
 This is one-time. After this, Bill can self-serve all future Slack app config changes — scopes, event subscriptions, slash commands, OAuth redirects, etc.
 
-### 1b. Add Three Bot Token Scopes + Reinstall (~2 minutes)
-- Same Slack app config page (https://api.slack.com/apps → `ownet` app)
-- Left sidebar → **"OAuth & Permissions"**
-- Scroll to **"Bot Token Scopes"** section
-- Click **"Add an OAuth Scope"** three times, adding each of:
-  - `users:read`
-  - `channels:read`
-  - `channels:history`
-- Scroll to top of the same page — a yellow banner says *"Your app's permissions have changed — please reinstall your app"*.
-- Click **"Reinstall to Workspace"** → on the consent screen, click **"Allow"**.
+### 1b. Add Bot Token Scopes + Event Subscriptions + Reinstall (~5 minutes)
 
-After reinstall, the Bot Token Scopes list shows the three new scopes alongside whatever was already there.
+**Updated 2026-05-11** to include DM-conversation support (Phase 1 of the bot rollout per punch-list answer 4.3.2).
+
+**OAuth & Permissions → Bot Token Scopes** — add these (some may already exist):
+
+Read scopes (programmatic):
+- `users:read`
+- `channels:read`
+- `channels:history`
+
+DM + conversation scopes (so the bot can converse via DM):
+- `im:history`
+- `im:read`
+- `im:write`
+- `chat:write` (almost certainly already present — confirm)
+- `app_mentions:read` (almost certainly already present — confirm)
+
+**Event Subscriptions** (left sidebar → "Event Subscriptions"):
+- Make sure event subscriptions are **Enabled**
+- Request URL should already point at the OWnet platform's Slack events endpoint (`https://ownet.opticwise.com/api/slack/events`) — confirm green checkmark
+- Under "Subscribe to bot events", make sure these are present:
+  - `app_mention` (bot reacts to @-mentions)
+  - `message.im` (bot receives DMs)
+
+**Reinstall:** scroll to top of OAuth & Permissions; the yellow banner *"Your app's permissions have changed — please reinstall your app"* appears → click **"Reinstall to Workspace"** → on the consent screen, click **"Allow"**.
+
+After reinstall, the Bot Token Scopes list shows everything above, AND the bot can receive @-mentions and DMs.
 
 **Suggested Slack message Bill can paste to Danny:**
 
