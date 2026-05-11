@@ -235,6 +235,11 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 - **PDF:** "currently being tested"
 - **Questions for Bill:**
   1. Anything broken you've found during testing? List it here and I'll batch-fix.
+     - **Answer (2026-05-11):** Three confirmed issues:
+       - **(i) Search misses obvious matches.** Typing a partial last name returns nothing. Likely cause: query is doing exact-match or prefix-only instead of case-insensitive `contains`, or not searching across `firstName` + `lastName` + `email` + `companyName` in one OR clause. **Fix:** rewrite the search to do `ILIKE '%term%'` across all four fields (with a single index-friendly trigram-style query if performance becomes an issue at scale).
+       - **(ii) Duplicates that should have merged.** Contacts that obviously refer to the same person (same email, slight name variation; or same name + same company, different email casing) are showing as separate rows. Likely cause: dedup logic catches new submissions but historical duplicates were never merged. **Fix:** (a) write a one-time merge script that groups by normalized email + normalized name, picks the best record (most populated fields, oldest creation), and merges the others' relationships (deals, activities, email links) onto the canonical record. (b) Add an admin "Find duplicates" page that surfaces likely-dup pairs for one-click manual merge going forward.
+       - **(iii) Missing contacts that should be there (Gmail sync gap).** People you've actively emailed don't appear as Contacts. Likely cause: contact-extraction script doesn't run on every email, or only runs on inbound/outbound to specific addresses, or has filters that exclude valid contacts. **Fix:** audit `contact-extraction` script + its trigger (cron? per-email hook?), make sure every `from` + `to` + `cc` address on every Gmail message gets evaluated against the "create contact if not exists" rule, with deny-list for noreply/donotreply/automated senders.
+     - **Effort:** `S` for (i) — single query change. `M` for (ii) — needs merge script + admin UI. `S` for (iii) once root cause confirmed.
 
 ---
 
