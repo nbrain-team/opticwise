@@ -98,9 +98,10 @@ Once you fill in the question blocks we tackle them one section at a time — I'
 - **Where we are today:** Bill says competitive info was provided to Danny + lives in a Slack tab. Unclear what's actually in the vector store today.
 - **Questions for Bill:**
   1. Where does the market research live now (Google Drive folder path, Slack canvas link, specific files)?
+     - **Answer (2026-05-11):** Fully covered by the competitive + market files already queued for ingestion in Question 7 (`OpticWise_Competitive_Landscape_2026-Apr.md`, `OpticWise_Succinct_Competitive_Battlecard_v2.txt`, `OpticWise_Competition_Battlecard_Full_Transcript.json`, `OpticWise_Market_Context_Brief_April2026.docx.md`). No additional sources to import.
   2. Is this static (one-time import) or living (you'll keep adding research)? If living, do you want auto-watch on a Drive folder?
-- **Recommended approach:** Point the canon ingester at the folder, tag chunks `category = "Market Research"`, optional Drive folder watcher for fresh additions.
-- **Effort:** `S` (static) / `M` (living).
+     - **Moot (2026-05-11):** Resolved by #1.
+- **Status (2026-05-11):** **Closed.** No additional work beyond the Question 7 ingestion task.
 
 ## 1.5 Industry terminology library
 - **PDF:** "WD can build, with the glossary from PPP as the basis"
