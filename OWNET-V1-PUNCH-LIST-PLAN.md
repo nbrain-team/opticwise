@@ -211,7 +211,8 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
   2. Max size we should support per file? (10 MB / 100 MB / unlimited?)
      - **Answer (2026-05-11):** **10 MB** per uploaded file. UI displays a clear message: *"For anything bigger, paste a Drive link instead."* Server rejects >10 MB uploads with the same message. Drive-linked files have no size cap (Drive enforces its own).
   3. Should files attached to a deal be **searchable** by the agent (extracted text vectorized into the knowledge base scoped to that deal)?
-- **Recommended approach:** S3-backed file storage on the deal + a "Link from Drive" button. Optional vectorization toggle per file.
+     - **Answer (2026-05-11):** **Opt-in per file.** Default off. Each attached file shows a "Make this searchable" toggle. When toggled on, the file's text is extracted (PDF/DOCX/TXT; OCR for images optional later) and indexed into a `DealAttachmentChunk` table scoped to that deal — only retrievable when the agent is operating in that deal's context, never in general agent answers. Keeps NDAs / compensation docs / sensitive attachments out of retrieval unless explicitly enabled.
+- **Recommended approach:** S3-backed file storage on the deal + a "Link from Drive" button. Per-file `searchable: boolean` flag. When toggled true, async text extraction + chunk write to `DealAttachmentChunk` (deal-scoped retrieval). UI shows extraction status (Pending / Indexed / Failed) so Bill can see what's actually queryable.
 - **Effort:** `M`
 
 ## 3.4 Edit and add pipelines + MTU Tenant Pipeline missing
