@@ -270,10 +270,22 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 | **ASPR Onsite** |   | ASPR-subfolder only |   |   | ✅ |   | ASPR-only |
 
      - **Notable observations:**
-       - **Operations and Engineering have identical access.** May be intentional (they read the same Drive folder + Contacts + Production) — confirm before merging.
+       - **Operations and Engineering merge into a single group: "Ops & Engineering"** (Bill, 2026-05-11). Identical access was intentional consolidation, not a copy/paste artifact. The four working groups going forward are: Executives, Sales & Marketing, **Ops & Engineering**, ASPR Onsite.
        - **ASPR Onsite is the only "partial within a surface" group** — they get an ASPR-only subfolder of Engineering & Client Support, and an ASPR-only slice of Production. Implementation needs **sub-resource filtering**, not just a binary role check.
-       - **Operations + Engineering are explicitly walled off from CRM** — only Executives and Sales & Marketing see deals/pipelines. That has implications for the OWnet agent: when an Operations user queries "what's the status of the Aspen Oak deal?", the agent must refuse (or surface only the publicly-shareable parts) rather than retrieve from CRM data.
-       - **Production module ("to be added")** is a placeholder — RBAC slot reserved but the platform surface doesn't exist yet.
+       - **Ops & Engineering and ASPR Onsite are explicitly walled off from CRM** — only Executives and Sales & Marketing see deals/pipelines. That has implications for the OWnet agent: when an Ops & Engineering user queries "what's the status of the Aspen Oak deal?", the agent must refuse (or surface only the publicly-shareable parts) rather than retrieve from CRM data.
+     - **Revised working matrix (post-merge):**
+
+| Group | Drive: Exec Only | Drive: Eng & Client Support | Drive: Sales & Marketing | OWnet: CRM | OWnet: Contacts | OWnet: Campaigns | OWnet: Production *(future)* |
+|---|---|---|---|---|---|---|---|
+| **Executives** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Sales & Marketing** |   |   | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Ops & Engineering** |   | ✅ |   |   | ✅ |   | ✅ |
+| **ASPR Onsite** |   | ASPR-subfolder only |   |   | ✅ |   | ASPR-only |
+
+     - **Production module (definition, 2026-05-11):** A **customer-lifecycle module** that does not exist today. Concept: a customer's record begins as an unknown entity, becomes a **prospect** (Contact + Deal in CRM), advances through **sales** (deal stages), **contract**, and **engagement** — and at handoff time, the record **graduates from CRM into Production**, where it persists for the entire customer lifetime. Production carries the full upstream history (every marketing touch, sales note, signed doc, contract terms, scoped work) AND the downstream operational history (engineering implementation milestones, ops handoff, ongoing support, onsite work, billing relationships, renewals).
+       - **Single-source-of-truth principle:** one customer = one continuous record from "unknown" through "active customer," visible to whichever stage's group has access at that moment. Marketing/Sales sees it during pre-contract; Ops & Engineering and ASPR Onsite see it post-handoff; Executives see it always.
+       - **Implications for OWnet platform build:** new `Production` (or `Customer`) entity that absorbs a Deal at the "Won/Contract Signed" stage; preserves upstream Deal/Contact/Company links; carries new downstream sub-records for implementation, onsite visits, ops tickets, renewal cycles; respects the RBAC matrix per stage of the lifecycle.
+       - **Not part of v1 punch-list scope** — Production is a separate forthcoming project. The RBAC slot is reserved in the matrix; the data model + UI come later. Tracking here for awareness so v1 RBAC design doesn't paint us into a corner.
   2. Today the Drive integration uses a service account. Are you OK switching to **per-user OAuth** so RBAC is real? (Cost: each user has to authorize Drive once.)
   3. For users without Drive access at all (e.g., a contractor), should they see "0 results" or "you don't have access to OWnet's Drive corpus, talk to admin"?
 - **Recommended approach:** Migrate Drive auth to per-user OAuth → at retrieval time, filter results by `userHasAccess(userId, driveFileId)` (cached) → fall back to public canon for unauthenticated/non-drive users.
