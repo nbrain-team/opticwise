@@ -225,9 +225,11 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 - **Gap to "done":** Reproduce on the named deal, fix the read query (likely a join or filter mismatch between `email_link` and the deal-detail email list).
 - **Questions for Bill:**
   1. Is this still broken today, or fixed by the recent email-linking updates? (I'll verify on the named deal regardless.)
+     - **Answer (2026-05-11):** **Likely already resolved.** Verification still needed — when the Sprint 1 work picks this up, the first step is to load the Oakiq / Copper Creek (Lenexa, KS) deal with Aaron Leatherdale's emails and confirm the explicitly-linked emails render correctly. If they do, this item closes. If not, the fix is a join/filter mismatch in `directlyLinked` and we patch it during the same Sprint 1 pass that addresses 3.1.
   2. Do you want a "Sync emails from inbox into this deal" button on the deal page, or should it stay automatic?
-- **Recommended approach:** Reproduce → fix → write a regression test → confirm with you on the Copper Creek deal.
-- **Effort:** `S`
+     - **Answer (2026-05-11):** **Fully automatic.** No manual "sync" button. Email→deal linking should happen on its own — when an email arrives whose `from`/`to` matches a deal's person or properly-scoped org domain (per the deal-side guards added in the 3.1 fix), it's auto-linked. No human-in-the-loop required.
+- **Recommended approach:** During the Sprint 1 pass on 3.1, also (a) verify Copper Creek / Aaron Leatherdale linked emails render, (b) confirm the auto-link writer is firing on inbound mail, (c) write a regression test that creates a fake email + linked deal and asserts the email appears in `directlyLinked` for the deal-detail render.
+- **Effort:** `S` (mostly verification + regression test; fix-if-needed scoped tight).
 
 ## 3.6 Contact list (company-wide) — currently being tested
 - **PDF:** "currently being tested"
