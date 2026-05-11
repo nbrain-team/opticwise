@@ -196,8 +196,10 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 - **Gap to "done":** "Create new" affordance inside the picker — same pattern as adding a contact during a meeting-transcript review (mentioned in 5.4 below). One reusable combobox component.
 - **Questions for Bill:**
   1. When you create a contact-on-the-fly from inside the deal flow, do you need to land on the contact page after, or just want the deal to save and continue?
+     - **Answer (2026-05-11):** **Stay on the deal-create form.** The newly created contact appears as the selected value in the picker; Bill continues building the deal without context-switch. Same for companies.
   2. Same question for company.
-- **Recommended approach:** Build a `<InlineCreatePicker>` component → swap it in everywhere a long-list picker exists today (deals, transcripts, support tickets).
+     - **Answer (2026-05-11):** **Same — stay on the deal-create form.** Company creation behaves identically to contact creation.
+- **Recommended approach:** Build a `<InlineCreatePicker>` component → swap it in everywhere a long-list picker exists today (deals, transcripts, support tickets). On "Create new", open a small modal with the minimum required fields (name + email for contact; name + domain for company). Save creates the record, returns the new ID/label, the modal closes, and the picker shows the new entity as selected. No page navigation.
 - **Effort:** `M`
 
 ## 3.3 Files on deals
