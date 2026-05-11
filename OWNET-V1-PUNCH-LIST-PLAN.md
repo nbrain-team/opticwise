@@ -31,6 +31,7 @@ Once you fill in the question blocks we tackle them one section at a time — I'
 - **Gap to "done":** Confirm the `.md` version of the PPP book is the one currently chunked, that retrieval boosts it appropriately for PPP-flavored queries, and that nothing else (older PDF, draft chapters) is competing in the vector store.
 - **Questions for Bill:**
   1. Where is the canonical `.md` of the PPP book? (One folder I should treat as the single source of truth.)
+     - **Answer (2026-05-11):** `/Users/billdouglas/My Drive/AA DOWNLOADS - WD rev 2025-Apr/AI working files/peak_property_performance.md` (3,643 lines, ~315KB). This is the single source of truth; ingester should point here.
   2. Are there chapters/sections you do NOT want the agent to quote verbatim (e.g., parts still being edited)?
   3. Should PPP book chunks have a higher retrieval weight than blog/LinkedIn content? Default is equal.
 - **Recommended approach:** Re-run the canon ingester pointed at the `.md` folder with `--reingest`, delete any older PDF-derived chunks, verify with 5 retrieval probe queries.
