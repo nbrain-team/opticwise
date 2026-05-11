@@ -22,9 +22,14 @@ export function getAllowedOrigins(): string[] {
     // github.com/nbrain-team/opticwise-html — deploys to
     // opticwise-html.onrender.com and any custom domain pointed at it).
     "https://opticwise-html.onrender.com",
-    // peakpropertyperformance.com — host for the ppp-review form.
+    // peakpropertyperformance.com — host for the ppp-review form and the
+    // ppp-guest-inquiry / Be on the Show form on the PPP marketing site.
     "https://www.peakpropertyperformance.com",
     "https://peakpropertyperformance.com",
+    // Current Render preview URL for the PPP marketing site
+    // (github.com/nbrain-team/peakperformance) while it is still
+    // pre-DNS-cutover. Remove once www.peakpropertyperformance.com is live.
+    "https://peakperformance.onrender.com",
   ];
 
   return Array.from(new Set([...fromEnv, ...defaults]));
