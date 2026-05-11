@@ -35,7 +35,8 @@ Once you fill in the question blocks we tackle them one section at a time — I'
   2. Are there chapters/sections you do NOT want the agent to quote verbatim (e.g., parts still being edited)?
      - **Answer (2026-05-11):** None — all of it is fair game.
   3. Should PPP book chunks have a higher retrieval weight than blog/LinkedIn content? Default is equal.
-- **Recommended approach:** Re-run the canon ingester pointed at the `.md` folder with `--reingest`, delete any older PDF-derived chunks, verify with 5 retrieval probe queries.
+     - **Answer (2026-05-11):** Boost book higher — it's the authoritative source for foundational concepts.
+- **Recommended approach:** Re-run the canon ingester pointed at the `.md` folder with `--reingest`, delete any older PDF-derived chunks, apply higher retrieval weight to book chunks (tag with `category = "Canon — PPP Book"` and boost score in retrieval), verify with 5 probe queries.
 - **Effort:** `S`
 
 ## 1.2 WD & DH digital twins built or copied
