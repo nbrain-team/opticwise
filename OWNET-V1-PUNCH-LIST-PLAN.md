@@ -88,9 +88,11 @@ Once you fill in the question blocks we tackle them one section at a time — I'
   2. For "objection handling from WD emails" — which mailbox/label is the source corpus? Is there a Gmail label I should target (e.g., `objection-handling`, or specific senders)?
      - **Answer (2026-05-11):** Skip emails for now. Past emails have already been reviewed and the relevant material is captured in `SALES_PLAYBOOK.md`, `OpticWise_Wins_Nightmares_Library_Canonical_v2026-05c.md`, and the other canonical documents. If a future review of emails is needed, we'll revisit — but no email ingestion for this scope.
   3. Marketing GPT and Sales GPT: do you want them as **two visible modes** on the OWnet agent dropdown (alongside "Content Engine"), or as **two separate `/agent/marketing` and `/agent/sales` pages**?
+     - **Moot (2026-05-11):** No separate Marketing/Sales agent surfaces are needed. The customGPTs' content has been fully transferred into the canonical Markdown docs already living in `/Users/billdouglas/My Drive/AA DOWNLOADS - WD rev 2025-Apr/AI working files/` (and partly already ingested via the Content Engine canon). The OWnet agent will draw from those canon chunks at retrieval time — no separate modes/pages required.
   4. Who is allowed to use each? (Sales GPT might leak pricing strategy — RBAC matters here.)
-- **Recommended approach:** Build a `agent_mode` config table → seed Marketing + Sales modes with their prompts + retrieval filters → add objection-handling corpus as a tagged `KnowledgeDocument` set so retrieval can prioritize it when intent is "respond to objection."
-- **Effort:** `M`
+     - **Moot (2026-05-11):** No separate Sales/Marketing agent surfaces; RBAC question is rolled into the broader OWnet agent access control covered in other items.
+- **Revised resolution (2026-05-11):** Item 1.3 is effectively resolved by canon ingestion (Question 7). No `agent_mode` table, no separate `/agent/marketing` or `/agent/sales` routes. The only remaining work is the canon-extension build task captured under Question 7 (extend classifier patterns, ingest the net-new files, run after Wins & Nightmares edits settle).
+- **Effort:** Fully covered by the Question 7 build task. No additional work attributable to this item.
 
 ## 1.4 OW market research info imported
 - **Where we are today:** Bill says competitive info was provided to Danny + lives in a Slack tab. Unclear what's actually in the vector store today.
