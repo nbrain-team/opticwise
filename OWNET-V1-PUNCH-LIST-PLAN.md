@@ -140,6 +140,7 @@ Once you fill in the question blocks we tackle them one section at a time — I'
 - **Gap to "done":** A self-serve training surface with (1) **Ingest** (drop a file or URL → canon), (2) **Correct** (thumbs-down a bad answer + write the right one → it goes into a high-priority "corrections" index), (3) **Audit** (show what canon was retrieved for any given answer — sourcing for trust), (4) **Forget** (remove a doc and re-index).
 - **Questions for Bill:**
   1. Who needs to be able to train OWnet? (Just you and Drew? Or whole OW team?) → drives RBAC.
+     - **Answer (2026-05-11):** **Bill + Drew only.** Two-trainer model. RBAC scopes: both have full ingest/correct/edit/approve permissions; everyone else on the OW team can read what's been trained but cannot submit training data. (Implies a `role: trainer` flag on the `User` table, gated UI on `/knowledge-base/train`, and any "thumbs-down + write a correction" surface only renders for users with `role.trainer === true`.)
   2. Do you want corrections to be **immediate** (next query uses them) or **reviewed-then-published** (you approve before they're live)?
   3. Should conversation memory be **off by default** (your stated concern is hallucination from chat), with knowledge base being the single source of truth? My strong recommendation: yes, off by default, with a per-conversation "treat this thread as ground truth" toggle.
   4. Do you want a **weekly digest** ("here's what was added/corrected this week, here's what answers it changed")?
