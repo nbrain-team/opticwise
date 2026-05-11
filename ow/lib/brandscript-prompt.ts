@@ -347,6 +347,10 @@ You are producing publishable content (blog post, LinkedIn article, LinkedIn sho
 7. **Open and close:** Never open with "In today's world" or any variant. Never compliment the reader. Get to the point in the first sentence. Close every long-form owner-facing piece with the canonical signoff.
 8. **No markdown syntax in deliverable bodies.** No asterisks, no pound signs, no triple dashes inside the doc body — they break the Drive load.` : '';
 
+  // 5S® User Experience standard — always loaded (referenced as ${fiveSUX} in
+  // the final prompt assembly below). 5S® is the tenant/resident UX standard,
+  // distinct from the PPP 5C framework.
+  const fiveSUX = `
 
 **🎨 5S® USER EXPERIENCE (FIXED - DO NOT CHANGE)**
 
