@@ -254,6 +254,26 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 - **Gap to "done":** Per-user Drive access: when User X queries OWnet, the retrieval layer only returns chunks from docs **User X has access to in Drive**, using their OAuth token rather than a shared service account.
 - **Questions for Bill:**
   1. Can you re-paste (or link) the RBAC matrix from your March 3 message to Danny so I have it as the spec?
+     - **Answer (2026-05-11):** Matrix provided as screenshot (saved at `/Users/billdouglas/.cursor/projects/Users-billdouglas-My-Drive-Cursor-OWnet/assets/Screenshot_2026-03-02_at_6.05.27_PM-43e12f3f-bc5e-4605-a102-523c486cbb44.png`). Parsed into the structure below.
+     - **Groups (5):** Executives, Operations, Sales & Marketing, Engineering, ASPR Onsite.
+     - **Access surfaces (7):**
+       - Shared Google Drive Folders: (a) Executives Only, (b) Engineering & Client Support, (c) Sales & Marketing
+       - OWnet Platforms: (d) CRM, (e) Company Contacts, (f) Campaigns, (g) Production *(future — to be added)*
+     - **Authoritative access matrix:**
+
+| Group | Drive: Exec Only | Drive: Eng & Client Support | Drive: Sales & Marketing | OWnet: CRM | OWnet: Contacts | OWnet: Campaigns | OWnet: Production *(future)* |
+|---|---|---|---|---|---|---|---|
+| **Executives** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Operations** |   | ✅ |   |   | ✅ |   | ✅ |
+| **Sales & Marketing** |   |   | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Engineering** |   | ✅ |   |   | ✅ |   | ✅ |
+| **ASPR Onsite** |   | ASPR-subfolder only |   |   | ✅ |   | ASPR-only |
+
+     - **Notable observations:**
+       - **Operations and Engineering have identical access.** May be intentional (they read the same Drive folder + Contacts + Production) — confirm before merging.
+       - **ASPR Onsite is the only "partial within a surface" group** — they get an ASPR-only subfolder of Engineering & Client Support, and an ASPR-only slice of Production. Implementation needs **sub-resource filtering**, not just a binary role check.
+       - **Operations + Engineering are explicitly walled off from CRM** — only Executives and Sales & Marketing see deals/pipelines. That has implications for the OWnet agent: when an Operations user queries "what's the status of the Aspen Oak deal?", the agent must refuse (or surface only the publicly-shareable parts) rather than retrieve from CRM data.
+       - **Production module ("to be added")** is a placeholder — RBAC slot reserved but the platform surface doesn't exist yet.
   2. Today the Drive integration uses a service account. Are you OK switching to **per-user OAuth** so RBAC is real? (Cost: each user has to authorize Drive once.)
   3. For users without Drive access at all (e.g., a contractor), should they see "0 results" or "you don't have access to OWnet's Drive corpus, talk to admin"?
 - **Recommended approach:** Migrate Drive auth to per-user OAuth → at retrieval time, filter results by `userHasAccess(userId, driveFileId)` (cached) → fall back to public canon for unauthenticated/non-drive users.
