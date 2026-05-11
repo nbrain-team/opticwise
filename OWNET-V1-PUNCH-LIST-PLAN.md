@@ -209,6 +209,7 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
   1. Files = uploaded from desktop, or linked from Google Drive, or both? (Strong rec: both — upload for one-offs, Drive link for shared/RBAC'd assets.)
      - **Answer (2026-05-11):** **Both.** Upload from desktop for one-off artifacts (proposals, signed NDAs, term sheets, scans) AND link from Google Drive for shared/RBAC'd assets. The Drive link path preserves the source-of-truth in Drive (versioned, ACL'd) instead of copying.
   2. Max size we should support per file? (10 MB / 100 MB / unlimited?)
+     - **Answer (2026-05-11):** **10 MB** per uploaded file. UI displays a clear message: *"For anything bigger, paste a Drive link instead."* Server rejects >10 MB uploads with the same message. Drive-linked files have no size cap (Drive enforces its own).
   3. Should files attached to a deal be **searchable** by the agent (extracted text vectorized into the knowledge base scoped to that deal)?
 - **Recommended approach:** S3-backed file storage on the deal + a "Link from Drive" button. Optional vectorization toggle per file.
 - **Effort:** `M`
