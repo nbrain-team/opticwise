@@ -127,8 +127,11 @@ Once you fill in the question blocks we tackle them one section at a time — I'
 - **PDF:** "see previous slack msg to DD"
 - **Questions for Bill:**
   1. Can you paste the Slack message text here (or link it) so we have the authoritative source?
+     - **Answer (2026-05-11):** Bill pasted the full 30-Second Explainer in chat. Captured verbatim and saved as the canonical stance doc at `opticwise/canon/IT_vs_OT_stance_v1.md`. Contents: brain-vs-nerves analogy, IT/OT definitions with full example lists, OpticWise POV ("most owners have an IT strategy, almost none have an OT strategy"), the core sales line ("You've got a plan for IT. We help you build a plan for OT…"), three discovery questions, brand tie-in close ("We sit at the intersection of IT and OT…"), and an explicit stance-enforcement section for the OWnet agent.
   2. Is this a single primer doc to ingest, or a stance the agent must always take when IT/OT comes up (i.e., a rule/policy)?
-- **Recommended approach:** If it's a stance, codify it in the BrandScript prompt under a new "Domain Stances" section AND ingest the underlying explainer as a canon doc.
+     - **Answer (2026-05-11):** **Active stance/policy.** The OWnet agent must apply this framing **every time** IT, OT, or any OT-adjacent term (BMS, BAS, HVAC controls, access control, submeters, leak detection, cameras, building network, edge controllers) appears in a prompt or response — not just when explicitly asked. Five enforcement rules captured in the canon file: (1) frame OT-first, (2) always pair IT + OT under Owner Data Standard, (3) never describe OW as an "IT company" or an "OT vendor", (4) use the brain-vs-nerves analogy for non-technical owners, (5) drop the core line in any sales-context response.
+- **Build task implied:** (1) `opticwise/canon/IT_vs_OT_stance_v1.md` is committed and ready; (2) extend the canon ingester to walk a repo `canon/` folder in addition to the Drive canon folder (so repo-tracked canon flows into retrieval); (3) add a "Domain Stances" section to `ow/lib/brandscript-prompt.ts` that loads this stance when any IT/OT trigger term is detected in the prompt or retrieved context; (4) classifier rule: `it_vs_ot` → `Canon — Domain Stance` (priority 1).
+- **Status:** **Source captured + canonical file written.** Implementation is one build task (covered above).
 - **Effort:** `S`
 
 ## 1.7 Going-forward training workflow ⭐ (this is the big one)
