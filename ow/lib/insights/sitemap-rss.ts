@@ -35,9 +35,10 @@ export function insertOrReplaceInsightSitemapUrl(
   lastmodIso: string
 ): string {
   const loc = `${SITE}/insights/${slug}/`;
-  const lastmod = lastmodIso.includes("T")
-    ? lastmodIso.slice(0, 19) + "Z"
-    : lastmodIso;
+  let lastmod = lastmodIso;
+  if (lastmod.includes("T")) {
+    lastmod = lastmod.replace(/\.\d{3}Z$/, "Z").replace(/\+00:00$/, "Z");
+  }
 
   let urls = parseSitemapUrls(xml);
   urls = urls.filter((u) => u.loc !== loc);
@@ -55,9 +56,14 @@ export function insertOrReplaceInsightSitemapUrl(
     )
     .join("\n");
 
+  const openM = xml.match(/<urlset([^>]*)>/);
+  const openTag = openM
+    ? `<urlset${openM[1]}>`
+    : '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
   return xml.replace(
-    /([\s\S]*<urlset[^>]*>)\s*([\s\S]*?)(\s*<\/urlset>[\s\S]*)/,
-    `$1\n${inner}\n$3`
+    /<urlset[^>]*>[\s\S]*?<\/urlset>/,
+    `${openTag}\n${inner}\n</urlset>`
   );
 }
 
