@@ -63,6 +63,7 @@ Source of the bug is in `opticwise/ow/app/deal/[id]/page.tsx` — the email-matc
 
 **Sprint:** 1
 **Punch-list item:** 3.1
+**Status:** Verification rides on the 3.5 PR. Confirm post-deploy.
 **Plan reference:** `opticwise/OWNET-V1-PUNCH-LIST-PLAN.md` Section 3.1
 **Labels:** `sprint-1`, `verify-only`, `crm`
 **Branch:** `sprint-1/3.5-deal-email-overmatch-fix` (verification rides on the 3.5 PR)
