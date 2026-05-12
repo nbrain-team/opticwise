@@ -239,10 +239,6 @@ export default function InsightEditPage({
     editorRef.current?.insertHtml(
       `<p><img src="${url}" alt="" style="max-width:100%;height:auto" /></p>`
     );
-    setBodyHtml((prev) => {
-      /* sync deferred via editor */
-      return prev;
-    });
   }
 
   async function onImportDocx(e: React.ChangeEvent<HTMLInputElement>) {
@@ -262,7 +258,6 @@ export default function InsightEditPage({
     }
     const data = await res.json();
     setBodyHtml(data.html);
-    editorRef.current?.insertHtml("");
   }
 
   if (loading) {
