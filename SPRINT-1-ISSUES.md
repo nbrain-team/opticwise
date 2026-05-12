@@ -21,6 +21,7 @@
 
 **Sprint:** 1
 **Punch-list item:** 3.5
+**Status:** **PR open** (branch `sprint-1/3.5-deal-email-overmatch-fix`, pushed 2026-05-12 01:20)
 **Plan reference:** `opticwise/OWNET-V1-PUNCH-LIST-PLAN.md` Section 3.5
 **Labels:** `sprint-1`, `bug`, `crm`, `priority:high`
 **Branch:** `sprint-1/3.5-deal-email-overmatch-fix`
