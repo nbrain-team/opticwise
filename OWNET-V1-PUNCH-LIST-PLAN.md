@@ -554,6 +554,58 @@ WEB CONTACT (parallel):
 - **Recommended approach:** Build score recalculator first (Section 4.11.1 build task), get score visible across views, validate signal quality for ~2 weeks with real leads before turning on nurture + archive automation. Don't auto-archive on day 1 of launch — too risky if scoring has bugs.
 - **Effort:** `M` (score itself is simple; engagement event tracking + nurture/archive flows are most of the work).
 
+## 4.13 Social posting tool (replace Hootsuite)
+- **PDF:** "in original SOW… need ability for Roxana to post to 4 different LI profiles - Drew, Bill, PPP OW"
+- **Where we are today:** LinkedIn Manager exists. Multi-account posting + scheduling unclear.
+- **Gap to "done":** A "Social Composer" page where Roxana can: pick **target accounts** (multi-select from Drew/Bill/PPP/OW), write/upload media, schedule, optionally generate from Content Engine output, see a calendar view, see analytics. Out of scope until you confirm: X (Twitter), Threads, Bluesky.
+- **Questions for Bill:**
+  1. Confirm the 4 accounts: **Drew's personal LI, Bill's personal LI, PPP company page, OW company page**. Anything else (X, Threads, Instagram for PPP brand)?
+     - **Answer (2026-05-11):** **Three platforms, six surfaces:**
+       - **LinkedIn (4 surfaces):** Bill personal, Drew personal, OpticWise company page, Peak Property Performance® company page
+       - **X / Twitter (TBD surfaces):** add X — which X handles in scope? OW brand only? Bill personal too? Drew personal too? Confirm during build.
+       - **Instagram (TBD surfaces):** add Instagram — which Instagram accounts? PPP brand? OW brand? Both? Confirm during build.
+     - **Explicitly NOT:** Bluesky, Threads, TikTok, YouTube (for v1; revisit if data warrants).
+     - **Per-platform-per-surface implications:**
+       - LinkedIn: existing OAuth flow per surface; some surfaces (company pages) easier to automate than personal profiles
+       - X: requires X API (Basic tier $200/mo or Free tier with low limits) — confirm Bill is OK with that cost line item
+       - Instagram: requires Meta Business API + Instagram Business Account (NOT Personal account) — must verify both Instagram surfaces are Business accounts before integration is possible
+     - **Build dependencies surfaced:**
+       - X API tier subscription decision
+       - Instagram Business Account confirmation per handle
+       - All-six OAuth tokens captured and stored per-user per-surface
+  2. Approval workflow — Roxana drafts → you approve → it posts? Or Roxana has full publish authority?
+     - **Answer (2026-05-11):** **AI-generated drafts + risk-tiered hybrid approval.** Roxana is NOT manually composing — the Content Engine generates posts in the appropriate voice (Bill's voice canon for Bill's surfaces, Drew's voice for Drew's, neutral OW brand voice for OW/PPP company pages per Section 4.10). Every AI-generated post then runs through a **risk classifier** before scheduling:
+       - **Low-risk → auto-publish** to the target surface at the scheduled time. No human approval gate.
+       - **High-risk → queued for approval** in `/social/pending-approval`. Notified to the surface owner (Bill, Drew, or default approver for company pages) via Slack DM + email. One-click "approve & schedule" / "edit & schedule" / "reject" affordances.
+     - **High-risk classifier criteria (proposed; Bill to ratify in build review):**
+       - Mentions of named competitors (Aerwave, RealPage, Yardi, MRI, vendor names from the competitive battlecard)
+       - Mentions of pricing, deal terms, contract sizes, MRR figures
+       - Mentions of named clients or specific properties
+       - Regulatory / legal topics (SEC, FCC, NIST, ASHRAE, GDPR, CCPA, lawsuits, breaches, certifications)
+       - Banned-word matches (ESG, PropTech in OW context, etc. — per Section 1.5 brand-terminology policy)
+       - Trademark first-use that hasn't been validated (e.g., a post that mentions BoT but missing the ® symbol)
+       - Any post in the **PPP company page** voice (separate brand surface; default-high-risk until trust is built)
+       - Any post >1500 characters (likely a LinkedIn long-form post — high-impact, deserves review)
+     - **Build task implied:** (a) `RiskTier` enum + classifier prompt per post; (b) `/social/pending-approval` queue UI with Slack notification + one-click actions; (c) `social_post` table tracks every post (surface, scheduled-at, risk-tier, draft text, approved-by-or-auto, posted-at, post-id-from-platform, engagement metrics back-fed later); (d) per-surface auto-publish toggle (so Bill can flip OFF auto-publish for any surface if he wants temporary all-manual review without changing the risk-classifier logic).
+  3. Should the Content Engine's weekly LinkedIn deliverables auto-populate the scheduler as drafts each Monday?
+     - **Answer (2026-05-11):** **Per-deliverable schedule routing.** Some Content Engine outputs auto-flow into the social scheduler with their own predefined schedule; others (one-offs, ad-hoc, special campaigns) go to a manual `/social/inbox` for human routing.
+     - **Important update on Content Engine cadence:** Content Engine now runs **Wednesday night**, not Sunday/Monday. (The May 7 update in `WEEKLY-CLIENT-UPDATES.md` references the older Monday cadence — that's stale; current truth is Wednesday-night-for-the-week.)
+     - **Per-deliverable + per-platform scheduling:** different platforms warrant different cadences. X needs higher frequency than LinkedIn; LinkedIn long-form is once-or-twice weekly; Instagram is platform-pace dependent on visual content. We need a configurable schedule per `(deliverable_type, target_surface)` so Bill can dial each one independently.
+     - **Implementation model:**
+       - `DeliverableSchedule` table: rows = `(deliverableType, targetSurface, cadence, defaultPostTime)`. Examples:
+         - `Bill_LinkedIn_LongForm` → `OW page` → weekly Thursday 8am MT
+         - `Drew_LinkedIn_LongForm` → `OW page` → weekly Friday 8am MT
+         - `Bill_LinkedIn_ShortPost` → `Bill personal LI` → twice weekly (Tue/Thu) 7am MT
+         - `Drew_LinkedIn_ShortPost` → `Drew personal LI` → twice weekly (Wed/Fri) 7am MT
+         - `X_LongForm` → `OW X` → 3× weekly Mon/Wed/Fri 11am ET
+         - `Instagram_VisualPost` → `PPP Instagram` → weekly, manual time
+         - …and so on, configurable in OWnet admin
+       - Content Engine Wednesday-night run → produces a batch of deliverables → each one is matched to a `DeliverableSchedule` row by `deliverableType` → assigned the next available slot in the cadence → lands in the scheduler queue (with risk-classifier + approval flow from Q63)
+       - Unmatched deliverables OR ad-hoc one-offs → land in `/social/inbox` for human routing
+     - **Build task implied:** (a) `DeliverableSchedule` admin page at `/social/schedules` to add/edit per-deliverable-per-surface schedules; (b) hook into the Content Engine Wednesday-night completion event; (c) auto-route logic that maps deliverables to schedule rows; (d) catch-all `/social/inbox` for unmatched outputs.
+- **Recommended approach:** Build the scheduler + composer + multi-surface OAuth + risk-classifier + approval queue + per-deliverable schedule routing. Use direct platform APIs (LinkedIn, X, Meta) rather than a third-party scheduler service (Buffer, Hootsuite, Later) — same logic as removing Zapier from the Willow flow: every middleman is another failure point.
+- **Effort:** `L` (substantial UI + multiple platform integrations + risk-classifier + scheduler engine; LinkedIn-only would be M, multi-platform pushes it to L).
+
 ## 4.12 Tier-1 support agent (replacing OW team)
 - **PDF:** "Per Danny offer in Feb… ticket history and emails sent to Danny in Slack last month… OW is pulling T1 agent call transcripts from last 30 days"
 - **Where we are today:** `app/support-agent/` and `app/api/support/` routes exist. Unclear whether it's a chat surface only, or also handles inbound email + call.
@@ -616,60 +668,6 @@ WEB CONTACT (parallel):
   - **No presence detection / availability tracking.** Since everything is async, the assigned person can pick it up when ready (within SLA).
   - **Cross-channel consistency.** Whether the customer reached T1 via email, chat, SMS, or voice, the hand-off model is identical: "I'll have someone call you back."
 - **Effort:** `L` — substantial but tractable given the async-only model and the existing OWnet machinery (canon retrieval, knowledge corrections, Slack notifications, deal/contact RBAC). Mostly net-new UI surfaces (`/support` for ticket queue, `/callbacks` for SLA tracking) plus four channel-input adapters.
-
-<!-- ===PUNCHLIST-SWAP-BOUNDARY=== -->
-
-## 4.13 Social posting tool (replace Hootsuite)
-- **PDF:** "in original SOW… need ability for Roxana to post to 4 different LI profiles - Drew, Bill, PPP OW"
-- **Where we are today:** LinkedIn Manager exists. Multi-account posting + scheduling unclear.
-- **Gap to "done":** A "Social Composer" page where Roxana can: pick **target accounts** (multi-select from Drew/Bill/PPP/OW), write/upload media, schedule, optionally generate from Content Engine output, see a calendar view, see analytics. Out of scope until you confirm: X (Twitter), Threads, Bluesky.
-- **Questions for Bill:**
-  1. Confirm the 4 accounts: **Drew's personal LI, Bill's personal LI, PPP company page, OW company page**. Anything else (X, Threads, Instagram for PPP brand)?
-     - **Answer (2026-05-11):** **Three platforms, six surfaces:**
-       - **LinkedIn (4 surfaces):** Bill personal, Drew personal, OpticWise company page, Peak Property Performance® company page
-       - **X / Twitter (TBD surfaces):** add X — which X handles in scope? OW brand only? Bill personal too? Drew personal too? Confirm during build.
-       - **Instagram (TBD surfaces):** add Instagram — which Instagram accounts? PPP brand? OW brand? Both? Confirm during build.
-     - **Explicitly NOT:** Bluesky, Threads, TikTok, YouTube (for v1; revisit if data warrants).
-     - **Per-platform-per-surface implications:**
-       - LinkedIn: existing OAuth flow per surface; some surfaces (company pages) easier to automate than personal profiles
-       - X: requires X API (Basic tier $200/mo or Free tier with low limits) — confirm Bill is OK with that cost line item
-       - Instagram: requires Meta Business API + Instagram Business Account (NOT Personal account) — must verify both Instagram surfaces are Business accounts before integration is possible
-     - **Build dependencies surfaced:**
-       - X API tier subscription decision
-       - Instagram Business Account confirmation per handle
-       - All-six OAuth tokens captured and stored per-user per-surface
-  2. Approval workflow — Roxana drafts → you approve → it posts? Or Roxana has full publish authority?
-     - **Answer (2026-05-11):** **AI-generated drafts + risk-tiered hybrid approval.** Roxana is NOT manually composing — the Content Engine generates posts in the appropriate voice (Bill's voice canon for Bill's surfaces, Drew's voice for Drew's, neutral OW brand voice for OW/PPP company pages per Section 4.10). Every AI-generated post then runs through a **risk classifier** before scheduling:
-       - **Low-risk → auto-publish** to the target surface at the scheduled time. No human approval gate.
-       - **High-risk → queued for approval** in `/social/pending-approval`. Notified to the surface owner (Bill, Drew, or default approver for company pages) via Slack DM + email. One-click "approve & schedule" / "edit & schedule" / "reject" affordances.
-     - **High-risk classifier criteria (proposed; Bill to ratify in build review):**
-       - Mentions of named competitors (Aerwave, RealPage, Yardi, MRI, vendor names from the competitive battlecard)
-       - Mentions of pricing, deal terms, contract sizes, MRR figures
-       - Mentions of named clients or specific properties
-       - Regulatory / legal topics (SEC, FCC, NIST, ASHRAE, GDPR, CCPA, lawsuits, breaches, certifications)
-       - Banned-word matches (ESG, PropTech in OW context, etc. — per Section 1.5 brand-terminology policy)
-       - Trademark first-use that hasn't been validated (e.g., a post that mentions BoT but missing the ® symbol)
-       - Any post in the **PPP company page** voice (separate brand surface; default-high-risk until trust is built)
-       - Any post >1500 characters (likely a LinkedIn long-form post — high-impact, deserves review)
-     - **Build task implied:** (a) `RiskTier` enum + classifier prompt per post; (b) `/social/pending-approval` queue UI with Slack notification + one-click actions; (c) `social_post` table tracks every post (surface, scheduled-at, risk-tier, draft text, approved-by-or-auto, posted-at, post-id-from-platform, engagement metrics back-fed later); (d) per-surface auto-publish toggle (so Bill can flip OFF auto-publish for any surface if he wants temporary all-manual review without changing the risk-classifier logic).
-  3. Should the Content Engine's weekly LinkedIn deliverables auto-populate the scheduler as drafts each Monday?
-     - **Answer (2026-05-11):** **Per-deliverable schedule routing.** Some Content Engine outputs auto-flow into the social scheduler with their own predefined schedule; others (one-offs, ad-hoc, special campaigns) go to a manual `/social/inbox` for human routing.
-     - **Important update on Content Engine cadence:** Content Engine now runs **Wednesday night**, not Sunday/Monday. (The May 7 update in `WEEKLY-CLIENT-UPDATES.md` references the older Monday cadence — that's stale; current truth is Wednesday-night-for-the-week.)
-     - **Per-deliverable + per-platform scheduling:** different platforms warrant different cadences. X needs higher frequency than LinkedIn; LinkedIn long-form is once-or-twice weekly; Instagram is platform-pace dependent on visual content. We need a configurable schedule per `(deliverable_type, target_surface)` so Bill can dial each one independently.
-     - **Implementation model:**
-       - `DeliverableSchedule` table: rows = `(deliverableType, targetSurface, cadence, defaultPostTime)`. Examples:
-         - `Bill_LinkedIn_LongForm` → `OW page` → weekly Thursday 8am MT
-         - `Drew_LinkedIn_LongForm` → `OW page` → weekly Friday 8am MT
-         - `Bill_LinkedIn_ShortPost` → `Bill personal LI` → twice weekly (Tue/Thu) 7am MT
-         - `Drew_LinkedIn_ShortPost` → `Drew personal LI` → twice weekly (Wed/Fri) 7am MT
-         - `X_LongForm` → `OW X` → 3× weekly Mon/Wed/Fri 11am ET
-         - `Instagram_VisualPost` → `PPP Instagram` → weekly, manual time
-         - …and so on, configurable in OWnet admin
-       - Content Engine Wednesday-night run → produces a batch of deliverables → each one is matched to a `DeliverableSchedule` row by `deliverableType` → assigned the next available slot in the cadence → lands in the scheduler queue (with risk-classifier + approval flow from Q63)
-       - Unmatched deliverables OR ad-hoc one-offs → land in `/social/inbox` for human routing
-     - **Build task implied:** (a) `DeliverableSchedule` admin page at `/social/schedules` to add/edit per-deliverable-per-surface schedules; (b) hook into the Content Engine Wednesday-night completion event; (c) auto-route logic that maps deliverables to schedule rows; (d) catch-all `/social/inbox` for unmatched outputs.
-- **Recommended approach:** Build the scheduler + composer + multi-surface OAuth + risk-classifier + approval queue + per-deliverable schedule routing. Use direct platform APIs (LinkedIn, X, Meta) rather than a third-party scheduler service (Buffer, Hootsuite, Later) — same logic as removing Zapier from the Willow flow: every middleman is another failure point.
-- **Effort:** `L` (substantial UI + multiple platform integrations + risk-classifier + scheduler engine; LinkedIn-only would be M, multi-platform pushes it to L).
 
 ---
 
