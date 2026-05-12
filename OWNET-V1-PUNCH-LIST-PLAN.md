@@ -426,11 +426,25 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 
 ## 4.9 Twilio (subscribed, not enabled)
 - **PDF:** "need to be enabled/integrated/operational"
+- **Scope (Bill, 2026-05-11):**
+  - **A — Inbound voice number for Willow** ✅ v1
+  - **B — Outbound SMS for sales/marketing** ✅ v1
+  - **C — Inbound SMS** ❌ not in v1
+  - **D — Two-way SMS in CRM** ❌ not in v1
+  - **E — Outbound voice (Bill or Willow calling out)** ⏸ **deferred (Bill said "soon E")** — out of v1, but track for the next release cycle
+- **10DLC compliance note (critical, 2026-05-11):** **Outbound SMS to US numbers requires 10DLC brand + campaign registration.** Even one-way outbound SMS triggers TCPA compliance — Twilio will silently throttle or block unregistered traffic. Cannot be skipped, cannot be rushed. Carrier approval cycles are typically 2–6 weeks elapsed (variable, sometimes faster, sometimes longer).
+  - **Build task:** (1) register the OpticWise brand with Twilio's TCR (The Campaign Registry) — needs EIN, legal business address, primary contact, support contact, sample messages; (2) register one or more campaigns (e.g., "Sales follow-up", "Audit confirmation") with sample message content; (3) wait for carrier approval; (4) only then send first outbound SMS.
+  - **Start this paperwork NOW**, in parallel with build, so it's not the bottleneck at launch.
+- **TCPA compliance — required for B (outbound SMS):**
+  - **Express consent capture on every form that collects phone.** Add an SMS opt-in checkbox (unchecked by default, with clear language: *"Yes, OpticWise may send me SMS messages about my account, audits, and scheduling. Message frequency varies. Reply STOP to opt out, HELP for help. Message and data rates may apply."*). Existing 5 production forms (Schedule Review, Send a Message, PPP Audit, PPP Starter Kit, Newsletter) need this field added if SMS is going to be sent to those leads.
+  - **STOP / HELP / opt-out handling** must work — Twilio handles STOP automatically but OWnet needs to mark the Contact as `smsOptedOut = true` and never send to them again.
+  - **Sender ID** in every outbound SMS ("OpticWise: …").
 - **Questions for Bill:**
   1. Use cases: outbound SMS to leads (and which lifecycle stage triggers it), inbound voice number, two-way messaging in the CRM, all of the above?
+     - **Answered above.** Scope locked to A + B for v1, E deferred, C/D not in scope.
   2. Compliance: do you want consent capture wired into every form that opts a lead in for SMS? (Required for 10DLC.)
-- **Recommended approach:** Phase 1 — set up the number(s) and 10DLC, build inbound SMS → CRM activity. Phase 2 — outbound SMS as a deal action. Phase 3 — voice (if needed).
-- **Effort:** `L` (10DLC alone is multi-week elapsed time, even though work is small)
+- **Recommended approach (revised):** Phase 1 — start TCR brand + campaign registration today; set up the Twilio number for Willow; build the inbound voice handler. Phase 2 — once TCR approved, build the outbound SMS sender + opt-in form fields + Contact `smsOptedOut` flag. Phase 3 (next release, not v1) — outbound voice.
+- **Effort:** `L` (10DLC is the elapsed-time bottleneck; actual code work is moderate).
 
 ## 4.10 LinkedIn automation — responses, comments, inbound leads
 - **Where we are today:** LinkedIn Manager is launched (per recent updates) — handles outbound DMs/posts. Inbound automation (replies to comments, auto-responses) and inbound-lead routing into CRM — status uncertain.
