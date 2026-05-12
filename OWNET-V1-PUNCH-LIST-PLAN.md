@@ -679,11 +679,14 @@ WEB CONTACT (parallel):
 ## 5.2 Digital book shipping (currently broken)
 - **PDF:** "This needs to work. It currently does not."
 - **Where we are today:** `app/book-request/` exists, lead magnet UI in place. Need to reproduce the break.
+- **Status (2026-05-11):** **Blocked on Danny — process scoping required before technical rebuild.** Bill's call: Danny has drop-ship operational experience; the digital-book-shipping process needs to be defined end-to-end (file format, fulfillment trigger, customer data, retry flow, pricing, anti-abuse, tracking, CRM integration) BEFORE we build/rebuild the landing page or form. Captured as **item 2 in `DANNY-TODOS.md`** with the 10-question scope brief and a suggested Slack message Bill can paste to Danny.
 - **Questions for Bill:**
   1. What exactly breaks — submission errors, no email sent, wrong file in email, email goes to spam, lead doesn't reach CRM?
+     - **Deferred (2026-05-11):** Don't reproduce or fix yet — we may rebuild on a different process model once Danny defines the drop-ship flow. Investigating the current break is wasted effort if the rebuilt version uses different vendors / delivery mechanism / fulfillment automation.
   2. Latest test: which URL did you submit, what email did you use, what should I see in the CRM that I don't?
-- **Recommended approach:** Reproduce → fix → add a synthetic-test cron that submits a test entry every 24 hours so it never silently breaks again.
-- **Effort:** `S`
+     - **Deferred (2026-05-11):** Same — answer comes after Danny defines the process.
+- **Recommended approach (revised):** Wait for Danny's process scope → then either fix-forward (if the existing surface aligns) or rebuild from spec → then add synthetic-test cron so it never silently breaks again.
+- **Effort:** `S` if rebuild matches current surface, `M` if process redesign requires new fulfillment pipeline (e.g., paid version, retry sequences, abuse-prevention).
 
 ## 5.3 Physical book shipping
 - **PDF:** "Can we build physical book shipping model please? per original conversations… although Danny promised this in this phase, I am willing to put this off and consider that a future project"
