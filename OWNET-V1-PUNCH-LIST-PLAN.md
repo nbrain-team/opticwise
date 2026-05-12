@@ -801,8 +801,7 @@ Bucket order is **dependency-first, then pain × ease**. Bill's adjustments (202
 3. **1.4** OW market research import *(closed — covered by Q7 canon ingestion)*
 4. **1.5** Industry terminology library — parse glossary page + add 4 new categories (Finance, Regulatory, Building Systems, Asset Management) + usage_policy field
 5. **1.6** IT vs OT primer — canonical file already written at `opticwise/canon/IT_vs_OT_stance_v1.md`; integrate into BrandScript prompt as active stance
-6. **1.3** Marketing GPT + Sales GPT rebuild *(resolved by canon ingestion — only Q7 net-new file build remains)*
-7. **1.2** WD/DH digital twins — `/agent/bill` + `/agent/drew` named surfaces AND main agent persona-on-demand, both backed by the two AI OS files
+6. **1.2** WD/DH digital twins — `/agent/bill` + `/agent/drew` named surfaces AND main agent persona-on-demand, both backed by the two AI OS files
 
 ### Sprint 6 — Hardening & handoff (1 week)
 1. **6** Architecture & documentation — all four doc types (A+B+C+D) in `/docs/` + auto-mirror to Drive
