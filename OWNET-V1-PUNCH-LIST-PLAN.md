@@ -650,8 +650,23 @@ WEB CONTACT (parallel):
        - Any post >1500 characters (likely a LinkedIn long-form post — high-impact, deserves review)
      - **Build task implied:** (a) `RiskTier` enum + classifier prompt per post; (b) `/social/pending-approval` queue UI with Slack notification + one-click actions; (c) `social_post` table tracks every post (surface, scheduled-at, risk-tier, draft text, approved-by-or-auto, posted-at, post-id-from-platform, engagement metrics back-fed later); (d) per-surface auto-publish toggle (so Bill can flip OFF auto-publish for any surface if he wants temporary all-manual review without changing the risk-classifier logic).
   3. Should the Content Engine's weekly LinkedIn deliverables auto-populate the scheduler as drafts each Monday?
-- **Recommended approach:** Build on top of an existing API (Buffer API, or direct LinkedIn API + per-account OAuth). The scheduler + composer UI is the real work.
-- **Effort:** `L`
+     - **Answer (2026-05-11):** **Per-deliverable schedule routing.** Some Content Engine outputs auto-flow into the social scheduler with their own predefined schedule; others (one-offs, ad-hoc, special campaigns) go to a manual `/social/inbox` for human routing.
+     - **Important update on Content Engine cadence:** Content Engine now runs **Wednesday night**, not Sunday/Monday. (The May 7 update in `WEEKLY-CLIENT-UPDATES.md` references the older Monday cadence — that's stale; current truth is Wednesday-night-for-the-week.)
+     - **Per-deliverable + per-platform scheduling:** different platforms warrant different cadences. X needs higher frequency than LinkedIn; LinkedIn long-form is once-or-twice weekly; Instagram is platform-pace dependent on visual content. We need a configurable schedule per `(deliverable_type, target_surface)` so Bill can dial each one independently.
+     - **Implementation model:**
+       - `DeliverableSchedule` table: rows = `(deliverableType, targetSurface, cadence, defaultPostTime)`. Examples:
+         - `Bill_LinkedIn_LongForm` → `OW page` → weekly Thursday 8am MT
+         - `Drew_LinkedIn_LongForm` → `OW page` → weekly Friday 8am MT
+         - `Bill_LinkedIn_ShortPost` → `Bill personal LI` → twice weekly (Tue/Thu) 7am MT
+         - `Drew_LinkedIn_ShortPost` → `Drew personal LI` → twice weekly (Wed/Fri) 7am MT
+         - `X_LongForm` → `OW X` → 3× weekly Mon/Wed/Fri 11am ET
+         - `Instagram_VisualPost` → `PPP Instagram` → weekly, manual time
+         - …and so on, configurable in OWnet admin
+       - Content Engine Wednesday-night run → produces a batch of deliverables → each one is matched to a `DeliverableSchedule` row by `deliverableType` → assigned the next available slot in the cadence → lands in the scheduler queue (with risk-classifier + approval flow from Q63)
+       - Unmatched deliverables OR ad-hoc one-offs → land in `/social/inbox` for human routing
+     - **Build task implied:** (a) `DeliverableSchedule` admin page at `/social/schedules` to add/edit per-deliverable-per-surface schedules; (b) hook into the Content Engine Wednesday-night completion event; (c) auto-route logic that maps deliverables to schedule rows; (d) catch-all `/social/inbox` for unmatched outputs.
+- **Recommended approach:** Build the scheduler + composer + multi-surface OAuth + risk-classifier + approval queue + per-deliverable schedule routing. Use direct platform APIs (LinkedIn, X, Meta) rather than a third-party scheduler service (Buffer, Hootsuite, Later) — same logic as removing Zapier from the Willow flow: every middleman is another failure point.
+- **Effort:** `L` (substantial UI + multiple platform integrations + risk-classifier + scheduler engine; LinkedIn-only would be M, multi-platform pushes it to L).
 
 ---
 
