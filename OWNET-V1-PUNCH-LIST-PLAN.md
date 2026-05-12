@@ -722,6 +722,7 @@ WEB CONTACT (parallel):
 - **PDF:** One line, no detail.
 - **Questions for Bill:**
   1. Who needs training — you, Drew, Roxana, Danny's team, all of OW?
+     - **Answer (2026-05-11):** **All of OW team** — every group in the RBAC matrix (Executives, Sales & Marketing, Ops & Engineering, ASPR Onsite). But training does NOT have to be manual / in-person. **Self-serve format: training docs + maybe a video.** Anyone joining OW (current team or future hire) should be able to onboard themselves on OWnet without scheduled time from Bill or Drew. Implication: this is a content-production task, not a scheduling task — produce written guides + recorded screencasts and put them where the team can find them.
   2. Format — recorded Loom walkthroughs (rewatchable), live sessions, written quick-starts, all three?
   3. Which surfaces must be covered minimum: CRM (deals, contacts), Forms admin, OWnet agent, Content Engine, Knowledge Base training (per 1.7), LinkedIn manager, support agent?
   4. Acceptable to record the training sessions and let OWnet itself ingest the transcripts so it can answer "how do I do X in OWnet" going forward? (Big multiplier for low effort.)
