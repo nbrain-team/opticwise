@@ -453,7 +453,52 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
        - Only ONE customer-facing SMS trigger for v1 = minimal 10DLC campaign — single campaign labeled "PPP Audit Confirmation" with sample text. Faster TCR registration than a multi-campaign brand.
      - **Build task:** (a) add `smsOptedIn: boolean` field to the PPP Audit Request form schema; (b) add the disclosure copy + checkbox to that form's render; (c) hook into the form-submission post-processing to send the confirmation SMS via Twilio (only if `smsOptedIn === true` AND TCR-approved); (d) wire the internal-hot-lead SMS to Bill on every form submission to high-intent pages, regardless of opt-in (he owns the number).
 - **Recommended approach (revised):** Phase 1 — start TCR brand + campaign registration today; set up the Twilio number for Willow; build the inbound voice handler. Phase 2 — once TCR approved, build the outbound SMS sender + opt-in form fields + Contact `smsOptedOut` flag. Phase 3 (next release, not v1) — outbound voice.
-- **Effort:** `L` (10DLC is the elapsed-time bottleneck; actual code work is moderate).
+- **Inbound contact architecture (Bill, 2026-05-11 — diagram provided):** The full inbound architecture spans multiple providers, with Twilio scoped to just the Willow sales branch:
+
+```
+Caller dials 888-OPTICWISE (888-678-4294) — vanity toll-free hosted on OITVOiP
+  ↓
+OITVOiP plays IVR greeting:
+  "Thank you for calling OpticWise — owner-controlled data and digital infrastructure
+   for commercial real estate. If you need support — including tenants, residents,
+   and current clients — press 1. If you're new to OpticWise and exploring how we
+   can help, press 2. To repeat this menu, press star."
+  ↓
+  ├── Press 1 → SUPPORT
+  │     ↓
+  │     Support Team CallQueue (rings to all online agents, music on hold)
+  │     ↓
+  │     If no answer after 30 seconds → voicemail
+  │     ↓
+  │     mp3 attachment emailed to support@opticwise.com
+  │     ↓
+  │     Arrives in GrooveHQ as a new support ticket
+  │
+  └── Press 2 → SALES
+        ↓
+        Call forwarded to Twilio number 888-623-6890 (back-end, never seen by caller)
+        ↓
+        Willow AI agent — live ElevenLabs conversational
+        ↓
+        Triage conversation: Name, contact, role, intent
+        ↓
+        Post-call webhook → Zapier translates payload → OWnet CRM
+        
+WEB CONTACT (parallel):
+  Visitor on opticwise.com/contact
+  ↓
+  Send a Message form (FormEmbed block, slug: inbound-contact)
+  ↓
+  OWnet CRM (already wired)
+```
+
+  - **Provider split:** OITVOiP owns the public number + IVR + support call queue + voicemail-to-ticket. Twilio owns ONLY the Willow leg (and v1 outbound SMS). They are deliberately separated.
+  - **Number choice — RESOLVED (2026-05-11):** Vanity toll-free `888-OPTICWISE` for customer-facing inbound. Twilio number `888-623-6890` is back-end only (used to host Willow + emit outbound SMS for confirmations). The 48a/48b sub-questions resolve to: **two numbers across two providers**, vanity toll-free for the main.
+  - **New downstream considerations surfaced by the diagram:**
+    1. **GrooveHQ** is the support ticketing system today. Implications for Section 4.12 (T1 Support Agent): do we integrate with GrooveHQ (read tickets, suggest replies), or build the T1 agent in OWnet directly and migrate off GrooveHQ over time, or keep them coexisting? — captured as an open question under Section 4.12.
+    2. **Zapier** is the bridge between Willow's post-call webhook and OWnet CRM. This is the kind of glue we typically want to remove for production reliability — every Zapier hop is another failure point we don't control. Recommendation: build a direct webhook handler in OWnet (`/api/webhooks/willow-postcall`) that consumes Willow's payload natively, and retire the Zapier middle layer once verified. Captured as a follow-up build task.
+    3. **IVR greeting copy is finalized** and canonical — matches brand canon ("owner-controlled data and digital infrastructure for commercial real estate"). No edit needed.
+    4. **Press-1 (Support) is currently live-agent only** — no AI handoff option. When T1 Support Agent (Section 4.12) ships, we may add a "Press 3" or rework the Press-1 path to offer an AI option first ("Would you like to try our AI support agent first, or wait for a person?"). Bill to decide later.
 
 ## 4.10 LinkedIn automation — responses, comments, inbound leads
 - **Where we are today:** LinkedIn Manager is launched (per recent updates) — handles outbound DMs/posts. Inbound automation (replies to comments, auto-responses) and inbound-lead routing into CRM — status uncertain.
