@@ -349,6 +349,20 @@ function Toolbar({
       <ToolBtn label="🔗" onClick={onLink} title="Insert link" disabled={showHtml} />
       <ToolBtn label="⌫" onClick={() => onCommand("unlink")} title="Remove link" disabled={showHtml} />
 
+      {onImageRequest ? (
+        <>
+          <Sep />
+          <ToolBtn
+            label="🖼"
+            onClick={() => {
+              onImageRequest();
+            }}
+            title="Insert image"
+            disabled={showHtml}
+          />
+        </>
+      ) : null}
+
       <Sep />
 
       <select
