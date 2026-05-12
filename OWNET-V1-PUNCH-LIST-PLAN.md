@@ -418,6 +418,9 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
   1. What's the use case — voice cloning (your voice on a callback, podcast intro, demo narration), TTS for the support agent, both?
      - **Answered above.** Three live use cases: Willow inbound voice agent, T1 support voice cloning, TTS for support.
   2. Which voices need to exist — yours, Drew's, a "neutral OW brand" voice?
+     - **Answer (2026-05-11):** **Two voice slots, but one shared voice** — Willow voice AND the OW Brand voice (used for T1 support, TTS playback) are **the same voice**. ElevenLabs voice ID: **`mzQCmfsyI83WHJxXgieu`**. This becomes the single OW-branded voice surface across every customer-facing audio touchpoint — inbound calls (Willow), T1 support callbacks, voicemail recaps, accessibility playback.
+     - **Bill's and Drew's personal voice clones: DEFERRED** for v1. Not blocking; revisit when a specific use case lands (e.g., personalized callback voicemails, podcast intros in Bill's voice).
+     - **Implementation note:** because Willow and the brand-voice surface share a voice ID, callers won't be able to distinguish "I'm talking to Willow the receptionist" from "I'm hearing a T1 support recap" by voice alone. That's intentional per Bill's choice — consistent OW audio brand. Context disambiguates (live conversation vs. recorded recap).
 - **Recommended approach (revised):** Build in this order — (i) Twilio inbound number + call routing (Section 4.9); (ii) Willow conversational flow scoped to lead capture (greet → ask name/company/reason → confirm callback preference → write to CRM); (iii) ElevenLabs voice for Willow (consistent OW brand voice — neutral, not Bill or Drew impersonation, per the same logic as the website chatbot in 4.6); (iv) T1 support voice cloning + TTS once T1 agent ships (Section 4.12).
 - **Effort:** `L` — meaningful infrastructure work, multiple integrations.
 
