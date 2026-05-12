@@ -63,10 +63,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const body = await req.json();
-    const { email, name, password, department } = body;
+    // Create user
+    const { email, name, password, department, role: requestedRole } = body;
 
-    if (!email || !name || !password) {
+    let role = "user";
+    if (
+      requestedRole === "editor" &&
+      (currentUser.role as string) === "admin"
+    ) {
+      role = "editor";
+    }
+
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        name,
+        passwordHash,
+        department: department || null,
+        role,
       return NextResponse.json(
         { error: "Email, name, and password are required" },
         { status: 400 }
