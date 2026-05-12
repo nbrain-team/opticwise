@@ -504,6 +504,7 @@ WEB CONTACT (parallel):
 - **Where we are today:** LinkedIn Manager is launched (per recent updates) — handles outbound DMs/posts. Inbound automation (replies to comments, auto-responses) and inbound-lead routing into CRM — status uncertain.
 - **Questions for Bill:**
   1. For inbound comment replies: do you want **draft-then-approve** (recommended given LinkedIn ToS sensitivity) or **fully automated**?
+     - **Answer (2026-05-11):** **Draft-then-approve.** AI drafts reply within seconds of a comment landing on Bill's or Drew's post (in the matching person's voice per the digital-twin canon). The poster (or Roxana) gets a notification — Slack DM + email — with one-click "approve & send" or "edit & send" buttons. Reply gets out within minutes during business hours, hours at worst. No fully-autonomous replies. Aligns with LinkedIn's ToS posture (no API for posting, automation tools must respect rate limits and human gating).
   2. For inbound leads (someone DMs you cold): should they automatically become a Contact + Deal in the *LinkedIn Inbound* stage?
   3. Which LinkedIn profiles are in scope? (You, Drew, PPP company page, OW company page.)
 - **Effort:** `M`
