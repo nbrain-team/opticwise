@@ -509,7 +509,15 @@ WEB CONTACT (parallel):
      - **Answer (2026-05-11):** **AI classifies first, then auto-create only for likely-leads.** Pipeline: inbound DM lands → AI classifier evaluates (signals: sender's profile title/headline/company, message content, presence of asking vs. selling language) → assigns one of {`LikelyLead`, `Vendor`, `Recruiter`, `Acquaintance`, `Spam`, `Uncertain`} → `LikelyLead` creates Contact + Deal in *LinkedIn Inbound* stage with the full DM thread attached; everything else lands in a "LinkedIn Inbox" view inside OWnet (`/linkedin/inbox`) where Bill/Drew can review and one-click "convert to lead" if the classifier got it wrong. `Uncertain` always goes to the inbox for human review.
      - **Build task implied:** (a) classifier model + prompt (small LLM call per DM is cost-trivial); (b) `LinkedInInbox` table to hold all classifications; (c) per-profile owner routing (Bill's DMs land in Bill's inbox view; Drew's in Drew's); (d) "convert to lead" one-click action; (e) classifier confidence threshold tunable so we can dial up/down auto-create aggressiveness; (f) feedback loop — when Bill manually overrides the classifier, that example feeds back to improve future classification.
   3. Which LinkedIn profiles are in scope? (You, Drew, PPP company page, OW company page.)
-- **Effort:** `M`
+     - **Answer (2026-05-11):** **All four profiles:**
+       1. **Bill Douglas** (personal)
+       2. **Drew Hall** (personal)
+       3. **OpticWise** (company page)
+       4. **Peak Property Performance®** (company page)
+     - **Voice routing:** comment-reply drafts on Bill's posts use Bill's voice canon; Drew's posts use Drew's voice canon; OW company page uses **neutral OW brand voice** (per Section 4.6 chatbot voice choice — same logic, neutral brand voice not impersonating a person); PPP company page uses **neutral PPP-brand voice** (could be same as OW neutral or its own — Bill to confirm if separate brand voice is needed).
+     - **Inbox routing:** Bill's DMs and post-comments land in Bill's `/linkedin/inbox` view; same for Drew; company-page DMs/comments land in a shared "Company Inbox" accessible to Bill, Drew, and Roxana (per RBAC matrix — Sales & Marketing + Executives).
+     - **Per-profile capability differences:** LinkedIn restricts what automation tools can do for personal vs. company pages. Personal profile DMs/posts are typically harder to automate (officially require LinkedIn-approved partner status) than company pages. The existing LinkedIn Manager handles whatever it currently does; for new automation, we'll respect LinkedIn's per-profile policies (likely: company pages get more automation, personal profiles stay draft-then-approve only).
+- **Effort:** `M` (single classifier + inbox infrastructure; profile-specific voice + RBAC routing layered on).
 
 ## 4.11 Lead scoring & qualifying — pre and post call
 - **PDF:** "enable this capability"
