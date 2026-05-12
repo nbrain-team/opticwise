@@ -345,18 +345,29 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
      - **Moot (2026-05-11):** Out of v1 scope per answer to question 1.
 - **Effort:** Depends entirely on (1).
 
-## 4.7 Call recorder (Read.ai / Fathom)
-- **Where we are today:** Fathom integration is live — meetings, transcripts, summaries, action items are in OWnet. Read.ai is mentioned in the PDF; need to confirm which we're standardizing on.
+## 4.7 Call recorder (Read.ai — Fathom removed)
+- **Where we are today (2026-05-11):** **Standardized on Read.ai.** Fathom has been removed from active use. Read.ai integration is wired and meetings/transcripts/summaries/action items are flowing into OWnet. **Cleanup work outstanding:** the codebase still contains substantial Fathom-named artifacts that need renaming or deletion.
 - **PDF sub-items:**
   - "How can I use OWnet to generate emails/etc from transcripts?"
   - "How to classify each meeting so OWnet digests accordingly?"
   - "On the transcripts, need the ability to add new contacts in CRM. It only allows selection of existing and the list is crazy long."
-- **Gap to "done":** Three discrete features:
+- **Gap to "done":** Three discrete features + one cleanup:
   1. **Generate-from-transcript** button on every meeting → "Draft follow-up email", "Draft proposal outline", "Draft LinkedIn DM" — uses Bill's voice canon.
   2. **Meeting classifier** that auto-tags every meeting (Sales discovery / Sales demo / Client check-in / Internal / Vendor / Recruiting) and only sales calls feed back into agent training as prospect/client knowledge.
   3. **Inline contact creator** on transcript page (same component as 3.2).
+  4. **Fathom cleanup** (new — Bill, 2026-05-11): rename/remove all Fathom references in code, schema, docs.
+- **Fathom cleanup inventory (2026-05-11):**
+  - **Schema:** `ow/prisma/schema.prisma` line 382+ — `Transcript` table uses `fathomCallId String @unique` with comments "Fathom.ai Call Transcripts". Rename to `externalCallId` with a new `source` field (`'fathom' | 'readai' | …`) for forward-compat; backfill existing rows as `source = 'readai'` (or `'fathom'` for legacy rows still in the table if any). One migration.
+  - **API routes to delete:** `ow/app/api/webhooks/fathom/route.ts` (if Read.ai uses its own route).
+  - **Scripts to delete:** `ow/scripts/fetch-fathom-meetings.ts`, `ow/scripts/fetch-fathom-transcripts.ts`, `ow/scripts/test-fathom-api.ts`, `ow/scripts/test-fathom-api-v2.ts`.
+  - **Scripts to update (provider-rename in comments + variable names):** `ow/scripts/sync-all-fresh-data.sh`, `ow/scripts/import-transcripts-to-db.ts`, `ow/scripts/vectorize-transcripts-postgres.ts`, `ow/scripts/vectorize-all-transcripts.ts`, `ow/scripts/chunk-and-vectorize-transcripts.ts`, `ow/scripts/clean-email-list.ts`, `ow/tools/search-transcripts.ts`.
+  - **App code to update:** `ow/lib/ai-agent-utils.ts`, `ow/app/api/ownet/chat/route.ts`, `ow/app/knowledge-base/page.tsx`, `ow/public/platform-report.html` (rename "Fathom" → "Read.ai" or "Call Recorder" in user-visible copy).
+  - **Docs to rename or remove:** `opticwise/FATHOM_INTEGRATION_SUMMARY.md`, `FATHOM_INTEGRATION_PLAN.md`, `FATHOM_API_TESTING.md`, `FATHOM_API_KEY_VERIFICATION.md`. Either delete (if Read.ai is wired and the docs are obsolete) or rename + update for Read.ai. Leave `WEEKLY-CLIENT-UPDATES.md` as-is — that's a historical log; rewriting it would be revisionist.
+  - **Logs/test artifacts:** `ow/vectorization.log`, `ow/bulk-test-results.json`, `ow/bulk-test-results-clean.json` — leave alone (transient).
+  - **Cursor rule reference:** `opticwise/.cursorrules` mentions `ow/fathom-meetings-export.json` in gitignore. Update to be source-agnostic (e.g., `ow/call-transcripts-export.json`).
 - **Questions for Bill:**
   1. Are we standardizing on **Fathom** (already wired) or **Read.ai** (in the PDF)? If we keep both, which is primary?
+     - **Answer (2026-05-11):** **Read.ai only.** Fathom removed. Integration is done. Cleanup task captured above — to be scheduled in Sprint 2 or 6 (it's not user-visible bug territory, more code-hygiene).
   2. For the classifier — give me your taxonomy. Draft: Sales-Discovery, Sales-Demo, Sales-Proposal-Review, Client-Check-In, Client-QBR, Internal-Standup, Internal-Strategy, Vendor, Recruiting, Personal. Add/remove as you see fit.
   3. For training: should **only Sales-Discovery + Sales-Demo + Client-** classes feed back into prospect/client knowledge, with everything else excluded? (My default.)
   4. For the "Draft email from transcript" feature, which standard outputs do you want as one-click buttons? (Follow-up, proposal outline, recap-to-team, LinkedIn DM, anything else?)
