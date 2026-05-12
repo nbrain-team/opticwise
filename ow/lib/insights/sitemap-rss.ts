@@ -88,7 +88,9 @@ function parseRssItems(xml: string): RssItem[] {
   while ((m = re.exec(xml)) !== null) {
     const block = m[1];
     const g = (tag: string) => {
-      const tm = block.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
+      const tm = block.match(
+        new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}>`, "i")
+      );
       return tm ? tm[1].trim() : "";
     };
     items.push({
@@ -104,28 +106,28 @@ function parseRssItems(xml: string): RssItem[] {
 
 function formatRfc822FromIso(iso: string): string {
   const d = new Date(iso);
-  return d.toUTCString().replace(/GMT$/, "GMT");
+  if (isNaN(d.getTime())) return iso;
+  return d.toUTCString();
 }
 
-export function insertRssItem(
-  feedXml: string,
-  item: RssItem
-): string {
-  const pub = new Date(item.pubDate.includes("GMT") ? item.pubDate : item.pubDate);
-  const items = parseRssItems(feedXml).filter(
-    (i) => i.link !== item.link && i.guid !== item.guid
-  );
-  items.push({
-    ...item,
+export function insertRssItem(feedXml: string, item: RssItem): string {
+  const newEntry: RssItem = {
+    title: item.title,
+    link: item.link,
+    guid: item.guid,
     pubDate: formatRfc822FromIso(item.pubDate),
-  });
-  items.sort((a, b) => {
-    const da = new Date(a.pubDate).getTime();
-    const db = new Date(b.pubDate).getTime();
-    return db - da;
-  });
+    description: item.description,
+  };
 
-  const now = formatRfc822FromIso(new Date().toISOString());
+  let items = parseRssItems(feedXml).filter(
+    (i) => i.link !== newEntry.link && i.guid !== newEntry.guid
+  );
+  items.push(newEntry);
+  items.sort(
+    (a, b) =>
+      new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime()
+  );
+
   const rendered = items
     .map(
       (i) => `    <item>
@@ -140,10 +142,18 @@ export function insertRssItem(
 
   let out = feedXml.replace(
     /<lastBuildDate>[^<]*<\/lastBuildDate>/,
-    `<lastBuildDate>${now}</lastBuildDate>`
+    `<lastBuildDate>${formatRfc822FromIso(new Date().toISOString())}</lastBuildDate>`
   );
 
-  out = out.replace(/(<item>[\s\S]*<\/item>\s*)+/m, `${rendered}\n`);
+  const replaced = out.replace(
+    /(\s*<item>[\s\S]*?<\/item>\s*)+/m,
+    `\n${rendered}\n`
+  );
+  if (replaced === out) {
+    out = out.replace(/\s*<\/channel>/, `\n${rendered}\n  </channel>`);
+  } else {
+    out = replaced;
+  }
   return out;
 }
 
