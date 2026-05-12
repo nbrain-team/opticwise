@@ -59,82 +59,165 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
     return notFound();
   }
 
-  // Fetch emails: explicitly linked (via dealId) + address-matched (person/org)
+  // ============================================================
+  // EMAIL MATCHING — Sprint 1 / 3.5 fix (replaces over-matching logic)
+  // ------------------------------------------------------------
+  // Confident matches (default visible):
+  //   (a) Emails explicitly linked to this deal (GmailMessage.dealId === deal.id)
+  //   (b) Emails whose Gmail-sync resolved personId is one of the deal's contacts
+  //   (c) Emails whose `from` or `to` substring-matches one of the deal contacts'
+  //       email addresses (with `@` anchoring on full addresses)
+  //
+  // Inferred matches (hidden behind a toggle, default OFF):
+  //   (d) Emails whose `from` or `to` matches the deal's organization domain —
+  //       BUT only when that domain is NOT a generic free-mail provider
+  //       (gmail.com, yahoo.com, etc.) AND NOT already in the confident set.
+  //
+  // Hard exclusions:
+  //   - The deal owner's own email is NEVER used as a match key (avoids pulling
+  //     the entire inbox when owner email shares the deal's org domain or when
+  //     a generic-domain org slipped through).
+  //   - Generic free-mail domains as the org domain are dropped entirely (they
+  //     never produce confident matches and never produce inferred matches).
+  //
+  // Removed (intentional):
+  //   - The `EmailThread`-by-subject fuzzy join. `EmailThread` is keyed by
+  //     `(subject, personId, syncUserId)` which produces duplicated and
+  //     unrelated matches when subject collides across conversations. The
+  //     Gmail sync already sets `GmailMessage.personId` directly, so route (b)
+  //     captures the same intent more precisely.
+  // ============================================================
   type GmailMessage = Omit<Awaited<ReturnType<typeof prisma.gmailMessage.findMany>>[number], 'embedding'>;
 
-  // 1. Always get emails explicitly linked to this deal (via GmailMessage.dealId)
+  const GENERIC_EMAIL_DOMAINS = new Set([
+    'gmail.com', 'googlemail.com',
+    'yahoo.com', 'ymail.com', 'rocketmail.com',
+    'hotmail.com', 'outlook.com', 'live.com', 'msn.com',
+    'icloud.com', 'me.com', 'mac.com',
+    'aol.com',
+    'proton.me', 'protonmail.com',
+    'gmx.com', 'gmx.net',
+    'mail.com', 'fastmail.com', 'tutanota.com',
+    'zoho.com', 'yandex.com', 'yandex.ru',
+  ]);
+
+  const ownerEmailLower = deal.owner.email.toLowerCase();
+
+  // Collect candidate emails from EVERY contact on the deal (multi-stakeholder),
+  // not just the primary contact. Pull from all four email fields on Person.
+  // Filter null/empty, dedupe, and exclude owner's own address.
+  const contactEmailSet = new Set<string>();
+  const dealContactPersonIds: string[] = [];
+  for (const dc of deal.dealContacts) {
+    dealContactPersonIds.push(dc.person.id);
+    for (const candidate of [
+      dc.person.email,
+      dc.person.emailWork,
+    ]) {
+      if (!candidate) continue;
+      const lower = candidate.trim().toLowerCase();
+      if (!lower || lower === ownerEmailLower) continue;
+      contactEmailSet.add(lower);
+    }
+  }
+  const contactEmailAddresses = Array.from(contactEmailSet);
+
+  // Org domain — strip if generic, owner-shared, or empty.
+  const rawDomain = deal.organization?.domain?.trim().toLowerCase() ?? null;
+  const ownerDomain = ownerEmailLower.includes('@') ? ownerEmailLower.split('@')[1] : null;
+  const orgDomain =
+    rawDomain && !GENERIC_EMAIL_DOMAINS.has(rawDomain) && rawDomain !== ownerDomain
+      ? rawDomain
+      : null;
+
+  // (a) Direct dealId link
   const directlyLinked = await prisma.gmailMessage.findMany({
     where: { dealId: deal.id },
     orderBy: { date: "desc" },
-    take: 50,
+    take: 100,
     omit: { embedding: true },
   });
 
-  // Also get emails from threads linked to this deal (via EmailThread.dealId)
-  const linkedThreads = await prisma.emailThread.findMany({
-    where: { dealId: deal.id },
-    select: { subject: true, personId: true, syncUserId: true },
-  });
-  let threadLinkedEmails: GmailMessage[] = [];
-  if (linkedThreads.length > 0) {
-    threadLinkedEmails = await prisma.gmailMessage.findMany({
-      where: {
-        OR: linkedThreads.map(t => ({
-          subject: t.subject,
-          ...(t.personId ? { personId: t.personId } : {}),
-          ...(t.syncUserId ? { syncUserId: t.syncUserId } : {}),
-        })),
-      },
+  // (b) personId-matched (Gmail sync already linked these contacts)
+  let personIdMatched: GmailMessage[] = [];
+  if (dealContactPersonIds.length > 0) {
+    personIdMatched = await prisma.gmailMessage.findMany({
+      where: { personId: { in: dealContactPersonIds } },
       orderBy: { date: "desc" },
-      take: 50,
+      take: 100,
       omit: { embedding: true },
     });
   }
 
-  // 2. Address-matched emails (original behavior)
-  let addressMatched: GmailMessage[] = [];
-  if (deal.organization?.domain) {
-    const orConditions = [
-      deal.person?.email ? { from: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
-      deal.person?.email ? { to: { contains: deal.person.email, mode: 'insensitive' as const } } : {},
-      deal.organization?.domain ? { from: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
-      deal.organization?.domain ? { to: { contains: `@${deal.organization.domain}`, mode: 'insensitive' as const } } : {},
-    ].filter(condition => Object.keys(condition).length > 0);
+  // (c) Address-matched against deal-contact emails (catches emails sync didn't
+  // pre-link, e.g. when the contact was created after the email arrived).
+  let contactAddressMatched: GmailMessage[] = [];
+  if (contactEmailAddresses.length > 0) {
+    contactAddressMatched = await prisma.gmailMessage.findMany({
+      where: {
+        OR: contactEmailAddresses.flatMap((addr) => [
+          { from: { contains: addr, mode: 'insensitive' as const } },
+          { to: { contains: addr, mode: 'insensitive' as const } },
+        ]),
+      },
+      orderBy: { date: "desc" },
+      take: 100,
+      omit: { embedding: true },
+    });
+  }
 
-    if (orConditions.length > 0) {
-      addressMatched = await prisma.gmailMessage.findMany({
-        where: { OR: orConditions },
-        orderBy: { date: "desc" },
-        take: 50,
-        omit: { embedding: true },
-      });
-    }
-  } else if (deal.person?.email) {
-    addressMatched = await prisma.gmailMessage.findMany({
+  // (d) Inferred — org-domain match, only when domain is non-generic & non-owner.
+  let orgDomainMatched: GmailMessage[] = [];
+  if (orgDomain) {
+    orgDomainMatched = await prisma.gmailMessage.findMany({
       where: {
         OR: [
-          { from: { contains: deal.person.email, mode: 'insensitive' as const } },
-          { to: { contains: deal.person.email, mode: 'insensitive' as const } },
+          { from: { contains: `@${orgDomain}`, mode: 'insensitive' as const } },
+          { to: { contains: `@${orgDomain}`, mode: 'insensitive' as const } },
         ],
       },
       orderBy: { date: "desc" },
-      take: 50,
+      take: 100,
       omit: { embedding: true },
     });
   }
 
-  // 3. Merge and deduplicate, sorted by date descending
-  const seenIds = new Set<string>();
-  const gmailMessages: GmailMessage[] = [];
-  for (const email of [...directlyLinked, ...threadLinkedEmails, ...addressMatched]) {
-    if (!seenIds.has(email.id)) {
-      seenIds.add(email.id);
-      gmailMessages.push(email);
-    }
+  // Belt-and-suspenders: exclude any candidate whose only address signal is the
+  // owner's email. This catches edge cases where the owner emailed themselves or
+  // the deal contact's row has the owner's address (data hygiene gap).
+  const looksLikeOwnerOnlyEmail = (e: GmailMessage): boolean => {
+    const fromHasOwner = e.from?.toLowerCase().includes(ownerEmailLower) ?? false;
+    const toHasOwner = e.to?.toLowerCase().includes(ownerEmailLower) ?? false;
+    const fromHasContact = contactEmailAddresses.some(addr => e.from?.toLowerCase().includes(addr));
+    const toHasContact = contactEmailAddresses.some(addr => e.to?.toLowerCase().includes(addr));
+    return (fromHasOwner || toHasOwner) && !fromHasContact && !toHasContact;
+  };
+
+  // Dedup, partition into confident vs inferred, sort by date desc.
+  const confidentIds = new Set<string>();
+  const confidentEmails: GmailMessage[] = [];
+  for (const email of [...directlyLinked, ...personIdMatched, ...contactAddressMatched]) {
+    if (confidentIds.has(email.id)) continue;
+    confidentIds.add(email.id);
+    confidentEmails.push(email);
   }
-  gmailMessages.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  
-  // Attach to deal object with proper typing
+  confidentEmails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  const inferredEmails: GmailMessage[] = [];
+  for (const email of orgDomainMatched) {
+    if (confidentIds.has(email.id)) continue;
+    if (looksLikeOwnerOnlyEmail(email)) continue;
+    inferredEmails.push(email);
+  }
+  inferredEmails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  // Cap each list at 100 for render performance.
+  const confidentEmailsCapped = confidentEmails.slice(0, 100);
+  const inferredEmailsCapped = inferredEmails.slice(0, 100);
+
+  // Legacy field kept for any code that reads `dealWithEmails.gmailMessages`.
+  const gmailMessages = confidentEmailsCapped;
+
   const dealWithEmails = {
     ...deal,
     gmailMessages,
