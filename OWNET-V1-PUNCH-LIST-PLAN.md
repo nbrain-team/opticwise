@@ -622,6 +622,19 @@ WEB CONTACT (parallel):
 - **Gap to "done":** A "Social Composer" page where Roxana can: pick **target accounts** (multi-select from Drew/Bill/PPP/OW), write/upload media, schedule, optionally generate from Content Engine output, see a calendar view, see analytics. Out of scope until you confirm: X (Twitter), Threads, Bluesky.
 - **Questions for Bill:**
   1. Confirm the 4 accounts: **Drew's personal LI, Bill's personal LI, PPP company page, OW company page**. Anything else (X, Threads, Instagram for PPP brand)?
+     - **Answer (2026-05-11):** **Three platforms, six surfaces:**
+       - **LinkedIn (4 surfaces):** Bill personal, Drew personal, OpticWise company page, Peak Property Performance® company page
+       - **X / Twitter (TBD surfaces):** add X — which X handles in scope? OW brand only? Bill personal too? Drew personal too? Confirm during build.
+       - **Instagram (TBD surfaces):** add Instagram — which Instagram accounts? PPP brand? OW brand? Both? Confirm during build.
+     - **Explicitly NOT:** Bluesky, Threads, TikTok, YouTube (for v1; revisit if data warrants).
+     - **Per-platform-per-surface implications:**
+       - LinkedIn: existing OAuth flow per surface; some surfaces (company pages) easier to automate than personal profiles
+       - X: requires X API (Basic tier $200/mo or Free tier with low limits) — confirm Bill is OK with that cost line item
+       - Instagram: requires Meta Business API + Instagram Business Account (NOT Personal account) — must verify both Instagram surfaces are Business accounts before integration is possible
+     - **Build dependencies surfaced:**
+       - X API tier subscription decision
+       - Instagram Business Account confirmation per handle
+       - All-six OAuth tokens captured and stored per-user per-surface
   2. Approval workflow — Roxana drafts → you approve → it posts? Or Roxana has full publish authority?
   3. Should the Content Engine's weekly LinkedIn deliverables auto-populate the scheduler as drafts each Monday?
 - **Recommended approach:** Build on top of an existing API (Buffer API, or direct LinkedIn API + per-account OAuth). The scheduler + composer UI is the real work.
