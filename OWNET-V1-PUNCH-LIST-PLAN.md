@@ -92,6 +92,7 @@ Once you fill in the question blocks we tackle them one section at a time — I'
   4. Who is allowed to use each? (Sales GPT might leak pricing strategy — RBAC matters here.)
      - **Moot (2026-05-11):** No separate Sales/Marketing agent surfaces; RBAC question is rolled into the broader OWnet agent access control covered in other items.
 - **Revised resolution (2026-05-11):** Item 1.3 is effectively resolved by canon ingestion (Question 7). No `agent_mode` table, no separate `/agent/marketing` or `/agent/sales` routes. The only remaining work is the canon-extension build task captured under Question 7 (extend classifier patterns, ingest the net-new files, run after Wins & Nightmares edits settle).
+- **Status (2026-05-11, Bill):** **CLOSED — consider done.** Removed from the Sprint 5 sequence; no further line item required. The canon-ingestion build task carries the only outstanding work and lives under Question 7's build implications.
 - **Effort:** Fully covered by the Question 7 build task. No additional work attributable to this item.
 
 ## 1.4 OW market research info imported
