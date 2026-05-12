@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type GmailMessage = {
   id: string;
@@ -17,11 +17,32 @@ type GmailMessage = {
 interface EmailsTabProps {
   entityType: "deal" | "person" | "organization";
   entityId: string;
+  /**
+   * "Confident" matches — direct dealId-link, contact personId match, or
+   * contact email-address match. These are the default view.
+   */
   emails: GmailMessage[];
+  /**
+   * Optional "inferred" matches — org-domain matches (non-generic domains only)
+   * that are NOT already in `emails`. When provided and non-empty, a toggle is
+   * rendered allowing the user to opt into seeing these alongside confident
+   * matches. Currently passed only by the deal detail page.
+   */
+  inferredEmails?: GmailMessage[];
 }
 
-export function EmailsTab({ entityType, emails }: EmailsTabProps) {
+export function EmailsTab({ entityType, emails, inferredEmails }: EmailsTabProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showInferred, setShowInferred] = useState(false);
+
+  const hasInferred = (inferredEmails?.length ?? 0) > 0;
+
+  const visibleEmails = useMemo(() => {
+    if (!hasInferred || !showInferred) return emails;
+    const merged = [...emails, ...(inferredEmails ?? [])];
+    merged.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return merged;
+  }, [emails, inferredEmails, hasInferred, showInferred]);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
