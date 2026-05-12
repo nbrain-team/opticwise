@@ -9,7 +9,7 @@ import {
 import { slugifySegment } from "@/lib/insights/publish";
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const gate = await requireEditor();
