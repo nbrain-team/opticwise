@@ -541,7 +541,17 @@ WEB CONTACT (parallel):
        - **Contact detail page** — Contact's intrinsic score visible at top of profile.
      - **Build task implied:** (a) compute score on the server (background job after recalculation triggers); (b) `<LeadScoreBadge score={…} threshold={30} />` reusable component; (c) signal-breakdown panel on the deal detail; (d) sortable column on `/deals` list view "Sort by score" (in addition to existing "Deal title" sort).
   3. Should low-score leads be auto-nurture (added to a sequence) or auto-archive?
-- **Effort:** `M`
+     - **Answer (2026-05-11):** **Both — nurture first, then archive if nothing lands.**
+       - **Auto-nurture cadence** for any Contact with score < 30 (and `optedInToMarketing === true`, per consent):
+         - Week 1 of low-score: add to weekly newsletter (Insights Newsletter — already a wired form / list per recent updates)
+         - Week 2: send a single "softer" thought-leadership piece (best blog of the month) once
+         - Week 3 and onward: stay on the newsletter cadence only — no additional sends
+       - **Auto-archive trigger:** if the Contact has had **zero engagement events for 30 consecutive days** (no email open/reply, no link click, no form re-submission, no call, no LinkedIn touch, no inbound DM) AND score remains < 30 → move to **"Archived" pipeline** (new pipeline, not a stage in an existing one).
+       - **Engagement reset:** any qualifying event resets the 30-day timer back to zero. If the score crosses ≥ 30 (e.g., contact's company is acquired and portfolio size doubles, retriggering the scorer), they exit nurture and re-enter active flow.
+       - **Archived pipeline visibility:** archived contacts/deals don't surface on `/deals` default views; they're accessible via a "Show archived" toggle for any team member with CRM access (RBAC matrix permitting). Score remains tracked; if a future engagement spike pushes them back over 30, they re-emerge to *Landing Pages Leads* with a flag "Re-emerged from archive — was previously low score."
+     - **Build task implied:** (a) `EngagementEvent` table — every touch (email open via tracking pixel, link click, form submission, call recording, LinkedIn DM/comment) gets a row; (b) nightly cron: for every low-score contact, check `lastEngagementAt` — if > 30 days ago, mark archived; (c) `nurture_sequence` configuration — weekly newsletter membership auto-added, single thought-leadership send tracked per-contact; (d) Archived pipeline + UI toggles; (e) `/contacts` and `/deals` views filter out archived by default with a header toggle to include them.
+- **Recommended approach:** Build score recalculator first (Section 4.11.1 build task), get score visible across views, validate signal quality for ~2 weeks with real leads before turning on nurture + archive automation. Don't auto-archive on day 1 of launch — too risky if scoring has bugs.
+- **Effort:** `M` (score itself is simple; engagement event tracking + nurture/archive flows are most of the work).
 
 ## 4.12 Tier-1 support agent (replacing OW team)
 - **PDF:** "Per Danny offer in Feb… ticket history and emails sent to Danny in Slack last month… OW is pulling T1 agent call transcripts from last 30 days"
