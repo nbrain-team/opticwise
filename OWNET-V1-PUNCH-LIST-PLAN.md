@@ -753,15 +753,22 @@ WEB CONTACT (parallel):
 ---
 
 # Global / Cross-cutting Questions
-These don't belong to a single item but affect several.
+These don't belong to a single item but affect several. **All answered 2026-05-12 by Bill.**
 
 1. **Priority order** — given the sequence I propose below, what's your gut reaction? Anything I have too low that's actually urgent? Anything I have too high that can wait?
+   - **Answer (2026-05-11):** Adjusted via the sprint reorder — move `5.2` to Sprint 4, swap Sprints 3 and 5, remove `1.3` from Sprint 5, put `4.13` before `4.12` in Sprint 3. Captured in the "Recommended Sequence (Revised 2026-05-11)" section below.
 2. **What's the v1 ship deadline?** A specific calendar date helps me triage M/L items that could be phased.
+   - **Answer (2026-05-12):** **v1 is already overdue.** Operating principle: maximum urgency, ship the fastest viable path on every item, no elaborate planning ceremony, no nice-to-haves added during a sprint. Every L-effort item gets a hard look for whether it can be phased into a smaller v1 cut + a follow-on.
 3. **Who else is contributing code besides me?** (Danny's team, anyone at nBrain?) → affects how I structure PRs, branches, and review.
+   - **Answer (2026-05-12):** **Danny DeMichele is the only other contributor.** Implication: lightweight PR/branch model — single shared `main`, branches per Sprint item, light review (Danny reviews infra/Slack/platform tickets; Bill reviews product/UX tickets; I self-merge after one ✅). Coordinate with Danny via Slack when his items intersect (Slack app, pipelines, digital-book drop-ship process, anything in his current ownership).
 4. **Render-only?** All of this assumes the platform stays on Render with the existing Postgres. Any platform changes coming I should design for?
+   - **Answer (2026-05-12):** **Render-only.** No platform migration planned for v1. Design for Render-native features (cron jobs, env vars, managed Postgres). Don't waste cycles on portability abstractions or multi-cloud patterns.
 5. **Budget for external services** — ElevenLabs + Twilio + LinkedIn API access have real monthly costs. Is there a ceiling per service?
+   - **Answer (2026-05-12):** **All external services already subscribed and paid for; accounts are budgeted.** Bill has handled the billing side for ElevenLabs, Twilio, LinkedIn API, X API, Meta Business, Read.ai, OITVOiP, and Render. No cost-gating required during builds — proceed with full feature set per the punch list answers.
 6. **Failure mode preference** — if I find something broken outside the punch-list while working on a punch-list item, do you want me to **fix it inline** (faster, but scope creeps) or **log it and ship the original scope** (slower, but predictable)?
+   - **Answer (2026-05-12):** **Fix inline.** Operating principle: when I'm in the same file / feature area and spot a broken thing, fix it in the same PR. I'll call it out in the PR description ("incidental fix: X") so the diff stays readable, but no separate ticket dance. This trades scope discipline for velocity — appropriate given v1 is already overdue (answer #2).
 7. **WD pronouns in the PDF** — to confirm: "WD" = Bill Douglas (you), "DH/DD" = Danny? I want to make sure I'm attributing decisions correctly.
+   - **Answer (2026-05-12):** **WD = Bill Douglas. DH = Drew Hall. DD = Danny DeMichele.** Use these initials consistently in plan docs, commit messages, and PR descriptions. The PDF and any older references that use "DH" for "Danny" are wrong — correct attribution from here forward.
 
 ---
 
