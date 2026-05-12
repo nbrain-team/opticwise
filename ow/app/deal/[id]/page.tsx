@@ -658,7 +658,8 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
             <EmailsTab
               entityType="deal"
               entityId={deal.id}
-              emails={serializedDeal.gmailMessages}
+              emails={serializedDeal.confidentEmails}
+              inferredEmails={serializedDeal.inferredEmails}
             />
           }
           filesContent={
