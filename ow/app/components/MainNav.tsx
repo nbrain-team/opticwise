@@ -39,8 +39,27 @@ const MORE_ITEMS: Array<{ href: string; label: string; icon?: React.ReactNode }>
 
 export default function MainNav() {
   const [moreOpen, setMoreOpen] = useState(false)
+  const [meRole, setMeRole] = useState<string | null>(null)
   const moreRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname()
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch("/api/auth/me")
+        if (!res.ok) return
+        const data = await res.json()
+        const role = data.user?.role as string | undefined
+        if (!cancelled && role) setMeRole(role)
+      } catch {
+        /* ignore */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     setMoreOpen(false)
@@ -64,7 +83,12 @@ export default function MainNav() {
     }
   }, [moreOpen])
 
-  const isMoreActive = MORE_ITEMS.some((item) => pathname?.startsWith(item.href))
+  const moreItems =
+    meRole === "admin" || meRole === "editor"
+      ? [{ href: "/insights", label: "Insights" }, ...MORE_ITEMS]
+      : MORE_ITEMS
+
+  const isMoreActive = moreItems.some((item) => pathname?.startsWith(item.href))
 
   return (
     <nav className="flex items-center gap-6 text-sm font-medium">
@@ -110,7 +134,7 @@ export default function MainNav() {
             role="menu"
             className="absolute left-0 top-full mt-2 w-52 rounded-lg border border-gray-200 bg-white shadow-lg py-1 z-50"
           >
-            {MORE_ITEMS.map((item) => {
+            {moreItems.map((item) => {
               const active = pathname?.startsWith(item.href)
               return (
                 <Link
