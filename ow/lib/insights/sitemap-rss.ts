@@ -29,42 +29,48 @@ export function parseSitemapUrls(xml: string): SitemapUrlEntry[] {
   return urls;
 }
 
+function normalizeLastmod(iso: string): string {
+  if (!iso.includes("T")) return iso;
+  return iso.replace(/\.\d{3}Z$/, "Z").replace(/\+00:00$/, "Z");
+}
+
+/**
+ * Replace existing insight URL block or insert a new one in alphabetical <loc> order.
+ * Rebuilds the entire urlset from parsed blocks so ordering stays correct.
+ */
 export function insertOrReplaceInsightSitemapUrl(
   xml: string,
   slug: string,
   lastmodIso: string
 ): string {
   const loc = `${SITE}/insights/${slug}/`;
-  let lastmod = lastmodIso;
-  if (lastmod.includes("T")) {
-    lastmod = lastmod.replace(/\.\d{3}Z$/, "Z").replace(/\+00:00$/, "Z");
-  }
-
-  let urls = parseSitemapUrls(xml);
-  urls = urls.filter((u) => u.loc !== loc);
-  urls.push({ loc, lastmod });
-  urls.sort((a, b) => a.loc.localeCompare(b.loc, "en"));
-
-  const inner = urls
-    .map(
-      (u) => `  <url>
-    <loc>${u.loc}</loc>
-    <lastmod>${u.lastmod}</lastmod>
+  const lastmod = normalizeLastmod(lastmodIso);
+  const newBlock = `  <url>
+    <loc>${loc}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-  </url>`
-    )
-    .join("\n");
+  </url>`;
 
-  const openM = xml.match(/<urlset([^>]*)>/);
-  const openTag = openM
-    ? `<urlset${openM[1]}>`
-    : '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+  const blocks: { loc: string; block: string }[] = [];
+  const re = /<url>([\s\S]*?)<\/url>/g;
+  let m;
+  while ((m = re.exec(xml)) !== null) {
+    const inner = m[1];
+    const lm = inner.match(/<loc>([^<]+)<\/loc>/);
+    if (!lm) continue;
+    blocks.push({ loc: lm[1].trim(), block: m[0] });
+  }
 
-  return xml.replace(
-    /<urlset[^>]*>[\s\S]*?<\/urlset>/,
-    `${openTag}\n${inner}\n</urlset>`
-  );
+  const merged = blocks.filter((b) => b.loc !== loc);
+  merged.push({ loc, block: newBlock });
+  merged.sort((a, b) => a.loc.localeCompare(b.loc, "en"));
+  const rebuiltInner = merged.map((b) => b.block).join("\n");
+
+  return xml.replace(/<urlset[^>]*>[\s\S]*?<\/urlset>/m, (full) => {
+    const open = full.match(/<urlset[^>]*>/)?.[0] ?? "<urlset>";
+    return `${open}\n${rebuiltInner}\n</urlset>`;
+  });
 }
 
 export type RssItem = {
