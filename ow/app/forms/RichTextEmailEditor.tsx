@@ -107,6 +107,8 @@ ref
     emitChange();
   }
 
+  useImperativeHandle(ref, () => ({ insertHtml: insertHtmlAtCursor }));
+
   function insertMergeTag(tag: string) {
     insertHtmlAtCursor(`{${tag}}`);
   }
@@ -146,8 +148,7 @@ ref
   }
 
   function handlePaste(e: React.ClipboardEvent<HTMLDivElement>) {
-    // Strip rich formatting from pasted content to keep emails clean.
-    // Authors can re-apply bold/italic/etc. with the toolbar buttons.
+    if (!pastePlainText) return;
     const text = e.clipboardData.getData("text/plain");
     if (text) {
       e.preventDefault();
@@ -159,6 +160,7 @@ ref
   return (
     <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
       <Toolbar
+        onImageRequest={onImageRequest}
         onCommand={exec}
         onLink={openLinkDialog}
         onToggleHtml={() => {
@@ -263,7 +265,9 @@ ref
 
     </div>
   );
-}
+});
+
+export default RichTextEmailEditor;
 
 /**
  * Toolbar of formatting buttons. Keeps the styling consistent with the rest
@@ -273,11 +277,13 @@ function Toolbar({
   onCommand,
   onLink,
   onToggleHtml,
+  onImageRequest,
   showHtml,
 }: {
   onCommand: (cmd: string, value?: string) => void;
   onLink: () => void;
   onToggleHtml: () => void;
+  onImageRequest?: () => void;
   showHtml: boolean;
 }) {
   const blockOptions: { value: string; label: string }[] = [
