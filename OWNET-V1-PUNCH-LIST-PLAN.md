@@ -554,9 +554,9 @@ WEB CONTACT (parallel):
 - **Recommended approach:** Build score recalculator first (Section 4.11.1 build task), get score visible across views, validate signal quality for ~2 weeks with real leads before turning on nurture + archive automation. Don't auto-archive on day 1 of launch — too risky if scoring has bugs.
 - **Effort:** `M` (score itself is simple; engagement event tracking + nurture/archive flows are most of the work).
 
-## 4.12 Tier-1 support agent (replacing OW team)
-- **PDF:** "Per Danny offer in Feb… ticket history and emails sent to Danny in Slack last month… OW is pulling T1 agent call transcripts from last 30 days"
-- **Where we are today:** `app/support-agent/` and `app/api/support/` routes exist. Unclear whether it's a chat surface only, or also handles inbound email + call.
+## 4.13 Social posting tool (replace Hootsuite)
+- **PDF:** "in original SOW… need ability for Roxana to post to 4 different LI profiles - Drew, Bill, PPP OW"
+- **Where we are today:** LinkedIn Manager exists. Multi-account posting + scheduling unclear.
 - **Gap to "done":** A T1 agent that can (1) answer 80% of support questions from the canon + ticket history, (2) escalate to a human with full context, (3) be reached via every channel the OW customers actually use (email, chat widget on customer portal, phone if Twilio comes in).
 - **Questions for Bill:**
   1. Which customers are in scope for T1 — all paying customers, only specific properties, free trial users?
