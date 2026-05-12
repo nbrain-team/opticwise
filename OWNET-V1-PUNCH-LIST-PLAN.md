@@ -530,6 +530,8 @@ WEB CONTACT (parallel):
      - Asset manager / capital allocator title: +20 (else owner/operator +15, on-site +5)
      - Has had ≥ 1 sales call: +15
      - Mentioned "data infrastructure" / "AI" / "tenant experience" in call: +10
+     - **Answer (2026-05-11):** Accept the starter scorecard as-is. Max possible: ~85.
+     - **Build task implied:** (a) `LeadScore` field (integer) on Contact AND on Deal — Contact-level is "intrinsic" (firmographics + engagement history), Deal-level is contact's intrinsic score plus deal-specific signals; (b) score recalculator runs on (i) new form submission, (ii) new email engagement (received/sent), (iii) new call recording arrival + classification, (iv) Contact profile manual edit; (c) signal-source breakdown stored alongside the total so Bill can see "this contact scored 75 because: 30 portfolio size + 20 multifamily + 20 asset manager + 5 baseline title"; (d) score history table so we can chart score-over-time per contact (rising vs. falling engagement); (e) `score_signals` config table keyed off the starter scorecard so the weights are editable from a `/lead-scoring` admin page without redeploy.
   2. Above what score is a lead "qualified" → moves stage automatically?
   3. Should low-score leads be auto-nurture (added to a sequence) or auto-archive?
 - **Effort:** `M`
