@@ -12,7 +12,7 @@ model User {
   email            String    @unique
   name             String?
   passwordHash     String
-  role             String    @default("user") // admin, user
+  role             String    @default("user") // admin, editor, user
   isActive         Boolean   @default(true)
   department       String? // finance, marketing, ops (placeholder for future permissions)
   emailSyncEnabled Boolean   @default(false)
@@ -28,6 +28,66 @@ model User {
   linkedInAccounts    LinkedInAccount[]
   ownedForms          Form[]               @relation("FormOwner")
   createdForms        Form[]               @relation("FormCreatedBy")
+  insights            Insight[]
+}
+
+enum InsightStatus {
+  draft
+  scheduled
+  published
+}
+
+enum InsightAssetKind {
+  hero
+  og
+  inline
+}
+
+model Insight {
+  id                   String        @id @default(cuid())
+  slug                 String        @unique
+  title                String
+  excerpt              String        @default("") @db.Text
+  bodyHtml             String        @default("") @db.Text
+  category             String        @default("")
+  secondaryCategories  String[]      @default([])
+  heroImagePath        String?
+  ogImagePath          String?
+  seoTitle             String?
+  seoDescription       String?
+  twitterTitle         String?
+  twitterDescription   String?
+  twitterImagePath     String?
+  datePublished        DateTime?
+  dateModified         DateTime?
+  scheduledFor         DateTime?
+  status               InsightStatus @default(draft)
+  publishedCommitSha   String?
+  readingTimeMinutes   Int?
+  authorId             String
+  author               User          @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  authorSlug           String?
+  topicClusterPaths    String[]      @default([])
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  assets               InsightAsset[]
+
+  @@index([status, scheduledFor])
+  @@index([authorId])
+}
+
+model InsightAsset {
+  id        String           @id @default(cuid())
+  insightId String
+  insight   Insight          @relation(fields: [insightId], references: [id], onDelete: Cascade)
+  filename  String
+  mimeType  String
+  bytes     Bytes
+  sha256    String?
+  kind      InsightAssetKind @default(inline)
+  createdAt DateTime         @default(now())
+
+  @@index([insightId])
 }
 
 model PasswordResetToken {
