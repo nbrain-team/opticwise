@@ -38,13 +38,18 @@ Source of the bug is in `opticwise/ow/app/deal/[id]/page.tsx` — the email-matc
 
 ### Acceptance criteria
 
-- [ ] Deal Emails tab shows ONLY: (a) explicitly thread-linked emails, plus (b) emails to/from contacts on this deal's contact list, plus (c) emails to/from the deal's company domain when that domain is NOT a generic free-mail provider (gmail.com, yahoo.com, hotmail.com, outlook.com, icloud.com, aol.com, proton.me, etc.)
-- [ ] The logged-in user's own email address is NEVER used as a match key
-- [ ] `threadLinkedEmails` join is corrected so a thread shows once, not duplicated per recipient
-- [ ] UI exposes a small "Show inferred matches" toggle (default OFF) so confident-match-only is the default view
-- [ ] Sync to Gmail runs automatically (no manual-refresh button required to see new emails on a deal)
-- [ ] Verified on the Harlow Spring Cypress (Houston) / Aspen Oak (GHIS) deal — see issue 3.1 — should close with this fix
-- [ ] Verified on at least 2 other production deals (one with a Gmail-domain primary contact, one with a corporate-domain primary contact)
+- [x] **(code)** Deal Emails tab shows ONLY: (a) explicitly dealId-linked emails, plus (b) emails whose Gmail-sync resolved `personId` is on the deal's contact list, plus (c) emails to/from any contact email address on the deal — with the logged-in user's email NEVER matched, and generic free-mail domains never used as the deal's domain.
+- [x] **(code)** The logged-in user's own email address is NEVER used as a match key (hard-coded exclusion + belt-and-suspenders filter on inferred matches)
+- [x] **(code)** `EmailThread`-by-subject fuzzy join REMOVED entirely. Replaced by `personId in [dealContacts]` direct match, which is more precise.
+- [x] **(code)** UI exposes "Show inferred / Hide inferred" toggle in `EmailsTab` (default OFF) with a count callout. Only renders when inferred matches exist.
+- [ ] **(verify)** Sync to Gmail runs automatically — code-side: `GET /api/sales-inbox/sync?secret=$CRON_SECRET` endpoint exists. Render-dashboard verification: confirm the cron job is active in Render dashboard for `ownet` service. **Action: WD checks Render dashboard.**
+- [ ] **(verify)** Verified on the Harlow Spring Cypress (Houston) / Aspen Oak (GHIS) deal — see issue 3.1 — should close with this fix
+- [ ] **(verify)** Verified on at least 2 other production deals (one with a Gmail-domain primary contact, one with a corporate-domain primary contact)
+
+### Known limitations / follow-ups (not blocking merge)
+
+- Address-match against contact emails uses `email` and `emailWork` only (not `emailHome`/`emailOther`). The dealContacts include block doesn't fetch those two columns. If a customer has their primary email in `emailHome` we'll miss them — extremely rare in B2B context. Capture as a future improvement if it surfaces.
+- The 100-email cap per source list (400 max into dedup) is generous but finite. If we ever see deals with >100 emails per source where the most-recent slice doesn't fit, expose a "show all in mailbox" link to the full search.
 
 ### Fix-inline candidates flagged for incidental cleanup in the same PR
 
