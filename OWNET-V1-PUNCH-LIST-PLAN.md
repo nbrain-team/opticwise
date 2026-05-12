@@ -379,6 +379,15 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
        7. **Other** — catch-all for unclassifiable or rare meeting types (recruiting, personal, etc.)
      - **Build task implied:** (a) `MeetingCategory` enum with these seven values in `prisma/schema.prisma`; (b) auto-classifier runs on every Read.ai meeting at ingest time using the transcript + participant emails + meeting title — picks the category, writes a confidence score, lets the user override; (c) inline manual category picker on the meeting-transcript page; (d) per-category default routing for the Slack auto-post setup from Section 4.3 (Sales → `#sales`, Client → `#client-success`, Internal → no auto-post, Vendor → `#vendor`, Executives → no auto-post or DM only, PPP Podcast → `#podcast`, Other → no auto-post).
   3. For training: should **only Sales-Discovery + Sales-Demo + Client-** classes feed back into prospect/client knowledge, with everything else excluded? (My default.)
+     - **Answer (2026-05-11):** Accept defaults. Per-category training-feedback policy:
+       - **Sales** → ✅ feeds back into canon
+       - **Client** → ✅ feeds back into canon
+       - **PPP Podcast** → ✅ feeds back into canon
+       - **Internal** → ❌ does NOT feed back (internal deliberation stays private)
+       - **Executives** → ❌ does NOT feed back (board/investor sensitive)
+       - **Vendor** → ⚠️ default OFF, trainable per-meeting (vendor pitches contain market intel but potentially NDA'd info — trainer decides per-call)
+       - **Other** → ❌ does NOT feed back (unclassifiable by definition; safer to exclude)
+     - **Build task implied:** (a) `MeetingCategory` enum carries a `feedsTraining: boolean` policy attribute with the above defaults; (b) when a Read.ai meeting is ingested and classified, the chunks-into-canon writer only fires if `category.feedsTraining === true` OR (`category === 'Vendor'` AND the meeting has the per-meeting "train on this" toggle flipped on by Bill or Drew); (c) UI on the transcript page shows the current policy ("This Sales meeting will train the agent" / "This Internal meeting will NOT train the agent" / "This Vendor meeting will train? Yes/No toggle") so trainers know the consequences at a glance; (d) `Canon — Meeting` doc subcategory matches the meeting category so retrieval can filter by source class if needed.
   4. For the "Draft email from transcript" feature, which standard outputs do you want as one-click buttons? (Follow-up, proposal outline, recap-to-team, LinkedIn DM, anything else?)
 - **Recommended approach:** Build the classifier first (it gates what training data flows through), then the generate-from-transcript actions, then port the inline contact creator from 3.2.
 - **Effort:** `M`
