@@ -559,6 +559,7 @@ WEB CONTACT (parallel):
 - **Gap to "done":** A T1 agent that can (1) answer 80% of support questions from the canon + ticket history, (2) escalate to a human with full context, (3) be reached via every channel the OW customers actually use (email, chat widget on customer portal, phone if Twilio comes in).
 - **Questions for Bill:**
   1. Which customers are in scope for T1 — all paying customers, only specific properties, free trial users?
+     - **Answer (2026-05-11):** **All paying customers.** Every current contract is in scope for T1 as their first line of support from the cutover date forward. No phased rollout, no customer tiering, no pilot subset. (This is ambitious — caveat in build: a soft launch where T1 runs in shadow mode for 2–4 weeks before fully replacing the live-agent queue may de-risk; capture as a build-phase recommendation.)
   2. What channels must T1 cover? (Email to a support address, live chat on a portal, SMS, voice?)
   3. Has Danny shared the ticket history + call transcripts referenced in the PDF? If yes, where? If no, we need them as the training corpus.
   4. Hand-off criteria: when must the agent escalate? (Examples: outage report, billing dispute, security question, anything containing keyword "lawyer".)
