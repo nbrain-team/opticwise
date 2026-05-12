@@ -273,6 +273,18 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       createdAt: e.createdAt.toISOString(),
       updatedAt: e.updatedAt.toISOString(),
     })),
+    confidentEmails: confidentEmailsCapped.map((e) => ({
+      ...e,
+      date: e.date.toISOString(),
+      createdAt: e.createdAt.toISOString(),
+      updatedAt: e.updatedAt.toISOString(),
+    })),
+    inferredEmails: inferredEmailsCapped.map((e) => ({
+      ...e,
+      date: e.date.toISOString(),
+      createdAt: e.createdAt.toISOString(),
+      updatedAt: e.updatedAt.toISOString(),
+    })),
     driveFiles: deal.driveFiles.map((f) => ({
       ...f,
       size: f.size?.toString() || null,
