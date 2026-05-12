@@ -369,6 +369,15 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
   1. Are we standardizing on **Fathom** (already wired) or **Read.ai** (in the PDF)? If we keep both, which is primary?
      - **Answer (2026-05-11):** **Read.ai only.** Fathom removed. Integration is done. Cleanup task captured above — to be scheduled in Sprint 2 or 6 (it's not user-visible bug territory, more code-hygiene).
   2. For the classifier — give me your taxonomy. Draft: Sales-Discovery, Sales-Demo, Sales-Proposal-Review, Client-Check-In, Client-QBR, Internal-Standup, Internal-Strategy, Vendor, Recruiting, Personal. Add/remove as you see fit.
+     - **Answer (2026-05-11):** **Seven categories** (simpler than the 11-category draft):
+       1. **Sales** — any prospect-facing conversation (discovery, demo, proposal review, etc., collapsed into one bucket)
+       2. **Client** — any existing customer touch (check-ins, QBRs, support, expansion conversations)
+       3. **Internal** — OW team meetings (L10, weekly with Roxana, planning, ad-hoc internal)
+       4. **Vendor** — calls with OW suppliers, integrators, tool vendors, partners selling INTO OW
+       5. **Executives** — board / investor / advisor / external-leadership meetings (distinct from Internal — different audience, different output expectations)
+       6. **PPP Podcast** — podcast recording or guest-intro calls for the Peak Property Performance® podcast
+       7. **Other** — catch-all for unclassifiable or rare meeting types (recruiting, personal, etc.)
+     - **Build task implied:** (a) `MeetingCategory` enum with these seven values in `prisma/schema.prisma`; (b) auto-classifier runs on every Read.ai meeting at ingest time using the transcript + participant emails + meeting title — picks the category, writes a confidence score, lets the user override; (c) inline manual category picker on the meeting-transcript page; (d) per-category default routing for the Slack auto-post setup from Section 4.3 (Sales → `#sales`, Client → `#client-success`, Internal → no auto-post, Vendor → `#vendor`, Executives → no auto-post or DM only, PPP Podcast → `#podcast`, Other → no auto-post).
   3. For training: should **only Sales-Discovery + Sales-Demo + Client-** classes feed back into prospect/client knowledge, with everything else excluded? (My default.)
   4. For the "Draft email from transcript" feature, which standard outputs do you want as one-click buttons? (Follow-up, proposal outline, recap-to-team, LinkedIn DM, anything else?)
 - **Recommended approach:** Build the classifier first (it gates what training data flows through), then the generate-from-transcript actions, then port the inline contact creator from 3.2.
