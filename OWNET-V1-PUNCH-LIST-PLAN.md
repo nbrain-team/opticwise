@@ -617,6 +617,8 @@ WEB CONTACT (parallel):
   - **Cross-channel consistency.** Whether the customer reached T1 via email, chat, SMS, or voice, the hand-off model is identical: "I'll have someone call you back."
 - **Effort:** `L` — substantial but tractable given the async-only model and the existing OWnet machinery (canon retrieval, knowledge corrections, Slack notifications, deal/contact RBAC). Mostly net-new UI surfaces (`/support` for ticket queue, `/callbacks` for SLA tracking) plus four channel-input adapters.
 
+<!-- ===PUNCHLIST-SWAP-BOUNDARY=== -->
+
 ## 4.13 Social posting tool (replace Hootsuite)
 - **PDF:** "in original SOW… need ability for Roxana to post to 4 different LI profiles - Drew, Bill, PPP OW"
 - **Where we are today:** LinkedIn Manager exists. Multi-account posting + scheduling unclear.
