@@ -54,7 +54,8 @@ function searchEntryToExtracted(e: SearchIndexEntry): ExtractedPost {
 
 function publishedInsightToExtracted(
   insight: Insight & { assets: InsightAsset[] },
-  heroRelative: string,
+  slug: string,
+  heroFileName: string,
   bodyHtml: string
 ): ExtractedPost {
   const dp = insight.datePublished ?? new Date();
@@ -63,26 +64,24 @@ function publishedInsightToExtracted(
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, BODY_CHAR_CAP);
-  const image = normalizeImagePath(
-    `${SITE}/${insight.heroImagePath?.replace(/^\//, "") || `images/insights/${insight.slug}/${insight.assets.find((a) => a.kind === "hero")?.filename}`}`
-  );
+  const absImg = `${SITE}/images/insights/${slug}/${heroFileName}`;
   return {
-    slug: insight.slug,
-    href: `../insights/${insight.slug}/index.html`,
+    slug,
+    href: `../insights/${slug}/index.html`,
     title: insight.title,
     excerpt: insight.excerpt || insight.seoDescription || "",
     category: insight.category,
     secondaryCategories: insight.secondaryCategories || [],
     date: formatDateLabel(dateIso),
     dateIso,
-    image: image || normalizeImagePath(heroRelative.replace(/^\.\.\/\.\.\//, `${SITE}/`)),
+    image: normalizeImagePath(absImg),
     body,
   };
 }
 
 export function buildPublishedHtmlAndFiles(
   insight: Insight & { assets: InsightAsset[]; author: User }
-): { files: RepoFile[]; commitMessage: string } {
+): { files: RepoFile[]; commitMessage: string; bodyProcessed: string; slug: string } {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(insight.slug)) {
     throw new Error("Slug must be lowercase letters, numbers, and hyphens only");
   }
@@ -92,7 +91,7 @@ export function buildPublishedHtmlAndFiles(
 
   const heroAsset = insight.assets.find((a) => a.kind === "hero");
   if (!heroAsset) {
-    throw new Error('Upload a hero image (use "Hero image" on the form)');
+    throw new Error('Upload a hero image (use "Set as hero" / hero upload on the form)');
   }
 
   const slug = insight.slug;
@@ -117,7 +116,8 @@ export function buildPublishedHtmlAndFiles(
   );
 
   const authorSlug =
-    insight.authorSlug || slugifySegment(insight.author.name || insight.author.email.split("@")[0]);
+    insight.authorSlug ||
+    slugifySegment(insight.author.name || insight.author.email.split("@")[0]);
   const authorName = insight.author.name || "OpticWise";
   const readingMinutes =
     insight.readingTimeMinutes ?? computeReadingMinutes(bodyProcessed);
@@ -178,37 +178,22 @@ export function buildPublishedHtmlAndFiles(
   }
 
   const commitMessage = `insight: publish "${insight.title}" (${slug})`;
-  return { files, commitMessage };
+  return { files, commitMessage, bodyProcessed, slug };
 }
 
 export async function publishInsightToGitHub(
   insight: Insight & { assets: InsightAsset[]; author: User }
 ): Promise<{ sha: string }> {
-  const slug = insight.slug;
   const heroAsset = insight.assets.find((a) => a.kind === "hero");
   if (!heroAsset) throw new Error("Hero image missing");
-  const imageDir = `images/insights/${slug}`;
-  const heroRelative = `../../${imageDir}/${heroAsset.filename}`;
 
-  const bodyProcessed = rewriteAssetUrlsInBody(
-    insight.bodyHtml,
-    insight.id,
-    slug,
-    insight.assets.map((a) => ({ id: a.id, filename: a.filename }))
-  );
+  const { files: staticFiles, commitMessage, bodyProcessed, slug } =
+    buildPublishedHtmlAndFiles(insight);
 
-  const { files: staticFiles, commitMessage } = buildPublishedHtmlAndFiles({
-    ...insight,
-    bodyHtml: bodyProcessed,
-    heroImagePath: `${imageDir}/${heroAsset.filename}`,
-    datePublished: insight.datePublished ?? new Date(),
-  });
-
-  const listingHtml =
-    (await fetchRepoFileUtf8("insights/index.html")) ??
-    (() => {
-      throw new Error("Could not fetch insights/index.html from opticwise-html");
-    })();
+  const listingHtml = await fetchRepoFileUtf8("insights/index.html");
+  if (!listingHtml) {
+    throw new Error("Could not fetch insights/index.html from opticwise-html");
+  }
 
   const searchJsonRaw = await fetchRepoFileUtf8("insights/search-index.json");
   if (!searchJsonRaw) {
@@ -217,15 +202,10 @@ export async function publishInsightToGitHub(
   const searchEntries = JSON.parse(searchJsonRaw) as SearchIndexEntry[];
   const without = searchEntries.filter((e) => e.slug !== slug);
 
-  const syntheticInsight = {
-    ...insight,
-    bodyHtml: bodyProcessed,
-    heroImagePath: `${imageDir}/${heroAsset.filename}`,
-    datePublished: insight.datePublished ?? new Date(),
-  };
   const newEntry = publishedInsightToExtracted(
-    syntheticInsight,
-    heroRelative,
+    insight,
+    slug,
+    heroAsset.filename,
     bodyProcessed
   );
 
@@ -237,22 +217,16 @@ export async function publishInsightToGitHub(
   const listingOut = rebuildInsightsListingHtml(listingHtml, posts);
   const searchOut = rebuildSearchIndexJson(posts);
 
-  const sitemapXml =
-    (await fetchRepoFileUtf8("sitemap.xml")) ??
-    (() => {
-      throw new Error("Could not fetch sitemap.xml");
-    })();
+  const sitemapXml = await fetchRepoFileUtf8("sitemap.xml");
+  if (!sitemapXml) throw new Error("Could not fetch sitemap.xml");
   const sitemapOut = insertOrReplaceInsightSitemapUrl(
     sitemapXml,
     slug,
     (insight.datePublished ?? new Date()).toISOString()
   );
 
-  const feedXml =
-    (await fetchRepoFileUtf8("blog/feed.xml")) ??
-    (() => {
-      throw new Error("Could not fetch blog/feed.xml");
-    })();
+  const feedXml = await fetchRepoFileUtf8("blog/feed.xml");
+  if (!feedXml) throw new Error("Could not fetch blog/feed.xml");
 
   const rssItem = buildInsightRssItem({
     title: insight.title,

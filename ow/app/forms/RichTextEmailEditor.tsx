@@ -22,7 +22,11 @@
  *     the cursor position.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useImperativeHandle, useRef, useState, forwardRef } from "react";
+
+export type RichTextEmailEditorHandle = {
+  insertHtml: (html: string) => void;
+};
 
 type Props = {
   value: string;
@@ -30,15 +34,24 @@ type Props = {
   mergeTags?: string[];
   placeholder?: string;
   minHeight?: number;
+  /** Default strips rich paste for email-safe HTML. Set false for blog body. */
+  pastePlainText?: boolean;
+  /** Show toolbar button — parent handles file upload then calls ref.insertHtml */
+  onImageRequest?: () => void;
 };
 
-export default function RichTextEmailEditor({
+const RichTextEmailEditor = forwardRef<RichTextEmailEditorHandle, Props>(function RichTextEmailEditor(
+{
   value,
   onChange,
   mergeTags = [],
   placeholder = "Write the email your submitter will receive…",
   minHeight = 280,
-}: Props) {
+  pastePlainText = true,
+  onImageRequest,
+}: Props,
+ref
+) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [showHtml, setShowHtml] = useState(false);
   const [linkOpen, setLinkOpen] = useState(false);
