@@ -731,6 +731,19 @@ WEB CONTACT (parallel):
        - **NOT B (Loom videos)** and **NOT D (live sessions)** — videos go stale fast as UI evolves; written + in-app guidance updates in lockstep with code commits and stays current.
      - **Build task implied:** (a) Quick-starts + illustrated guides written as markdown in `docs/features/` (one folder per surface, with a `quick-start.md` and `illustrated-guide.md`); (b) screenshot automation — use Playwright or similar to capture canonical screenshots so they regenerate when the UI changes; (c) in-app tour engine — use an existing library (Shepherd.js, Intro.js, or similar) with per-role tour definitions stored as JSON; (d) "Restart tour" affordance in the user profile menu so anyone can re-run the tour later.
   3. Which surfaces must be covered minimum: CRM (deals, contacts), Forms admin, OWnet agent, Content Engine, Knowledge Base training (per 1.7), LinkedIn manager, support agent?
+     - **Answer (2026-05-11):** **Four surfaces in scope for v1 training materials** (Bill's tighter set):
+       1. **CRM** — Deals, Contacts, Companies, Pipelines (the daily-driver surface for Sales & Marketing)
+       2. **LinkedIn Manager** — outbound + inbound flows (per Section 4.10)
+       3. **Social Composer** — multi-platform scheduler (per Section 4.13)
+       4. **Meeting Transcripts** — Read.ai integration, the transcript-review + per-category action button surface (per Section 4.7)
+     - **NOT in v1 training scope (Bill's call, 2026-05-11):**
+       - Forms admin — likely covered by existing dev/admin context; non-Bill users rarely create forms
+       - OWnet Agent — main chat is self-explanatory enough
+       - Content Engine — only Bill (+ Drew) uses it; trainer-grade documentation handled in `docs/features/` for engineering audience
+       - Knowledge Base Training (Section 1.7 trainer surface) — only Bill + Drew per the RBAC answer; private trainer docs sufficient
+       - Support Surface — post-v1 (T1 Agent is post-v1 project)
+       - Knowledge Base Browse — self-explanatory read surface
+     - **Implication:** training scope tracks closely with what **non-Bill/Drew team members actually use daily**. Sales & Marketing get CRM + LinkedIn + Social + Meeting Transcripts. Ops & Engineering get the engineering-grade `docs/` from Section 6. Executives use everything but learn-by-doing. ASPR Onsite get a separate, narrower training material set once their tooling is defined.
   4. Acceptable to record the training sessions and let OWnet itself ingest the transcripts so it can answer "how do I do X in OWnet" going forward? (Big multiplier for low effort.)
 - **Effort:** `M`
 
