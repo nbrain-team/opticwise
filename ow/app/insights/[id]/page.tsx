@@ -273,9 +273,10 @@ export default function InsightEditPage({
           ← All insights
         </Link>
         {row?.status === "published" ? (
-          <span className="text-xs font-semibold text-green-700 bg-green-50 px-2 py-1 rounded">
-            Published
-          </span>
+          <div className="mb-4 text-sm text-blue-800 bg-blue-50 border border-blue-200 rounded-lg p-3">
+            This insight is live on the site. In-repo edits / republish from OWnet are
+            planned for a follow-up; contact an admin if you need an update pushed.
+          </div>
         ) : null}
       </div>
 
@@ -506,7 +507,9 @@ export default function InsightEditPage({
           <button
             type="button"
             disabled={saving}
-            onClick={() => savePatch({ status: "draft" })}
+            onClick={() =>
+              savePatch({ status: "draft", scheduledFor: null })
+            }
             className="rounded-lg bg-white border border-gray-300 px-4 py-2 text-sm font-medium hover:bg-gray-50 disabled:opacity-50"
           >
             {saving ? "Saving…" : "Save draft"}
