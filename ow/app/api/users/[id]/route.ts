@@ -62,9 +62,9 @@ export async function PATCH(
     }
     if (body.department !== undefined) updateData.department = body.department || null;
     if (body.role !== undefined) {
-      if (!["admin", "user"].includes(body.role)) {
+      if (!["admin", "user", "editor"].includes(body.role)) {
         return NextResponse.json(
-          { error: "Role must be 'admin' or 'user'" },
+          { error: "Role must be 'admin', 'editor', or 'user'" },
           { status: 400 }
         );
       }

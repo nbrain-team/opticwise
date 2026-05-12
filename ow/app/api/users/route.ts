@@ -54,7 +54,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Check if user is admin
     const currentUser = await prisma.user.findUnique({
       where: { id: session.userId },
     });
@@ -63,24 +62,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Create user
+    const body = await req.json();
     const { email, name, password, department, role: requestedRole } = body;
 
-    let role = "user";
-    if (
-      requestedRole === "editor" &&
-      (currentUser.role as string) === "admin"
-    ) {
-      role = "editor";
-    }
-
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        name,
-        passwordHash,
-        department: department || null,
-        role,
+    if (!email || !name || !password) {
       return NextResponse.json(
         { error: "Email, name, and password are required" },
         { status: 400 }
@@ -94,7 +79,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate password length
     if (password.length < 8) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters" },
@@ -102,7 +86,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -114,17 +97,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Hash password
+    let role = "user";
+    if (requestedRole === "editor") {
+      role = "editor";
+    }
+
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Create user
     const newUser = await prisma.user.create({
       data: {
         email,
         name,
         passwordHash,
         department: department || null,
-        role: "user", // New users are always regular users, not admins
+        role,
         isActive: true,
         createdBy: session.userId,
       },
