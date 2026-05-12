@@ -695,12 +695,8 @@ WEB CONTACT (parallel):
 
 ## 5.4 Property Brain Score (NEW lead magnet, replacing 5.1)
 - **PDF:** "I build a Property Brain Score that will be better than the one I sent you for this last month"
-- **Questions for Bill:**
-  1. Send me the latest draft of the Property Brain Score model — inputs (form fields), scoring math, output ranges, and the brand/marketing wrap (what the user sees after they get their score).
-  2. Should it be **gated** (email required to see score) or **ungated** (score visible inline, with a deeper report behind email)? Recommendation: ungated score, gated report — best conversion + best AEO surface.
-  3. Where does it live — a new page on OW, a new page on PPP, or both?
-  4. After they submit, what's the follow-up sequence — confirmation email, automatic call booking link, sales sequence?
-- **Effort:** `M`
+- **Status (2026-05-11):** **DEFERRED for v1.** Bill's call: Property Brain Score is not ready — model needs more work before we can scope the build. Revisit after v1 ships. Remaining design questions (input fields, scoring math, output ranges, gated vs. ungated, hosting site, follow-up sequence) all park until Bill has the latest draft of the model.
+- **Effort:** `M` once unblocked.
 
 ---
 
