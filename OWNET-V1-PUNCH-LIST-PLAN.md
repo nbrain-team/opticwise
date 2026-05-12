@@ -569,6 +569,17 @@ WEB CONTACT (parallel):
        - **NOT — E — Slack.** Bill (2026-05-11): "we use Slack for internal and vendors only right now." OW does not have customer Slack workspaces. T1 does NOT cover Slack support. Could revisit if customer-facing Slack workspaces are introduced later.
      - **Build implication:** T1 is a 4-channel agent. Each channel needs its own input adapter (email parsing, chat-widget event handling, SMS parser, voice transcription) but they all feed into the same core T1 reasoning engine. Output adapters mirror inputs. Roughly **4× the surface area** of a single-channel build, but the shared core makes it less than 4× the effort.
   3. Has Danny shared the ticket history + call transcripts referenced in the PDF? If yes, where? If no, we need them as the training corpus.
+     - **Answer (2026-05-11):** **Yes — landed in Google Drive.** Four sources captured below.
+     - **Training corpus locations:**
+       - Ticket history / call transcripts folder 1: https://drive.google.com/drive/folders/16jNqEA4O_N4jWtxYe0r0ybE9Wzo7m7IR
+       - Folder 2: https://drive.google.com/drive/folders/1-JuRiBjPVRxUBX2QUuYAGo9ZqeQBy08R
+       - Folder 3: https://drive.google.com/drive/folders/1w4mNlMDMJwY3FsTq7VnZEpxIYONK46ha
+       - Support email history (single file): https://drive.google.com/file/d/1Nm9zrAXHL2Ha9_UQCpbdFQ8yIPHQjQeU
+     - **Access blocker (2026-05-11):** Verified that the OW Drive service account (`opticwise-service@opticwise-integration-nbrain.iam.gserviceaccount.com`) currently has **no read permission** on any of the four sources — Drive returns "File not found" for each, which Drive uses to mask permission denials. Two paths to unblock:
+       - **Path 1 (fast):** Bill shares each folder + the file with `opticwise-service@opticwise-integration-nbrain.iam.gserviceaccount.com` as Viewer. Two clicks per folder. Captures the corpus into reach without waiting on Section 4.2's per-user OAuth migration.
+       - **Path 2 (architecturally clean):** Wait until per-user Drive OAuth ships (Section 4.2 build task). The OWnet ingester then pulls these as Bill, using Bill's permissions. No service-account share needed.
+     - **Recommendation:** Path 1 for the T1 training corpus specifically — these are training inputs, not live customer documents, so a permanent service-account read is reasonable. Captured as a **trainer-side action item for Bill** (separate from `DANNY-TODOS.md` because Bill owns the share action).
+     - **NEW: Bill action item — share these four Drive locations with the service account.** Action: open each link → Share → add `opticwise-service@opticwise-integration-nbrain.iam.gserviceaccount.com` as Viewer → Send. Then re-verify by pinging me in chat. (Doing this now would unblock the T1 build whenever it starts; doing it later is also fine — T1 is post-v1.)
   4. Hand-off criteria: when must the agent escalate? (Examples: outage report, billing dispute, security question, anything containing keyword "lawyer".)
   5. Who does it escalate **to**?
 - **Effort:** `L`
