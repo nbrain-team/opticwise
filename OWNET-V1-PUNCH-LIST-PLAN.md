@@ -443,6 +443,15 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
   1. Use cases: outbound SMS to leads (and which lifecycle stage triggers it), inbound voice number, two-way messaging in the CRM, all of the above?
      - **Answered above.** Scope locked to A + B for v1, E deferred, C/D not in scope.
   2. Compliance: do you want consent capture wired into every form that opts a lead in for SMS? (Required for 10DLC.)
+     - **Implicit answer via outbound-SMS trigger scope (2026-05-11):** Bill selected only **two triggers** for v1 outbound SMS:
+       - **(i) Audit confirmation** — customer who booked a PPP Audit gets: *"Confirmed for [date] — reply if you need to reschedule."*
+       - **(ii) Hot-lead nudge to Bill (internal)** — when a form is submitted on a high-intent page (Schedule Review, PPP Audit), Bill receives an SMS: *"New lead from [page]: [name] @ [company] — check OWnet."*
+     - **Skipped for v1:** Deal-stage-advance SMS to customers (iii), no-show recovery SMS (iv).
+     - **Compliance implications:**
+       - **(i) is customer-facing** — requires SMS opt-in on the PPP Audit Request form (the form that books an audit). Field becomes required if Bill wants the confirmation SMS to send. If unchecked, audit still books, but no SMS — fallback to email confirmation only.
+       - **(ii) is internal-only** (Bill SMSing himself about a new lead) — no TCPA exposure, no opt-in needed. Bill's number stored as the platform-admin notification target, configurable per pipeline owner.
+       - Only ONE customer-facing SMS trigger for v1 = minimal 10DLC campaign — single campaign labeled "PPP Audit Confirmation" with sample text. Faster TCR registration than a multi-campaign brand.
+     - **Build task:** (a) add `smsOptedIn: boolean` field to the PPP Audit Request form schema; (b) add the disclosure copy + checkbox to that form's render; (c) hook into the form-submission post-processing to send the confirmation SMS via Twilio (only if `smsOptedIn === true` AND TCR-approved); (d) wire the internal-hot-lead SMS to Bill on every form submission to high-intent pages, regardless of opt-in (he owns the number).
 - **Recommended approach (revised):** Phase 1 — start TCR brand + campaign registration today; set up the Twilio number for Willow; build the inbound voice handler. Phase 2 — once TCR approved, build the outbound SMS sender + opt-in form fields + Contact `smsOptedOut` flag. Phase 3 (next release, not v1) — outbound voice.
 - **Effort:** `L` (10DLC is the elapsed-time bottleneck; actual code work is moderate).
 
