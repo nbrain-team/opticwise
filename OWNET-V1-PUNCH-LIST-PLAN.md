@@ -533,6 +533,13 @@ WEB CONTACT (parallel):
      - **Answer (2026-05-11):** Accept the starter scorecard as-is. Max possible: ~85.
      - **Build task implied:** (a) `LeadScore` field (integer) on Contact AND on Deal — Contact-level is "intrinsic" (firmographics + engagement history), Deal-level is contact's intrinsic score plus deal-specific signals; (b) score recalculator runs on (i) new form submission, (ii) new email engagement (received/sent), (iii) new call recording arrival + classification, (iv) Contact profile manual edit; (c) signal-source breakdown stored alongside the total so Bill can see "this contact scored 75 because: 30 portfolio size + 20 multifamily + 20 asset manager + 5 baseline title"; (d) score history table so we can chart score-over-time per contact (rising vs. falling engagement); (e) `score_signals` config table keyed off the starter scorecard so the weights are editable from a `/lead-scoring` admin page without redeploy.
   2. Above what score is a lead "qualified" → moves stage automatically?
+     - **Answer (2026-05-11):** **Threshold = 30** for "qualified" (generous starting point — anyone with one strong signal qualifies). Will tune up over time as Bill watches signal quality.
+     - **No auto-advance.** Score reaching 30 does NOT auto-move the deal between pipeline stages. Stage transitions remain a human decision; the score is informational, not mechanical. Reduces false-positive stage moves that would confuse the sales view.
+     - **Score visibility (required surfaces, 2026-05-11):**
+       - **Kanban deal card** (`/deals` view) — show the score on every card, alongside the existing "days-in-stage" counter. Visual: small score badge top-right of the card (`75` in green if ≥ threshold, gray if below). Color coding: red < 30, gray 30–49, green 50–69, bold green ≥ 70. (Threshold-crossing is gray→green; high-value is bold green.)
+       - **Deal detail page** (`/deal/[id]`) — show the score prominently in the deal header, plus the **signal breakdown** below it ("30 portfolio + 20 multifamily + 20 asset manager + 5 baseline title = 75"). Lets Bill see WHY a deal scored what it scored, not just the total.
+       - **Contact detail page** — Contact's intrinsic score visible at top of profile.
+     - **Build task implied:** (a) compute score on the server (background job after recalculation triggers); (b) `<LeadScoreBadge score={…} threshold={30} />` reusable component; (c) signal-breakdown panel on the deal detail; (d) sortable column on `/deals` list view "Sort by score" (in addition to existing "Deal title" sort).
   3. Should low-score leads be auto-nurture (added to a sequence) or auto-archive?
 - **Effort:** `M`
 
