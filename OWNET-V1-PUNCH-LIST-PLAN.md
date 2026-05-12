@@ -581,6 +581,16 @@ WEB CONTACT (parallel):
      - **Recommendation:** Path 1 for the T1 training corpus specifically — these are training inputs, not live customer documents, so a permanent service-account read is reasonable. Captured as a **trainer-side action item for Bill** (separate from `DANNY-TODOS.md` because Bill owns the share action).
      - **NEW: Bill action item — share these four Drive locations with the service account.** Action: open each link → Share → add `opticwise-service@opticwise-integration-nbrain.iam.gserviceaccount.com` as Viewer → Send. Then re-verify by pinging me in chat. (Doing this now would unblock the T1 build whenever it starts; doing it later is also fine — T1 is post-v1.)
   4. Hand-off criteria: when must the agent escalate? (Examples: outage report, billing dispute, security question, anything containing keyword "lawyer".)
+     - **Answer (2026-05-11):** Escalation triggers (everything **except** outage reports and VIP-customer auto-escalation):
+       - **B — Billing disputes.** Charge questions, refund requests, contract modifications → escalate to billing owner.
+       - **C — Security or compliance questions.** Breach inquiries, data residency, certifications, audit responses → escalate (high stakes, must be human-vetted).
+       - **D — Legal-trigger keywords.** Auto-escalate with red flag if message contains: "lawyer", "attorney", "lawsuit", "subpoena", "regulator", "data breach", "court", "compliance officer", "litigation", "discovery", "FTC", "FCC", "SEC", "AG" (attorney general).
+       - **E — Explicit human request.** Always honored — "can I talk to a person", "real human", "transfer me", "speak with someone", etc.
+       - **F — Low confidence on routine answer.** Below configurable confidence threshold (start at 0.65 or similar — tune after launch) → escalate rather than guess.
+     - **NOT escalating (T1 handles directly):**
+       - **A — Outage/service degradation reports** are NOT auto-escalated. Reasoning (Bill's call, 2026-05-11): T1 should handle these in real time using OW's network/monitoring data — "yes, we see your switch in Building X is offline; ticket created, engineering paged" is faster and more accurate than escalating to a human who'd look up the same data. Implies T1 needs read access to monitoring tooling (build dependency to surface in T1 design phase).
+       - **G — VIP/high-value customer routing** is NOT in place. All customers get the same T1 treatment regardless of MRR. Bold but aligned with the "all paying customers" answer in question 1.
+     - **Build task implied:** (a) per-trigger escalation policy table; (b) keyword detector for D (case-insensitive token match); (c) confidence-score pipeline on every T1 response (LLM logit-derived or model self-evaluation); (d) escalation hand-off includes the full conversation context + suggested-response draft so the human picking up isn't starting from scratch; (e) network/monitoring tool integration for outage-handling (read access to whatever tool OW uses for switch/AP/BMS health — define during build).
   5. Who does it escalate **to**?
 - **Effort:** `L`
 
