@@ -15,13 +15,9 @@ export function lintInsightMarkdownLite(html: string): Sb7LintResult {
 
   const lower = text.toLowerCase();
 
-  const opticNearPropTech =
-    /optic\s*wise[^.]{0,120}proptech|proptech[^.]{0,120}optic\s*wise/i.test(
-      text
-    );
-  if (opticNearPropTech) {
+  if (/proptech/i.test(text) && /optic\s*wise/i.test(text)) {
     warnings.push(
-      "Avoid calling OpticWise “PropTech” — OpticWise is not labeled that way on the marketing site."
+      "Avoid framing OpticWise as “PropTech” on the marketing site."
     );
   }
 
@@ -43,9 +39,12 @@ export function lintInsightMarkdownLite(html: string): Sb7LintResult {
     );
   }
 
-  if (!lower.includes("data") || !lower.includes("digital")) {
+  if (
+    !/data\s*&\s*digital\s*infrastructure/i.test(text) &&
+    !/data\s+and\s+digital\s+infrastructure/i.test(text)
+  ) {
     warnings.push(
-      'Consider working in “data & digital infrastructure” where it fits — it’s the default marketing phrase.'
+      'Consider the phrase “data & digital infrastructure” where it strengthens the piece.'
     );
   }
 
