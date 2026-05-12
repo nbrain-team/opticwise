@@ -712,6 +712,8 @@ WEB CONTACT (parallel):
   2. Audience — you only, future Drew, future contractors, or all?
      - **Answer (2026-05-11):** **Bill + Drew + any future engineer or contractor.** Real onboarding material — polished enough that a new hire can navigate from day 1. Engineering-grade docs, not casual notes. Implication: every doc starts with "what this is, who needs it, when to read it" so a new reader knows what they're looking at.
   3. Where do they live — Notion, Drive, in-repo `/docs`? Recommendation: in-repo `/docs` so they version with the code, with a Drive mirror for non-technical readers.
+     - **Answer (2026-05-11):** **In-repo `/docs/` + auto-mirror to Google Drive on every commit.** Engineers update docs in the repo (PR-linked alongside code changes — no drift between code and documentation). A commit-time hook (or scheduled job, depending on volume) rebuilds and pushes the rendered HTML/markdown into a designated Drive folder so non-engineers (Roxana, future Sales & Marketing team) can read without GitHub access. RBAC on the Drive mirror folder honors the matrix from Section 4.2 (Executives + Ops & Engineering see everything; Sales & Marketing sees the feature catalog + user docs; ASPR Onsite sees only the ASPR-scoped subset).
+     - **Build task implied:** (a) `/docs/` directory at repo root with the four document types from question 1; (b) commit-hook (or hourly cron) that mirrors `/docs/` to a Drive folder; (c) basic markdown → Drive Doc rendering (could use Pandoc or a lightweight converter); (d) RBAC enforcement on the Drive folder per the matrix.
 - **Effort:** `M` (writing is the work; autogeneration of data-model + architecture diagrams handles ~30% of it).
 
 ---
