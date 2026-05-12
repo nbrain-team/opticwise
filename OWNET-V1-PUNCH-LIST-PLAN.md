@@ -592,7 +592,29 @@ WEB CONTACT (parallel):
        - **G — VIP/high-value customer routing** is NOT in place. All customers get the same T1 treatment regardless of MRR. Bold but aligned with the "all paying customers" answer in question 1.
      - **Build task implied:** (a) per-trigger escalation policy table; (b) keyword detector for D (case-insensitive token match); (c) confidence-score pipeline on every T1 response (LLM logit-derived or model self-evaluation); (d) escalation hand-off includes the full conversation context + suggested-response draft so the human picking up isn't starting from scratch; (e) network/monitoring tool integration for outage-handling (read access to whatever tool OW uses for switch/AP/BMS health — define during build).
   5. Who does it escalate **to**?
-- **Effort:** `L`
+     - **Answer (2026-05-11):** **Routed by escalation reason, async — no live transfers.** Two-part decision:
+       - **(Part 1) Routing by reason:**
+         - **Billing disputes** → billing owner (Bill default for v1 of T1; can be Roxana or a future controller).
+         - **Security / Compliance** → Bill OR Drew (whoever's available; if both unavailable, queue for first response).
+         - **Outage** (manual escalation only — auto-handled per Q60) → engineering on-call (Drew for v1 of T1).
+         - **Legal-trigger keywords** → **Bill always**, never routed elsewhere.
+         - **Low confidence** / **explicit human request** → next available person in a general escalation queue (Bill + Drew + Roxana, in that priority).
+       - **(Part 2) Async hand-off model (NOT live transfer):**
+         - T1 never says "please hold, I'm transferring you to a person." Instead, T1 says: *"I'll have [name/team] call you back within [SLA window]. Can I confirm the best number/email to reach you at? Anything else you'd want them to know before they call?"*
+         - T1 captures: full conversation transcript, customer's stated issue, T1's confidence-score breakdown, suggested response draft, customer's callback contact + preferred time.
+         - Output: a **Callback Task** in OWnet assigned to the routed person, with all context attached.
+         - Routed person gets notified: Slack DM + email + (optionally) SMS — same "hot lead nudge" mechanic as 4.9 outbound SMS.
+         - SLA per reason (proposed, Bill to ratify):
+           - Legal-trigger / Outage → **2 business hours**
+           - Security/Compliance → **4 business hours**
+           - Billing → **next business day**
+           - Low confidence / explicit human request → **2 business hours** during business hours, next business day off-hours
+         - `/callbacks` admin view in OWnet shows all open callback tasks with their `slaBy` timestamp; red badge if breached (same machinery as the chatbot SLA in 4.6).
+- **Implications for technical scope:**
+  - **No SIP/voice-transfer infrastructure needed.** Big simplification. T1 just needs to be a good message-taker, not a live-call routing engine.
+  - **No presence detection / availability tracking.** Since everything is async, the assigned person can pick it up when ready (within SLA).
+  - **Cross-channel consistency.** Whether the customer reached T1 via email, chat, SMS, or voice, the hand-off model is identical: "I'll have someone call you back."
+- **Effort:** `L` — substantial but tractable given the async-only model and the existing OWnet machinery (canon retrieval, knowledge corrections, Slack notifications, deal/contact RBAC). Mostly net-new UI surfaces (`/support` for ticket queue, `/callbacks` for SLA tracking) plus four channel-input adapters.
 
 ## 4.13 Social posting tool (replace Hootsuite)
 - **PDF:** "in original SOW… need ability for Roxana to post to 4 different LI profiles - Drew, Bill, PPP OW"
