@@ -254,6 +254,7 @@ export type SearchIndexEntry = {
   category: string;
   secondaryCategories: string[];
   date: string;
+  dateIso?: string;
   image: string;
   body: string;
 };
@@ -279,9 +280,18 @@ export function toSearchIndexEntries(
     category: p.category,
     secondaryCategories: p.secondaryCategories,
     date: p.date,
+    dateIso: p.dateIso,
     image: p.image,
     body: p.body,
   }));
+}
+
+/** Parse "Month DD, YYYY" listing labels back to ISO when legacy JSON omits dateIso. */
+export function parseListingDateLabelToIso(dateLabel: string): string {
+  if (!dateLabel?.trim()) return "";
+  const d = new Date(`${dateLabel.trim()} UTC`);
+  if (isNaN(d.getTime())) return "";
+  return d.toISOString();
 }
 
 export function renderCard(p: ExtractedPost, index: number): string {
