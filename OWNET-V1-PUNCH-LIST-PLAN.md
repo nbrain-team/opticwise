@@ -405,11 +405,21 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 
 ## 4.8 ElevenLabs (subscribed, not enabled)
 - **PDF:** "need to be enabled/integrated/operational"
+- **Use cases (Bill, 2026-05-11):** Three live-customer-facing scenarios:
+  1. **"Willow" — Inbound Voice Agent.** A named voice-AI receptionist that answers OW inbound calls, greets the caller, takes their information (name, company, reason for call, callback preference), creates a Contact + Deal in the *Landing Pages Leads* pipeline with the call transcript attached, and routes to a human if intent warrants. This is a major new feature.
+  2. **Tier 1 Support — Voice Emulation/Cloning.** When the T1 support agent (Section 4.12) responds to a customer via voice (callback, status update voicemail, etc.), it uses voice cloning so the response sounds consistent with the OW brand voice.
+  3. **TTS for Support generally.** Text responses can be played back as audio for accessibility, drive-time review, voicemail summaries, etc.
+- **Out of scope for v1:** podcast/audiobook narration of written content, "Bill's voice on a callback" personal-impression use (different from a branded T1 support voice).
+- **Dependencies:**
+  - **Twilio (Section 4.9)** must be in place first — Willow needs a phone number, an inbound call handler, and a way to bridge audio to ElevenLabs Conversational AI. Twilio + ElevenLabs is the standard inbound-voice-AI stack.
+  - **T1 Support Agent (Section 4.12)** for the support-side voice cloning use cases.
+  - **Lead Scoring (Section 4.11)** so Willow can intelligently route high-score callers to a human and low-score callers to lead capture only.
 - **Questions for Bill:**
   1. What's the use case — voice cloning (your voice on a callback, podcast intro, demo narration), TTS for the support agent, both?
+     - **Answered above.** Three live use cases: Willow inbound voice agent, T1 support voice cloning, TTS for support.
   2. Which voices need to exist — yours, Drew's, a "neutral OW brand" voice?
-- **Recommended approach:** Clone the requested voices → expose a `/voice` tool in the agent (`Generate audio of <text> in <voice>`) → wire into specific surfaces (T1 support callback, Content Engine deliverables).
-- **Effort:** `M`
+- **Recommended approach (revised):** Build in this order — (i) Twilio inbound number + call routing (Section 4.9); (ii) Willow conversational flow scoped to lead capture (greet → ask name/company/reason → confirm callback preference → write to CRM); (iii) ElevenLabs voice for Willow (consistent OW brand voice — neutral, not Bill or Drew impersonation, per the same logic as the website chatbot in 4.6); (iv) T1 support voice cloning + TTS once T1 agent ships (Section 4.12).
+- **Effort:** `L` — meaningful infrastructure work, multiple integrations.
 
 ## 4.9 Twilio (subscribed, not enabled)
 - **PDF:** "need to be enabled/integrated/operational"
