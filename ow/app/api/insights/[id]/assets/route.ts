@@ -15,7 +15,7 @@ export async function POST(
   const gate = await requireEditor();
   if (!gate.ok) return gate.response;
 
-  const { id } =await params;
+  const { id } = await params;
   const row = await prisma.insight.findUnique({ where: { id } });
   if (!row) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
