@@ -636,6 +636,19 @@ WEB CONTACT (parallel):
        - Instagram Business Account confirmation per handle
        - All-six OAuth tokens captured and stored per-user per-surface
   2. Approval workflow — Roxana drafts → you approve → it posts? Or Roxana has full publish authority?
+     - **Answer (2026-05-11):** **AI-generated drafts + risk-tiered hybrid approval.** Roxana is NOT manually composing — the Content Engine generates posts in the appropriate voice (Bill's voice canon for Bill's surfaces, Drew's voice for Drew's, neutral OW brand voice for OW/PPP company pages per Section 4.10). Every AI-generated post then runs through a **risk classifier** before scheduling:
+       - **Low-risk → auto-publish** to the target surface at the scheduled time. No human approval gate.
+       - **High-risk → queued for approval** in `/social/pending-approval`. Notified to the surface owner (Bill, Drew, or default approver for company pages) via Slack DM + email. One-click "approve & schedule" / "edit & schedule" / "reject" affordances.
+     - **High-risk classifier criteria (proposed; Bill to ratify in build review):**
+       - Mentions of named competitors (Aerwave, RealPage, Yardi, MRI, vendor names from the competitive battlecard)
+       - Mentions of pricing, deal terms, contract sizes, MRR figures
+       - Mentions of named clients or specific properties
+       - Regulatory / legal topics (SEC, FCC, NIST, ASHRAE, GDPR, CCPA, lawsuits, breaches, certifications)
+       - Banned-word matches (ESG, PropTech in OW context, etc. — per Section 1.5 brand-terminology policy)
+       - Trademark first-use that hasn't been validated (e.g., a post that mentions BoT but missing the ® symbol)
+       - Any post in the **PPP company page** voice (separate brand surface; default-high-risk until trust is built)
+       - Any post >1500 characters (likely a LinkedIn long-form post — high-impact, deserves review)
+     - **Build task implied:** (a) `RiskTier` enum + classifier prompt per post; (b) `/social/pending-approval` queue UI with Slack notification + one-click actions; (c) `social_post` table tracks every post (surface, scheduled-at, risk-tier, draft text, approved-by-or-auto, posted-at, post-id-from-platform, engagement metrics back-fed later); (d) per-surface auto-publish toggle (so Bill can flip OFF auto-publish for any surface if he wants temporary all-manual review without changing the risk-classifier logic).
   3. Should the Content Engine's weekly LinkedIn deliverables auto-populate the scheduler as drafts each Monday?
 - **Recommended approach:** Build on top of an existing API (Buffer API, or direct LinkedIn API + per-account OAuth). The scheduler + composer UI is the real work.
 - **Effort:** `L`
