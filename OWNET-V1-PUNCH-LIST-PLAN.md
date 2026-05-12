@@ -745,7 +745,9 @@ WEB CONTACT (parallel):
        - Knowledge Base Browse — self-explanatory read surface
      - **Implication:** training scope tracks closely with what **non-Bill/Drew team members actually use daily**. Sales & Marketing get CRM + LinkedIn + Social + Meeting Transcripts. Ops & Engineering get the engineering-grade `docs/` from Section 6. Executives use everything but learn-by-doing. ASPR Onsite get a separate, narrower training material set once their tooling is defined.
   4. Acceptable to record the training sessions and let OWnet itself ingest the transcripts so it can answer "how do I do X in OWnet" going forward? (Big multiplier for low effort.)
-- **Effort:** `M`
+     - **Answer (2026-05-11):** **Yes.** Every training session (formal or ad-hoc) gets recorded; the recording's transcript flows into the canon tagged `Canon — Self-Help / How-To`. The OWnet agent retrieves these for how-to questions like "how do I add a deal in OWnet?" or "where do I see lead scores?" so the team can self-serve once a session is recorded. Treat training-session recordings as a new meeting category in Section 4.7's classifier (or sub-tag under `Internal` with `feedsTraining: true`) so the canon-writer fires for them by default.
+     - **Build task implied:** (a) add `Training-Session` as a meeting subcategory under the existing classifier; (b) `feedsTraining: true` policy on this subcategory; (c) retrieval boost — when a query matches "how do I…" / "where is…" / "what does X do in OWnet" intent, weight Self-Help canon higher than brand/sales canon; (d) feature catalog from Section 6 + training quick-starts from Section 7 ALSO get ingested as Self-Help canon (not just video transcripts) so the agent has multiple sources for how-to questions.
+- **Effort:** `M` (content production is the work — engineering build for surfaces is small).
 
 ---
 
