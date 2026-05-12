@@ -330,8 +330,10 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 - **PDF:** "need tighter definitions here"
 - **Questions for Bill:**
   1. Which chatbot do you mean — the website chatbot (Intercom-style live chat) or LLM chatbots (ChatGPT, Claude) integrating with OWnet?
+     - **Answer (2026-05-11):** **Website chatbot only** for v1. A branded live-chat widget on opticwise.com and peakpropertyperformance.com (or a subset, per next question) that visitors interact with. Out of scope for v1: OWnet-as-an-MCP-tool inside ChatGPT, embed-OWnet-elsewhere widgets, customer-portal tenant-facing chatbots. We'll revisit those if/when we extend the integration scope after v1 ships.
   2. If website chatbot: which sites (PPP, OW), which pages, and what should it do — answer Q&A from canon, capture leads into CRM, or both?
   3. If LLM integrations: are you asking for OWnet to be **callable from** ChatGPT (as an action/tool) or for OWnet to **embed** an LLM widget?
+     - **Moot (2026-05-11):** Out of v1 scope per answer to question 1.
 - **Effort:** Depends entirely on (1).
 
 ## 4.7 Call recorder (Read.ai / Fathom)
