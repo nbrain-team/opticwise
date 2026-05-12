@@ -764,56 +764,58 @@ These don't belong to a single item but affect several.
 
 ---
 
-# Recommended Sequence
+# Recommended Sequence (Revised 2026-05-11 per Bill)
 
-Bucket order is **dependency-first, then pain × ease**. We don't have to follow this strictly — once you answer the questions we can re-sort.
+Bucket order is **dependency-first, then pain × ease**. Bill's adjustments (2026-05-11): (1) move 5.2 Digital book shipping out of Sprint 1 into Sprint 4 (since it's blocked on Danny anyway); (2) swap old Sprint 3 and old Sprint 5 — Customer-facing scale-out now precedes Training & Knowledge.
 
 ### Sprint 1 — Stop the bleeding (1 week)
 1. **3.5** Email-linked-to-deal not showing — bug fix
-2. **3.4** Pipeline edit/add + MTU Tenant Pipeline + broken deals-page filter
+2. **3.4** Pipeline edit/add + MTU Tenant Pipeline + broken deals-page filter *(now resolved by Danny per 2026-05-11 answer — verify only)*
 3. **3.1** Harlow / Aspen Oak deal cleanup (probably resolves with 3.5)
-4. **5.2** Digital book shipping fix
-5. **4.3** Slack scopes added → AI Slack assistance fully live
-6. **2.1** PPP forms sweep — verify every CTA wired (likely done, verify)
+4. **4.3** Slack scopes added → AI Slack assistance fully live *(blocked on Danny — see `DANNY-TODOS.md`)*
+5. **2.1** PPP forms sweep — verify every CTA wired *(now closed by Bill per 2026-05-11 — Section 2 is done)*
 
 ### Sprint 2 — CRM completeness (1–2 weeks)
 1. **3.2** Inline create company/contact (build reusable `<InlineCreatePicker>`)
 2. **3.3** Files on deals
-3. **4.7** Call-recorder: classifier + generate-from-transcript + inline contact creator (reuses 3.2's component)
-4. **3.6** Contact list — fix whatever testing surfaced
+3. **4.7** Call-recorder: classifier + generate-from-transcript + inline contact creator (reuses 3.2's component) + Fathom→Read.ai cleanup
+4. **3.6** Contact list — three issues to fix (search miss, dup merging, Gmail sync gap)
 
-### Sprint 3 — Training & knowledge (1–2 weeks)
-1. **1.7** Going-forward training workflow (the self-serve "feed OWnet" surface) — this is the strategic centerpiece
-2. **1.1** PPP book ingestion verify + reweight
-3. **1.4** OW market research import
-4. **1.5** Industry terminology library
-5. **1.6** IT vs OT primer
-6. **1.3** Marketing GPT + Sales GPT rebuild
-7. **1.2** WD/DH digital twins — voice is done; decide if behavioral twin is in scope
+### Sprint 3 — Customer-facing scale-out (2–4 weeks) *(formerly Sprint 5)*
+1. **4.13** Social posting tool (Hootsuite replacement) — LinkedIn 4 surfaces + X + Instagram, AI drafts + risk-classifier + hybrid approval, per-deliverable scheduling
+2. **4.9** Twilio + 10DLC — Willow inbound voice number + audit-confirmation SMS + internal hot-lead SMS
+3. **4.8** ElevenLabs voice — Willow voice (ID `mzQCmfsyI83WHJxXgieu`) wired into Twilio inbound
+4. **4.12** T1 Support Agent — **post-v1** per Bill (separate project; design captured here but not built in v1)
 
 ### Sprint 4 — Lead engine (1–2 weeks)
-1. **5.4** Property Brain Score lead magnet
-2. **4.11** Lead scoring & qualifying
-3. **4.10** LinkedIn inbound automation
-4. **2.2** AEO — `llms.txt` + schema + 25-query monitor
-5. **2.3** Future landing page workflow
+1. **5.4** Property Brain Score lead magnet *(deferred for v1 per Bill — revisit when model is ready)*
+2. **4.11** Lead scoring & qualifying — starter scorecard, threshold 30, score visible on cards + detail
+3. **4.10** LinkedIn inbound automation — comment-reply drafting + DM classifier + 4-profile coverage
+4. **5.2** Digital book shipping fix *(moved here from Sprint 1; blocked on Danny — see `DANNY-TODOS.md` item 2)*
+5. **2.2** AEO — `llms.txt` + schema + 25-query monitor *(now in Section 2 close-out per Bill; revisit if needed)*
+6. **2.3** Future landing page workflow *(closed per Bill; revisit if needed)*
 
-### Sprint 5 — Customer-facing scale-out (2–4 weeks)
-1. **4.12** T1 support agent
-2. **4.13** Social posting tool (Hootsuite replacement)
-3. **4.8** ElevenLabs voice
-4. **4.9** Twilio + 10DLC
+### Sprint 5 — Training & knowledge (1–2 weeks) *(formerly Sprint 3)*
+1. **1.7** Going-forward training workflow (the self-serve "feed OWnet" surface — Bill+Drew only, immediate corrections, conversation memory off by default, weekly digest to Bill)
+2. **1.1** PPP book ingestion verify + reweight (book = boosted priority)
+3. **1.4** OW market research import *(closed — covered by Q7 canon ingestion)*
+4. **1.5** Industry terminology library — parse glossary page + add 4 new categories (Finance, Regulatory, Building Systems, Asset Management) + usage_policy field
+5. **1.6** IT vs OT primer — canonical file already written at `opticwise/canon/IT_vs_OT_stance_v1.md`; integrate into BrandScript prompt as active stance
+6. **1.3** Marketing GPT + Sales GPT rebuild *(resolved by canon ingestion — only Q7 net-new file build remains)*
+7. **1.2** WD/DH digital twins — `/agent/bill` + `/agent/drew` named surfaces AND main agent persona-on-demand, both backed by the two AI OS files
 
 ### Sprint 6 — Hardening & handoff (1 week)
-1. **6** Architecture & documentation
-2. **7** Training materials for OW team (recorded + ingested)
-3. **4.2** Google Drive RBAC migration (per-user OAuth)
+1. **6** Architecture & documentation — all four doc types (A+B+C+D) in `/docs/` + auto-mirror to Drive
+2. **7** Training materials for OW team — quick-starts + illustrated guides + in-app tour for 4 surfaces (CRM, LinkedIn Mgr, Social Composer, Meeting Transcripts)
+3. **4.2** Google Drive RBAC migration (per-user OAuth + `Ops & Engineering` merged group + ASPR sub-folder filtering)
 
 ### Deferred (not in v1 by Bill's call)
 - **4.1** QuickBooks
 - **4.5** Calendly
 - **5.1** Calculator (killed)
-- **5.3** Physical book shipping (future)
+- **5.3** Physical book shipping (future project)
+- **4.12** T1 Support Agent (post-v1 project — captured here for design reference; full GrooveHQ migration is its own follow-on)
+- **5.4** Property Brain Score (deferred until model is ready)
 
 ---
 
