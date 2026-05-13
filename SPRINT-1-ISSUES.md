@@ -42,7 +42,7 @@ Source of the bug is in `opticwise/ow/app/deal/[id]/page.tsx` — the email-matc
 - [x] **(code)** The logged-in user's own email address is NEVER used as a match key (hard-coded exclusion + belt-and-suspenders filter on inferred matches)
 - [x] **(code)** `EmailThread`-by-subject fuzzy join REMOVED entirely. Replaced by `personId in [dealContacts]` direct match, which is more precise.
 - [x] **(code)** UI exposes "Show inferred / Hide inferred" toggle in `EmailsTab` (default OFF) with a count callout. Only renders when inferred matches exist.
-- [ ] **(verify)** Sync to Gmail runs automatically — code-side: `GET /api/sales-inbox/sync?secret=$CRON_SECRET` endpoint exists. Render-dashboard verification: confirm the cron job is active in Render dashboard for `ownet` service. **Action: WD checks Render dashboard.**
+- [x] **(verify)** Sync to Gmail runs automatically — verified **2026-05-13** via Render MCP (not dashboard). **Cron job:** `opticwise-email-sync` (`crn-d6c9sv3h46gs738e4isg`) — schedule `*/15 * * * *`, **not suspended**, `lastSuccessfulRunAt` fresh. Command: `GET https://ownet.opticwise.com/api/sales-inbox/sync?secret=$CRON_SECRET`. Recent logs show **`"success":true`** and **`"usersSynced":2`** (Bill + Drew mailboxes); runs complete with **"Cron job run finished successfully"**. Dashboard: https://dashboard.render.com/cron/crn-d6c9sv3h46gs738e4isg
 - [ ] **(verify)** Verified on the Harlow Spring Cypress (Houston) / Aspen Oak (GHIS) deal — see issue 3.1 — should close with this fix
 - [ ] **(verify)** Verified on at least 2 other production deals (one with a Gmail-domain primary contact, one with a corporate-domain primary contact)
 
