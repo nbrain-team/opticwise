@@ -13,6 +13,10 @@ export default async function ContactsPage({
   const perPage = 100;
   const skip = (page - 1) * perPage;
 
+  // 3.6 (i): Search across the same fields as /api/contacts (added emailWork)
+  // plus phone (any of the four phone fields). Note: name, firstName, lastName,
+  // and email are all populated on 100% of rows in production; the OR clause
+  // handles them as case-insensitive substring matches.
   const where = search
     ? {
         OR: [
@@ -20,6 +24,9 @@ export default async function ContactsPage({
           { firstName: { contains: search, mode: "insensitive" as const } },
           { lastName: { contains: search, mode: "insensitive" as const } },
           { email: { contains: search, mode: "insensitive" as const } },
+          { emailWork: { contains: search, mode: "insensitive" as const } },
+          { emailHome: { contains: search, mode: "insensitive" as const } },
+          { emailOther: { contains: search, mode: "insensitive" as const } },
           { city: { contains: search, mode: "insensitive" as const } },
           { organization: { name: { contains: search, mode: "insensitive" as const } } },
         ],
