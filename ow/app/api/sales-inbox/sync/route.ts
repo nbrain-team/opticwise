@@ -247,7 +247,7 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
         where: { id: userId },
         data: { lastEmailSync: new Date(), emailSyncStatus: 'ok' },
       });
-      return { synced: 0, linked: 0, errors: 0, total: allMessages.length, skipped: existingSet.size };
+      return { synced: 0, linked: 0, autoCreated: 0, errors: 0, total: allMessages.length, skipped: existingSet.size };
     }
 
     const contacts = await prisma.person.findMany({
