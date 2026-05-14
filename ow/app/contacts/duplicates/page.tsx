@@ -45,7 +45,7 @@ export const dynamic = "force-dynamic";
  */
 
 
-async function loadDuplicateGroups(): Promise<DuplicateGroup[]> {
+async function loadDuplicateGroups(): Promise<DuplicateGroupSerialized[]> {
   // Raw SQL is the simplest way to get the grouped + counted shape we need.
   // We group by lower+trim of firstName + lastName, then return every Person
   // row in any group of size > 1, with deal + email counts.
