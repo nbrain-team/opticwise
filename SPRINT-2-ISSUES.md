@@ -123,43 +123,59 @@ endpoint replaces it.
 
 ### 3.6 (iii) — Gmail sync gap (people I've emailed don't appear as contacts)
 
-**Status:** ⏳ Audit complete, fix pending.
+**Status:** ✅ **SHIPPED 2026-05-14 12:35 MDT** (forward-going). One-time
+backfill of historical `personId=null` GmailMessage rows is the only
+remaining piece — listed as a follow-up below.
 
 **Audit finding (2026-05-13 19:25 MDT):**
 
-Contact extraction is a **manual CLI script** at
-`scripts/extract-contacts-from-emails.ts` that outputs a CSV. It is:
+Contact extraction was a **manual CLI script** at
+`scripts/extract-contacts-from-emails.ts` that outputs a CSV. It was:
 - NOT wired into the Gmail sync flow at `/api/sales-inbox/sync`
 - NOT on a Render cron job
 - NOT auto-creating Person rows (only outputs CSV that Danny used to
   bulk-import historically)
 
-So Bill's "I emailed these people but they don't show up in Contacts" is
-expected — the system only creates Person rows when (a) someone clicks
-"+ New Contact" in the UI, (b) Danny runs the CLI manually, or (c) one of
-the form-submission routes fires.
+So Bill's "I emailed these people but they don't show up in Contacts" was
+expected — the system only created Person rows when (a) someone clicked
+"+ New Contact" in the UI, (b) Danny ran the CLI manually, or (c) a
+form-submission route fired.
 
-**Fix plan (next iteration):**
+**What changed (forward-going fix shipped):**
 
-- [ ] Add an automatic Person upsert inside `/api/sales-inbox/sync` for
-      every `from`/`to`/`cc` address on every newly-synced Gmail message.
-- [ ] Re-use the existing CLI script's deny-list verbatim:
-      internal domains (`opticwise.com`, `nbrain.team`), bounce addresses,
-      `noreply`/`no-reply`/`donotreply`/`spamproc`, `receipts@`,
-      `conversiondocuments@`, `offboarding@`, `@em\d+\.` and `@e\.`
-      marketing automation patterns, plus the spam-domain list.
-- [ ] On upsert, populate `firstName`/`lastName` from the email's display
-      name (`"Cary Johnson" <cary@nbrain.ai>` parses cleanly) if present;
-      otherwise leave them empty and let a follow-up enrichment pass fill
-      them.
-- [ ] Wire up the AI signature-extraction enrichment (already proven
-      in the CLI script) as a low-priority background job per new Person
-      row to populate `title`, `phone`, `linkedInProfile`.
-- [ ] Add a one-time backfill script that walks every existing
-      GmailMessage and creates Person rows for missing addresses.
+- [x] Added `tryAutoCreateContact()` helper inside `/api/sales-inbox/sync/route.ts`.
+- [x] After the existing `emailToContact` lookup misses, the helper picks
+      the most-informative external address on the message (sender for
+      inbound, first recipient for outbound) and `prisma.person.upsert`s a
+      Person row keyed on email.
+- [x] Deny-list matches the CLI verbatim:
+      internal domains (`opticwise.com`, `nbrain.team`, `nbrain.ai`,
+      `nbrain.io`), bounce addresses, `noreply`/`no-reply`/`donotreply`/
+      `spamproc`, `receipts@`, `notifications@`, `conversiondocuments@`,
+      `offboarding@`, `@em\d+\.` and `@e\d?\.` marketing automation
+      patterns, plus the spam-domain list (`fbl.en25.com`,
+      `mail.beehiiv.com`, `email.upwork.com`, `news.credaily.com`).
+- [x] On upsert, populates `firstName`/`lastName` from the From header's
+      display name (`"Cary Johnson" <cary@nbrain.ai>` → firstName `Cary`,
+      lastName `Johnson`); falls back to the email username when no
+      display name is present.
+- [x] Newly-created Person is added to the in-memory `emailToContact` cache
+      so subsequent messages in the same sync run reuse it without another
+      DB round-trip.
+- [x] Tags the row with `contactType = "auto-extracted"` for downstream
+      analytics + filtering.
+- [x] Returns `autoCreated` count in the sync response payload so dashboard
+      and cron logs can monitor the new flow.
 
-**Expected impact:** Contact count likely grows from 1,128 → 1,500–2,500
-range based on the existing extraction script's historical output rate.
+**Remaining follow-up (deferred):**
+
+- [ ] One-time backfill: walk every existing `GmailMessage` with
+      `personId IS NULL`, run the same auto-create pipeline, and link the
+      message after creation. Estimated to grow contact count from 1,128 →
+      1,500–2,500 range based on the historical extraction script's output.
+- [ ] AI signature-extraction enrichment (proven in the CLI script) as a
+      low-priority background job per new Person row to populate `title`,
+      `phone`, `linkedInProfile`.
 
 ---
 
