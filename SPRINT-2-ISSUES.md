@@ -179,10 +179,67 @@ form-submission route fired.
 
 ---
 
-## Other Sprint 2 items (placeholders — full issue blocks to be written)
+---
 
-- **3.2** Inline create company/contact picker
-- **3.3** Files on deals
-- **4.7** Call-recorder classifier + generate-from-transcript + Fathom→Read.ai cleanup
+## Issue: Sprint 2 / 3.2 — Inline create company/contact picker
 
-These will get full acceptance-criteria blocks when work begins.
+**Status:** ✅ **SHIPPED 2026-05-14 13:01 MDT** (commit `d4ce53e`).
+
+**Sprint:** 2
+**Punch-list item:** 3.2
+**Plan reference:** `opticwise/OWNET-V1-PUNCH-LIST-PLAN.md` Section 3.2
+**Labels:** `sprint-2`, `crm`, `ux`
+**Owner:** WD (Bill via me)
+**Effort:** `M` (delivered)
+
+**What landed:**
+
+- **`app/components/InlineCreatePicker.tsx`** — reusable client primitive:
+  - hidden input for form submission so it drops into server-action `<form>`s
+    with no API changes,
+  - server-loaded initial option set (capped at 200) + debounced remote
+    search hook (200ms) against a caller-supplied endpoint,
+  - keyboard navigation (↑/↓/Enter/Escape), click-outside dismiss,
+  - "Create new …" footer that previews the typed query.
+- **`app/components/ContactPicker.tsx`** — wraps the primitive with:
+  - `GET /api/contacts?search=` remote search,
+  - inline create modal (firstName / lastName / email / organization name),
+  - `POST /api/contacts` on save — newly created Person auto-selected.
+- **`app/components/OrganizationPicker.tsx`** — same pattern against
+  `GET / POST /api/organizations`. Handles 409-Already-Exists by surfacing
+  the existing org as the selection.
+- **`/deals/new` rewire** — replaced the legacy `<select>` Organization and
+  Contact Person fields with the new pickers. Stay-on-form on create per
+  spec (no page navigation after entity creation).
+
+**Reusability:** Both pickers will drop straight into the 4.7 call-recorder
+transcript-review surface for inline contact creation — no further build.
+
+**Build-failure incident (resolved):**
+
+Initial deploy failed because the 3.6 (iii) sync-gap fix had a type error
+in `ContactLike` (`firstName: string | null` should be `string` to match
+Prisma's non-null schema for `Person.firstName`). Caught via Render's build
+log API (`/v1/logs?ownerId=…&resource=…&type=build`) and patched in
+commit `d4ce53e`.
+
+**Lesson logged:** Next.js prod build runs `next build` which is stricter
+than the in-IDE linter (which reported clean). Declared local types must
+match Prisma's generated select-result types exactly — a `string | null`
+where Prisma returns `string` will fail the build even though it passes
+in development.
+
+**Acceptance:** Live-verified on `/deals/new`:
+- Dropdown opens on click.
+- Search input filters local + remote results.
+- Typed query is mirrored in the "+ Create new organization" footer label.
+- No more 825-row / 1,092-row native `<select>` lists.
+
+---
+
+## Other Sprint 2 items
+
+- **3.3** Files on deals — pending. Needs decision on S3 bucket (existing
+  one or new), opt-in searchable flow, extraction worker plumbing.
+- **4.7** Call-recorder classifier + generate-from-transcript + Fathom→
+  Read.ai cleanup — pending. The 3.2 pickers will be reused here.
