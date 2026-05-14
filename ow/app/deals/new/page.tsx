@@ -3,6 +3,12 @@ import { getSession } from "@/lib/session";
 import { redirect } from "next/navigation";
 import { getActivePipeline } from "@/lib/pipeline";
 import { toInt, toDecimal, toDateOrNull } from "@/lib/api-sanitize";
+import { ContactPicker } from "@/app/components/ContactPicker";
+import { OrganizationPicker } from "@/app/components/OrganizationPicker";
+
+// Sprint 2 / 3.2: replaced legacy `<select>` long-list pickers for Organization
+// and Contact with `<InlineCreatePicker>`-based components. Users can now
+// search, and "Create new…" inline without leaving the deal-create form.
 
 export default async function NewDealPage({
   searchParams,
@@ -29,15 +35,45 @@ export default async function NewDealPage({
     return <div className="p-6">No pipeline found. Go to Settings to create one.</div>;
   }
 
-  const organizations = await prisma.organization.findMany({
-    select: { id: true, name: true },
-    orderBy: { name: "asc" },
-  });
+  // Cap initial server-loaded options at 200 each — the picker's remote
+  // search hook fetches additional matches against `/api/{contacts,organizations}`
+  // when the user types a query that doesn't hit the initial set.
+  const [organizations, people] = await Promise.all([
+    prisma.organization.findMany({
+      select: { id: true, name: true, domain: true, industry: true },
+      orderBy: { name: "asc" },
+      take: 200,
+    }),
+    prisma.person.findMany({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        name: true,
+        email: true,
+        organization: { select: { name: true } },
+      },
+      orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
+      take: 200,
+    }),
+  ]);
 
-  const people = await prisma.person.findMany({
-    select: { id: true, firstName: true, lastName: true },
-    orderBy: { lastName: "asc" },
-  });
+  const organizationOptions = organizations.map((o) => ({
+    id: o.id,
+    label: o.name,
+    sublabel: [o.domain, o.industry].filter(Boolean).join(" · ") || null,
+  }));
+
+  const personOptions = people.map((p) => ({
+    id: p.id,
+    label:
+      [p.firstName, p.lastName].filter(Boolean).join(" ").trim() ||
+      p.name ||
+      p.email ||
+      "(unnamed)",
+    sublabel:
+      [p.email, p.organization?.name].filter(Boolean).join(" · ") || null,
+  }));
 
   return (
     <div className="p-6 max-w-3xl">
