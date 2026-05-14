@@ -523,8 +523,17 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
       },
     });
 
-    console.log(`  ✅ Sync complete for ${userEmail}: ${synced} synced, ${linked} linked, ${errors} errors`);
-    return { synced, linked, errors, total: allMessages.length, skipped: existingSet.size };
+    console.log(
+      `  ✅ Sync complete for ${userEmail}: ${synced} synced, ${linked} linked, ${autoCreated} contacts auto-created, ${errors} errors`
+    );
+    return {
+      synced,
+      linked,
+      autoCreated,
+      errors,
+      total: allMessages.length,
+      skipped: existingSet.size,
+    };
   } catch (error) {
     console.error(`  ❌ Sync failed for ${userEmail}:`, error);
     await prisma.user.update({
