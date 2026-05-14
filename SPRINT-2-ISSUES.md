@@ -72,24 +72,36 @@ live at `/contacts/duplicates`. Awaiting Bill's verification merge.
   these would conflate Bill's entire work inbox with the personal-Gmail
   self-test deals. **Manual triage is required.**
 
-**Phase 2 — Transactional merge endpoint (next iteration):**
+**Phase 2 — Transactional merge endpoint (shipped):**
 
-- [ ] `POST /api/contacts/merge` with body `{ keepId, mergeIds[] }`
-- [ ] Within `prisma.$transaction`, reassign all child-table FKs from
-      `mergeIds` to `keepId`:
-      Deal, DealContact (uniq on dealId+personId — delete victim row when
-      keeper already on deal), EmailThread (uniq on syncUserId+threadId —
-      same), GmailMessage, CallTranscript (legacy Fathom, will be cleaned
-      separately in 4.7), CalendarEvent, DriveFile, Note, Activity,
-      CampaignLead, AuditRequest, BookRequest, ConferenceAttendee,
-      ChatbotConversation, ReadAIMeeting, FormSubmission.
-- [ ] Backfill any null fields on `keepId` from `mergeIds` (prefer the
-      most-complete victim by completeness score).
-- [ ] Delete victim Person rows last (after FKs are clean).
-- [ ] UI: per-row "Merge into this" buttons on the duplicates page with a
-      confirmation modal showing what will be reassigned.
-- [ ] UI: per-group "These are not duplicates — never flag again" button
-      that writes to a `PersonNotDuplicate` allow-list table.
+- [x] `POST /api/contacts/merge` with body `{ keepId, victimIds[] }`,
+      backed by `lib/contact-merge.ts` (`mergeContacts()`).
+- [x] Within `prisma.$transaction`, reassigns all 15 child-table FKs from
+      victims to keeper:
+      Deal, DealContact (uniq on dealId+personId — deletes victim row when
+      keeper already on deal), EmailThread, GmailMessage, CallTranscript
+      (legacy Fathom, will be cleaned separately in 4.7), CalendarEvent,
+      DriveFile, Note, Activity, CampaignLead, AuditRequest, BookRequest,
+      ConferenceAttendee, ChatbotConversation, ReadAIMeeting,
+      FormSubmission. **Only DealContact has a unique constraint on
+      personId — all other 14 are plain updateMany.**
+- [x] Backfills any null fields on keeper from the most-complete victim
+      (completeness scored by populated-field weight). Never overwrites a
+      non-null keeper field.
+- [x] Preserves victim primary emails by stashing them into keeper's free
+      `emailWork` / `emailHome` / `emailOther` slots so the address survives
+      after the victim row is deleted.
+- [x] Concatenates victim notes onto keeper with `[Merged from <id>]:`
+      header.
+- [x] Deletes the victim Person rows last (after every FK is clean).
+- [x] UI: per-row "Merge others → this" buttons on `/contacts/duplicates`
+      with an inline confirmation banner showing every victim's email,
+      organization, linked email/deal counts, and the totals that will move
+      to the keeper. Auto-refreshes the group list after a successful merge.
+- [-] UI: per-group "These are not duplicates — never flag again" button
+      and `PersonNotDuplicate` allow-list table — **deferred.** Small number
+      of stuck keep-separate groups (e.g. Bill Douglas personal vs work) is
+      acceptable; Bill just doesn't click their button.
 
 **DANGER — existing CLI script:**
 
