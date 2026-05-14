@@ -276,6 +276,7 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
     let synced = 0;
     let linked = 0;
     let errors = 0;
+    let autoCreated = 0; // 3.6 (iii) — Person rows created in this run
     const userEmailLower = userEmail.toLowerCase();
 
     for (const message of newMessages) {
@@ -308,11 +309,40 @@ async function syncUserEmails(userId: string, userEmail: string, hoursBack: numb
         const ccEmails = extractEmails(cc);
         const allEmails = [...fromEmails, ...toEmails, ...ccEmails];
 
-        let matchedContact = null;
+        let matchedContact: ContactLike | null | undefined = null;
         for (const email of allEmails) {
           if (emailToContact.has(email)) {
             matchedContact = emailToContact.get(email);
             break;
+          }
+        }
+
+        // 3.6 (iii) — when no existing contact matches, auto-create a Person
+        // for the most-informative external party on this message. The new
+        // Person is added to `emailToContact` so subsequent messages in this
+        // run reuse it without another DB round-trip.
+        if (!matchedContact) {
+          const fromIsUser = from.toLowerCase().includes(userEmailLower);
+          const created = await tryAutoCreateContact({
+            fromHeader: from,
+            isOutgoing: fromIsUser,
+            fromEmails,
+            toEmails,
+            ccEmails,
+            userEmailLower,
+          });
+          if (created) {
+            matchedContact = created;
+            autoCreated++;
+            // Cache by every email field so subsequent messages hit the cache.
+            for (const e of [
+              created.email,
+              created.emailWork,
+              created.emailHome,
+              created.emailOther,
+            ]) {
+              if (e) emailToContact.set(e.toLowerCase(), created);
+            }
           }
         }
 
