@@ -85,14 +85,19 @@ function parseDisplayName(headerValue: string): { firstName: string; lastName: s
   return { firstName: parts[0], lastName: parts.slice(1).join(' ') };
 }
 
+// Mirror the shape of `prisma.person.findMany({ select: { ... } })` used
+// further down in `syncUserEmails`. Person.firstName / lastName are
+// non-nullable in the schema (`String`, not `String?`), so we declare them
+// as plain `string` to keep this type assignable to the `emailToContact`
+// map below.
 type ContactLike = {
   id: string;
   email: string | null;
   emailWork: string | null;
   emailHome: string | null;
   emailOther: string | null;
-  firstName: string | null;
-  lastName: string | null;
+  firstName: string;
+  lastName: string;
   organizationId: string | null;
   deals: { id: string }[];
 };
