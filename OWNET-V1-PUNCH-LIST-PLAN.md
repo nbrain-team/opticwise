@@ -173,6 +173,7 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 # 3. CRM
 
 ## 3.1 Specific deal with broken state — Harlow Spring Cypress (Houston) / Aspen Oak (GHIS)
+- **Status (2026-05-13):** ✅ **CLOSED.** Shipped & verified in production with the 3.5 fix (commit `aaa737a`, deployed to both Render services 2026-05-13 18:07 MDT). Verified live on `ownet.opticwise.com/deal/cmouc146f00i5oa2ah68a4i5k`: Emails tab now shows **1 legitimate email** (Kyle Clark, deal subject, dealId-linked) instead of ~50 unrelated inbox messages.
 - **PDF:** "deal has all emails in in. very confusing"
 - **Questions for Bill:**
   1. Can you confirm whether the issue is (a) emails showing in the wrong deal, (b) emails duplicated, (c) emails attached but unreadable, or (d) something else?
