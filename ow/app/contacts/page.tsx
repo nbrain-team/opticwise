@@ -117,9 +117,14 @@ export default async function ContactsPage({
             Showing {skip + 1}-{Math.min(skip + perPage, totalCount)} of {totalCount} people
           </div>
         </div>
-        <Link href="/organizations" className="text-sm text-[#3B6B8F] hover:underline">
-          View Organizations →
-        </Link>
+        <div className="flex items-center gap-4">
+          <Link href="/contacts/duplicates" className="text-sm text-[#B45309] hover:underline">
+            Find Duplicates →
+          </Link>
+          <Link href="/organizations" className="text-sm text-[#3B6B8F] hover:underline">
+            View Organizations →
+          </Link>
+        </div>
       </div>
 
       {/* Search Bar */}
