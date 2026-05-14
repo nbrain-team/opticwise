@@ -836,7 +836,10 @@ Bucket order is **dependency-first, then pain × ease**. Bill's adjustments (202
 1. **3.2** Inline create company/contact (build reusable `<InlineCreatePicker>`)
 2. **3.3** Files on deals
 3. **4.7** Call-recorder: classifier + generate-from-transcript + inline contact creator (reuses 3.2's component) + Fathom→Read.ai cleanup
-4. **3.6** Contact list — three issues to fix (search miss, dup merging, Gmail sync gap)
+4. **3.6** Contact list — ✅ **DONE 2026-05-14.** All three reported issues
+   shipped: search parity fix, transactional merge endpoint + dashboard
+   buttons, and auto-create-on-sync for new Gmail senders. One-time
+   historical backfill listed as deferred follow-up.
 
 ### Sprint 3 — Customer-facing scale-out (2–4 weeks) *(formerly Sprint 5)*
 1. **4.13** Social posting tool (Hootsuite replacement) — LinkedIn 4 surfaces + X + Instagram, AI drafts + risk-classifier + hybrid approval, per-deliverable scheduling
