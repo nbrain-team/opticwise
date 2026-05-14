@@ -789,7 +789,7 @@ Bucket order is **dependency-first, then pain × ease**. Bill's adjustments (202
 
 ### Sprint 1 — Stop the bleeding (1 week)
 1. **3.5** Email-linked-to-deal not showing — bug fix → ✅ **SHIPPED 2026-05-13 18:07 MDT** (commit `aaa737a`, verified on 3 production deals)
-2. **3.4** Pipeline edit/add + MTU Tenant Pipeline + broken deals-page filter *(now resolved by Danny per 2026-05-11 answer — verify only; UI spot-check still pending)*
+2. **3.4** Pipeline edit/add + MTU Tenant Pipeline + broken deals-page filter → ✅ **CLOSED 2026-05-13 18:21 MDT** (Danny's fix verified end-to-end: DB, settings pipeline manager, deals page switcher, and deal-create stage dropdown all work)
 3. **3.1** Harlow / Aspen Oak deal cleanup → ✅ **CLOSED 2026-05-13 18:10 MDT** (resolved by 3.5 fix; Harlow Emails tab went from ~50 unrelated → 1 legitimate)
 4. **4.3** Slack scopes added → AI Slack assistance fully live *(blocked on Danny — see `DANNY-TODOS.md`)*
 5. **2.1** PPP forms sweep — verify every CTA wired *(now closed by Bill per 2026-05-11 — Section 2 is done)*
