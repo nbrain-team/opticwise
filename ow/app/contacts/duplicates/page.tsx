@@ -1,56 +1,49 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
+import {
+  DuplicateGroupCard,
+  type DuplicateGroupSerialized,
+} from "./DuplicateGroupCard";
+
+// Force dynamic rendering so router.refresh() after a merge re-runs the query
+// against the live DB instead of returning a cached static result.
+export const dynamic = "force-dynamic";
 
 /**
  * Sprint 2 / 3.6 (ii) — Find Duplicates dashboard.
  *
- * Phase 1: READ-ONLY. Surfaces every group of Person rows that share the
- * same normalized (lower + trim) firstName + lastName. Each group renders
- * side-by-side with the fields that matter for triage:
- *   - id, primary email, work email, organization, deal count, email count
+ * Phase 1 (shipped 2026-05-13): READ-ONLY view of every Person group sharing
+ * the same normalized firstName + lastName.
  *
- * Phase 2 (next sprint): adds per-row "Merge into A" buttons backed by a
- * transactional merge endpoint at /api/contacts/merge that:
- *   (a) reassigns all 16 child-table FKs (GmailMessage, DealContact, Activity,
- *       EmailThread, CalendarEvent, DriveFile, Note, CampaignLead, AuditRequest,
- *       BookRequest, ConferenceAttendee, ChatbotConversation, ReadAIMeeting,
- *       FormSubmission, Deal, CallTranscript) from merge-victims to the keeper,
- *   (b) handles unique-constraint conflicts on DealContact(dealId, personId)
- *       and EmailThread(syncUserId, threadId) by deleting the victim row
- *       when the keeper already has one,
- *   (c) backfills any null fields on the keeper from the victims (preferring
- *       the most-complete victim),
- *   (d) deletes the victim Person rows last (after FKs are clean).
+ * Phase 2 (this commit): interactive per-row "Merge others → this" buttons
+ * backed by the transactional `mergeContacts()` function in
+ * `lib/contact-merge.ts`. The endpoint at `POST /api/contacts/merge`:
+ *   (a) reassigns 16 child-table FKs (Deal, DealContact, EmailThread,
+ *       GmailMessage, Activity, Note, CalendarEvent, DriveFile, CampaignLead,
+ *       AuditRequest, BookRequest, FormSubmission, ConferenceAttendee,
+ *       ChatbotConversation, ReadAIMeeting, CallTranscript) from victims to
+ *       keeper inside a single `prisma.$transaction`,
+ *   (b) handles the only unique-constraint conflict — `DealContact` on
+ *       (dealId, personId) — by deleting the victim row when the keeper is
+ *       already on the same deal,
+ *   (c) stashes victim primary emails into keeper's free emailWork /
+ *       emailHome / emailOther slots so the address is preserved,
+ *   (d) backfills any other null fields on the keeper from the most-complete
+ *       victim — never overwrites a non-null keeper field,
+ *   (e) concatenates victim notes onto keeper with a `[Merged from <id>]:`
+ *       header,
+ *   (f) deletes the victim Person rows last (after every FK is clean).
  *
- * Why read-only first: data analysis revealed at least one deliberate
- * keep-separate case (Bill Douglas's `bill.douglas.co@gmail.com` personal vs
- * `bill.douglas@opticwise.com` work, the latter with 4,218 linked Gmail
- * messages). Manual triage before destructive action.
+ * Bill-Douglas-style keep-separates: visible in the list but Bill simply
+ * does not click their merge buttons. No allow-list mechanism in this
+ * iteration — the small number of stuck groups is acceptable.
  *
- * Note: `bill.douglas.co@gmail.com` is also the existing `merge-duplicates.ts`
- * CLI script — DO NOT RUN THAT SCRIPT. It calls deleteMany on Person without
- * first reassigning child FKs, so the SetNull cascade would orphan every
- * email/deal/activity link on the victims.
+ * Note: `scripts/merge-duplicates.ts` (legacy CLI) calls `deleteMany` on
+ * Person without reassigning child FKs, so the `onDelete: SetNull` cascade
+ * would orphan every email/deal/activity link on victims. DO NOT RUN that
+ * script — this page + endpoint replaces it.
  */
 
-type DuplicatePerson = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  emailWork: string | null;
-  organizationId: string | null;
-  organizationName: string | null;
-  createdAt: Date;
-  emailsLinked: number;
-  dealsLinked: number;
-};
-
-type DuplicateGroup = {
-  normalizedKey: string;
-  displayName: string;
-  people: DuplicatePerson[];
-};
 
 async function loadDuplicateGroups(): Promise<DuplicateGroup[]> {
   // Raw SQL is the simplest way to get the grouped + counted shape we need.
