@@ -150,14 +150,13 @@ export default async function DuplicateContactsPage() {
       </div>
 
       <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
-        <strong>Phase 1 (read-only).</strong> This view surfaces every group of contacts
-        sharing the same first + last name (case-insensitive). Some groups are real
-        duplicates and some are deliberate keep-separates (e.g., personal vs work
-        identity, parent vs child organization). Manual triage first. Merge actions
-        will land in the next iteration once the transactional merge endpoint is
-        verified — see {" "}
-        <code className="rounded bg-amber-100 px-1">opticwise/SPRINT-1-ISSUES.md</code>
-        {" "}/ Section 3.6 (ii).
+        <strong>Merge is live.</strong> Each group lists every contact sharing the
+        same first + last name (case-insensitive). Click <em>Merge others → this</em>{" "}
+        on whichever row you want to keep — all other rows in the group get their
+        emails, deals, activities, and notes reassigned to the keeper inside a single
+        transaction, then deleted. Backfills are non-destructive (only fills nulls on
+        the keeper). Deliberate keep-separates (e.g., personal vs work identity, parent
+        vs child organization) — just don&apos;t click their merge button.
       </div>
 
       {groups.length === 0 ? (
