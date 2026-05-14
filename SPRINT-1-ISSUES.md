@@ -21,10 +21,10 @@
 
 **Sprint:** 1
 **Punch-list item:** 3.5
-**Status:** **PR open** (branch `sprint-1/3.5-deal-email-overmatch-fix`, pushed 2026-05-12 01:20)
+**Status:** ✅ **SHIPPED to main 2026-05-13 18:02 MDT** (commit `aaa737a`, cherry-picked from `sprint-1/3.5-deal-email-overmatch-fix` to avoid unrelated Insights/users work that had accumulated on that branch). Deployed live on both `opticwise-frontend` and `opticwise-backend` at 2026-05-13 18:07 MDT. **Verified in production** on three deals (see below).
 **Plan reference:** `opticwise/OWNET-V1-PUNCH-LIST-PLAN.md` Section 3.5
 **Labels:** `sprint-1`, `bug`, `crm`, `priority:high`
-**Branch:** `sprint-1/3.5-deal-email-overmatch-fix`
+**Branch (orphaned):** `sprint-1/3.5-deal-email-overmatch-fix` — DO NOT MERGE (carries 31 extra files of Insights/users work that needs separate review)
 **Owner:** WD (Bill via me)
 **Effort:** `S–M`
 
