@@ -783,9 +783,9 @@ These don't belong to a single item but affect several. **All answered 2026-05-1
 Bucket order is **dependency-first, then pain × ease**. Bill's adjustments (2026-05-11): (1) move 5.2 Digital book shipping out of Sprint 1 into Sprint 4 (since it's blocked on Danny anyway); (2) swap old Sprint 3 and old Sprint 5 — Customer-facing scale-out now precedes Training & Knowledge.
 
 ### Sprint 1 — Stop the bleeding (1 week)
-1. **3.5** Email-linked-to-deal not showing — bug fix
-2. **3.4** Pipeline edit/add + MTU Tenant Pipeline + broken deals-page filter *(now resolved by Danny per 2026-05-11 answer — verify only)*
-3. **3.1** Harlow / Aspen Oak deal cleanup (probably resolves with 3.5)
+1. **3.5** Email-linked-to-deal not showing — bug fix → ✅ **SHIPPED 2026-05-13 18:07 MDT** (commit `aaa737a`, verified on 3 production deals)
+2. **3.4** Pipeline edit/add + MTU Tenant Pipeline + broken deals-page filter *(now resolved by Danny per 2026-05-11 answer — verify only; UI spot-check still pending)*
+3. **3.1** Harlow / Aspen Oak deal cleanup → ✅ **CLOSED 2026-05-13 18:10 MDT** (resolved by 3.5 fix; Harlow Emails tab went from ~50 unrelated → 1 legitimate)
 4. **4.3** Slack scopes added → AI Slack assistance fully live *(blocked on Danny — see `DANNY-TODOS.md`)*
 5. **2.1** PPP forms sweep — verify every CTA wired *(now closed by Bill per 2026-05-11 — Section 2 is done)*
 
