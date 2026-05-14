@@ -93,9 +93,10 @@ The new Harlow Spring Cypress (Houston) / Aspen Oak (GHIS) deal showed Bill's en
 
 **Sprint:** 1
 **Punch-list item:** 3.4
+**Status:** ✅ **CLOSED 2026-05-13 18:21 MDT** — verified end-to-end in production.
 **Plan reference:** `opticwise/OWNET-V1-PUNCH-LIST-PLAN.md` Section 3.4
 **Labels:** `sprint-1`, `verify-only`, `crm`
-**Branch:** `sprint-1/3.4-pipeline-verify` (only if a code change is needed; verification can ride main)
+**Branch:** n/a (verification rode `main`; no code change needed)
 **Owner:** WD
 **Effort:** `XS` (verification-only)
 
@@ -103,14 +104,32 @@ The new Harlow Spring Cypress (Houston) / Aspen Oak (GHIS) deal showed Bill's en
 
 Bill (2026-05-11): "This has been corrected separately by Danny. Consider it done."
 
-We still want a quick verification pass so we know the fix landed correctly and the `MTU Tenant Pipeline` is reachable from the deal-create form's pipeline picker.
+Quick verification pass so we know the fix landed correctly and the `MTU Tenant Pipeline` is reachable from the deal-create form's pipeline picker.
 
-### Acceptance criteria
+### Verification results (2026-05-13 18:21 MDT)
 
-- [ ] Pipeline admin (`/pipelines` or wherever it lives) supports add + edit operations end-to-end
-- [ ] `MTU Tenant Pipeline` is selectable on the deal-create form
-- [ ] Existing deals on other pipelines still load correctly (no regression on the deals-page filter)
-- [ ] If anything is still broken, re-open this issue with a specific repro
+DB state confirmed via `opticwise-postgres` MCP — 3 pipelines exist:
+
+| Pipeline | Stages | Deals |
+|---|---|---|
+| New Projects Pipeline (`cmi4xt6lq...`) | 7 | 9 |
+| MTU Tenant Pipeline (`cmme0j5bg...`) | 5 | 0 |
+| Landing Pages Leads (`cmn6jxtv3...`) | 4 | 6 |
+
+UI state verified live on `ownet.opticwise.com`:
+
+- [x] Pipeline admin lives at `/settings#pipelines` (route is via the Settings sub-nav, not `/pipelines` which is 404). Pipeline Manager UI supports: rename pipeline, delete pipeline, add stage, rename stage, delete stage, "+ New Pipeline" creation. Each pipeline shows its deal count badge.
+- [x] `MTU Tenant Pipeline` switcher button on `/deals` is present and clickable; clicking switches the URL to `/deals?pipeline=cmme0j5bg0000o3278tcmrfcm`, the Open count drops to `(0)`, and the kanban shows MTU's 5 stages (Tenant Identified → Negotiations Started).
+- [x] `MTU Tenant Pipeline` stages are selectable on the deal-create form (`/deals/new?pipeline=<MTU id>`) — all 5 stages render in the `Pipeline Stage` dropdown.
+- [x] Existing deals on other pipelines still load correctly — verified by clicking back to `New Projects Pipeline` (9 deals render across 7 stages with proper drag handles).
+
+### Bug fixed (Bill's original complaint)
+
+The PDF noted: *"There is no 'MTU Tenant Pipeline'. There's only one pipeline and nothing changes when I click the pipeline differentiators buttons to the right of 'Deals' text."* Both halves are now fixed — the pipeline exists, the differentiator buttons trigger an actual URL change + kanban swap.
+
+### Side-finding flagged for Sprint 2 / 3.2
+
+The deal-create form's `Organization` dropdown has **825 options** and `Contact Person` has **1,129 options** — confirming Bill's 3.2 complaint about "find them from a very long list." That's our Sprint 2 work (inline-create combobox).
 
 ---
 
