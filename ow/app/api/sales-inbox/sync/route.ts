@@ -19,6 +19,178 @@ async function generateEmbedding(text: string): Promise<number[]> {
   return response.data[0].embedding;
 }
 
+// =============================================================
+// Sprint 2 / 3.6 (iii) — auto-create Person rows from new senders
+// -------------------------------------------------------------
+// Background: until now, contact creation from Gmail was a manual CLI
+// (`scripts/extract-contacts-from-emails.ts`) that never ran on production.
+// As a result, every email from a sender who wasn't already a Contact was
+// stored with `personId = null` and effectively invisible to CRM views.
+//
+// This block adds an in-sync auto-create step: after the existing
+// `emailToContact` lookup fails for a message, we pick the most-informative
+// external email on the message (sender for inbound, first recipient for
+// outbound), apply the same deny-list the CLI script uses, and upsert a
+// Person row. The freshly-created Person then becomes the message's
+// `matchedContact` so the rest of the existing flow (EmailThread create,
+// Activity insert, counters update) runs naturally.
+//
+// Patterns lifted verbatim from `scripts/extract-contacts-from-emails.ts`
+// so the dashboard view and the auto-sync behave identically.
+// =============================================================
+
+const INTERNAL_DOMAINS = ['opticwise.com', 'nbrain.team', 'nbrain.ai', 'nbrain.io'];
+
+function isInternalEmail(email: string): boolean {
+  const domain = email.split('@')[1]?.toLowerCase();
+  if (!domain) return false;
+  return INTERNAL_DOMAINS.includes(domain);
+}
+
+function isSpamOrAutomation(email: string): boolean {
+  const e = email.toLowerCase();
+  if (e.includes('bounce')) return true;
+  if (e.split('@')[0]?.includes('+')) return true;
+  if (e.includes('noreply') || e.includes('no-reply') || e.includes('donotreply')) return true;
+  if (e.includes('spamproc')) return true;
+  if (e.startsWith('receipts@')) return true;
+  if (e.startsWith('notifications@')) return true;
+  if (e.includes('conversiondocuments@')) return true;
+  if (e.includes('offboarding@')) return true;
+  if (e.match(/@em\d+\./)) return true;
+  if (e.match(/@e\d?\./)) return true;
+  const spamDomains = [
+    'fbl.en25.com',
+    'mail.beehiiv.com',
+    'email.upwork.com',
+    'news.credaily.com',
+  ];
+  if (spamDomains.some((d) => e.includes(d))) return true;
+  return false;
+}
+
+/**
+ * Parse "Display Name <email@domain>" headers. Returns { firstName, lastName }
+ * if a display name was present, else null. Quotes around the name are
+ * tolerated.
+ */
+function parseDisplayName(headerValue: string): { firstName: string; lastName: string } | null {
+  const m = headerValue.match(/^\s*"?([^"<]+?)"?\s*<[^>]+>\s*$/);
+  if (!m) return null;
+  const name = m[1].trim();
+  if (name.length === 0) return null;
+  if (name.includes('@')) return null;
+  const parts = name.split(/\s+/);
+  if (parts.length === 1) return { firstName: parts[0], lastName: '' };
+  return { firstName: parts[0], lastName: parts.slice(1).join(' ') };
+}
+
+type ContactLike = {
+  id: string;
+  email: string | null;
+  emailWork: string | null;
+  emailHome: string | null;
+  emailOther: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  organizationId: string | null;
+  deals: { id: string }[];
+};
+
+/**
+ * Try to upsert a Person for the most-informative external email on a Gmail
+ * message. Returns the contact (existing-or-fresh) when one is created or
+ * found, or null when every candidate is filtered out (internal team,
+ * spam/automation, or matches the syncing user).
+ *
+ * Idempotency: keyed on `Person.email` (which is @unique). A second call with
+ * the same email will return the existing row without creating a duplicate.
+ */
+async function tryAutoCreateContact(opts: {
+  fromHeader: string;
+  isOutgoing: boolean;
+  fromEmails: string[];
+  toEmails: string[];
+  ccEmails: string[];
+  userEmailLower: string;
+}): Promise<ContactLike | null> {
+  const externalCandidates = opts.isOutgoing
+    ? [...opts.toEmails, ...opts.ccEmails]
+    : opts.fromEmails;
+
+  const candidate = externalCandidates
+    .map((e) => e.toLowerCase())
+    .find(
+      (e) =>
+        e !== opts.userEmailLower &&
+        !isInternalEmail(e) &&
+        !isSpamOrAutomation(e)
+    );
+
+  if (!candidate) return null;
+
+  // Prefer the From header's display name when this is an inbound message
+  // (sender's name lives there). For outbound messages we don't have a
+  // reliable display name for the To recipient on this header, so we fall
+  // back to the email username.
+  const display = opts.isOutgoing ? null : parseDisplayName(opts.fromHeader);
+  const username = candidate.split('@')[0] ?? '';
+  const firstName = display?.firstName ?? username;
+  const lastName = display?.lastName ?? '';
+  const fullName = `${firstName} ${lastName}`.trim() || username;
+
+  try {
+    const person = await prisma.person.upsert({
+      where: { email: candidate },
+      update: {},
+      create: {
+        email: candidate,
+        firstName,
+        lastName,
+        name: fullName,
+        contactType: 'auto-extracted',
+      },
+      select: {
+        id: true,
+        email: true,
+        emailWork: true,
+        emailHome: true,
+        emailOther: true,
+        firstName: true,
+        lastName: true,
+        organizationId: true,
+      },
+    });
+    return { ...person, deals: [] };
+  } catch (err) {
+    // Most likely cause is a unique-constraint race against a sibling sync
+    // process. Re-fetch and use the existing row.
+    console.warn(
+      `  ⚠️ Auto-create raced or failed for ${candidate}:`,
+      err instanceof Error ? err.message : err
+    );
+    try {
+      const existing = await prisma.person.findUnique({
+        where: { email: candidate },
+        select: {
+          id: true,
+          email: true,
+          emailWork: true,
+          emailHome: true,
+          emailOther: true,
+          firstName: true,
+          lastName: true,
+          organizationId: true,
+        },
+      });
+      if (existing) return { ...existing, deals: [] };
+    } catch {
+      // fall through
+    }
+    return null;
+  }
+}
+
 /**
  * Sync Gmail for a single user.
  * Impersonates the user's @opticwise.com email via Google Workspace delegation.
