@@ -46,8 +46,9 @@ pre-fix; same query post-fix verifies the wider field coverage.
 
 ### 3.6 (ii) — Duplicates that should have merged
 
-**Status:** ⏳ Phase 1 dashboard shipped 2026-05-13 19:29 MDT (commit `a289d98`).
-Phase 2 (merge action) pending.
+**Status:** ✅ **PHASE 2 SHIPPED 2026-05-14 12:17 MDT.** Phase 1 dashboard
+shipped 2026-05-13. Phase 2 transactional merge endpoint + UI buttons now
+live at `/contacts/duplicates`. Awaiting Bill's verification merge.
 
 **Phase 1 — Read-only duplicates dashboard at `/contacts/duplicates`:**
 
