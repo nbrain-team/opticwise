@@ -192,17 +192,21 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
   5. **Verify on the Harlow/Aspen Oak deal** — the Emails tab should render an empty state until you explicitly link an email or add a properly-scoped contact.
 - **Effort:** `S` (single-file change + regression test).
 
-## 3.2 Add companies/contacts inline when creating a deal
+## 3.2 Add companies/contacts inline when creating a deal — ✅ **SHIPPED 2026-05-14**
 - **PDF:** "when creating a new deal I need the ability to add companies and contacts rather than just find them from a very long list"
-- **Where we are today:** Existing deal-create UI is a select from existing rows.
-- **Gap to "done":** "Create new" affordance inside the picker — same pattern as adding a contact during a meeting-transcript review (mentioned in 5.4 below). One reusable combobox component.
-- **Questions for Bill:**
-  1. When you create a contact-on-the-fly from inside the deal flow, do you need to land on the contact page after, or just want the deal to save and continue?
-     - **Answer (2026-05-11):** **Stay on the deal-create form.** The newly created contact appears as the selected value in the picker; Bill continues building the deal without context-switch. Same for companies.
-  2. Same question for company.
-     - **Answer (2026-05-11):** **Same — stay on the deal-create form.** Company creation behaves identically to contact creation.
-- **Recommended approach:** Build a `<InlineCreatePicker>` component → swap it in everywhere a long-list picker exists today (deals, transcripts, support tickets). On "Create new", open a small modal with the minimum required fields (name + email for contact; name + domain for company). Save creates the record, returns the new ID/label, the modal closes, and the picker shows the new entity as selected. No page navigation.
-- **Effort:** `M`
+- **Where we were:** `<select>` long-list pickers on `/deals/new` (825 organizations, 1,092 people).
+- **What shipped (2026-05-14 13:01 MDT):**
+  - **`app/components/InlineCreatePicker.tsx`** — generic searchable combobox primitive with:
+    - hidden input for form submission (drop-in replacement for `<select>` inside server-action `<form>`s),
+    - debounced remote search hook (200ms) against caller-supplied endpoint,
+    - keyboard navigation (↑/↓/Enter/Escape) + click-outside dismiss,
+    - footer "Create new …" button that previews the typed query.
+  - **`app/components/ContactPicker.tsx`** — wraps the primitive, hooks `GET /api/contacts?search=` for remote search, opens a modal with firstName / lastName / email / organization fields that calls `POST /api/contacts`. On success the new Person is auto-selected.
+  - **`app/components/OrganizationPicker.tsx`** — same pattern against `GET/POST /api/organizations`. Handles the 409-Already-Exists path by surfacing the existing org as the selection.
+  - **`/deals/new` rewire** — Organization and Contact Person selects replaced with the new pickers. Stay-on-form behavior per spec.
+- **Reusability for 4.7:** the call-recorder transcript-review surface will reuse these two pickers verbatim (no further build).
+- **Verified live:** dropdown opens, search filters in real time, "+ Create new organization : "OpticWise Picker Test Co"" footer preview renders correctly.
+- **Build note:** Initial deploy failed on an unrelated TypeScript error in the sync-gap fix (`ContactLike.firstName: string | null` should have been `string` to match the schema). Caught via Render build logs API and patched in commit `d4ce53e`. Lesson logged: Next.js prod build is stricter than the IDE linter; declared types must match Prisma's generated select types exactly.
 
 ## 3.3 Files on deals
 - **PDF:** "Need to be able to add files to deals"
