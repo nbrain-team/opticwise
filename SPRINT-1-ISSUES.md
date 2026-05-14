@@ -43,11 +43,17 @@ Source of the bug is in `opticwise/ow/app/deal/[id]/page.tsx` — the email-matc
 - [x] **(code)** `EmailThread`-by-subject fuzzy join REMOVED entirely. Replaced by `personId in [dealContacts]` direct match, which is more precise.
 - [x] **(code)** UI exposes "Show inferred / Hide inferred" toggle in `EmailsTab` (default OFF) with a count callout. Only renders when inferred matches exist.
 - [x] **(verify)** Sync to Gmail runs automatically — verified **2026-05-13** via Render MCP (not dashboard). **Cron job:** `opticwise-email-sync` (`crn-d6c9sv3h46gs738e4isg`) — schedule `*/15 * * * *`, **not suspended**, `lastSuccessfulRunAt` fresh. Command: `GET https://ownet.opticwise.com/api/sales-inbox/sync?secret=$CRON_SECRET`. Recent logs show **`"success":true`** and **`"usersSynced":2`** (Bill + Drew mailboxes); runs complete with **"Cron job run finished successfully"**. Dashboard: https://dashboard.render.com/cron/crn-d6c9sv3h46gs738e4isg
-- [ ] **(verify)** Verified on the Harlow Spring Cypress (Houston) / Aspen Oak (GHIS) deal — see issue 3.1 — should close with this fix
-- [ ] **(verify)** Verified on at least 2 other production deals (one with a Gmail-domain primary contact, one with a corporate-domain primary contact)
+- [x] **(verify 2026-05-13 18:10 MDT)** Harlow Spring Cypress (Houston) / Aspen Oak (GHIS) — 0 stakeholders, no org → went from **~50 unrelated inbox emails** → **1 legitimate email** (Kyle Clark, "Harlow Spring Cypress — On-site Digital Infrastructure Review", direct `GmailMessage.dealId` link). Closes 3.1 as well.
+- [x] **(verify 2026-05-13 18:11 MDT)** PPP Starter Kit — Danny DeMichele — 1 stakeholder (`danny@nbrain.ai`, emailWork `ethan@nbrain.ai`) → shows ~95 emails, **every one** legitimately involves Danny or his nBrain colleagues. No random inbox content. Address-match path (c) + personId path (b) firing as designed.
+- [x] **(verify 2026-05-13 18:12 MDT)** PPP Starter Kit — bill bobo — 1 stakeholder (`bill.douglas.co@gmail.com`, Bill's *personal* Gmail) → shows 44 emails, **every one** genuinely contains `bill.douglas.co@gmail.com` in from/to/cc (forwards Bill sent to himself, contracts signed under that address). This is a self-test edge case where the stakeholder IS the deal owner under a different email; in real customer deals this won't happen.
 
-### Known limitations / follow-ups (not blocking merge)
+### Production data observation (recorded for context)
 
+At deploy time (2026-05-13), **zero** open deals in production have an `Organization.domain` populated. That means the inferred-tier path (d) — org-domain match with the "Show inferred" toggle — is currently dormant in the UI. As Bill starts populating org domains on real deals, that path will activate. The blocklist-aware logic for generic free-mail domains is in place from day one.
+
+### Known limitations / follow-ups (not blocking)
+
+- **Data hygiene flagged for 3.6 contact dedup:** Danny's contact card has `emailWork = ethan@nbrain.ai` — that's Ethan's email saved under Danny, which causes Ethan's emails to leak into every deal Danny is on. Fix in 3.6 (contact merge / hygiene sweep).
 - Address-match against contact emails uses `email` and `emailWork` only (not `emailHome`/`emailOther`). The dealContacts include block doesn't fetch those two columns. If a customer has their primary email in `emailHome` we'll miss them — extremely rare in B2B context. Capture as a future improvement if it surfaces.
 - The 100-email cap per source list (400 max into dedup) is generous but finite. If we ever see deals with >100 emails per source where the most-recent slice doesn't fit, expose a "show all in mailbox" link to the full search.
 
