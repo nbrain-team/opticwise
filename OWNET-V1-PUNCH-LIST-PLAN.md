@@ -219,7 +219,12 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 
 ## 3.4 Edit and add pipelines + MTU Tenant Pipeline missing
 - **PDF:** "Need the ability to edit and add pipelines" and "There is no 'MTU Tenant Pipeline'. There's only one pipeline and nothing changes when I click the pipeline differentiators buttons to the right of 'Deals' text"
-- **Status (2026-05-11):** **CLOSED — corrected separately by Danny.** Pipeline CRUD, the deals-page filter, and the missing MTU Tenant Pipeline are all resolved outside this punch list. No further action required from this scope.
+- **Status (2026-05-13):** ✅ **CLOSED & VERIFIED.** DB has all 3 pipelines (New Projects: 7 stages / 9 deals, **MTU Tenant: 5 stages / 0 deals**, Landing Pages Leads: 4 stages / 6 deals). UI verified live on `ownet.opticwise.com`:
+  - Pipeline admin at `/settings#pipelines` supports rename/delete pipeline, add/rename/delete stage, "+ New Pipeline" creation.
+  - `/deals` shows pipeline switcher buttons; clicking `MTU Tenant Pipeline` updates URL to `/deals?pipeline=<MTU-id>`, Open count drops to `(0)`, kanban swaps to MTU's 5 stages — **fixes Bill's "nothing changes" complaint.**
+  - Deal-create form at `/deals/new?pipeline=<MTU-id>` exposes all 5 MTU stages in the `Pipeline Stage` dropdown.
+  - No regression on other pipelines (verified by switching back to New Projects).
+- **Side-finding for Sprint 2 / 3.2:** Deal-create form's Organization picker has **825 options** and Contact Person has **1,129 options** — confirms Bill's "very long list" complaint. Becomes the inline-create combobox work in Sprint 2.
 
 ## 3.5 Emails linked to deal don't actually show in the deal
 - **Status (2026-05-13):** ✅ **SHIPPED & VERIFIED in production.** Commit `aaa737a` (cherry-picked clean from `sprint-1/3.5-deal-email-overmatch-fix` to avoid unrelated Insights/users work that had accumulated on that branch). Deployed live 2026-05-13 18:07 MDT on both `opticwise-frontend` and `opticwise-backend`. Render Gmail-sync cron (`crn-d6c9sv3h46gs738e4isg`) is healthy on `*/15 * * * *` schedule with fresh `lastSuccessfulRunAt` and `usersSynced=2`. Three production deals verified:
