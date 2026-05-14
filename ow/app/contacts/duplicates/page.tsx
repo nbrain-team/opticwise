@@ -95,7 +95,7 @@ async function loadDuplicateGroups(): Promise<DuplicateGroupSerialized[]> {
     ORDER BY d.fn, d.ln, p."createdAt"
   `;
 
-  const groupMap = new Map<string, DuplicateGroup>();
+  const groupMap = new Map<string, DuplicateGroupSerialized>();
 
   for (const row of rows) {
     const key = row.groupKey;
@@ -112,9 +112,8 @@ async function loadDuplicateGroups(): Promise<DuplicateGroupSerialized[]> {
       lastName: row.lastName,
       email: row.email,
       emailWork: row.emailWork,
-      organizationId: row.organizationId,
       organizationName: row.organizationName,
-      createdAt: row.createdAt,
+      createdAtISO: row.createdAt.toISOString(),
       emailsLinked: Number(row.emailsLinked),
       dealsLinked: Number(row.dealsLinked),
     });
