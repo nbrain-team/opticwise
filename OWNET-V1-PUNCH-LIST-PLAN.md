@@ -243,15 +243,53 @@ If a website-related gap surfaces later, re-open as a new line item. Until then 
 - **Recommended approach:** During the Sprint 1 pass on 3.1, also (a) verify Copper Creek / Aaron Leatherdale linked emails render, (b) confirm the auto-link writer is firing on inbound mail, (c) write a regression test that creates a fake email + linked deal and asserts the email appears in `directlyLinked` for the deal-detail render.
 - **Effort:** `S` (mostly verification + regression test; fix-if-needed scoped tight).
 
-## 3.6 Contact list (company-wide) — currently being tested
+## 3.6 Contact list (company-wide) — ✅ **SHIPPED 2026-05-14**
 - **PDF:** "currently being tested"
+- **Status:** All three reported issues now fixed in production. One follow-up
+  backfill remains as a low-priority next-iteration item (see (iii) below).
 - **Questions for Bill:**
   1. Anything broken you've found during testing? List it here and I'll batch-fix.
      - **Answer (2026-05-11):** Three confirmed issues:
-       - **(i) Search misses obvious matches.** Typing a partial last name returns nothing. Likely cause: query is doing exact-match or prefix-only instead of case-insensitive `contains`, or not searching across `firstName` + `lastName` + `email` + `companyName` in one OR clause. **Fix:** rewrite the search to do `ILIKE '%term%'` across all four fields (with a single index-friendly trigram-style query if performance becomes an issue at scale).
-       - **(ii) Duplicates that should have merged.** Contacts that obviously refer to the same person (same email, slight name variation; or same name + same company, different email casing) are showing as separate rows. Likely cause: dedup logic catches new submissions but historical duplicates were never merged. **Fix:** (a) write a one-time merge script that groups by normalized email + normalized name, picks the best record (most populated fields, oldest creation), and merges the others' relationships (deals, activities, email links) onto the canonical record. (b) Add an admin "Find duplicates" page that surfaces likely-dup pairs for one-click manual merge going forward.
-       - **(iii) Missing contacts that should be there (Gmail sync gap).** People you've actively emailed don't appear as Contacts. Likely cause: contact-extraction script doesn't run on every email, or only runs on inbound/outbound to specific addresses, or has filters that exclude valid contacts. **Fix:** audit `contact-extraction` script + its trigger (cron? per-email hook?), make sure every `from` + `to` + `cc` address on every Gmail message gets evaluated against the "create contact if not exists" rule, with deny-list for noreply/donotreply/automated senders.
-     - **Effort:** `S` for (i) — single query change. `M` for (ii) — needs merge script + admin UI. `S` for (iii) once root cause confirmed.
+       - **(i) Search misses obvious matches.** ✅ **Shipped 2026-05-13.**
+         Diagnosis showed the bug as Bill described wasn't reproducible —
+         the existing query was already case-insensitive `contains` across
+         `name`/`firstName`/`lastName`/`email`/`city`/`organization.name`.
+         Shipped a defensive parity fix: added `emailWork`/`emailHome`/
+         `emailOther` to the page-level search OR clause so the `/contacts`
+         page matches the `/api/contacts` endpoint and future contacts with
+         non-primary email addresses are findable.
+       - **(ii) Duplicates that should have merged.** ✅ **Shipped 2026-05-14.**
+         Two-phase delivery: Phase 1 (2026-05-13) shipped a read-only
+         `/contacts/duplicates` dashboard surfacing every group sharing
+         normalized firstName+lastName — at audit time 49 groups / 54
+         potential merges, including at least one deliberate keep-separate
+         case (Bill personal vs work). Phase 2 (2026-05-14) shipped the
+         transactional `POST /api/contacts/merge` endpoint backed by
+         `lib/contact-merge.ts` plus per-row "Merge others → this" buttons
+         with confirmation banner on the dashboard. The merge reassigns
+         all 15 child-table FKs (DealContact has uniq constraint, handled),
+         backfills nulls non-destructively, preserves victim primary emails
+         in keeper's secondary slots, concatenates notes, and deletes
+         victims last — all inside a single `prisma.$transaction`. The
+         legacy `scripts/merge-duplicates.ts` CLI has a critical bug
+         (deletes without reassigning FKs) and is marked DO NOT USE.
+       - **(iii) Missing contacts that should be there (Gmail sync gap).**
+         ✅ **Shipped 2026-05-14** (forward-going). Audit found contact
+         extraction was a manual CLI script (`scripts/extract-contacts-from-emails.ts`)
+         that outputs a CSV — never wired into the live Gmail sync. Fixed
+         by adding `tryAutoCreateContact()` into `/api/sales-inbox/sync`:
+         after the existing contact-lookup misses, pick the most-informative
+         external email on the message (sender for inbound, first recipient
+         for outbound), apply the same deny-list the CLI uses (internal
+         domains, bounce/noreply/notifications/marketing-automation patterns,
+         spam-domain list), and `upsert` a Person row keyed on email. Parses
+         display name from From header (`"Cary Johnson" <cary@nbrain.ai>` →
+         firstName Cary, lastName Johnson), tags new rows with
+         `contactType = "auto-extracted"`, caches in-memory for the run, and
+         reports `autoCreated` count in the sync response. **Follow-up
+         deferred:** one-time backfill walk of historical
+         `GmailMessage WHERE personId IS NULL` to retroactively create
+         missing contacts (expected to grow count from 1,128 → 1,500–2,500).
 
 ---
 
