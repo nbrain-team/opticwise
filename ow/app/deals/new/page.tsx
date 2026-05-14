@@ -153,23 +153,19 @@ export default async function NewDealPage({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
-            <select name="organizationId" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent">
-              <option value="">No organization</option>
-              {organizations.map((org) => (
-                <option key={org.id} value={org.id}>{org.name}</option>
-              ))}
-            </select>
+            <OrganizationPicker
+              fieldName="organizationId"
+              label="Organization"
+              initialOptions={organizationOptions}
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
-            <select name="personId" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent">
-              <option value="">No contact person</option>
-              {people.map((p) => (
-                <option key={p.id} value={p.id}>{p.firstName} {p.lastName}</option>
-              ))}
-            </select>
+            <ContactPicker
+              fieldName="personId"
+              label="Contact Person"
+              initialOptions={personOptions}
+            />
           </div>
 
           <div>
