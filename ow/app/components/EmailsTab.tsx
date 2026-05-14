@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 type GmailMessage = {
   id: string;
@@ -17,11 +17,32 @@ type GmailMessage = {
 interface EmailsTabProps {
   entityType: "deal" | "person" | "organization";
   entityId: string;
+  /**
+   * "Confident" matches — direct dealId-link, contact personId match, or
+   * contact email-address match. These are the default view.
+   */
   emails: GmailMessage[];
+  /**
+   * Optional "inferred" matches — org-domain matches (non-generic domains only)
+   * that are NOT already in `emails`. When provided and non-empty, a toggle is
+   * rendered allowing the user to opt into seeing these alongside confident
+   * matches. Currently passed only by the deal detail page.
+   */
+  inferredEmails?: GmailMessage[];
 }
 
-export function EmailsTab({ entityType, emails }: EmailsTabProps) {
+export function EmailsTab({ entityType, emails, inferredEmails }: EmailsTabProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showInferred, setShowInferred] = useState(false);
+
+  const hasInferred = (inferredEmails?.length ?? 0) > 0;
+
+  const visibleEmails = useMemo(() => {
+    if (!hasInferred || !showInferred) return emails;
+    const merged = [...emails, ...(inferredEmails ?? [])];
+    merged.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return merged;
+  }, [emails, inferredEmails, hasInferred, showInferred]);
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -49,7 +70,25 @@ export function EmailsTab({ entityType, emails }: EmailsTabProps) {
 
   return (
     <div className="space-y-3">
-      {emails.length === 0 ? (
+      {hasInferred && (
+        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-md px-3 py-2 text-xs">
+          <div className="text-amber-900">
+            {showInferred ? (
+              <>Showing <strong>{emails.length}</strong> confident + <strong>{inferredEmails!.length}</strong> inferred matches (org-domain).</>
+            ) : (
+              <><strong>{inferredEmails!.length}</strong> additional emails matched by company domain. Hidden by default to avoid false positives.</>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowInferred((v) => !v)}
+            className="ml-3 px-2 py-1 rounded border border-amber-300 bg-white text-amber-900 hover:bg-amber-100 transition-colors"
+          >
+            {showInferred ? "Hide inferred" : "Show inferred"}
+          </button>
+        </div>
+      )}
+      {visibleEmails.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
           <svg className="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -59,7 +98,7 @@ export function EmailsTab({ entityType, emails }: EmailsTabProps) {
         </div>
       ) : (
         <div className="space-y-2">
-          {emails.map((email) => {
+          {visibleEmails.map((email) => {
             const isExpanded = expandedId === email.id;
             const fromInfo = formatEmailAddress(email.from);
             const attachmentCount = getAttachmentCount(email.attachments);
