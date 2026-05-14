@@ -69,10 +69,10 @@ At deploy time (2026-05-13), **zero** open deals in production have an `Organiza
 
 **Sprint:** 1
 **Punch-list item:** 3.1
-**Status:** Verification rides on the 3.5 PR. Confirm post-deploy.
+**Status:** ✅ **CLOSED 2026-05-13 18:10 MDT** — shipped & verified together with 3.5 in commit `aaa737a`.
 **Plan reference:** `opticwise/OWNET-V1-PUNCH-LIST-PLAN.md` Section 3.1
 **Labels:** `sprint-1`, `verify-only`, `crm`
-**Branch:** `sprint-1/3.5-deal-email-overmatch-fix` (verification rides on the 3.5 PR)
+**Branch:** shipped via `main` (cherry-picked 3.5 fix)
 **Owner:** WD (Bill via me)
 **Effort:** `XS` (verification-only)
 **Depends on:** Issue 3.5
@@ -83,9 +83,9 @@ The new Harlow Spring Cypress (Houston) / Aspen Oak (GHIS) deal showed Bill's en
 
 ### Acceptance criteria
 
-- [ ] Open the Harlow / Aspen Oak deal post-3.5 deploy
-- [ ] Emails tab shows zero or only the genuinely-linked emails — NOT the full inbox
-- [ ] If the deal still shows stale matches, run the one-time cleanup migration that purges the bad `threadLinkedEmails` rows for this deal id and re-runs the matcher
+- [x] Opened the Harlow / Aspen Oak deal post-deploy on `ownet.opticwise.com`
+- [x] Emails tab now shows **1 legitimate email** (Kyle Clark, "Harlow Spring Cypress — On-site Digital Infrastructure Review", deal-related, linked via `GmailMessage.dealId`) instead of ~50 unrelated inbox messages
+- [x] No stale `threadLinkedEmails` cleanup migration needed — the fix removed the bad join entirely, so old rows are simply ignored on every page render
 
 ---
 
