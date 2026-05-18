@@ -680,10 +680,10 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
             />
           }
           filesContent={
-            <FilesTab
-              entityType="deal"
-              entityId={deal.id}
-              files={serializedDeal.driveFiles}
+            <DealFilesTab
+              dealId={deal.id}
+              initialDealFiles={serializedDeal.dealFiles}
+              relatedDriveFiles={serializedDeal.driveFiles}
             />
           }
           activitiesContent={
