@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { Prisma } from '@prisma/client';
+import { classifyReadAIMeeting } from '@/lib/meeting-classifier';
 
 const READAI_WEBHOOK_SECRET = process.env.READAI_WEBHOOK_SECRET;
 
