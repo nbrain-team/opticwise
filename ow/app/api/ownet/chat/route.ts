@@ -219,32 +219,35 @@ export async function POST(request: NextRequest) {
 
     // 1. Load ALL transcript metadata (titles, dates, participants) — always available
     // This ensures the agent knows what transcripts exist even when semantic search doesn't match
+    //
+    // As of 2026-05-18 the Fathom integration is deprecated and the
+    // CallTranscript / CallTranscriptChunk tables are no longer queried. All
+    // meeting/transcript context now resolves from ReadAIMeeting.
     let transcriptContext = '';
     let transcriptMetadataContext = '';
     try {
-      // Load Fathom call transcripts
-      const allTranscripts = await db.query(
+      const readAiMeetings = await db.query<{
+        id: string;
+        title: string;
+        startTime: string;
+        endTime: string;
+        participants: unknown;
+        summary: string;
+      }>(
         `SELECT id, title, "startTime", "endTime", participants, summary
-         FROM "CallTranscript"
+         FROM "ReadAIMeeting"
          ORDER BY "startTime" DESC NULLS LAST`
       );
 
-      // Also load Read AI meeting transcripts
-      let readAiMeetings: { rows: Array<{ id: string; title: string; startTime: string; endTime: string; participants: unknown; summary: string }> } = { rows: [] };
-      try {
-        readAiMeetings = await db.query(
-          `SELECT id, title, "startTime", "endTime", participants, summary
-           FROM "ReadAIMeeting"
-           ORDER BY "startTime" DESC NULLS LAST`
-        );
-      } catch { /* ReadAIMeeting may not exist */ }
-
-      const totalCount = allTranscripts.rows.length + readAiMeetings.rows.length;
+      const totalCount = readAiMeetings.rows.length;
 
       if (totalCount > 0) {
-        transcriptMetadataContext = `\n\n**All Available Call Transcripts & Meetings (${totalCount} total):**\n\n`;
+        transcriptMetadataContext = `\n\n**All Available Call Transcripts & Meetings (${totalCount} total, source: Read.ai):**\n\n`;
 
-        const formatRow = (t: { title: string; startTime: string; endTime: string; participants: unknown; summary: string }, idx: number, source: string) => {
+        const formatRow = (
+          t: { title: string; startTime: string; endTime: string; participants: unknown; summary: string },
+          idx: number
+        ) => {
           const startDate = t.startTime ? new Date(t.startTime).toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown date';
           const startISO = t.startTime ? new Date(t.startTime).toISOString().split('T')[0] : 'unknown';
           const duration = t.startTime && t.endTime
@@ -259,26 +262,14 @@ export async function POST(request: NextRequest) {
               }
             } catch { /* ignore parse errors */ }
           }
-          return `${idx + 1}. **${t.title}** [${source}] — ${startDate} (${startISO}) (${duration})${participantList ? `\n   Participants: ${participantList}` : ''}${t.summary ? `\n   Summary: ${t.summary.slice(0, 200)}` : ''}`;
+          return `${idx + 1}. **${t.title}** — ${startDate} (${startISO}) (${duration})${participantList ? `\n   Participants: ${participantList}` : ''}${t.summary ? `\n   Summary: ${t.summary.slice(0, 200)}` : ''}`;
         };
 
-        let idx = 0;
-        // Combine and sort by date (most recent first)
-        const combined = [
-          ...allTranscripts.rows.map(r => ({ ...r, source: 'Fathom' })),
-          ...readAiMeetings.rows.map(r => ({ ...r, source: 'ReadAI' })),
-        ].sort((a, b) => {
-          const aTime = a.startTime ? new Date(a.startTime).getTime() : 0;
-          const bTime = b.startTime ? new Date(b.startTime).getTime() : 0;
-          return bTime - aTime;
-        });
+        transcriptMetadataContext += readAiMeetings.rows
+          .map((t, idx) => formatRow(t, idx))
+          .join('\n\n');
 
-        transcriptMetadataContext += combined.map(t => {
-          idx++;
-          return formatRow(t, idx, t.source);
-        }).join('\n\n');
-
-        console.log('[OWnet] Loaded metadata for', totalCount, 'transcripts/meetings');
+        console.log('[OWnet] Loaded metadata for', totalCount, 'ReadAI transcripts');
       }
     } catch (error) {
       console.log('[OWnet] Transcript metadata query error:', error);
