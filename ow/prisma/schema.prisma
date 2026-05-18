@@ -484,7 +484,18 @@ model EmailMessage {
   thread EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
 }
 
-// Fathom.ai Call Transcripts
+// =====================================================================
+// DEPRECATED — Fathom.ai Call Transcripts (frozen 2026-05-18)
+// ---------------------------------------------------------------------
+// The Fathom integration is no longer used. All new meeting/transcript
+// data flows through `ReadAIMeeting` via the Read.ai webhook. The model
+// is retained ONLY for read-back of historical rows, and no application
+// code should query these tables going forward. See:
+//   - opticwise/SPRINT-* notes (4.7)
+//   - ~/.cursor/rules/ow-data-via-postgres-mcp.mdc
+// A follow-up migration will drop these tables once historical needs
+// are confirmed satisfied.
+// =====================================================================
 model CallTranscript {
   id             String  @id @default(cuid())
   fathomCallId   String  @unique // External ID from Fathom
