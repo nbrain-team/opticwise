@@ -28,6 +28,7 @@ model User {
   linkedInAccounts    LinkedInAccount[]
   ownedForms          Form[]               @relation("FormOwner")
   createdForms        Form[]               @relation("FormCreatedBy")
+  uploadedDealFiles   DealFile[]           @relation("DealFileUploader")
 }
 
 model PasswordResetToken {
