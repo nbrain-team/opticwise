@@ -46,18 +46,22 @@ export async function GET(
     return NextResponse.json({ error: "File not found" }, { status: 404 });
   }
 
+  // Both kinds — upload and drive_link — store the file in Google Drive as
+  // of 2026-05-18. Prefer the Drive web-view link in both cases. The bytea
+  // content branch below is a fallback for legacy `upload` rows created
+  // before the Drive pivot.
+  if (file.driveWebViewLink) {
+    return NextResponse.redirect(file.driveWebViewLink, 302);
+  }
+
   if (file.kind === "drive_link") {
-    if (file.driveWebViewLink) {
-      return NextResponse.redirect(file.driveWebViewLink, 302);
-    }
     return NextResponse.json(
       { error: "Drive link has no webViewLink to redirect to" },
       { status: 404 }
     );
   }
 
-  // kind = upload — stream bytea back. With the 10 MB cap a single Buffer is
-  // fine; if we ever raise it, switch to a ReadableStream.
+  // Legacy fallback: kind = upload + content bytea (pre-2026-05-18 rows).
   if (!file.content) {
     return NextResponse.json(
       { error: "File has no content (data missing)" },
