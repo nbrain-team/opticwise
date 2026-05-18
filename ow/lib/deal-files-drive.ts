@@ -1,21 +1,22 @@
 /**
- * Sprint 2 / 3.3 — Deal file utility helpers.
+ * Sprint 2 / 3.3 — Server-only Drive upload helper for deal files.
  *
- * Shared constants and helpers used by `/api/deals/[id]/files/**` routes
- * and the Files tab UI. Centralized here so the 10 MB cap, supported
- * extraction mime types, and serialization shape stay consistent.
+ * SERVER-ONLY MODULE. Importing this file from a client component will
+ * break the Next.js build because it pulls in googleapis / fs / stream.
+ * Client components must import from `./deal-files-shared` instead.
  *
  * Storage architecture (Bill, 2026-05-18):
- *   - All deal file payloads live in Google Drive, accessed via the existing
- *     `GOOGLE_SERVICE_ACCOUNT_JSON` credentials (already configured on the
- *     `opticwise-frontend` service).
+ *   - All deal file payloads live in Google Drive, accessed via the
+ *     existing `GOOGLE_SERVICE_ACCOUNT_JSON` credentials (already
+ *     configured on the `opticwise-frontend` service).
  *   - The DealFile.kind field tracks PROVENANCE only:
- *       `upload`     → user uploaded a local file; OWnet pushed it into Drive
- *                      via the service account.
+ *       `upload`     → user uploaded a local file; OWnet pushed it into
+ *                      Drive via the service account.
  *       `drive_link` → user pasted a Drive URL; OWnet only stored the
  *                      reference.
- *     Both kinds end up with `driveFileId` + `driveWebViewLink` populated,
- *     so the GET/download path is identical (redirect to webViewLink).
+ *     Both kinds end up with `driveFileId` + `driveWebViewLink`
+ *     populated, so the GET/download path is identical (redirect to
+ *     webViewLink).
  *   - The legacy `content: Bytes?` column on DealFile is retained for
  *     backward-compat with rows created before 2026-05-18. It is never
  *     written to going forward, and the download endpoint falls back to
@@ -23,53 +24,13 @@
  *     `content` is present (i.e., legacy rows).
  */
 
-// SERVER-ONLY MODULE. Importing this file from a client component will
-// break the Next.js build because it pulls in googleapis/fs/net/stream.
-// Client components must import from `./deal-files-shared` instead.
-import type { DealFile } from "@prisma/client";
 import { Readable } from "stream";
 import { getDriveClient, getServiceAccountClient } from "./google";
 
-// Re-export client-safe helpers so existing server-side imports of
-// `@/lib/deal-files` keep working. Client components should import from
-// `@/lib/deal-files-shared` directly.
-export {
-  MAX_UPLOAD_BYTES,
-  MAX_FILES_PER_DEAL_LISTING,
-  EXTRACTABLE_MIME_TYPES,
-  isExtractableMime,
-  parseDriveFileIdFromUrl,
-  formatBytes,
-} from "./deal-files-shared";
-
-/**
- * Strip the bytea `content` blob from a DealFile when serializing for the
- * client. We never want to send the raw file bytes in a list response — the
- * client uses the download endpoint instead.
- */
-export type SerializedDealFile = Omit<DealFile, "content" | "size"> & {
-  size: string | null; // BigInt serialized as decimal string
-};
-
-export function serializeDealFile(file: DealFile): SerializedDealFile {
-  // ESLint allows unused destructuring rest via _.
-  const { content: _content, size, ...rest } = file;
-  void _content;
-  return {
-    ...rest,
-    size: size === null ? null : size.toString(),
-  };
-}
-
-// =============================================================
-// Drive upload (Bill, 2026-05-18 direction — use the existing service
-// account for deal file storage instead of bytea-in-Postgres).
-// =============================================================
-
 /**
  * Name of the root Drive folder under the impersonated user's My Drive
- * where every OWnet-uploaded deal file is parked. Kept stable so files can
- * be found via Drive search even outside OWnet.
+ * where every OWnet-uploaded deal file is parked. Kept stable so files
+ * can be found via Drive search even outside OWnet.
  */
 export const DEAL_FILES_ROOT_FOLDER_NAME = "OWnet Deal Files";
 
@@ -81,9 +42,7 @@ const FOLDER_MIME = "application/vnd.google-apps.folder";
  *
  * Per-deal subfolders are intentionally NOT created: keeping files in a
  * single flat folder simplifies Drive UI browsing and the deal context is
- * already captured by `DealFile.dealId` in Postgres. The folder name in
- * Drive includes the deal title for visual scanning (e.g., "Acme Audit /
- * Jan 2026").
+ * already captured by `DealFile.dealId` in Postgres.
  */
 async function findOrCreateDealFilesRoot(): Promise<string> {
   const drive = await getDriveClient(getServiceAccountClient());
@@ -128,17 +87,18 @@ export type DriveUploadResult = {
 };
 
 /**
- * Upload a single file buffer into the OWnet deal-files Drive folder under
- * the impersonated user's account. Returns the metadata snapshot that the
- * caller persists onto the DealFile row.
+ * Upload a single file buffer into the OWnet deal-files Drive folder
+ * under the impersonated user's account. Returns the metadata snapshot
+ * that the caller persists onto the DealFile row.
  *
  * Naming convention: files are uploaded under their original filename,
- * prefixed with the deal title (when supplied) so the Drive UI is scannable.
- * Drive auto-disambiguates collisions by appending " (1)", " (2)", etc.,
- * which is fine because OWnet always references files by ID, not by name.
+ * prefixed with the deal title (when supplied) so the Drive UI is
+ * scannable. Drive auto-disambiguates collisions by appending " (1)",
+ * " (2)", etc., which is fine because OWnet always references files by
+ * ID, not by name.
  *
- * Surfaces a structured error (with `code: 'INSUFFICIENT_SCOPES'`) when the
- * domain-wide-delegation config in Google Workspace admin hasn't yet
+ * Surfaces a structured error (with `code: 'INSUFFICIENT_SCOPES'`) when
+ * the domain-wide-delegation config in Google Workspace admin hasn't yet
  * authorized `drive.file` — the route handler maps this to a 502 with
  * actionable copy.
  */
