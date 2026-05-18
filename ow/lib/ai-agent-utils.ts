@@ -393,80 +393,66 @@ export async function loadContextWithinBudget(
   const queryEmbedding = embedding.data[0].embedding;
   const vectorString = `[${queryEmbedding.join(',')}]`;
   
-  // Priority 2: Relevant transcripts (up to 60K tokens) - CHUNKED SEARCH (Newbury Style)
+  // Priority 2: Relevant transcripts (up to 60K tokens) — ReadAIMeeting only.
+  //
+  // Fathom (CallTranscript / CallTranscriptChunk) is deprecated as of
+  // 2026-05-18 per Bill's direction. All transcript retrieval now comes from
+  // the ReadAIMeeting table (full-meeting embeddings via `vectorEmbedding`).
+  // A future migration will introduce per-chunk ReadAIMeeting embeddings for
+  // higher-precision retrieval; for now we use the summary + transcript on
+  // the parent row.
   try {
-    // Search chunks first for precision
-    const chunkResult = await db.query(
-      `SELECT 
-        c.id as chunk_id,
-        c."chunkText",
-        c."chunkIndex",
-        c."wordCount",
-        t.id as transcript_id,
-        t.title,
-        t."startTime",
-        t.summary,
-        1 - (c.embedding <=> $1::vector) as similarity
-       FROM "CallTranscriptChunk" c
-       JOIN "CallTranscript" t ON c."transcriptId" = t.id
-       WHERE c.embedding IS NOT NULL
-       ORDER BY c.embedding <=> $1::vector
-       LIMIT 20`,
-      [vectorString]
-    );
-    
     let transcriptTokens = 0;
     const transcriptChunks: string[] = [];
     const transcriptCitations: SourceCitation[] = [];
-    
-    for (const chunk of chunkResult.rows) {
-      if (transcriptTokens > 60000) break;
-      
-      const chunkTokens = estimateTokens(chunk.chunkText);
-      if (usedTokens + transcriptTokens + chunkTokens > availableForContext) break;
-      
-      transcriptChunks.push(`[${chunk.title} - ${new Date(chunk.startTime).toLocaleDateString()}]\n${chunk.chunkText}`);
-      transcriptTokens += chunkTokens;
-      
-      // Add citation
-      transcriptCitations.push({
-        id: chunk.transcript_id || chunk.chunk_id,
-        type: 'transcript',
-        title: chunk.title,
-        date: new Date(chunk.startTime).toLocaleDateString(),
-        confidence: parseFloat(chunk.similarity),
-        preview: chunk.chunkText.substring(0, 150).trim() + '...',
-        metadata: {
-          chunkIndex: chunk.chunkIndex,
-          wordCount: chunk.wordCount
-        }
-      });
-    }
-    
-    // If no chunks found, fallback to full transcripts (backward compatibility)
-    if (transcriptChunks.length === 0) {
-      const fullTranscriptResult = await db.query(
+
+    // Check whether ReadAIMeeting.vectorEmbedding has been backfilled to the
+    // `vector` type yet. If still TEXT, skip vector ordering and fall back to
+    // recency-sorted retrieval so the agent still has something to cite.
+    const colCheck = await db.query(
+      `SELECT udt_name FROM information_schema.columns
+       WHERE table_name = 'ReadAIMeeting' AND column_name = 'vectorEmbedding' LIMIT 1`
+    );
+    const isVectorCol = colCheck.rows[0]?.udt_name === 'vector';
+
+    let meetingResult;
+    if (isVectorCol) {
+      meetingResult = await db.query(
         `SELECT id, title, transcript, summary, "startTime",
-         1 - (embedding <=> $1::vector) as similarity
-         FROM "CallTranscript"
-         WHERE vectorized = true AND embedding IS NOT NULL
-         ORDER BY embedding <=> $1::vector
+         1 - ("vectorEmbedding"::vector <=> $1::vector) as similarity
+         FROM "ReadAIMeeting"
+         WHERE "vectorEmbedding" IS NOT NULL
+         ORDER BY "vectorEmbedding"::vector <=> $1::vector
          LIMIT 5`,
         [vectorString]
       );
-      
-      for (const transcript of fullTranscriptResult.rows) {
-        if (transcriptTokens > 60000) break;
-        const text = transcript.summary || transcript.transcript.substring(0, 2000);
-        const tokens = estimateTokens(text);
-        if (usedTokens + transcriptTokens + tokens > availableForContext) break;
-        transcriptChunks.push(`[${transcript.title} - ${new Date(transcript.startTime).toLocaleDateString()}]\n${text}`);
-        transcriptTokens += tokens;
-        
-        // Add citation
-        transcriptCitations.push({
-          id: transcript.id,
-          type: 'transcript',
+    } else {
+      // Fallback: most-recent ReadAI meetings, no vector ordering yet.
+      meetingResult = await db.query(
+        `SELECT id, title, transcript, summary, "startTime",
+         NULL::float as similarity
+         FROM "ReadAIMeeting"
+         WHERE COALESCE(summary, transcript) IS NOT NULL
+         ORDER BY "startTime" DESC NULLS LAST
+         LIMIT 5`
+      );
+    }
+
+    for (const meeting of meetingResult.rows) {
+      if (transcriptTokens > 60000) break;
+      const text =
+        meeting.summary || (meeting.transcript ? meeting.transcript.substring(0, 2000) : '');
+      if (!text) continue;
+      const tokens = estimateTokens(text);
+      if (usedTokens + transcriptTokens + tokens > availableForContext) break;
+      transcriptChunks.push(
+        `[${meeting.title} - ${new Date(meeting.startTime).toLocaleDateString()}]\n${text}`
+      );
+      transcriptTokens += tokens;
+
+      transcriptCitations.push({
+        id: meeting.id,
+        type: 'transcript',
           title: transcript.title,
           date: new Date(transcript.startTime).toLocaleDateString(),
           confidence: parseFloat(transcript.similarity),
