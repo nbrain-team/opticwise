@@ -71,9 +71,7 @@ function extractionLabel(file: DealFile): string | null {
   switch (file.extractionStatus) {
     case "pending":
       return "Indexing queued";
-    case "running":
-      return "Indexing…";
-    case "completed":
+    case "indexed":
       return "Searchable";
     case "failed":
       return `Indexing failed${file.extractionError ? `: ${file.extractionError}` : ""}`;
