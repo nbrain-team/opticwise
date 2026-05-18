@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { formatBytes } from "@/lib/deal-files";
+import { formatBytes } from "@/lib/deal-files-shared";
 
 /**
  * Sprint 2 / 3.3 — Deal Files tab.
