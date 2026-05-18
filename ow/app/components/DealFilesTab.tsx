@@ -36,7 +36,7 @@ type DealFile = {
   driveIconLink: string | null;
   driveModifiedTime: string | null;
   searchable: boolean;
-  extractionStatus: "not_requested" | "pending" | "running" | "completed" | "failed" | "skipped";
+  extractionStatus: "not_requested" | "pending" | "indexed" | "failed" | "skipped";
   extractedAt: string | null;
   extractionError: string | null;
   extractedTextHash: string | null;
