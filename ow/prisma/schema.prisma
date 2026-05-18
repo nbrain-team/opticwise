@@ -383,9 +383,9 @@ enum DealFileExtractionStatus {
 }
 
 model DealFile {
-  id         String @id @default(cuid())
+  id         String  @id @default(cuid())
   dealId     String
-  uploaderId String
+  uploaderId String? // null when the original uploader's User row was deleted
 
   kind DealFileKind
 
