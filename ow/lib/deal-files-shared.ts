@@ -69,6 +69,27 @@ export function parseDriveFileIdFromUrl(rawUrl: string): string | null {
 }
 
 /**
+ * Strip the bytea `content` blob from a DealFile when serializing for the
+ * client. We never want to send the raw file bytes in a list response —
+ * the client uses the download endpoint instead.
+ *
+ * Note: `@prisma/client` type imports are erased at compile time, so this
+ * file remains safe to bundle for the browser (no runtime Node deps).
+ */
+export type SerializedDealFile = Omit<DealFile, "content" | "size"> & {
+  size: string | null; // BigInt serialized as decimal string
+};
+
+export function serializeDealFile(file: DealFile): SerializedDealFile {
+  const { content: _content, size, ...rest } = file;
+  void _content;
+  return {
+    ...rest,
+    size: size === null ? null : size.toString(),
+  };
+}
+
+/**
  * Friendly bytes formatter for the Files tab — matches "10 MB" style we
  * use in the upload error copy.
  */
