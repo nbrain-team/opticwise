@@ -301,6 +301,16 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       createdAt: f.createdAt.toISOString(),
       updatedAt: f.updatedAt.toISOString(),
     })),
+    dealFiles: deal.dealFiles.map((f) => {
+      const s = serializeDealFile(f);
+      return {
+        ...s,
+        driveModifiedTime: s.driveModifiedTime?.toISOString() ?? null,
+        extractedAt: s.extractedAt?.toISOString() ?? null,
+        createdAt: s.createdAt.toISOString(),
+        updatedAt: s.updatedAt.toISOString(),
+      };
+    }),
     activities: deal.activities.map((a) => ({
       ...a,
       dueDate: a.dueDate?.toISOString() || null,
