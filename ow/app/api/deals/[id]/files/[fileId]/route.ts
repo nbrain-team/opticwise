@@ -189,6 +189,32 @@ export async function DELETE(
     return NextResponse.json({ error: "File not found" }, { status: 404 });
   }
 
+  // For uploads we own the Drive file (the service account created it), so
+  // remove it from Drive too. For drive_link rows the file belongs to whoever
+  // shared it — we never touch the source.
+  let driveCleanupError: string | null = null;
+  if (file.kind === "upload" && file.driveFileId) {
+    try {
+      const drive = await getDriveClient(getServiceAccountClient());
+      await drive.files.delete({
+        fileId: file.driveFileId,
+        supportsAllDrives: true,
+      });
+    } catch (err) {
+      // Surface but don't block — better to delete the DB row than to leak
+      // a row when Drive returns a transient error.
+      driveCleanupError =
+        err instanceof Error ? err.message : "Unknown Drive error";
+      console.warn(
+        `Drive cleanup failed for DealFile ${file.id} (driveFileId=${file.driveFileId}): ${driveCleanupError}`
+      );
+    }
+  }
+
   await prisma.dealFile.delete({ where: { id: file.id } });
-  return NextResponse.json({ ok: true, id: file.id });
+  return NextResponse.json({
+    ok: true,
+    id: file.id,
+    ...(driveCleanupError ? { warning: `Drive cleanup failed: ${driveCleanupError}` } : {}),
+  });
 }
