@@ -416,7 +416,7 @@ model DealFile {
   updatedAt DateTime @updatedAt
 
   deal     Deal                  @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  uploader User                  @relation("DealFileUploader", fields: [uploaderId], references: [id], onDelete: SetNull)
+  uploader User?                 @relation("DealFileUploader", fields: [uploaderId], references: [id], onDelete: SetNull)
   chunks   DealAttachmentChunk[]
 
   @@index([dealId])
