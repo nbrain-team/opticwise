@@ -73,9 +73,7 @@ echo "📊 Final status:"
 psql $DATABASE_URL -c "
   SELECT 'Gmail' as source, MAX(date)::date as last_sync, COUNT(*) as total FROM \"GmailMessage\"
   UNION ALL
-  SELECT 'Fathom', MAX(\"startTime\")::date, COUNT(*) FROM \"CallTranscript\"
-  UNION ALL
-  SELECT 'TranscriptChunks', MAX(\"createdAt\")::date, COUNT(*) FROM \"CallTranscriptChunk\"
+  SELECT 'ReadAI', MAX(\"startTime\")::date, COUNT(*) FROM \"ReadAIMeeting\"
   UNION ALL
   SELECT 'Drive', MAX(\"modifiedTime\")::date, COUNT(*) FROM \"DriveFile\"
   UNION ALL
