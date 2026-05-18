@@ -453,14 +453,13 @@ export async function loadContextWithinBudget(
       transcriptCitations.push({
         id: meeting.id,
         type: 'transcript',
-          title: transcript.title,
-          date: new Date(transcript.startTime).toLocaleDateString(),
-          confidence: parseFloat(transcript.similarity),
-          preview: text.substring(0, 150).trim() + '...'
-        });
-      }
+        title: meeting.title,
+        date: new Date(meeting.startTime).toLocaleDateString(),
+        confidence: meeting.similarity !== null && meeting.similarity !== undefined ? parseFloat(meeting.similarity) : 0,
+        preview: text.substring(0, 150).trim() + '...',
+      });
     }
-    
+
     if (transcriptChunks.length > 0) {
       contexts.push({
         type: 'transcript',
