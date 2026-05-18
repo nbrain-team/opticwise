@@ -198,17 +198,3 @@ export async function uploadDealFileToDrive(args: {
     modifiedTime: data.modifiedTime ? new Date(data.modifiedTime) : null,
   };
 }
-
-/**
- * Friendly bytes formatter for the Files tab — matches "10 MB" style we use
- * in the upload error copy.
- */
-export function formatBytes(bytes: number | bigint | string | null): string {
-  if (bytes === null) return "—";
-  const n = typeof bytes === "bigint" ? Number(bytes) : Number(bytes);
-  if (!Number.isFinite(n) || n <= 0) return "—";
-  if (n < 1024) return `${n} B`;
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
-  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
-  return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
-}
