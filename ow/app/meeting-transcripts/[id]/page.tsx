@@ -106,7 +106,7 @@ export default async function MeetingDetailPage({
           <h1 className="text-3xl font-light text-[#50555C] mb-2">
             {meeting.title}
           </h1>
-          <div className="flex items-center gap-4 text-sm text-gray-500">
+          <div className="flex items-center gap-4 text-sm text-gray-500 flex-wrap">
             <span>
               {new Date(meeting.startTime).toLocaleDateString("en-US", {
                 weekday: "long",
@@ -120,6 +120,14 @@ export default async function MeetingDetailPage({
             {durationText && <span>{durationText}</span>}
             {meeting.platform && (
               <span className="capitalize">via {meeting.platform}</span>
+            )}
+            {meeting.category && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-[#3B6B8F] text-xs font-medium capitalize">
+                {meeting.category.replace(/_/g, " ")}
+                {typeof meeting.categoryConfidence === "number" && (
+                  <span className="text-gray-400">· {Math.round(meeting.categoryConfidence * 100)}%</span>
+                )}
+              </span>
             )}
           </div>
         </div>
