@@ -154,6 +154,27 @@ export default async function MeetingDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
+          {/* 4.7 — Generate from transcript */}
+          {(() => {
+            const cat = (meeting.category || "other") as MeetingCategoryValue;
+            const actions = GENERATE_ACTIONS[cat] || GENERATE_ACTIONS.other;
+            const noBody = !meeting.transcript && !meeting.summary;
+            return (
+              <GenerateFromTranscript
+                meetingId={meeting.id}
+                category={cat}
+                categoryReason={meeting.categoryReason}
+                categoryConfidence={meeting.categoryConfidence}
+                actions={actions}
+                emptyMessage={
+                  noBody
+                    ? "This meeting has no transcript or summary yet, so there's nothing to generate from."
+                    : null
+                }
+              />
+            );
+          })()}
+
           {/* Summary */}
           {meeting.summary && (
             <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
