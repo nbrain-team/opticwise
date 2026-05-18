@@ -6,8 +6,8 @@ import {
   MAX_UPLOAD_BYTES,
   isExtractableMime,
   serializeDealFile,
-  uploadDealFileToDrive,
-} from "@/lib/deal-files";
+} from "@/lib/deal-files-shared";
+import { uploadDealFileToDrive } from "@/lib/deal-files-drive";
 
 /**
  * Sprint 2 / 3.3 — Files on deals (upload + list).
