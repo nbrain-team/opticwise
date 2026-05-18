@@ -23,7 +23,9 @@
  *     `content` is present (i.e., legacy rows).
  */
 
-import "server-only";
+// SERVER-ONLY MODULE. Importing this file from a client component will
+// break the Next.js build because it pulls in googleapis/fs/net/stream.
+// Client components must import from `./deal-files-shared` instead.
 import type { DealFile } from "@prisma/client";
 import { Readable } from "stream";
 import { getDriveClient, getServiceAccountClient } from "./google";
