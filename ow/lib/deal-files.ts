@@ -102,6 +102,146 @@ export function parseDriveFileIdFromUrl(rawUrl: string): string | null {
   return null;
 }
 
+// =============================================================
+// Drive upload (Bill, 2026-05-18 direction — use the existing service
+// account for deal file storage instead of bytea-in-Postgres).
+// =============================================================
+
+/**
+ * Name of the root Drive folder under the impersonated user's My Drive
+ * where every OWnet-uploaded deal file is parked. Kept stable so files can
+ * be found via Drive search even outside OWnet.
+ */
+export const DEAL_FILES_ROOT_FOLDER_NAME = "OWnet Deal Files";
+
+const FOLDER_MIME = "application/vnd.google-apps.folder";
+
+/**
+ * Find or create the OWnet root deal-files folder under the impersonated
+ * user's My Drive. Idempotent — repeated calls return the same folder ID.
+ *
+ * Per-deal subfolders are intentionally NOT created: keeping files in a
+ * single flat folder simplifies Drive UI browsing and the deal context is
+ * already captured by `DealFile.dealId` in Postgres. The folder name in
+ * Drive includes the deal title for visual scanning (e.g., "Acme Audit /
+ * Jan 2026").
+ */
+async function findOrCreateDealFilesRoot(): Promise<string> {
+  const drive = await getDriveClient(getServiceAccountClient());
+
+  const escaped = DEAL_FILES_ROOT_FOLDER_NAME.replace(/'/g, "\\'");
+  const search = await drive.files.list({
+    q: `name = '${escaped}' and mimeType = '${FOLDER_MIME}' and trashed = false and 'me' in owners`,
+    fields: "files(id,name)",
+    pageSize: 1,
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+  });
+
+  const existing = search.data.files?.[0];
+  if (existing?.id) return existing.id;
+
+  const created = await drive.files.create({
+    requestBody: {
+      name: DEAL_FILES_ROOT_FOLDER_NAME,
+      mimeType: FOLDER_MIME,
+    },
+    fields: "id",
+    supportsAllDrives: true,
+  });
+
+  const id = created.data.id;
+  if (!id) {
+    throw new Error("Drive returned no folder ID after creating root folder");
+  }
+  return id;
+}
+
+export type DriveUploadResult = {
+  driveFileId: string;
+  name: string;
+  mimeType: string;
+  size: number | null;
+  webViewLink: string | null;
+  thumbnailLink: string | null;
+  iconLink: string | null;
+  modifiedTime: Date | null;
+};
+
+/**
+ * Upload a single file buffer into the OWnet deal-files Drive folder under
+ * the impersonated user's account. Returns the metadata snapshot that the
+ * caller persists onto the DealFile row.
+ *
+ * Naming convention: files are uploaded under their original filename,
+ * prefixed with the deal title (when supplied) so the Drive UI is scannable.
+ * Drive auto-disambiguates collisions by appending " (1)", " (2)", etc.,
+ * which is fine because OWnet always references files by ID, not by name.
+ *
+ * Surfaces a structured error (with `code: 'INSUFFICIENT_SCOPES'`) when the
+ * domain-wide-delegation config in Google Workspace admin hasn't yet
+ * authorized `drive.file` — the route handler maps this to a 502 with
+ * actionable copy.
+ */
+export async function uploadDealFileToDrive(args: {
+  buffer: Buffer;
+  filename: string;
+  mimeType: string;
+  dealTitle?: string | null;
+}): Promise<DriveUploadResult> {
+  const drive = await getDriveClient(getServiceAccountClient());
+  const folderId = await findOrCreateDealFilesRoot();
+
+  const displayName =
+    args.dealTitle && args.dealTitle.trim().length > 0
+      ? `${args.dealTitle.trim()} — ${args.filename}`
+      : args.filename;
+
+  let driveResp;
+  try {
+    driveResp = await drive.files.create({
+      requestBody: {
+        name: displayName,
+        parents: [folderId],
+        mimeType: args.mimeType,
+      },
+      media: {
+        mimeType: args.mimeType,
+        body: Readable.from(args.buffer),
+      },
+      fields:
+        "id,name,mimeType,size,webViewLink,thumbnailLink,iconLink,modifiedTime",
+      supportsAllDrives: true,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    const isScopeIssue = /insufficient|scope|permission/i.test(message);
+    const tagged = new Error(
+      isScopeIssue
+        ? `Drive upload failed (insufficient scopes — the Google Workspace admin needs to authorize the 'drive.file' scope for the service account's domain-wide delegation). Original: ${message}`
+        : `Drive upload failed: ${message}`
+    ) as Error & { code?: string };
+    if (isScopeIssue) tagged.code = "INSUFFICIENT_SCOPES";
+    throw tagged;
+  }
+
+  const data = driveResp.data;
+  if (!data.id) {
+    throw new Error("Drive returned no file ID after upload");
+  }
+
+  return {
+    driveFileId: data.id,
+    name: data.name ?? args.filename,
+    mimeType: data.mimeType ?? args.mimeType,
+    size: data.size ? Number(data.size) : null,
+    webViewLink: data.webViewLink ?? null,
+    thumbnailLink: data.thumbnailLink ?? null,
+    iconLink: data.iconLink ?? null,
+    modifiedTime: data.modifiedTime ? new Date(data.modifiedTime) : null,
+  };
+}
+
 /**
  * Friendly bytes formatter for the Files tab — matches "10 MB" style we use
  * in the upload error copy.
