@@ -11,11 +11,13 @@ echo ""
 cd /opt/render/project/src/ow || cd ~/project/src/ow || cd ow
 
 # Check last sync dates
+# Note: Fathom is deprecated as of 2026-05-18; only Read.ai feeds transcripts now.
+# Read.ai data arrives via webhook at /api/webhooks/read-ai (no scheduled sync needed).
 echo "📊 Current data status:"
 psql $DATABASE_URL -c "
   SELECT 'Gmail' as source, MAX(date)::date as last_sync, COUNT(*) as total FROM \"GmailMessage\"
   UNION ALL
-  SELECT 'Fathom', MAX(\"startTime\")::date, COUNT(*) FROM \"CallTranscript\"
+  SELECT 'ReadAI', MAX(\"startTime\")::date, COUNT(*) FROM \"ReadAIMeeting\"
   UNION ALL
   SELECT 'Drive', MAX(\"modifiedTime\")::date, COUNT(*) FROM \"DriveFile\";
 "
@@ -30,16 +32,9 @@ npx tsx scripts/sync-gmail-30days.ts
 echo "✅ Gmail sync complete"
 echo ""
 
-# 2. Fetch Fathom transcripts
-echo "🎙️ Step 2: Fetching Fathom transcripts..."
-npx tsx scripts/fetch-fathom-transcripts.ts
-echo "✅ Fathom sync complete"
-echo ""
-
-# 3. Chunk new transcripts
-echo "📝 Step 3: Chunking new transcripts..."
-npx tsx scripts/chunk-and-vectorize-transcripts.ts
-echo "✅ Transcript chunking complete"
+# 2. (skipped) Fathom transcripts — deprecated 2026-05-18. Read.ai is now the
+#    sole transcript source and ingests via webhook, no batch sync required.
+echo "🎙️ Step 2: Skipping Fathom — deprecated. Read.ai meetings arrive via webhook."
 echo ""
 
 # 4. Sync Google Drive (optional, can be slow)
