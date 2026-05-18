@@ -116,3 +116,45 @@ After reinstall, the Bot Token Scopes list shows everything above, AND the bot c
 - Bill posts the process flow back into this thread
 - We then design the form, email sequence, CRM hookup, and any fulfillment automation accordingly
 - Update Section 5.2 of the punch list with the agreed process and re-open the build task
+
+---
+
+## 3. Google Workspace Admin — Authorize `drive.file` Scope for the Service Account (one-time)
+
+**Priority:** Sprint 2 (blocks Section 3.3 file uploads going to Drive)
+**Opened:** 2026-05-18
+**Blocked entity:** OWnet v1 Punch List — Section 3.3 "Files on deals (upload + Drive link + opt-in searchable)"
+
+**Why this is Danny-only:** The OpticWise Google Workspace tenant is administered through nBrain. Domain-wide delegation for the `opticwise-service@opticwise-integration-nbrain.iam.gserviceaccount.com` service account is configured in the Google Workspace admin console, which Bill does not have admin access to.
+
+**Context:** OWnet's 3.3 "Files on deals" feature uploads attachments into Google Drive using the existing service account credentials (`GOOGLE_SERVICE_ACCOUNT_JSON`, already set on the `opticwise-frontend` Render service). The service account currently has read-only Drive access (`drive.readonly`); the upload path requires the **write** scope `drive.file`. Without this, every deal-file upload will fail with a 502 and a clear remediation message in the UI.
+
+**The ask:** Add `https://www.googleapis.com/auth/drive.file` to the service account's authorized OAuth scopes in Google Workspace admin.
+
+**Steps:**
+
+1. Go to https://admin.google.com → **Security** → **Access and data control** → **API controls** → **Manage Domain-wide Delegation**.
+2. Find the row for the service account client ID (the numeric ID inside `GOOGLE_SERVICE_ACCOUNT_JSON.client_id` — Bill can read this from the Render env var and DM the digits if needed).
+3. Click **Edit** on that row.
+4. In the **OAuth scopes (comma-delimited)** box, the current value should already contain at least these (which are the scopes OWnet uses today):
+   - `https://www.googleapis.com/auth/gmail.readonly`
+   - `https://www.googleapis.com/auth/gmail.send`
+   - `https://www.googleapis.com/auth/calendar`
+   - `https://www.googleapis.com/auth/drive.readonly`
+5. **Add this scope to the list** (separated by a comma):
+   - `https://www.googleapis.com/auth/drive.file`
+6. Click **Authorize**. The change is effective immediately — no service restart needed on the OWnet side.
+
+**Security note:** `drive.file` is a least-privileged write scope. It grants the service account access **only** to files it itself creates (or that have been explicitly opened via this app), NOT to the user's full Drive. This is the same scope Google recommends for app-managed file uploads.
+
+**Suggested Slack message Bill can paste to Danny:**
+
+> Hey Danny — one quick admin ask. The OWnet 3.3 "Files on deals" feature is wired up to upload attachments into Google Drive using the existing OpticWise service account. The service account currently only has `drive.readonly`; for uploads I need the `drive.file` write scope added in Google Workspace admin (Security → API controls → Manage Domain-wide Delegation → edit the OpticWise service-account row → add `https://www.googleapis.com/auth/drive.file` to the OAuth scopes list).
+>
+> `drive.file` is the least-privileged write scope (only files the SA creates), so it's tighter than `drive`. Takes 30 seconds in the admin console and unblocks deal file uploads.
+
+**Verification once Danny completes:**
+- Bill goes to a deal in OWnet, opens the Files tab, picks a small test file, clicks Upload
+- Expected: file uploads, appears in the Files list with size + timestamp, and clicking "Open" navigates to it in the Drive UI under the `OWnet Deal Files` folder in `bill@opticwise.com`'s Drive
+- Bill clicks Delete on the test file → confirms it disappears from the OWnet list AND from the Drive folder
+- If upload still fails with "INSUFFICIENT_SCOPES" copy, the scope wasn't added or Workspace propagation is still in flight (give it 5 min and retry)
