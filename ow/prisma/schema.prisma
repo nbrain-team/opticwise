@@ -319,6 +319,8 @@ model Deal {
   chatbotConversationsConverted ChatbotConversation[]
   readAIMeetings                ReadAIMeeting[]
   formSubmissions               FormSubmission[]
+  dealFiles                     DealFile[]
+  dealAttachmentChunks          DealAttachmentChunk[]
 
   @@index([pipelineId, stageId])
   @@index([ownerId])
