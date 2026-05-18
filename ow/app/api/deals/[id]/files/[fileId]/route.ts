@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
 import { isExtractableMime, serializeDealFile } from "@/lib/deal-files";
+import { getDriveClient, getServiceAccountClient } from "@/lib/google";
 
 /**
  * Sprint 2 / 3.3 — per-file actions on a deal attachment.
