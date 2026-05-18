@@ -12,7 +12,7 @@ CREATE TYPE "DealFileExtractionStatus" AS ENUM ('not_requested', 'pending', 'ind
 CREATE TABLE "DealFile" (
     "id" TEXT NOT NULL,
     "dealId" TEXT NOT NULL,
-    "uploaderId" TEXT NOT NULL,
+    "uploaderId" TEXT,
     "kind" "DealFileKind" NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
