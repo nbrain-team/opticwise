@@ -6,8 +6,9 @@ import { DealContacts } from "@/app/components/DealContacts";
 import { DetailTabs } from "@/app/components/DetailTabs";
 import { NotesTab } from "@/app/components/NotesTab";
 import { EmailsTab } from "@/app/components/EmailsTab";
-import { FilesTab } from "@/app/components/FilesTab";
+import { DealFilesTab } from "@/app/components/DealFilesTab";
 import { ActivitiesTab } from "@/app/components/ActivitiesTab";
+import { serializeDealFile } from "@/lib/deal-files";
 
 export default async function DealDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
