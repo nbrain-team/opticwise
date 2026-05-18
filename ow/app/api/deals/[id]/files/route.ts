@@ -71,7 +71,7 @@ export async function POST(
 
   const deal = await prisma.deal.findUnique({
     where: { id: dealId },
-    select: { id: true },
+    select: { id: true, title: true },
   });
   if (!deal) {
     return NextResponse.json({ error: "Deal not found" }, { status: 404 });
@@ -132,16 +132,50 @@ export async function POST(
     extractionStatus = isExtractableMime(mimeType) ? "pending" : "skipped";
   }
 
+  // Push the file to Drive first; only persist the DealFile row once we have
+  // a confirmed drive file ID so the DB never holds an "orphaned" upload row
+  // pointing at a non-existent file.
+  let driveResult;
+  try {
+    driveResult = await uploadDealFileToDrive({
+      buffer: buf,
+      filename: name,
+      mimeType,
+      dealTitle: deal.title,
+    });
+  } catch (err) {
+    const isScopeIssue =
+      err instanceof Error && (err as Error & { code?: string }).code === "INSUFFICIENT_SCOPES";
+    const message = err instanceof Error ? err.message : String(err);
+    console.error("Deal file upload to Drive failed:", message);
+    return NextResponse.json(
+      {
+        error: isScopeIssue
+          ? "OWnet couldn't upload to Google Drive — the service account is missing the 'drive.file' write scope. Ask Danny to authorize that scope on the service account's domain-wide delegation in Google Workspace admin."
+          : `Drive upload failed: ${message}`,
+      },
+      { status: isScopeIssue ? 502 : 500 }
+    );
+  }
+
   const created = await prisma.dealFile.create({
     data: {
       dealId,
       uploaderId: session.userId,
       kind: "upload",
-      name,
+      name, // keep the original filename for display, not the Drive-decorated name
       description,
-      mimeType,
-      size: BigInt(file.size),
-      content: buf,
+      mimeType: driveResult.mimeType,
+      size: driveResult.size !== null ? BigInt(driveResult.size) : BigInt(file.size),
+      // Bytea column is intentionally NOT populated for new rows — the file
+      // bytes live in Drive. Legacy rows created before 2026-05-18 may still
+      // have `content` populated; the download route handles both.
+      content: null,
+      driveFileId: driveResult.driveFileId,
+      driveWebViewLink: driveResult.webViewLink,
+      driveThumbnailLink: driveResult.thumbnailLink,
+      driveIconLink: driveResult.iconLink,
+      driveModifiedTime: driveResult.modifiedTime,
       searchable: searchableFlag,
       extractionStatus,
     },
