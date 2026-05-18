@@ -539,6 +539,20 @@ model CallTranscript {
 }
 
 // Read AI Meeting Notes (via webhook)
+// Sprint 2 / 4.7 — Meeting categorization. Auto-assigned by GPT on webhook
+// receipt; surfaces in the UI to drive category-aware "Generate from
+// transcript" buttons (sales call → propose follow-up email; client call →
+// propose recap; PPP podcast → propose social clip; etc.).
+enum MeetingCategory {
+  sales
+  client
+  internal
+  vendor
+  executives
+  ppp_podcast
+  other
+}
+
 model ReadAIMeeting {
   id                String  @id @default(cuid())
   sessionId         String  @unique
@@ -546,6 +560,14 @@ model ReadAIMeeting {
   title             String
   platform          String? // meet, zoom, teams, etc.
   platformMeetingId String?
+
+  // 4.7 — classifier output (filled by the Read.ai webhook handler after
+  // the meeting body is upserted). `categoryReason` keeps a short human-
+  // readable justification so Bill can audit miscategorizations.
+  category           MeetingCategory? @default(other)
+  categoryConfidence Float?
+  categoryReason     String?          @db.Text
+  categorizedAt      DateTime?
 
   // Timing
   startTime DateTime
