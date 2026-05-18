@@ -325,15 +325,15 @@ export default function KnowledgeBasePage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-purple-900">Fathom Transcripts</h3>
+            <h3 className="text-lg font-semibold text-purple-900">Read.ai Transcripts</h3>
           </div>
           <p className="text-sm text-purple-800 mb-3">
-            AI meeting transcripts from Fathom.ai. Full conversation text with speaker attribution.
+            AI meeting transcripts from Read.ai. Full conversation text with speaker attribution, topics, and action items.
           </p>
           <ul className="text-sm text-purple-700 space-y-1">
             <li>• Complete call transcripts</li>
-            <li>• AI summaries included</li>
-            <li>• Speaker identification</li>
+            <li>• AI summaries + action items</li>
+            <li>• Speaker identification + topics</li>
           </ul>
         </div>
 
