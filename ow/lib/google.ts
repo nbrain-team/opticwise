@@ -66,6 +66,16 @@ export function getServiceAccountClient(userEmail?: string) {
       'https://www.googleapis.com/auth/gmail.send',
       'https://www.googleapis.com/auth/calendar',
       'https://www.googleapis.com/auth/drive.readonly',
+      // Sprint 2 / 3.3 — required so the service account can upload deal-file
+      // attachments into the impersonated user's Drive. `drive.file` is the
+      // least-privileged write scope: it only grants access to files that the
+      // service account itself has created or that have been explicitly opened
+      // through this app. It does NOT grant access to the user's broader Drive.
+      // If the Google Workspace admin console hasn't yet authorized
+      // `drive.file` for the service account's domain-wide delegation, deal
+      // uploads will fail with a 403 and the upload API surfaces a clear
+      // remediation message (see `app/api/deals/[id]/files/route.ts`).
+      'https://www.googleapis.com/auth/drive.file',
     ],
     clientOptions: {
       subject: userEmail || process.env.GOOGLE_IMPERSONATE_USER || 'bill@opticwise.com',
