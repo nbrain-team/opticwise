@@ -5,9 +5,11 @@
  * components. It deliberately avoids any Node-only modules (fs, stream,
  * googleapis, etc.) so Next.js doesn't try to bundle them for the browser.
  *
- * Server-only code (Drive upload, Prisma serialization) lives in
- * `lib/deal-files.ts` and must NOT be imported from a client component.
+ * Server-only code (Drive upload) lives in `lib/deal-files-drive.ts` and
+ * must NOT be imported from a client component.
  */
+
+import type { DealFile } from "@prisma/client";
 
 /** 10 MB hard cap per uploaded file. Larger files: paste a Drive link. */
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
