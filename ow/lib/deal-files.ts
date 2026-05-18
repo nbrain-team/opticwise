@@ -4,9 +4,28 @@
  * Shared constants and helpers used by `/api/deals/[id]/files/**` routes
  * and the Files tab UI. Centralized here so the 10 MB cap, supported
  * extraction mime types, and serialization shape stay consistent.
+ *
+ * Storage architecture (Bill, 2026-05-18):
+ *   - All deal file payloads live in Google Drive, accessed via the existing
+ *     `GOOGLE_SERVICE_ACCOUNT_JSON` credentials (already configured on the
+ *     `opticwise-frontend` service).
+ *   - The DealFile.kind field tracks PROVENANCE only:
+ *       `upload`     → user uploaded a local file; OWnet pushed it into Drive
+ *                      via the service account.
+ *       `drive_link` → user pasted a Drive URL; OWnet only stored the
+ *                      reference.
+ *     Both kinds end up with `driveFileId` + `driveWebViewLink` populated,
+ *     so the GET/download path is identical (redirect to webViewLink).
+ *   - The legacy `content: Bytes?` column on DealFile is retained for
+ *     backward-compat with rows created before 2026-05-18. It is never
+ *     written to going forward, and the download endpoint falls back to
+ *     streaming the blob only when both `driveWebViewLink` is null AND
+ *     `content` is present (i.e., legacy rows).
  */
 
 import type { DealFile } from "@prisma/client";
+import { Readable } from "stream";
+import { getDriveClient, getServiceAccountClient } from "./google";
 
 /** 10 MB hard cap per uploaded file. Larger files: paste a Drive link. */
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
