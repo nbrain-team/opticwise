@@ -346,6 +346,108 @@ model DealContact {
   @@index([personId])
 }
 
+// Sprint 2 / 3.3 — Files on deals.
+//
+// Two attachment "kinds" share a single table so the deal UI can render one
+// unified list:
+//   - kind = upload      → bytes live in `content` (bytea), capped at 10 MB
+//                           in the API; for anything larger the user is
+//                           instructed to paste a Drive link instead.
+//   - kind = drive_link  → bytes live in Google Drive (the source of truth
+//                           with its own ACLs); we store metadata fetched
+//                           via the existing service-account Drive client
+//                           plus the Google file ID + webViewLink.
+//
+// Storage decision: Postgres bytea (per Bill, 2026-05-18). 10 MB blobs fit
+// comfortably in Render's managed Postgres and avoid introducing an S3
+// dependency for v1. If volume ever pushes the DB size, we can move
+// uploads to object storage later — the table contract here doesn't
+// require S3 to exist.
+//
+// Searchable flag is opt-in per file. When toggled true an async worker
+// extracts text from supported MIME types (PDF / DOCX / TXT for v1),
+// writes chunks to DealAttachmentChunk, and sets extractionStatus. Chunks
+// are retrieved DEAL-SCOPED only — they're never surfaced in general
+// agent answers, only when the agent is operating in this deal's context.
+enum DealFileKind {
+  upload
+  drive_link
+}
+
+enum DealFileExtractionStatus {
+  not_requested // searchable = false; nothing to do
+  pending // searchable = true, worker hasn't run yet
+  indexed // worker succeeded
+  failed // worker errored — see extractionError
+  skipped // searchable = true but mime type not supported
+}
+
+model DealFile {
+  id         String @id @default(cuid())
+  dealId     String
+  uploaderId String
+
+  kind DealFileKind
+
+  // Common metadata
+  name        String // display name (original filename or Drive title)
+  description String? @db.Text
+  mimeType    String
+  size        BigInt? // bytes; null when unknown (e.g. Drive folders)
+
+  // Upload-only payload (kind = upload)
+  content Bytes? // bytea, null for drive_link rows
+
+  // Drive-only payload (kind = drive_link)
+  driveFileId        String? // Google's file ID
+  driveWebViewLink   String?
+  driveThumbnailLink String?
+  driveIconLink      String?
+  driveModifiedTime  DateTime?
+
+  // Searchability (3.3 q3 — opt-in per file)
+  searchable        Boolean                  @default(false)
+  extractionStatus  DealFileExtractionStatus @default(not_requested)
+  extractedAt       DateTime?
+  extractionError   String?                  @db.Text
+  extractedTextHash String? // sha256 hex of extracted text, for dedup
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deal     Deal                  @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  uploader User                  @relation("DealFileUploader", fields: [uploaderId], references: [id], onDelete: SetNull)
+  chunks   DealAttachmentChunk[]
+
+  @@index([dealId])
+  @@index([uploaderId])
+  @@index([kind])
+  @@index([extractionStatus])
+}
+
+// Vector-search chunks for opt-in searchable DealFile uploads.
+// Embedding dimensionality matches the rest of the canon: text-embedding-3-large
+// at 1024 dimensions, stored as a pgvector string until the column type is
+// migrated to vector. `dealId` is denormalized so retrieval can filter to the
+// active deal context without joining through DealFile.
+model DealAttachmentChunk {
+  id         String @id @default(cuid())
+  dealFileId String
+  dealId     String // denormalized for deal-scoped retrieval
+
+  chunkIndex Int
+  text       String  @db.Text
+  embedding  String? @db.Text // 1024-dim text-embedding-3-large
+
+  createdAt DateTime @default(now())
+
+  dealFile DealFile @relation(fields: [dealFileId], references: [id], onDelete: Cascade)
+  deal     Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
+
+  @@unique([dealFileId, chunkIndex])
+  @@index([dealId])
+}
+
 enum EmailDirection {
   INCOMING
   OUTGOING
