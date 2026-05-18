@@ -23,29 +23,22 @@
  *     `content` is present (i.e., legacy rows).
  */
 
+import "server-only";
 import type { DealFile } from "@prisma/client";
 import { Readable } from "stream";
 import { getDriveClient, getServiceAccountClient } from "./google";
 
-/** 10 MB hard cap per uploaded file. Larger files: paste a Drive link. */
-export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
-
-/** Maximum number of files per deal we'll render in the UI by default. */
-export const MAX_FILES_PER_DEAL_LISTING = 200;
-
-/** Mime types we can extract text from for opt-in vector search. */
-export const EXTRACTABLE_MIME_TYPES = new Set<string>([
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-  "application/msword", // .doc (legacy; best-effort)
-  "text/plain",
-  "text/markdown",
-  "text/csv",
-]);
-
-export function isExtractableMime(mime: string): boolean {
-  return EXTRACTABLE_MIME_TYPES.has(mime);
-}
+// Re-export client-safe helpers so existing server-side imports of
+// `@/lib/deal-files` keep working. Client components should import from
+// `@/lib/deal-files-shared` directly.
+export {
+  MAX_UPLOAD_BYTES,
+  MAX_FILES_PER_DEAL_LISTING,
+  EXTRACTABLE_MIME_TYPES,
+  isExtractableMime,
+  parseDriveFileIdFromUrl,
+  formatBytes,
+} from "./deal-files-shared";
 
 /**
  * Strip the bytea `content` blob from a DealFile when serializing for the
