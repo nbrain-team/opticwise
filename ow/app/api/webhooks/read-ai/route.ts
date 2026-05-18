@@ -182,6 +182,33 @@ async function handleMeeting(data: ReadAIPayload) {
   console.log('   Action items:', data.action_items?.length || 0);
   console.log('   Topics:', data.topics?.length || 0);
 
+  // 4.7 — classify the meeting into one of seven canonical categories.
+  // Failures inside the classifier are non-fatal (they return `other` with
+  // a confidence-0 result), so the webhook handler never errors out on
+  // classification — we simply store whatever the classifier returns.
+  try {
+    const result = await classifyReadAIMeeting({
+      title: meeting.title,
+      summary: data.summary || null,
+      participants: allParticipants.map((p) => ({ name: p.name, email: p.email })),
+      ownerEmail: data.owner?.email || null,
+      topics: data.topics || null,
+      transcriptExcerpt: transcriptText ? transcriptText.slice(0, 4000) : null,
+    });
+    await prisma.readAIMeeting.update({
+      where: { id: meeting.id },
+      data: {
+        category: result.category,
+        categoryConfidence: result.confidence,
+        categoryReason: result.reason,
+        categorizedAt: new Date(),
+      },
+    });
+    console.log(`   Category: ${result.category} (confidence ${result.confidence.toFixed(2)})`);
+  } catch (err) {
+    console.error('   ⚠️  Category classification failed:', err instanceof Error ? err.message : err);
+  }
+
   return meeting;
 }
 
