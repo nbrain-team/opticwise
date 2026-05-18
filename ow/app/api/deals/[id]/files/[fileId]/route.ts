@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/session";
-import { isExtractableMime, serializeDealFile } from "@/lib/deal-files";
+import { isExtractableMime, serializeDealFile } from "@/lib/deal-files-shared";
 import { getDriveClient, getServiceAccountClient } from "@/lib/google";
 
 /**
