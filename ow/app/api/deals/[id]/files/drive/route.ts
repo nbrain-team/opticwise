@@ -5,7 +5,7 @@ import { getDriveClient, getServiceAccountClient } from "@/lib/google";
 import {
   parseDriveFileIdFromUrl,
   serializeDealFile,
-} from "@/lib/deal-files";
+} from "@/lib/deal-files-shared";
 
 /**
  * Sprint 2 / 3.3 — Link a Google Drive file to a deal.
