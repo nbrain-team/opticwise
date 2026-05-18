@@ -1,0 +1,81 @@
+/**
+ * Sprint 2 / 3.3 — Client-safe helpers for deal files.
+ *
+ * This file is the **boundary** for code that may be imported from client
+ * components. It deliberately avoids any Node-only modules (fs, stream,
+ * googleapis, etc.) so Next.js doesn't try to bundle them for the browser.
+ *
+ * Server-only code (Drive upload, Prisma serialization) lives in
+ * `lib/deal-files.ts` and must NOT be imported from a client component.
+ */
+
+/** 10 MB hard cap per uploaded file. Larger files: paste a Drive link. */
+export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+/** Maximum number of files per deal we'll render in the UI by default. */
+export const MAX_FILES_PER_DEAL_LISTING = 200;
+
+/** Mime types we can extract text from for opt-in vector search. */
+export const EXTRACTABLE_MIME_TYPES = new Set<string>([
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+  "application/msword", // .doc (legacy; best-effort)
+  "text/plain",
+  "text/markdown",
+  "text/csv",
+]);
+
+export function isExtractableMime(mime: string): boolean {
+  return EXTRACTABLE_MIME_TYPES.has(mime);
+}
+
+/**
+ * Parse a Google Drive URL and return the file ID, or null if the URL
+ * doesn't look like a Drive file we can resolve. Handles the common
+ * formats:
+ *   - https://drive.google.com/file/d/<id>/view
+ *   - https://drive.google.com/open?id=<id>
+ *   - https://drive.google.com/uc?id=<id>&export=download
+ *   - https://docs.google.com/{document,spreadsheets,presentation}/d/<id>/edit
+ *   - https://drive.google.com/drive/folders/<id>
+ */
+export function parseDriveFileIdFromUrl(rawUrl: string): string | null {
+  let url: URL;
+  try {
+    url = new URL(rawUrl.trim());
+  } catch {
+    return null;
+  }
+  const host = url.hostname.toLowerCase();
+  if (!host.endsWith("google.com")) return null;
+
+  // /file/d/<id>/  or  /document/d/<id>/  or  /spreadsheets/d/<id>/  etc.
+  const dPathMatch = url.pathname.match(
+    /\/(?:file|document|spreadsheets|presentation|drawings|forms)\/d\/([^/]+)/
+  );
+  if (dPathMatch) return dPathMatch[1];
+
+  // /drive/folders/<id>
+  const folderMatch = url.pathname.match(/\/drive\/folders\/([^/]+)/);
+  if (folderMatch) return folderMatch[1];
+
+  // ?id=<id>  (legacy /open and /uc URLs)
+  const idQuery = url.searchParams.get("id");
+  if (idQuery) return idQuery;
+
+  return null;
+}
+
+/**
+ * Friendly bytes formatter for the Files tab — matches "10 MB" style we
+ * use in the upload error copy.
+ */
+export function formatBytes(bytes: number | bigint | string | null): string {
+  if (bytes === null) return "—";
+  const n = typeof bytes === "bigint" ? Number(bytes) : Number(bytes);
+  if (!Number.isFinite(n) || n <= 0) return "—";
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+}
