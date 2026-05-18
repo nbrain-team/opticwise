@@ -59,42 +59,6 @@ export function serializeDealFile(file: DealFile): SerializedDealFile {
   };
 }
 
-/**
- * Parse a Google Drive URL and return the file ID, or null if the URL
- * doesn't look like a Drive file we can resolve. Handles the common formats:
- *   - https://drive.google.com/file/d/<id>/view
- *   - https://drive.google.com/open?id=<id>
- *   - https://drive.google.com/uc?id=<id>&export=download
- *   - https://docs.google.com/{document,spreadsheets,presentation}/d/<id>/edit
- *   - https://drive.google.com/drive/folders/<id>
- */
-export function parseDriveFileIdFromUrl(rawUrl: string): string | null {
-  let url: URL;
-  try {
-    url = new URL(rawUrl.trim());
-  } catch {
-    return null;
-  }
-  const host = url.hostname.toLowerCase();
-  if (!host.endsWith("google.com")) return null;
-
-  // /file/d/<id>/  or  /document/d/<id>/  or  /spreadsheets/d/<id>/  etc.
-  const dPathMatch = url.pathname.match(
-    /\/(?:file|document|spreadsheets|presentation|drawings|forms)\/d\/([^/]+)/
-  );
-  if (dPathMatch) return dPathMatch[1];
-
-  // /drive/folders/<id>
-  const folderMatch = url.pathname.match(/\/drive\/folders\/([^/]+)/);
-  if (folderMatch) return folderMatch[1];
-
-  // ?id=<id>  (legacy /open and /uc URLs)
-  const idQuery = url.searchParams.get("id");
-  if (idQuery) return idQuery;
-
-  return null;
-}
-
 // =============================================================
 // Drive upload (Bill, 2026-05-18 direction — use the existing service
 // account for deal file storage instead of bytea-in-Postgres).
