@@ -46,6 +46,12 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
         orderBy: { modifiedTime: "desc" },
         take: 50,
       },
+      // Sprint 2 / 3.3 — user-attached files (DealFile model). Distinct from
+      // the auto-discovered `driveFiles` corpus relation above.
+      files: {
+        orderBy: { createdAt: "desc" },
+        take: 200,
+      },
       activities: {
         orderBy: [
           { status: "asc" },
