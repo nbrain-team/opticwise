@@ -6,6 +6,7 @@ import {
   MAX_UPLOAD_BYTES,
   isExtractableMime,
   serializeDealFile,
+  uploadDealFileToDrive,
 } from "@/lib/deal-files";
 
 /**
@@ -14,6 +15,12 @@ import {
  * GET  /api/deals/[id]/files          — list every DealFile attached to the deal
  * POST /api/deals/[id]/files          — multipart upload of a single file
  *                                       (≤ 10 MB; bigger uses /drive sibling)
+ *
+ * Storage (Bill, 2026-05-18): every upload is pushed into Google Drive via
+ * the existing service-account credentials (see `lib/google.ts` +
+ * `lib/deal-files.ts#uploadDealFileToDrive`). The DealFile row stores the
+ * resulting `driveFileId` + metadata; the legacy `content` bytea column is
+ * NOT written to for new rows.
  *
  * The "Drive link" path lives at `/api/deals/[id]/files/drive` to keep the
  * multipart vs JSON parsing concerns split.
