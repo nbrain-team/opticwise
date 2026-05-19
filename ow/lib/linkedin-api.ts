@@ -309,7 +309,7 @@ export async function uploadImageBinary(
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": mimeType,
     },
-    body: imageBuffer,
+    body: new Uint8Array(imageBuffer),
   });
   if (!resp.ok) {
     const text = await resp.text();
