@@ -26,11 +26,13 @@ function env(name: string): string {
   return val;
 }
 
-function getClientId(): string {
+function getClientId(orgApp = false): string {
+  if (orgApp) return env("LINKEDIN_ORG_CLIENT_ID");
   return env("LINKEDIN_CLIENT_ID");
 }
 
-function getClientSecret(): string {
+function getClientSecret(orgApp = false): string {
+  if (orgApp) return env("LINKEDIN_ORG_CLIENT_SECRET");
   return env("LINKEDIN_CLIENT_SECRET");
 }
 
