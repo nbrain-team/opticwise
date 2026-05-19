@@ -228,6 +228,11 @@ export default async function MeetingTranscriptsPage({
                         >
                           {meeting.title}
                         </Link>
+                        {meeting.category && (
+                          <span className="flex-shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-[#3B6B8F] border border-blue-200 capitalize">
+                            {meeting.category.replace(/_/g, " ")}
+                          </span>
+                        )}
                         {isLinked ? (
                           <span className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
                             <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
