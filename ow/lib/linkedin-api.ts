@@ -60,10 +60,11 @@ export function buildAuthUrl(opts: {
   state: string;
   includeOrgScopes?: boolean;
 }): string {
-  const scopes = opts.includeOrgScopes ? ORG_SCOPES : PERSONAL_SCOPES;
+  const useOrgApp = !!opts.includeOrgScopes;
+  const scopes = useOrgApp ? ORG_SCOPES : PERSONAL_SCOPES;
   const params = new URLSearchParams({
     response_type: "code",
-    client_id: getClientId(),
+    client_id: getClientId(useOrgApp),
     redirect_uri: opts.redirectUri,
     state: opts.state,
     scope: scopes,
