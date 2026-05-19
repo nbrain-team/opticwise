@@ -125,12 +125,20 @@ function SocialDashboard() {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  const handleConnect = async (platform: 'linkedin' | 'instagram') => {
-    setConnectingPlatform(platform);
+  const handleConnect = async (platform: 'linkedin' | 'instagram', opts?: { includeOrgScopes?: boolean }) => {
+    const key = opts?.includeOrgScopes ? 'linkedin-org' : platform;
+    setConnectingPlatform(key);
     try {
+      const body: Record<string, unknown> = {};
+      if (opts?.includeOrgScopes) body.includeOrgScopes = true;
+
       const connectResponse = await fetch(
         `/api/social/connect/${platform}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' } }
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        }
       );
       if (!connectResponse.ok) {
         const errBody = await connectResponse.json().catch(() => ({}));
