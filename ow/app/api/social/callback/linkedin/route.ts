@@ -37,8 +37,9 @@ export async function GET(req: NextRequest) {
     }
 
     const redirectUri = `${APP_URL}/api/social/callback/linkedin`;
+    const isOrgApp = req.cookies.get("li_org_app")?.value === "1";
 
-    const token = await exchangeCodeForToken(code, redirectUri);
+    const token = await exchangeCodeForToken(code, redirectUri, isOrgApp);
     const profile = await getMyProfile(token.access_token);
 
     const tokenData = {
