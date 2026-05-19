@@ -7,7 +7,7 @@ import {
   Linkedin, Instagram, Plus, Calendar, BarChart3, MessageSquare, Clock,
   CheckCircle2, AlertCircle, FileText, Sparkles, RefreshCw,
   ArrowRight, TrendingUp, Eye, Heart, Share2, Shield, Settings,
-  Send, Inbox,
+  Send, Inbox, X,
 } from 'lucide-react';
 
 interface SocialAccount {
