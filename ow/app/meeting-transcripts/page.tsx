@@ -118,6 +118,9 @@ export default async function MeetingTranscriptsPage({
         </div>
       </div>
 
+      {/* Backfill prompt */}
+      <BackfillCategoriesButton uncategorizedCount={uncategorizedCount} />
+
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <form method="GET" className="flex gap-2 flex-1">
