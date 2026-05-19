@@ -40,6 +40,16 @@ export async function POST(req: NextRequest) {
       maxAge: 600,
     });
 
+    if (includeOrgScopes) {
+      response.cookies.set("li_org_app", "1", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 600,
+      });
+    }
+
     return response;
   } catch (error) {
     console.error("LinkedIn connect error:", error);
