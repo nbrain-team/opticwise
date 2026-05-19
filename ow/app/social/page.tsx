@@ -314,7 +314,7 @@ function SocialDashboard() {
           {/* Connect Buttons */}
           <button
             onClick={() => handleConnect('linkedin')}
-            disabled={connectingPlatform === 'linkedin'}
+            disabled={!!connectingPlatform}
             className="bg-white rounded-xl border border-dashed border-gray-300 p-5 flex items-center gap-4 hover:border-[#0A66C2]/40 hover:bg-blue-50/30 transition-all group disabled:opacity-50"
           >
             <div className="w-12 h-12 rounded-full bg-[#0A66C2]/10 flex items-center justify-center group-hover:bg-[#0A66C2]/20 transition-colors">
@@ -322,16 +322,33 @@ function SocialDashboard() {
             </div>
             <div className="text-left">
               <p className="font-medium text-gray-900 group-hover:text-[#0A66C2] transition-colors">
-                {connectingPlatform === 'linkedin' ? 'Redirecting...' : 'Connect LinkedIn'}
+                {connectingPlatform === 'linkedin' ? 'Redirecting...' : 'Connect LinkedIn Profile'}
               </p>
-              <p className="text-xs text-gray-500">Link a LinkedIn profile or page</p>
+              <p className="text-xs text-gray-500">Link a personal LinkedIn account</p>
+            </div>
+            <Plus className="w-5 h-5 text-gray-400 ml-auto" />
+          </button>
+
+          <button
+            onClick={() => handleConnect('linkedin', { includeOrgScopes: true })}
+            disabled={!!connectingPlatform}
+            className="bg-white rounded-xl border border-dashed border-gray-300 p-5 flex items-center gap-4 hover:border-[#0A66C2]/40 hover:bg-blue-50/30 transition-all group disabled:opacity-50"
+          >
+            <div className="w-12 h-12 rounded-full bg-[#0A66C2]/20 flex items-center justify-center group-hover:bg-[#0A66C2]/30 transition-colors">
+              <Shield className="w-6 h-6 text-[#0A66C2]" />
+            </div>
+            <div className="text-left">
+              <p className="font-medium text-gray-900 group-hover:text-[#0A66C2] transition-colors">
+                {connectingPlatform === 'linkedin-org' ? 'Redirecting...' : 'Connect Company Page'}
+              </p>
+              <p className="text-xs text-gray-500">Link OpticWise / PPP LinkedIn pages (requires Community Management API)</p>
             </div>
             <Plus className="w-5 h-5 text-gray-400 ml-auto" />
           </button>
 
           <button
             onClick={() => handleConnect('instagram')}
-            disabled={connectingPlatform === 'instagram'}
+            disabled={!!connectingPlatform}
             className="bg-white rounded-xl border border-dashed border-gray-300 p-5 flex items-center gap-4 hover:border-pink-300 hover:bg-pink-50/30 transition-all group disabled:opacity-50"
           >
             <div className="w-12 h-12 rounded-full bg-pink-100/60 flex items-center justify-center group-hover:bg-pink-100 transition-colors">
