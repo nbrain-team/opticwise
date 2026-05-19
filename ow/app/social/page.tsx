@@ -202,8 +202,8 @@ function SocialDashboard() {
             <Share2 className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Social Dashboard</h1>
-            <p className="text-sm text-gray-500">Manage all your social accounts in one place</p>
+            <h1 className="text-2xl font-semibold text-gray-900">Social Posting Manager</h1>
+            <p className="text-sm text-gray-500">Manage your LinkedIn and Instagram presence with AI-powered content</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
