@@ -146,7 +146,7 @@ export async function POST(req: NextRequest) {
         firstComment,
         mediaItems,
         mediaType,
-        status,
+        status: status as SocialPostStatus,
         publishedAt,
         scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
         timezone,
