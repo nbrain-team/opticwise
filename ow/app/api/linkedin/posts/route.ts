@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
             firstComment,
             mediaItems,
             mediaType,
-            status: 'failed',
+            status: 'failed' as SocialPostStatus,
             timezone,
             aiGenerated,
             aiPrompt,
