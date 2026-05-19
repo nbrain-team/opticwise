@@ -38,7 +38,7 @@ export default async function MeetingTranscriptsPage({
   const now = new Date();
   const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-  const [meetings, totalCount, assignedCount, unassignedCount, thisWeekCount] =
+  const [meetings, totalCount, assignedCount, unassignedCount, thisWeekCount, uncategorizedCount] =
     await Promise.all([
       prisma.readAIMeeting.findMany({
         where,
@@ -72,6 +72,9 @@ export default async function MeetingTranscriptsPage({
       }),
       prisma.readAIMeeting.count({
         where: { startTime: { gte: weekAgo } },
+      }),
+      prisma.readAIMeeting.count({
+        where: { categorizedAt: null },
       }),
     ]);
 
