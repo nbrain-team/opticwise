@@ -24,8 +24,12 @@ export async function GET(
     if (!account)
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
 
+    const currentUser = await prisma.user.findUnique({
+      where: { id: session.userId },
+      select: { role: true },
+    });
     const isOwnerOrAdmin =
-      account.userId === session.userId || session.role === "admin";
+      account.userId === session.userId || currentUser?.role === "admin";
     if (!isOwnerOrAdmin)
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
