@@ -23,15 +23,7 @@ export async function DELETE(
     if (account.userId !== session.userId)
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    await prisma.socialAccount.update({
-      where: { id },
-      data: {
-        isConnected: false,
-        disconnectedAt: new Date(),
-        accessToken: null,
-        refreshToken: null,
-      },
-    });
+    await prisma.socialAccount.delete({ where: { id } });
 
     return NextResponse.json({ success: true });
   } catch (error) {
