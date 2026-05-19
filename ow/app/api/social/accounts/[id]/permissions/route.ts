@@ -84,15 +84,15 @@ export async function POST(
         { status: 400 }
       );
 
-    const account = await prisma.socialAccount.findUnique({
-      where: { id },
-      select: { userId: true },
-    });
+    const [account, currentUser] = await Promise.all([
+      prisma.socialAccount.findUnique({ where: { id }, select: { userId: true } }),
+      prisma.user.findUnique({ where: { id: session.userId }, select: { role: true } }),
+    ]);
     if (!account)
       return NextResponse.json({ error: "Account not found" }, { status: 404 });
 
     const isOwnerOrAdmin =
-      account.userId === session.userId || session.role === "admin";
+      account.userId === session.userId || currentUser?.role === "admin";
     if (!isOwnerOrAdmin)
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
