@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       },
     },
     update: {
-      cadence: cadence || { frequency: "weekly", days: [] },
+      cadence: (cadence || { frequency: "weekly", days: [] }) as Prisma.InputJsonValue,
       defaultPostTime: defaultPostTime || "08:00",
       timezone: timezone || "America/Denver",
       isActive: isActive ?? true,
@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     create: {
       deliverableType,
       targetAccountId,
-      cadence: cadence || { frequency: "weekly", days: [] },
+      cadence: (cadence || { frequency: "weekly", days: [] }) as Prisma.InputJsonValue,
       defaultPostTime: defaultPostTime || "08:00",
       timezone: timezone || "America/Denver",
       isActive: isActive ?? true,
