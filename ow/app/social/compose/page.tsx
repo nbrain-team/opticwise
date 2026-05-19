@@ -29,8 +29,8 @@ interface MediaItem {
 }
 
 interface RiskResult {
-  level: 'low' | 'high';
-  reason?: string;
+  tier: 'low' | 'high';
+  reasons: string[];
 }
 
 const POST_TYPES = [
@@ -190,7 +190,7 @@ export default function ComposePage() {
       });
       if (res.ok) {
         const data = await res.json();
-        setRisk({ level: data.level, reason: data.reason });
+        setRisk({ tier: data.tier, reasons: data.reasons || [] });
       }
     } catch {
       // Risk check is non-critical
