@@ -318,6 +318,13 @@ function SocialDashboard() {
                     {account.isConnected ? <CheckCircle2 className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                     {account.isConnected ? 'Connected' : 'Disconnected'}
                   </span>
+                  <button
+                    onClick={() => handleDisconnect(account.id, account.displayName)}
+                    title="Remove account"
+                    className="p-1 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             );
