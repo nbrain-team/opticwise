@@ -238,8 +238,8 @@ function SocialDashboard() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="font-semibold text-gray-900">Connected Accounts</h2>
-          <Link href="/social/settings" className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
-            <Settings className="w-4 h-4" /> Settings
+          <Link href="/social/schedules" className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
+            <Settings className="w-4 h-4" /> Schedules
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
