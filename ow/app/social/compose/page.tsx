@@ -399,7 +399,7 @@ export default function ComposePage() {
                 : 'bg-amber-50 text-amber-700 border border-amber-200'
             }`}>
               <Shield className="w-3.5 h-3.5" />
-              {risk.level === 'low' ? 'Low Risk' : 'High Risk'}
+              {risk.tier === 'low' ? 'Low Risk' : 'High Risk'}
             </div>
           )}
           {checkingRisk && (
