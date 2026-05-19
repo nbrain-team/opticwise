@@ -1683,22 +1683,49 @@ model KnowledgeChunk {
 }
 
 // ============================================
-// LINKEDIN SOCIAL MEDIA MANAGEMENT
+// SOCIAL MEDIA MANAGEMENT
 // ============================================
 
-model LinkedInAccount {
-  id              String    @id @default(cuid())
-  zernioAccountId String    @unique
-  zernioProfileId String
-  platform        String    @default("linkedin")
-  username        String?
-  displayName     String?
-  avatarUrl       String?
-  profileUrl      String?
-  accountType     String?
-  isConnected     Boolean   @default(true)
-  connectedAt     DateTime  @default(now())
-  disconnectedAt  DateTime?
+enum SocialPlatform {
+  linkedin
+  instagram
+}
+
+enum SocialPostStatus {
+  draft
+  pending_approval
+  scheduled
+  publishing
+  published
+  failed
+  rejected
+}
+
+enum RiskTier {
+  low
+  high
+}
+
+// Generic multi-platform social account — replaces LinkedInAccount for new code
+model SocialAccount {
+  id                String         @id @default(cuid())
+  platform          SocialPlatform
+  platformAccountId String
+  accountType       String         @default("personal") // personal, company_page
+  displayName       String?
+  username          String?
+  avatarUrl         String?
+  profileUrl        String?
+
+  accessToken    String?   @db.Text
+  refreshToken   String?   @db.Text
+  tokenExpiresAt DateTime?
+  tokenScope     String?   @db.Text
+
+  isConnected        Boolean  @default(true)
+  autoPublishEnabled Boolean  @default(true)
+  connectedAt        DateTime @default(now())
+  disconnectedAt     DateTime?
 
   userId String?
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -1706,28 +1733,44 @@ model LinkedInAccount {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  posts SocialPost[]
+  posts              SocialPost[]
+  deliverableTargets DeliverableSchedule[]
 
+  @@unique([platform, platformAccountId])
   @@index([platform])
   @@index([isConnected])
   @@index([userId])
 }
 
 model SocialPost {
-  id           String          @id @default(cuid())
-  zernioPostId String?         @unique
-  accountId    String
-  account      LinkedInAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  id             String           @id @default(cuid())
+  platformPostId String?          @unique
+  socialAccountId String?
+  socialAccount   SocialAccount?  @relation(fields: [socialAccountId], references: [id], onDelete: SetNull)
+  platform       SocialPlatform   @default(linkedin)
+  status         SocialPostStatus @default(draft)
+
+  // DEPRECATED: Zernio-era fields — kept for migration; ignore in new code
+  zernioPostId   String?          @unique
+  accountId      String?
+  account        LinkedInAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
 
   content      String  @db.Text
   firstComment String? @db.Text
   mediaItems   Json?
   mediaType    String?
 
-  status       String    @default("draft")
   publishedAt  DateTime?
   scheduledFor DateTime?
   timezone     String    @default("America/Denver")
+
+  riskTier   RiskTier?
+  riskReason String?   @db.Text
+  approvedBy String?
+  approvedAt DateTime?
+  rejectedBy String?
+  rejectedAt DateTime?
+  rejectReason String? @db.Text
 
   aiGenerated     Boolean @default(false)
   aiPrompt        String? @db.Text
@@ -1751,8 +1794,11 @@ model SocialPost {
   @@index([status])
   @@index([scheduledFor])
   @@index([publishedAt])
+  @@index([socialAccountId])
   @@index([accountId])
+  @@index([platform])
   @@index([aiTopicCategory])
+  @@index([riskTier, status])
 }
 
 model PostComment {
@@ -1783,4 +1829,50 @@ model PostComment {
   @@index([postId])
   @@index([commentedAt])
   @@index([parentCommentId])
+}
+
+model DeliverableSchedule {
+  id              String        @id @default(cuid())
+  deliverableType String
+  targetAccountId String
+  targetAccount   SocialAccount @relation(fields: [targetAccountId], references: [id], onDelete: Cascade)
+  cadence         Json          // e.g. { frequency: "weekly", days: ["thursday"], time: "08:00" }
+  defaultPostTime String        @default("08:00") // HH:mm in target timezone
+  timezone        String        @default("America/Denver")
+  isActive        Boolean       @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([deliverableType, targetAccountId])
+  @@index([isActive])
+}
+
+// DEPRECATED — kept for backward compatibility during migration from Zernio.
+// New code should use SocialAccount instead.
+model LinkedInAccount {
+  id              String    @id @default(cuid())
+  zernioAccountId String    @unique
+  zernioProfileId String
+  platform        String    @default("linkedin")
+  username        String?
+  displayName     String?
+  avatarUrl       String?
+  profileUrl      String?
+  accountType     String?
+  isConnected     Boolean   @default(true)
+  connectedAt     DateTime  @default(now())
+  disconnectedAt  DateTime?
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  posts SocialPost[]
+
+  @@index([platform])
+  @@index([isConnected])
+  @@index([userId])
 }
