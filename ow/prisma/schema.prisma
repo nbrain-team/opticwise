@@ -1735,10 +1735,27 @@ model SocialAccount {
 
   posts              SocialPost[]
   deliverableTargets DeliverableSchedule[]
+  permissions        SocialAccountPermission[]
 
   @@unique([platform, platformAccountId])
   @@index([platform])
   @@index([isConnected])
+  @@index([userId])
+}
+
+model SocialAccountPermission {
+  id              String @id @default(cuid())
+  socialAccountId String
+  userId          String
+  role            String @default("poster") // owner, poster, viewer
+
+  grantedBy String?
+  grantedAt DateTime @default(now())
+
+  socialAccount SocialAccount @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  user          User          @relation("SocialPermissions", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([socialAccountId, userId])
   @@index([userId])
 }
 
