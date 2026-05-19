@@ -8,24 +8,57 @@ export async function GET() {
     if (!session)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const accounts = await prisma.socialAccount.findMany({
-      where: { userId: session.userId },
-      select: {
-        id: true,
-        platform: true,
-        platformAccountId: true,
-        accountType: true,
-        displayName: true,
-        username: true,
-        avatarUrl: true,
-        profileUrl: true,
-        isConnected: true,
-        autoPublishEnabled: true,
-        connectedAt: true,
-        userId: true,
-      },
-      orderBy: { connectedAt: "desc" },
-    });
+    const [ownedAccounts, permittedAccounts] = await Promise.all([
+      prisma.socialAccount.findMany({
+        where: { userId: session.userId },
+        select: {
+          id: true,
+          platform: true,
+          platformAccountId: true,
+          accountType: true,
+          displayName: true,
+          username: true,
+          avatarUrl: true,
+          profileUrl: true,
+          isConnected: true,
+          autoPublishEnabled: true,
+          connectedAt: true,
+          userId: true,
+        },
+        orderBy: { connectedAt: "desc" },
+      }),
+      prisma.socialAccountPermission.findMany({
+        where: { userId: session.userId },
+        include: {
+          socialAccount: {
+            select: {
+              id: true,
+              platform: true,
+              platformAccountId: true,
+              accountType: true,
+              displayName: true,
+              username: true,
+              avatarUrl: true,
+              profileUrl: true,
+              isConnected: true,
+              autoPublishEnabled: true,
+              connectedAt: true,
+              userId: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const ownedIds = new Set(ownedAccounts.map((a) => a.id));
+    const shared = permittedAccounts
+      .filter((p) => !ownedIds.has(p.socialAccount.id))
+      .map((p) => ({ ...p.socialAccount, permissionRole: p.role }));
+
+    const accounts = [
+      ...ownedAccounts.map((a) => ({ ...a, permissionRole: "owner" as const })),
+      ...shared,
+    ];
 
     return NextResponse.json({ accounts });
   } catch (error) {
