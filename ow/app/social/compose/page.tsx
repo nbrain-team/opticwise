@@ -394,7 +394,7 @@ export default function ComposePage() {
           {/* Risk badge */}
           {risk && (
             <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${
-              risk.level === 'low'
+              risk.tier === 'low'
                 ? 'bg-green-50 text-green-700 border border-green-200'
                 : 'bg-amber-50 text-amber-700 border border-amber-200'
             }`}>
