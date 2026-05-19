@@ -32,11 +32,16 @@ export async function GET() {
     }
   }
 
+  const allEnvKeys = Object.keys(process.env).sort();
+
   return NextResponse.json({
     envStatus,
+    allEnvKeys,
+    totalEnvVars: allEnvKeys.length,
     nodeVersion: process.version,
     processUptime: `${Math.round(process.uptime())}s`,
     deployCommit: process.env["RENDER_GIT_COMMIT"]?.slice(0, 8) || "unknown",
+    renderServiceName: process.env["RENDER_SERVICE_NAME"] || "unknown",
     timestamp: new Date().toISOString(),
   });
 }
