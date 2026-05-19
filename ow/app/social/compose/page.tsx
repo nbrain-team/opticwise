@@ -62,7 +62,15 @@ const SUGGESTED_HASHTAGS = [
   '#opticwise', '#buildingtech',
 ];
 
-export default function ComposePage() {
+export default function ComposePageWrapper() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center text-gray-400">Loading...</div>}>
+      <ComposePage />
+    </Suspense>
+  );
+}
+
+function ComposePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fileInputRef = useRef<HTMLInputElement>(null);
