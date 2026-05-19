@@ -10,12 +10,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    let includeOrgScopes = true;
+    let includeOrgScopes = false;
     try {
       const body = await req.json();
-      if (body.includeOrgScopes === false) includeOrgScopes = false;
+      if (body.includeOrgScopes === true) includeOrgScopes = true;
     } catch {
-      // empty body is fine — org scopes included by default
+      // empty body is fine — personal scopes by default
     }
 
     const state = crypto.randomBytes(32).toString("hex");
