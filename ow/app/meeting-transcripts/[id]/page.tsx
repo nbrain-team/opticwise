@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AssignMeeting } from "./AssignMeeting";
 import { GenerateFromTranscript } from "@/app/components/GenerateFromTranscript";
+import { CategoryPicker } from "@/app/components/CategoryPicker";
 import { GENERATE_ACTIONS, type MeetingCategoryValue } from "@/lib/meeting-generate";
 
 export default async function MeetingDetailPage({
