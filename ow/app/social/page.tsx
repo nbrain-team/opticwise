@@ -159,6 +159,18 @@ function SocialDashboard() {
     }
   };
 
+  const handleDisconnect = async (accountId: string, displayName: string) => {
+    if (!confirm(`Remove "${displayName}" from connected accounts?`)) return;
+    try {
+      const res = await fetch(`/api/social/accounts/${accountId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Failed to disconnect');
+      setAccounts(prev => prev.filter(a => a.id !== accountId));
+      setToast({ type: 'success', message: `${displayName} disconnected` });
+    } catch {
+      setToast({ type: 'error', message: 'Failed to disconnect account' });
+    }
+  };
+
   const handleToggleAutoPublish = async (accountId: string, current: boolean) => {
     setAccounts(prev => prev.map(a => a.id === accountId ? { ...a, autoPublish: !current } : a));
     try {
