@@ -115,25 +115,71 @@ export interface InstagramAccountInfo {
 export async function discoverInstagramAccounts(
   accessToken: string
 ): Promise<InstagramAccountInfo[]> {
+  type PageData = {
+    id: string;
+    name: string;
+    instagram_business_account?: { id: string };
+  };
+
+  // Try standard /me/accounts first (personal page admins)
   const pagesResp = await fetch(
     `${META_GRAPH_BASE}/me/accounts?fields=id,name,instagram_business_account&access_token=${accessToken}`
   );
-  if (!pagesResp.ok) {
-    const body = await pagesResp.text();
-    throw new Error(`Failed to list Facebook Pages (${pagesResp.status}): ${body}`);
+  let pages: PageData[] = [];
+  if (pagesResp.ok) {
+    const data = (await pagesResp.json()) as { data: PageData[] };
+    pages = data.data || [];
   }
-  const pages = (await pagesResp.json()) as {
-    data: Array<{
-      id: string;
-      name: string;
-      instagram_business_account?: { id: string };
-    }>;
-  };
+
+  console.log("[IG Discovery] /me/accounts pages:", pages.length);
+
+  // If /me/accounts returned nothing, try via Business Manager
+  if (pages.length === 0) {
+    console.log("[IG Discovery] Trying Business Manager path...");
+    try {
+      const bizResp = await fetch(
+        `${META_GRAPH_BASE}/me/businesses?fields=id,name&access_token=${accessToken}`
+      );
+      if (bizResp.ok) {
+        const bizData = (await bizResp.json()) as {
+          data: Array<{ id: string; name: string }>;
+        };
+        console.log("[IG Discovery] Businesses found:", bizData.data?.length);
+
+        for (const biz of bizData.data || []) {
+          const ownedResp = await fetch(
+            `${META_GRAPH_BASE}/${biz.id}/owned_pages?fields=id,name,instagram_business_account&access_token=${accessToken}`
+          );
+          if (ownedResp.ok) {
+            const ownedData = (await ownedResp.json()) as { data: PageData[] };
+            console.log(
+              `[IG Discovery] Business "${biz.name}" owned pages:`,
+              ownedData.data?.length
+            );
+            pages.push(...(ownedData.data || []));
+          }
+
+          // Also check client_pages (pages managed for clients)
+          const clientResp = await fetch(
+            `${META_GRAPH_BASE}/${biz.id}/client_pages?fields=id,name,instagram_business_account&access_token=${accessToken}`
+          );
+          if (clientResp.ok) {
+            const clientData = (await clientResp.json()) as { data: PageData[] };
+            if (clientData.data?.length) {
+              pages.push(...clientData.data);
+            }
+          }
+        }
+      }
+    } catch (bizErr) {
+      console.warn("[IG Discovery] Business Manager path failed:", bizErr);
+    }
+  }
 
   console.log(
-    "[IG Discovery] Facebook Pages found:",
-    pages.data.length,
-    pages.data.map((p) => ({
+    "[IG Discovery] Total pages found:",
+    pages.length,
+    pages.map((p) => ({
       id: p.id,
       name: p.name,
       hasIgBusiness: !!p.instagram_business_account,
@@ -142,7 +188,7 @@ export async function discoverInstagramAccounts(
 
   const accounts: InstagramAccountInfo[] = [];
 
-  for (const page of pages.data) {
+  for (const page of pages) {
     if (!page.instagram_business_account) continue;
 
     const igId = page.instagram_business_account.id;
