@@ -57,7 +57,7 @@ export async function POST(
       where: { id },
       data: {
         zernioPostId: result.post._id || result.post.id || null,
-        status: 'published',
+        status: 'published' as SocialPostStatus,
         publishedAt: new Date(),
         errorMessage: null,
       },
