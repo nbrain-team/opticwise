@@ -206,3 +206,109 @@ These are not Danny-blocked — they're deferred follow-ups from Sprint 2 that B
 4. Paste a Google Drive link → confirm it appears as a linked file
 5. Toggle "Searchable" on the uploaded file
 6. Delete both files → confirm they disappear from the list (and the uploaded one is removed from Drive)
+
+---
+
+# Sprint 3 — Danny TODOs
+
+---
+
+## 4. LinkedIn Developer App — Create App + Enable Products
+
+**Priority:** Sprint 3 (blocks Section 4.13 Social Posting Tool — LinkedIn direct API)
+**Opened:** 2026-05-18
+**Blocked entity:** OWnet v1 Punch List — Section 4.13 "Social posting tool (replace Hootsuite)"
+
+**Why this is Danny-only:** The LinkedIn Developer Portal requires a Company Page admin to verify the app. OpticWise's LinkedIn Company Page admin access is managed through nBrain. Bill may be able to create the app himself if he has admin access to the OW LinkedIn page — confirm and delegate accordingly.
+
+**Context:** OWnet is replacing the Zernio middleman with direct LinkedIn API calls. This requires a LinkedIn Developer App with specific API products enabled to post to both personal profiles and company pages.
+
+**Steps:**
+
+1. Go to https://www.linkedin.com/developers/apps → **Create App**
+2. App name: `OWnet Social` (or similar)
+3. LinkedIn Page: select **OpticWise, Inc.** company page
+4. App logo: use OpticWise logo
+5. Legal agreement: accept
+6. After creation, go to the **Products** tab and request access to:
+   - **Share on LinkedIn** — enables posting to personal profiles (`w_member_social` scope)
+   - **Sign In with LinkedIn using OpenID Connect** — enables login (`openid`, `profile`, `email` scopes)
+   - **Advertising API** OR **Community Management API** — enables posting to company pages (`w_organization_social` scope) and reading organization analytics. Community Management is preferred if available; Advertising API is the fallback.
+7. Go to the **Auth** tab:
+   - Copy **Client ID** and **Client Secret** — these become `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` env vars on Render
+   - Add OAuth 2.0 Redirect URL: `https://ownet.opticwise.com/api/social/callback/linkedin`
+8. Add Bill (`bill@opticwise.com`) as an app admin so he can self-serve future changes.
+
+**Note on product approval:** "Share on LinkedIn" is typically instant. "Community Management API" or "Advertising API" may require LinkedIn review (1-5 business days). The personal-profile posting flow will work as soon as "Share on LinkedIn" is approved; company page posting is gated on the org-level product.
+
+**Suggested Slack message Bill can paste to Danny:**
+
+> Hey Danny — for the 4.13 Social Posting Tool (replacing Hootsuite), we need a LinkedIn Developer App so OWnet can post directly to LinkedIn without Zernio. Can you:
+>
+> 1. Create an app at https://www.linkedin.com/developers/apps — name it `OWnet Social`, associate it with the OpticWise company page
+> 2. Request these Products: **Share on LinkedIn** + **Community Management API** (or Advertising API)
+> 3. On the Auth tab, add redirect URL: `https://ownet.opticwise.com/api/social/callback/linkedin`
+> 4. Send me the **Client ID** and **Client Secret** so I can add them to Render
+> 5. Add me as an app admin
+>
+> Share on LinkedIn should be instant; the org-level product may take a few days for LinkedIn to approve.
+
+**Verification once Danny completes:**
+- Bill logs into https://www.linkedin.com/developers/apps and sees the `OWnet Social` app
+- Products tab shows "Share on LinkedIn" approved (green checkmark)
+- Auth tab shows the redirect URL and Client ID/Secret are accessible
+- Bill adds `LINKEDIN_CLIENT_ID` and `LINKEDIN_CLIENT_SECRET` to the Render `opticwise-frontend` service env vars
+
+---
+
+## 5. Meta Developer App — Create App for Instagram Graph API
+
+**Priority:** Sprint 3 (blocks Section 4.13 Social Posting Tool — Instagram integration)
+**Opened:** 2026-05-18
+**Blocked entity:** OWnet v1 Punch List — Section 4.13 "Social posting tool" — Instagram surface
+
+**Why this may be Danny-only:** The Meta (Facebook) Developer App requires admin access to the Facebook Page linked to the OW Instagram Business account. If Bill has admin access to the OpticWise Facebook Page, he can do this himself.
+
+**Prerequisites to confirm first:**
+- The OpticWise Instagram account MUST be an **Instagram Business Account** (not Personal or Creator). Check in Instagram Settings → Account → Account type.
+- The Instagram Business Account MUST be linked to a **Facebook Page** (this is how Meta's API routes to it).
+
+**Steps:**
+
+1. Go to https://developers.facebook.com → **My Apps** → **Create App**
+2. App type: **Business**
+3. App name: `OWnet Social`
+4. Business portfolio: select OpticWise's Meta Business portfolio (or create one)
+5. After creation, go to **App Dashboard** → **Add Products** → add **Instagram Graph API**
+6. Go to **Settings** → **Basic**:
+   - Copy **App ID** and **App Secret** — these become `META_APP_ID` and `META_APP_SECRET` env vars on Render
+7. Go to **Facebook Login for Business** → **Settings**:
+   - Add Valid OAuth Redirect URI: `https://ownet.opticwise.com/api/social/callback/instagram`
+8. Request these permissions (under App Review → Permissions and Features):
+   - `instagram_basic` — read profile info
+   - `instagram_content_publish` — publish posts
+   - `instagram_manage_insights` — read analytics
+   - `pages_show_list` — list connected Facebook Pages
+   - `pages_read_engagement` — read page engagement
+9. Submit for App Review (required for production use with non-test users)
+
+**Note:** Meta App Review can take 1-5 business days. In the meantime, the app works in Development Mode for users listed as test users or app admins — so Bill can test immediately.
+
+**Suggested Slack message Bill can paste to Danny:**
+
+> Hey Danny — for the OWnet Social Posting Tool, we also need a Meta (Facebook) Developer App for Instagram posting. Can you:
+>
+> 1. Confirm the OW Instagram is a Business account linked to a Facebook Page
+> 2. Create a Meta app at https://developers.facebook.com — type "Business", name "OWnet Social"
+> 3. Add Instagram Graph API product
+> 4. Add redirect URL: `https://ownet.opticwise.com/api/social/callback/instagram`
+> 5. Request permissions: `instagram_basic`, `instagram_content_publish`, `instagram_manage_insights`, `pages_show_list`, `pages_read_engagement`
+> 6. Send me the App ID and App Secret
+>
+> App Review may take a few days, but we can test in Development Mode immediately.
+
+**Verification once Danny completes:**
+- Bill logs into https://developers.facebook.com and sees the OWnet Social app
+- Instagram Graph API is listed under Products
+- Bill adds `META_APP_ID` and `META_APP_SECRET` to Render env vars
+- Bill is listed as an app admin or test user for Development Mode testing
