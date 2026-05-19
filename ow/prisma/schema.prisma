@@ -26,6 +26,7 @@ model User {
   campaigns           Campaign[]           @relation("CampaignOwner")
   passwordResetTokens PasswordResetToken[]
   linkedInAccounts    LinkedInAccount[]
+  socialAccounts      SocialAccount[]
   ownedForms          Form[]               @relation("FormOwner")
   createdForms        Form[]               @relation("FormCreatedBy")
   uploadedDealFiles   DealFile[]           @relation("DealFileUploader")
