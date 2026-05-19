@@ -72,7 +72,7 @@ export async function POST(
     await prisma.socialPost.update({
       where: { id },
       data: {
-        status: 'failed',
+        status: 'failed' as SocialPostStatus,
         errorMessage: error instanceof Error ? error.message : 'Publish failed',
       },
     });
