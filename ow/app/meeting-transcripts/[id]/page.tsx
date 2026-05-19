@@ -122,14 +122,12 @@ export default async function MeetingDetailPage({
             {meeting.platform && (
               <span className="capitalize">via {meeting.platform}</span>
             )}
-            {meeting.category && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-[#3B6B8F] text-xs font-medium capitalize">
-                {meeting.category.replace(/_/g, " ")}
-                {typeof meeting.categoryConfidence === "number" && (
-                  <span className="text-gray-400">· {Math.round(meeting.categoryConfidence * 100)}%</span>
-                )}
-              </span>
-            )}
+            <CategoryPicker
+              meetingId={meeting.id}
+              currentCategory={meeting.category || "other"}
+              currentConfidence={meeting.categoryConfidence}
+              currentReason={meeting.categoryReason}
+            />
           </div>
         </div>
         <div className="flex items-center gap-3">
