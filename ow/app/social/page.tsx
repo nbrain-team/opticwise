@@ -128,16 +128,24 @@ function SocialDashboard() {
   const handleConnect = async (platform: 'linkedin' | 'instagram') => {
     setConnectingPlatform(platform);
     try {
-      const res = await fetch(`/api/social/connect/${platform}`, { method: 'POST' });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Failed to initiate ${platform} connection`);
+      const connectResponse = await fetch(
+        `/api/social/connect/${platform}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' } }
+      );
+      if (!connectResponse.ok) {
+        const errBody = await connectResponse.json().catch(() => ({}));
+        throw new Error(errBody.error || `Failed to start ${platform} OAuth`);
       }
-      const { authUrl } = await res.json();
-      window.location.href = authUrl;
-    } catch (err) {
-      console.error('Connect error:', err);
-      setToast({ type: 'error', message: `Could not connect to ${PLATFORM_META[platform].label}. Please try again.` });
+      const data = await connectResponse.json();
+      if (data.authUrl) {
+        window.location.href = data.authUrl;
+      } else {
+        throw new Error('No auth URL returned');
+      }
+    } catch (connectErr) {
+      console.error('Connect error:', connectErr);
+      const msg = connectErr instanceof Error ? connectErr.message : 'Connection failed';
+      setToast({ type: 'error', message: `Could not connect to ${PLATFORM_META[platform].label}: ${msg}` });
     } finally {
       setConnectingPlatform(null);
     }
@@ -452,3 +460,4 @@ function formatNum(n: number): string {
   if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
   return String(n);
 }
+
