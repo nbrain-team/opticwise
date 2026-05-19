@@ -130,6 +130,16 @@ export async function discoverInstagramAccounts(
     }>;
   };
 
+  console.log(
+    "[IG Discovery] Facebook Pages found:",
+    pages.data.length,
+    pages.data.map((p) => ({
+      id: p.id,
+      name: p.name,
+      hasIgBusiness: !!p.instagram_business_account,
+    }))
+  );
+
   const accounts: InstagramAccountInfo[] = [];
 
   for (const page of pages.data) {
