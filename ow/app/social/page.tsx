@@ -128,8 +128,11 @@ function SocialDashboard() {
   const handleConnect = async (platform: 'linkedin' | 'instagram') => {
     setConnectingPlatform(platform);
     try {
-      const res = await fetch(`/api/social/connect/${platform}`);
-      if (!res.ok) throw new Error(`Failed to initiate ${platform} connection`);
+      const res = await fetch(`/api/social/connect/${platform}`, { method: 'POST' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Failed to initiate ${platform} connection`);
+      }
       const { authUrl } = await res.json();
       window.location.href = authUrl;
     } catch (err) {
