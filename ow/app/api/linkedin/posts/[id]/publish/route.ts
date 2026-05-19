@@ -27,6 +27,10 @@ export async function POST(
       return NextResponse.json({ error: 'Post is already published' }, { status: 400 });
     }
 
+    if (!existing.account) {
+      return NextResponse.json({ error: 'No LinkedIn account linked to this post' }, { status: 400 });
+    }
+
     const platformEntry: zernio.ZernioPlatformEntry = {
       platform: 'linkedin',
       accountId: existing.account.zernioAccountId,
