@@ -62,12 +62,12 @@ export async function PATCH(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const body = await req.json();
-    const { autoPublishEnabled } = body;
+    const autoPublishValue = body.autoPublish ?? body.autoPublishEnabled;
 
     const updated = await prisma.socialAccount.update({
       where: { id },
       data: {
-        ...(autoPublishEnabled !== undefined && { autoPublishEnabled }),
+        ...(autoPublishValue !== undefined && { autoPublishEnabled: autoPublishValue }),
       },
       select: {
         id: true,
