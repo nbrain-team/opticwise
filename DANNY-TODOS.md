@@ -158,3 +158,51 @@ After reinstall, the Bot Token Scopes list shows everything above, AND the bot c
 - Expected: file uploads, appears in the Files list with size + timestamp, and clicking "Open" navigates to it in the Drive UI under the `OWnet Deal Files` folder in `bill@opticwise.com`'s Drive
 - Bill clicks Delete on the test file → confirms it disappears from the OWnet list AND from the Drive folder
 - If upload still fails with "INSUFFICIENT_SCOPES" copy, the scope wasn't added or Workspace propagation is still in flight (give it 5 min and retry)
+
+---
+
+# Sprint 2 — Follow-ups (Bill action items)
+
+These are not Danny-blocked — they're deferred follow-ups from Sprint 2 that Bill should action at his convenience. Listed here so nothing falls through the cracks.
+
+---
+
+## F1. Verify Danny Demichele Duplicate Merge in Production
+
+**Priority:** Low (data hygiene, not feature-blocking)
+**Sprint origin:** 3.6 (ii) — Contact duplicates
+**Opened:** 2026-05-14
+
+**What:** Go to `/contacts/duplicates` in OWnet, find the Danny Demichele group, and click **"Merge others → this"** on the keeper record (`danny@nbrain.ai`). The victim (`danny@nbrain.io` typo address from the PPP Starter Kit signup) will have all its linked deals/emails/activities reassigned to the keeper, and the victim row will be deleted.
+
+**Side note:** Danny's contact card (`cmm3wrcyr01y8ud153uqw4mcj`) currently has `emailWork = ethan@nbrain.ai` (Ethan's email incorrectly saved under Danny). After the merge, manually clear or correct this field on the surviving Danny contact card.
+
+---
+
+## F2. One-Time GmailMessage personId Backfill
+
+**Priority:** Low (improves contact ↔ email linkage for historical data, not blocking any feature)
+**Sprint origin:** 3.6 (iii) — Gmail sync gap
+**Opened:** 2026-05-14
+
+**What:** The forward-going fix (auto-creating Person records from Gmail sync) is live. But historical `GmailMessage` rows where `personId IS NULL` still exist — these are emails that arrived before the auto-extract was wired in. A one-time backfill script needs to walk those rows, match sender/recipient addresses to existing Person records (or create new ones), and set `personId`.
+
+**Estimated impact:** Contact count could grow from ~1,128 to ~1,500–2,500 range. All those previously-orphaned emails would become browsable under their contact's timeline.
+
+**How to run:** A script (`scripts/backfill-gmail-person-links.ts`) needs to be built and run from the Render shell. This hasn't been built yet — flag it when ready to proceed and we'll build + execute it.
+
+---
+
+## F3. Verify 3.3 File Uploads in Production (blocked on Danny TODO #3)
+
+**Priority:** Medium (feature is deployed but untestable until Danny adds the `drive.file` scope)
+**Sprint origin:** 3.3 — Files on deals
+**Opened:** 2026-05-18
+
+**What:** Once Danny completes TODO #3 above (adding `drive.file` scope), test the full cycle:
+1. Open any deal → Files tab
+2. Upload a small test file → confirm it appears with size + timestamp
+3. Click "Open" → confirm it opens in Google Drive
+4. Paste a Google Drive link → confirm it appears as a linked file
+5. Toggle "Searchable" on the uploaded file
+6. Delete both files → confirm they disappear from the list (and the uploaded one is removed from Drive)
