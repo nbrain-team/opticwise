@@ -82,7 +82,8 @@ export interface TokenResponse {
 
 export async function exchangeCodeForToken(
   code: string,
-  redirectUri: string
+  redirectUri: string,
+  orgApp = false
 ): Promise<TokenResponse> {
   const resp = await fetch(`${LI_AUTH_BASE}/accessToken`, {
     method: "POST",
@@ -91,8 +92,8 @@ export async function exchangeCodeForToken(
       grant_type: "authorization_code",
       code,
       redirect_uri: redirectUri,
-      client_id: getClientId(),
-      client_secret: getClientSecret(),
+      client_id: getClientId(orgApp),
+      client_secret: getClientSecret(orgApp),
     }),
   });
   if (!resp.ok) {
