@@ -16,16 +16,22 @@ const LI_AUTH_BASE = "https://www.linkedin.com/oauth/v2";
 const LI_API_BASE = "https://api.linkedin.com";
 const LI_API_VERSION = "202604";
 
+function env(name: string): string {
+  // Bracket notation prevents Next.js / webpack from inlining at build time
+  const val = process.env[name];
+  if (!val)
+    throw new Error(
+      `${name} is not set — add it in the Render dashboard then redeploy`
+    );
+  return val;
+}
+
 function getClientId(): string {
-  const id = process.env.LINKEDIN_CLIENT_ID;
-  if (!id) throw new Error("LINKEDIN_CLIENT_ID not set");
-  return id;
+  return env("LINKEDIN_CLIENT_ID");
 }
 
 function getClientSecret(): string {
-  const secret = process.env.LINKEDIN_CLIENT_SECRET;
-  if (!secret) throw new Error("LINKEDIN_CLIENT_SECRET not set");
-  return secret;
+  return env("LINKEDIN_CLIENT_SECRET");
 }
 
 // ─── OAuth ───────────────────────────────────────────────────

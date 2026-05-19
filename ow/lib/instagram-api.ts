@@ -13,16 +13,21 @@ import { prisma } from "@/lib/db";
 const META_AUTH_BASE = "https://www.facebook.com/v21.0/dialog/oauth";
 const META_GRAPH_BASE = "https://graph.facebook.com/v21.0";
 
+function env(name: string): string {
+  const val = process.env[name];
+  if (!val)
+    throw new Error(
+      `${name} is not set — add it in the Render dashboard then redeploy`
+    );
+  return val;
+}
+
 function getAppId(): string {
-  const id = process.env.META_APP_ID;
-  if (!id) throw new Error("META_APP_ID not set");
-  return id;
+  return env("META_APP_ID");
 }
 
 function getAppSecret(): string {
-  const secret = process.env.META_APP_SECRET;
-  if (!secret) throw new Error("META_APP_SECRET not set");
-  return secret;
+  return env("META_APP_SECRET");
 }
 
 // ─── OAuth ───────────────────────────────────────────────────
