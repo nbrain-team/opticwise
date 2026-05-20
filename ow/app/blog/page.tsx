@@ -75,7 +75,7 @@ export default function BlogPage() {
 
       {/* Filter tabs */}
       <div className="flex gap-1 mb-6 bg-gray-100 rounded-lg p-1 w-fit">
-        {(["all", "draft", "published"] as const).map((f) => (
+        {(["all", "draft", "scheduled", "published"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
