@@ -34,6 +34,7 @@ export default async function SettingsPage() {
           emailSyncEnabled: true,
           lastEmailSync: true,
           emailSyncStatus: true,
+          allowedModules: true,
           createdAt: true,
         },
       })
