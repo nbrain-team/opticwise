@@ -34,6 +34,14 @@ const QUICK_ACTIONS = [
 ]
 
 export default function SupportAgentPage() {
+  return (
+    <ModuleGate moduleKey="cs-agent">
+      <SupportAgentPageContent />
+    </ModuleGate>
+  )
+}
+
+function SupportAgentPageContent() {
   const [sessions, setSessions] = useState<Session[]>([])
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
