@@ -242,6 +242,7 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
   }
 
   const isPublished = initialPost?.status === "published"
+  const isScheduled = initialPost?.status === "scheduled"
 
   return (
     <div className="max-w-4xl mx-auto py-10 px-6">
