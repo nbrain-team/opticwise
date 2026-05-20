@@ -14,6 +14,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
   }
 
+  if (!user.isActive) {
+    return NextResponse.json({ error: "Account is deactivated" }, { status: 403 });
+  }
+
   const ok = await bcrypt.compare(password, user.passwordHash);
   if (!ok) {
     return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
