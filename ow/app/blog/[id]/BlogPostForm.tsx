@@ -36,6 +36,7 @@ interface BlogPost {
   metaDescription: string | null
   metaKeywords: string | null
   status: string
+  scheduledFor: string | null
   publishedAt: string | null
 }
 
