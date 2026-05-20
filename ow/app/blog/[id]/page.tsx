@@ -13,6 +13,7 @@ export default async function EditBlogPostPage({
 
   const serialized = {
     ...post,
+    scheduledFor: post.scheduledFor?.toISOString() ?? null,
     publishedAt: post.publishedAt?.toISOString() ?? null,
     createdAt: post.createdAt.toISOString(),
     updatedAt: post.updatedAt.toISOString(),
