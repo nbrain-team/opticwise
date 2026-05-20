@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { logout } from "./actions/auth";
 import MainNav from "./components/MainNav";
+import FooterNav from "./components/FooterNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
