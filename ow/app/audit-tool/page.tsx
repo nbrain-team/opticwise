@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { ModuleGate } from "@/app/components/ModuleGate";
 
 type Step = 'welcome' | 'property-type' | 'size' | 'systems' | 'pain-points' | 'contact' | 'results';
 
