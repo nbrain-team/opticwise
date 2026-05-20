@@ -1834,6 +1834,7 @@ model BlogPost {
   metaDescription String?
   metaKeywords    String?
   status          String    @default("draft")
+  scheduledFor    DateTime?
   publishedAt     DateTime?
   githubSha       String?
   indexSha        String?
@@ -1842,6 +1843,7 @@ model BlogPost {
 
   @@index([status])
   @@index([publishedAt])
+  @@index([status, scheduledFor])
 }
 
 model PostComment {
