@@ -8,6 +8,7 @@ export default async function MeetingTranscriptsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  await checkModuleAccess("meeting-transcripts");
   const params = await searchParams;
   const search = (params.search as string) || "";
   const status = (params.status as string) || "all";
