@@ -85,6 +85,7 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
     name: "",
     password: "",
     department: "",
+    allowedModules: AVAILABLE_MODULES.map(m => m.key),
   });
 
   async function handleAddUser(e: React.FormEvent) {
@@ -104,7 +105,7 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
         throw new Error(data.error || "Failed to add user");
       }
 
-      setFormData({ email: "", name: "", password: "", department: "" });
+      setFormData({ email: "", name: "", password: "", department: "", allowedModules: AVAILABLE_MODULES.map(m => m.key) });
       setShowAddUser(false);
       router.refresh();
     } catch (err: unknown) {
