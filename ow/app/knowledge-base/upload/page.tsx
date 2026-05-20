@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { ModuleGate } from "@/app/components/ModuleGate";
 
 const CATEGORIES = [
   'Proposals',
@@ -30,6 +31,14 @@ type Document = {
 };
 
 export default function KnowledgeBaseUploadPage() {
+  return (
+    <ModuleGate moduleKey="knowledge-base">
+      <KnowledgeBaseUploadPageContent />
+    </ModuleGate>
+  );
+}
+
+function KnowledgeBaseUploadPageContent() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
