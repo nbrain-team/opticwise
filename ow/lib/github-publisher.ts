@@ -114,6 +114,29 @@ async function commitMultipleFiles(
     throw new Error(`updateRef failed: ${updateRefRes.status} ${await updateRefRes.text()}`)
 }
 
+/** Removes ALL cards for a given slug from the index HTML. Returns the cleaned content. */
+function removeAllCardsForSlug(content: string, slug: string): string {
+  const slugAttr = `data-ow-slug="${slug}"`
+  let result = content
+  // Loop until no more cards with this slug remain
+  while (result.includes(slugAttr)) {
+    const slugPos = result.indexOf(slugAttr)
+    // Walk backward to the opening <a tag (match the specific card class)
+    const openTag = '<a class="group block'
+    let cardStart = slugPos
+    while (cardStart > 0 && result.slice(cardStart, cardStart + openTag.length) !== openTag) {
+      cardStart--
+    }
+    // Walk forward to the matching </a>
+    const closeTag = "</a>"
+    const rawEnd = result.indexOf(closeTag, slugPos)
+    if (rawEnd === -1) break // safety
+    const cardEnd = rawEnd + closeTag.length
+    result = result.slice(0, cardStart) + result.slice(cardEnd)
+  }
+  return result
+}
+
 export interface PublishResult {
   liveUrl: string
 }
@@ -124,7 +147,6 @@ export async function publishPostToGitHub(
   indexCardHtml: string,
   title: string
 ): Promise<PublishResult> {
-  // Read current insights/index.html
   const indexFile = await getFile("insights/index.html")
   if (!indexFile) throw new Error("insights/index.html not found in repo")
 
@@ -132,12 +154,13 @@ export async function publishPostToGitHub(
   const markerIdx = indexFile.content.indexOf(GRID_MARKER)
   if (markerIdx === -1) throw new Error("Could not find grid marker in insights/index.html")
 
-  // Surgical insert: prepend the new card — existing content untouched
-  const insertAt = markerIdx + GRID_MARKER.length
-  const updatedIndex =
-    indexFile.content.slice(0, insertAt) + indexCardHtml + indexFile.content.slice(insertAt)
+  // Remove any existing cards for this slug first (deduplicates on republish)
+  const deduped = removeAllCardsForSlug(indexFile.content, slug)
 
-  // Commit BOTH files atomically in one commit → single Render deploy, no race condition
+  // Prepend the fresh card at the top of the grid
+  const insertAt = deduped.indexOf(GRID_MARKER) + GRID_MARKER.length
+  const updatedIndex = deduped.slice(0, insertAt) + indexCardHtml + deduped.slice(insertAt)
+
   await commitMultipleFiles(
     [
       { path: `insights/${slug}/index.html`, content: postHtml },
@@ -161,37 +184,17 @@ export async function uploadImageToGitHub(
 }
 
 export async function deletePostFromGitHub(slug: string, title: string): Promise<void> {
-  // Read current insights/index.html
   const indexFile = await getFile("insights/index.html")
   if (!indexFile) throw new Error("insights/index.html not found in repo")
 
-  // Remove this post's card surgically — only the matching <a> element is removed
-  const slugAttr = `data-ow-slug="${slug}"`
-  const slugPos = indexFile.content.indexOf(slugAttr)
+  // Remove ALL cards for this slug (handles edge case of duplicate cards)
+  const updatedIndex = removeAllCardsForSlug(indexFile.content, slug)
 
-  let updatedIndex = indexFile.content
-
-  if (slugPos !== -1) {
-    // Walk backward from the slug attribute to find the opening <a
-    const openTag = "<a "
-    let cardStart = slugPos
-    while (cardStart > 0 && indexFile.content.slice(cardStart, cardStart + 3) !== openTag) {
-      cardStart--
-    }
-    // Walk forward to find the closing </a>
-    const closeTag = "</a>"
-    const cardEnd = indexFile.content.indexOf(closeTag, slugPos) + closeTag.length
-    if (cardEnd > closeTag.length) {
-      updatedIndex =
-        indexFile.content.slice(0, cardStart) + indexFile.content.slice(cardEnd)
-    }
-  }
-
-  // Commit atomically: delete post file + update index (card removed)
+  // Atomically: delete the post file + clean the index — one Render deploy
   await commitMultipleFiles(
     [
-      { path: `insights/${slug}/index.html`, content: null }, // delete
-      { path: "insights/index.html", content: updatedIndex },  // card removed
+      { path: `insights/${slug}/index.html`, content: null },
+      { path: "insights/index.html", content: updatedIndex },
     ],
     `feat(blog): delete "${title}"`
   )
