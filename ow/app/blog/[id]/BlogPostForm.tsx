@@ -261,6 +261,14 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
             Live on opticwise.com
           </span>
         )}
+        {isScheduled && initialPost?.scheduledFor && (
+          <span className="ml-auto inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 text-xs font-semibold rounded-full">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Scheduled for {new Date(initialPost.scheduledFor).toLocaleString()}
+          </span>
+        )}
       </div>
 
       {error && (
