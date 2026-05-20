@@ -47,17 +47,7 @@ export default function RootLayout({
         <footer className="border-t bg-white mt-12">
           <div className="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between text-sm text-gray-500">
             <p>© {new Date().getFullYear()} OpticWise. All rights reserved.</p>
-            <div className="flex items-center gap-6">
-              <Link href="/knowledge-base" className="hover:text-[#3B6B8F] transition-colors">
-                AI Knowledge Base
-              </Link>
-              <a href="/platform-report.html" target="_blank" className="hover:text-[#3B6B8F] transition-colors">
-                Platform Report
-              </a>
-              <a href="/proposal-status-report.html" target="_blank" className="hover:text-[#3B6B8F] transition-colors">
-                Status Report
-              </a>
-            </div>
+            <FooterNav />
           </div>
         </footer>
       </body>
