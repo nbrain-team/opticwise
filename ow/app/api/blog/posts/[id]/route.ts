@@ -34,6 +34,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     metaTitle,
     metaDescription,
     metaKeywords,
+    status,
+    scheduledFor,
   } = body
 
   // If slug is changing, check it's not taken
@@ -59,6 +61,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       ...(metaTitle !== undefined && { metaTitle }),
       ...(metaDescription !== undefined && { metaDescription }),
       ...(metaKeywords !== undefined && { metaKeywords }),
+      ...(status !== undefined && { status }),
+      ...(scheduledFor !== undefined && {
+        scheduledFor: scheduledFor ? new Date(scheduledFor) : null,
+      }),
     },
   })
 
