@@ -26,9 +26,10 @@ async function getFile(path: string): Promise<{ sha: string; content: string } |
   }
 }
 
-/** Commits multiple files atomically in a single Git commit — one Render deploy trigger. */
+/** Commits multiple file changes atomically in a single Git commit — one Render deploy trigger.
+ *  Set content to null to delete a file. */
 async function commitMultipleFiles(
-  files: Array<{ path: string; content: string; isBinary?: boolean }>,
+  files: Array<{ path: string; content: string | null; isBinary?: boolean }>,
   message: string
 ): Promise<void> {
   // 1. Get the current HEAD commit SHA
@@ -45,15 +46,24 @@ async function commitMultipleFiles(
   const commitData = await commitRes.json()
   const baseTreeSha: string = commitData.tree.sha
 
-  // 3. Create blobs for each file
+  // 3. Create blobs for each file (skip for deletions)
   const treeItems = await Promise.all(
     files.map(async (file) => {
+      if (file.content === null) {
+        // Null SHA = delete this path from the tree
+        return {
+          path: file.path,
+          mode: "100644" as const,
+          type: "blob" as const,
+          sha: null,
+        }
+      }
       const blobRes = await fetch(`${BASE_URL}/git/blobs`, {
         method: "POST",
         headers: ghHeaders(),
         body: JSON.stringify({
           content: file.isBinary
-            ? file.content // already base64
+            ? file.content
             : Buffer.from(file.content, "utf-8").toString("base64"),
           encoding: "base64",
         }),
@@ -148,4 +158,41 @@ export async function uploadImageToGitHub(
     `feat(blog): upload image ${filename}`
   )
   return `https://www.opticwise.com/api/media/file/${encodeURIComponent(filename)}`
+}
+
+export async function deletePostFromGitHub(slug: string, title: string): Promise<void> {
+  // Read current insights/index.html
+  const indexFile = await getFile("insights/index.html")
+  if (!indexFile) throw new Error("insights/index.html not found in repo")
+
+  // Remove this post's card surgically — only the matching <a> element is removed
+  const slugAttr = `data-ow-slug="${slug}"`
+  const slugPos = indexFile.content.indexOf(slugAttr)
+
+  let updatedIndex = indexFile.content
+
+  if (slugPos !== -1) {
+    // Walk backward from the slug attribute to find the opening <a
+    const openTag = "<a "
+    let cardStart = slugPos
+    while (cardStart > 0 && indexFile.content.slice(cardStart, cardStart + 3) !== openTag) {
+      cardStart--
+    }
+    // Walk forward to find the closing </a>
+    const closeTag = "</a>"
+    const cardEnd = indexFile.content.indexOf(closeTag, slugPos) + closeTag.length
+    if (cardEnd > closeTag.length) {
+      updatedIndex =
+        indexFile.content.slice(0, cardStart) + indexFile.content.slice(cardEnd)
+    }
+  }
+
+  // Commit atomically: delete post file + update index (card removed)
+  await commitMultipleFiles(
+    [
+      { path: `insights/${slug}/index.html`, content: null }, // delete
+      { path: "insights/index.html", content: updatedIndex },  // card removed
+    ],
+    `feat(blog): delete "${title}"`
+  )
 }

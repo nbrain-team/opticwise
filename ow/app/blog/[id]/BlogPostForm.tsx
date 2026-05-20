@@ -70,6 +70,23 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
   const [metaDescription, setMetaDescription] = useState(initialPost?.metaDescription || "")
   const [metaKeywords, setMetaKeywords] = useState(initialPost?.metaKeywords || "")
 
+  const [deleting, setDeleting] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
+  async function handleDelete() {
+    setDeleting(true)
+    setError("")
+    const res = await fetch(`/api/blog/posts/${initialPost!.id}`, { method: "DELETE" })
+    const data = await res.json()
+    if (!res.ok) {
+      setError(data.error || "Delete failed")
+      setDeleting(false)
+      setShowDeleteConfirm(false)
+      return
+    }
+    router.push("/blog")
+  }
+
   const [coverUploading, setCoverUploading] = useState(false)
   const coverInputRef = useRef<HTMLInputElement>(null)
 
@@ -324,6 +341,51 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
             <p className="mt-3 text-xs text-gray-400 leading-relaxed">
               Publishing commits the HTML directly to GitHub. Render deploys in ~1–2 minutes.
             </p>
+
+            {/* Delete */}
+            {isEdit && (
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                {!showDeleteConfirm ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(true)}
+                    className="w-full text-xs text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    Delete this post
+                  </button>
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-xs text-red-600 font-medium text-center">
+                      {isPublished
+                        ? "This will remove the post from opticwise.com and delete it here. Are you sure?"
+                        : "Delete this draft permanently?"}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      disabled={deleting}
+                      className="w-full px-3 py-2 bg-red-600 text-white rounded-lg text-xs font-semibold hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                    >
+                      {deleting ? (
+                        <>
+                          <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          {isPublished ? "Removing from site…" : "Deleting…"}
+                        </>
+                      ) : (
+                        isPublished ? "Yes, remove from site & delete" : "Yes, delete draft"
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="w-full text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Cover Image */}

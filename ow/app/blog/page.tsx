@@ -20,6 +20,16 @@ export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<"all" | "draft" | "published">("all")
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
+
+  async function handleDelete(post: BlogPost) {
+    setDeletingId(post.id)
+    const res = await fetch(`/api/blog/posts/${post.id}`, { method: "DELETE" })
+    setDeletingId(null)
+    setConfirmDeleteId(null)
+    if (res.ok) setPosts((prev) => prev.filter((p) => p.id !== post.id))
+  }
 
   useEffect(() => {
     fetchPosts()
@@ -180,6 +190,36 @@ export default function BlogPage() {
                 >
                   Edit
                 </Link>
+
+                {confirmDeleteId === post.id ? (
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => handleDelete(post)}
+                      disabled={deletingId === post.id}
+                      className="px-2.5 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium"
+                    >
+                      {deletingId === post.id
+                        ? post.status === "published" ? "Removing…" : "Deleting…"
+                        : "Confirm"}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDeleteId(null)}
+                      className="px-2.5 py-1.5 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setConfirmDeleteId(post.id)}
+                    className="p-2 text-gray-300 hover:text-red-500 transition-colors"
+                    title="Delete post"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
           ))}

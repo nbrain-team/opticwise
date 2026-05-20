@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/db"
 import { getSession } from "@/lib/session"
+import { deletePostFromGitHub } from "@/lib/github-publisher"
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getSession()
@@ -69,6 +70,14 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   const { id } = await params
+  const post = await prisma.blogPost.findUnique({ where: { id } })
+  if (!post) return NextResponse.json({ error: "Not found" }, { status: 404 })
+
+  // If post is published, remove it from the opticwise.com website first
+  if (post.status === "published" && process.env.GITHUB_TOKEN) {
+    await deletePostFromGitHub(post.slug, post.title)
+  }
+
   await prisma.blogPost.delete({ where: { id } })
 
   return NextResponse.json({ success: true })
