@@ -37,7 +37,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   const postHtml = generatePostHtml(postData)
   const indexCard = generateIndexCard(postData)
 
-  const { postSha, indexSha } = await publishPostToGitHub(
+  const { liveUrl } = await publishPostToGitHub(
     post.slug,
     postHtml,
     indexCard,
@@ -49,14 +49,12 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     data: {
       status: "published",
       publishedAt,
-      githubSha: postSha,
-      indexSha: indexSha,
     },
   })
 
   return NextResponse.json({
     success: true,
-    url: `https://www.opticwise.com/insights/${post.slug}/`,
+    url: liveUrl,
     post: updated,
   })
 }

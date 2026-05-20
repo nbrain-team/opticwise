@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
 
@@ -69,6 +69,24 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
   const [metaTitle, setMetaTitle] = useState(initialPost?.metaTitle || "")
   const [metaDescription, setMetaDescription] = useState(initialPost?.metaDescription || "")
   const [metaKeywords, setMetaKeywords] = useState(initialPost?.metaKeywords || "")
+
+  const [coverUploading, setCoverUploading] = useState(false)
+  const coverInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleCoverUpload(file: File) {
+    setCoverUploading(true)
+    const fd = new FormData()
+    fd.append("file", file)
+    const res = await fetch("/api/blog/upload-image", { method: "POST", body: fd })
+    setCoverUploading(false)
+    if (!res.ok) {
+      const data = await res.json()
+      setError("Image upload failed: " + (data.error || res.statusText))
+      return
+    }
+    const { url } = await res.json()
+    setCoverImageUrl(url)
+  }
 
   const [saving, setSaving] = useState(false)
   const [publishing, setPublishing] = useState(false)
@@ -311,24 +329,74 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
           {/* Cover Image */}
           <div className="bg-white border border-gray-200 rounded-xl p-4">
             <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
-              Cover Image URL
+              Cover Image
             </label>
+
+            {/* Hidden file input */}
             <input
-              type="text"
-              value={coverImageUrl}
-              onChange={(e) => setCoverImageUrl(e.target.value)}
-              placeholder="https://…"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#123b6d] font-mono"
+              ref={coverInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) handleCoverUpload(file)
+                e.target.value = ""
+              }}
             />
-            {coverImageUrl && (
-              <img
-                src={coverImageUrl}
-                alt="Preview"
-                className="mt-3 w-full h-28 object-cover rounded-lg bg-gray-100"
-                onError={(e) => (e.currentTarget.style.display = "none")}
+
+            {/* Upload button */}
+            <button
+              type="button"
+              onClick={() => coverInputRef.current?.click()}
+              disabled={coverUploading}
+              className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-gray-200 rounded-xl py-3 text-sm text-gray-500 hover:border-[#123b6d]/40 hover:text-[#123b6d] transition-colors disabled:opacity-50"
+            >
+              {coverUploading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-[#123b6d] border-t-transparent rounded-full animate-spin" />
+                  Uploading…
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                  Upload Image
+                </>
+              )}
+            </button>
+
+            {/* Preview or URL fallback */}
+            {coverImageUrl ? (
+              <div className="mt-3 relative">
+                <img
+                  src={coverImageUrl}
+                  alt="Cover preview"
+                  className="w-full h-28 object-cover rounded-lg bg-gray-100"
+                  onError={(e) => (e.currentTarget.style.display = "none")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setCoverImageUrl("")}
+                  className="absolute top-1.5 right-1.5 w-6 h-6 bg-black/50 text-white rounded-full text-xs flex items-center justify-center hover:bg-black/70"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : null}
+
+            {/* URL fallback input */}
+            <div className="mt-2">
+              <input
+                type="text"
+                value={coverImageUrl}
+                onChange={(e) => setCoverImageUrl(e.target.value)}
+                placeholder="Or paste an image URL…"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#123b6d] font-mono text-gray-500"
               />
-            )}
-            <p className="mt-2 text-xs text-gray-400">1200×630px recommended (OG size)</p>
+            </div>
+            <p className="mt-1.5 text-xs text-gray-400">1200×630px recommended (OG size)</p>
           </div>
 
           {/* Category + Author */}
