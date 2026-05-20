@@ -111,9 +111,10 @@ export async function POST(req: NextRequest) {
         name,
         passwordHash,
         department: department || null,
-        role: "user", // New users are always regular users, not admins
+        role: "user",
         isActive: true,
         createdBy: session.userId,
+        allowedModules: Array.isArray(allowedModules) ? allowedModules : [],
       },
       select: {
         id: true,
@@ -122,6 +123,7 @@ export async function POST(req: NextRequest) {
         role: true,
         department: true,
         isActive: true,
+        allowedModules: true,
         createdAt: true,
       },
     });
