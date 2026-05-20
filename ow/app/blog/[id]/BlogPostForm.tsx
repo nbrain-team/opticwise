@@ -356,14 +356,56 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
             <div className="space-y-2">
               <button
                 onClick={handleSave}
-                disabled={saving || publishing}
+                disabled={saving || publishing || scheduling}
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
               >
                 {saving ? "Saving…" : "Save Draft"}
               </button>
+
+              {/* Schedule section */}
+              <div className="border border-gray-200 rounded-lg p-3 space-y-2">
+                <label className="block text-xs font-medium text-gray-500">
+                  Schedule for
+                </label>
+                <input
+                  type="datetime-local"
+                  value={scheduledFor}
+                  onChange={(e) => setScheduledFor(e.target.value)}
+                  min={new Date().toISOString().slice(0, 16)}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#123b6d] focus:ring-1 focus:ring-[#123b6d]/20"
+                />
+                <button
+                  onClick={handleSchedule}
+                  disabled={saving || publishing || scheduling || !title || !slug || !excerpt || !content || !scheduledFor}
+                  className="w-full px-4 py-2.5 bg-amber-600 text-white rounded-lg text-sm font-semibold hover:bg-amber-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+                >
+                  {scheduling ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      Scheduling…
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Schedule Publish
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {isScheduled && initialPost?.scheduledFor && (
+                <div className="px-3 py-2 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs text-amber-800 font-medium">
+                    Scheduled for {new Date(initialPost.scheduledFor).toLocaleString()}
+                  </p>
+                </div>
+              )}
+
               <button
                 onClick={handlePublish}
-                disabled={saving || publishing || !title || !slug || !excerpt || !content}
+                disabled={saving || publishing || scheduling || !title || !slug || !excerpt || !content}
                 className="w-full px-4 py-2.5 bg-[#123b6d] text-white rounded-lg text-sm font-semibold hover:bg-[#0f2f58] disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
               >
                 {publishing ? (
