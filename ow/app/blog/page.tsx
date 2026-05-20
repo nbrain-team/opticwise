@@ -10,6 +10,7 @@ interface BlogPost {
   excerpt: string
   category: string
   status: string
+  scheduledFor: string | null
   publishedAt: string | null
   coverImageUrl: string | null
   author: string
@@ -19,7 +20,7 @@ interface BlogPost {
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<"all" | "draft" | "published">("all")
+  const [filter, setFilter] = useState<"all" | "draft" | "scheduled" | "published">("all")
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null)
 
