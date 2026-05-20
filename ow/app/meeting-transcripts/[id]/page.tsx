@@ -5,12 +5,14 @@ import { AssignMeeting } from "./AssignMeeting";
 import { GenerateFromTranscript } from "@/app/components/GenerateFromTranscript";
 import { CategoryPicker } from "@/app/components/CategoryPicker";
 import { GENERATE_ACTIONS, type MeetingCategoryValue } from "@/lib/meeting-generate";
+import { checkModuleAccess } from "@/lib/access-control";
 
 export default async function MeetingDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await checkModuleAccess("meeting-transcripts");
   const { id } = await params;
 
   const meeting = await prisma.readAIMeeting.findUnique({
