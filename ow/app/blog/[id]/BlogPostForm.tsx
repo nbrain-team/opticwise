@@ -199,6 +199,48 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
     router.refresh()
   }
 
+  async function handleSchedule() {
+    if (!scheduledFor) {
+      setError("Please select a date and time to schedule the post.")
+      return
+    }
+
+    const scheduleDate = new Date(scheduledFor)
+    if (scheduleDate <= new Date()) {
+      setError("Scheduled time must be in the future.")
+      return
+    }
+
+    setScheduling(true)
+    setError("")
+
+    const id = isEdit ? initialPost!.id : await savePost()
+    if (!id) {
+      setScheduling(false)
+      return
+    }
+
+    const res = await fetch(`/api/blog/posts/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status: "scheduled",
+        scheduledFor: scheduleDate.toISOString(),
+      }),
+    })
+
+    if (!res.ok) {
+      const data = await res.json()
+      setError(data.error || "Failed to schedule post")
+      setScheduling(false)
+      return
+    }
+
+    setScheduling(false)
+    if (!isEdit) router.push(`/blog/${id}`)
+    else router.refresh()
+  }
+
   const isPublished = initialPost?.status === "published"
 
   return (
