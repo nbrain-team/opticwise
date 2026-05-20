@@ -127,4 +127,18 @@ When a third party API requires whitelisting Render's outbound IPs:
 ## Database Schema Highlights
 - 30+ models in Prisma schema
 - Migrations managed via `prisma migrate deploy` (runs during build)
-- Latest migration: `20260331000000_add_linkedin_social_media`
+- Latest migration: `20260520000000_add_blog_posts`
+
+### Blog Publisher (Added 2026-05-20)
+- **Purpose**: Logged-in Ownet users can create, draft, and publish blog posts that appear live on opticwise.com/insights/
+- **Architecture**: Ownet stores posts in PostgreSQL (BlogPost model) → on publish, generates HTML matching existing post template → commits to `nbrain-team/opticwise-html` via GitHub API → Render auto-deploys opticwise.com in ~1–2 min
+- **GitHub Repo**: `nbrain-team/opticwise-html` (public, nbrain-team account has admin access)
+- **GitHub Token**: `GITHUB_TOKEN` env var — required on Render for the publish endpoint to work (see Render setup below)
+- **Database Model**: `BlogPost` — fields: title, slug, excerpt, content (HTML), coverImageUrl, author, category, secondaryCats, tags, meta*, status, publishedAt, githubSha, indexSha
+- **API Routes**: `/api/blog/posts` (GET list, POST create), `/api/blog/posts/[id]` (GET, PUT, DELETE), `/api/blog/posts/[id]/publish` (POST — generates HTML, commits to GitHub)
+- **UI Pages**: `/blog` (list), `/blog/new` (create), `/blog/[id]` (edit)
+- **Key Files**: `lib/blog-html-generator.ts` (HTML template), `lib/github-publisher.ts` (GitHub API)
+- **Nav**: Added to "More" dropdown as "Blog Publisher"
+- **Safety**: New posts only create NEW files — existing 126 posts are never modified. Index update is a surgical single-card prepend only.
+- **Render Env Var Required**: `GITHUB_TOKEN` — add to `Opticwise-Backend` (srv-d4ecr5rgk3sc73blsjag) and `opticwise-frontend` (srv-d69lnrmsb7us73ctuvi0). Use the nbrain-team GitHub token (repo scope). Run `gh auth token` locally to retrieve it.
+

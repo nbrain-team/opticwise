@@ -1,10 +1,24 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: May 11, 2026  
-**Latest Period**: February 14 - May 11, 2026  
-**Status**: Peak Property Performance® Site Now Wired Into the OpticWise CRM (PPP Review Form Live), Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
+**Latest Update**: May 20, 2026  
+**Latest Period**: February 14 - May 20, 2026  
+**Status**: Blog Publisher Live — Create & Publish Posts from Ownet Directly to opticwise.com, Peak Property Performance® Site Now Wired Into the OpticWise CRM (PPP Review Form Live), Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
 
 ---
+
+### 2026-05-20 — Blog Publisher: Create & Publish Posts from Ownet to opticwise.com
+
+- **New "Blog Publisher" module** added to the Ownet CRM (More menu → Blog Publisher)
+- Logged-in users can now write, draft, and publish full blog posts directly to the opticwise.com/insights/ section — no GitHub access or technical knowledge required
+- **Rich text editor** (TipTap) with full formatting: bold/italic, H2/H3 headings, bullet/numbered lists, blockquotes, links, image embeds, undo/redo
+- **One-click publish**: clicking "Publish to opticwise.com" generates pixel-perfect HTML matching the existing 126 post format, commits it to GitHub, and Render deploys it live in ~1–2 minutes
+- **Post index auto-updated**: the new post card appears at the top of the opticwise.com/insights/ listing page automatically — existing posts are never touched
+- **SEO-complete**: every published post includes full meta tags, Open Graph tags, Twitter card, JSON-LD Article + BreadcrumbList schema — identical to existing posts
+- **Draft workflow**: save as draft to iterate before publishing; republish button to push updates
+- **Sidebar controls**: cover image URL with live preview, primary & secondary categories, tags, author, and full SEO override fields (meta title, description, keywords)
+- Categories match the existing opticwise.com filter tabs (AI Readiness, Building Intelligence, Data Ownership, etc.)
+
+
 
 ### 2026-05-11 — Peak Property Performance® Site Wired Into the OpticWise CRM (5 Production Forms Live for Both Websites)
 
