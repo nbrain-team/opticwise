@@ -104,6 +104,7 @@ export async function PATCH(
         emailSyncEnabled: true,
         lastEmailSync: true,
         emailSyncStatus: true,
+        allowedModules: true,
         createdAt: true,
       },
     });
