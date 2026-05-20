@@ -1819,6 +1819,31 @@ model SocialPost {
   @@index([riskTier, status])
 }
 
+model BlogPost {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  excerpt         String    @db.Text
+  content         String    @db.Text
+  coverImageUrl   String?
+  author          String    @default("Bill Douglas")
+  category        String    @default("Building Intelligence")
+  secondaryCats   String?
+  tags            String[]
+  metaTitle       String?
+  metaDescription String?
+  metaKeywords    String?
+  status          String    @default("draft")
+  publishedAt     DateTime?
+  githubSha       String?
+  indexSha        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status])
+  @@index([publishedAt])
+}
+
 model PostComment {
   id              String     @id @default(cuid())
   zernioCommentId String?    @unique

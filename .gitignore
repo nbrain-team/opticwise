@@ -4,6 +4,11 @@ AGENT-EVALUATION-QUESTIONS-*.csv
 OpticWise-Integration-OAuth/
 ow/google-service-account.json
 Opticwise-Backend (1).env
+# Cursor MCP config contains secrets — never commit
+.cursor/mcp.json
+.cursor/mcp.local.json
+mcp-servers/**/credentials.json
+mcp-servers/**/node_modules/
 # Large files
 ow/fathom-meetings-export.json
 *.xlsx
