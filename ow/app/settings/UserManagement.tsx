@@ -461,6 +461,72 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
                   </div>
                 </div>
 
+                {/* Module Access */}
+                {editData.role !== "admin" && (
+                  <div className="border-t border-gray-200 pt-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Module Access
+                        </label>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Controls which sections this user can see
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setEditData({ ...editData, allowedModules: AVAILABLE_MODULES.map(m => m.key) })}
+                          className="text-xs text-[#3B6B8F] hover:underline"
+                        >
+                          Select All
+                        </button>
+                        <span className="text-gray-300">|</span>
+                        <button
+                          type="button"
+                          onClick={() => setEditData({ ...editData, allowedModules: [] })}
+                          className="text-xs text-gray-500 hover:underline"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 max-h-52 overflow-y-auto p-2 border border-gray-200 rounded-lg bg-gray-50">
+                      {AVAILABLE_MODULES.map((mod) => {
+                        const checked = editData.allowedModules.includes(mod.key);
+                        return (
+                          <label key={mod.key} className="flex items-start gap-2 cursor-pointer py-1">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {
+                                setEditData((prev) => ({
+                                  ...prev,
+                                  allowedModules: checked
+                                    ? prev.allowedModules.filter((k) => k !== mod.key)
+                                    : [...prev.allowedModules, mod.key],
+                                }));
+                              }}
+                              className="mt-0.5 h-4 w-4 rounded border-gray-300 text-[#3B6B8F] focus:ring-[#3B6B8F]"
+                            />
+                            <div className="min-w-0">
+                              <span className="text-sm font-medium text-gray-800">{mod.label}</span>
+                              <span className="block text-[11px] text-gray-400 leading-tight">{mod.description}</span>
+                            </div>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {editData.role === "admin" && (
+                  <div className="border-t border-gray-200 pt-5">
+                    <p className="text-sm text-gray-500 italic">
+                      Admins have access to all modules automatically.
+                    </p>
+                  </div>
+                )}
+
                 {/* Password Reset */}
                 <div className="border-t border-gray-200 pt-5">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
