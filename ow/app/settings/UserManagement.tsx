@@ -13,6 +13,7 @@ type User = {
   emailSyncEnabled: boolean;
   lastEmailSync: string | null;
   emailSyncStatus: string | null;
+  allowedModules: string[];
   createdAt: Date;
 };
 
