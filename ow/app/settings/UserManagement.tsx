@@ -32,6 +32,24 @@ const DEPARTMENTS = [
   { value: "executive", label: "Executive" },
 ];
 
+const AVAILABLE_MODULES = [
+  { key: "deals", label: "Deals", description: "CRM deal pipeline" },
+  { key: "contacts", label: "Contacts", description: "People management" },
+  { key: "organizations", label: "Organizations", description: "Company records" },
+  { key: "sales-inbox", label: "Sales Inbox", description: "Email tracking" },
+  { key: "ownet-agent", label: "OWnet Agent", description: "AI sales assistant" },
+  { key: "cs-agent", label: "CS Agent", description: "Customer support AI" },
+  { key: "social", label: "Social", description: "Social media posting" },
+  { key: "meeting-transcripts", label: "Transcripts", description: "Meeting recordings" },
+  { key: "conferences", label: "Conferences", description: "Event management" },
+  { key: "campaigns", label: "Campaigns", description: "Marketing campaigns" },
+  { key: "forms", label: "Forms", description: "Lead capture forms" },
+  { key: "blog", label: "Blog Publisher", description: "Blog content" },
+  { key: "content-engine", label: "Content Engine", description: "AI content tools" },
+  { key: "knowledge-base", label: "Knowledge Base", description: "Training docs" },
+  { key: "audit-tool", label: "Audit Tool", description: "Property audits" },
+];
+
 export function UserManagement({ currentUser, users }: UserManagementProps) {
   const router = useRouter();
   const [showAddUser, setShowAddUser] = useState(false);
@@ -44,6 +62,7 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
     department: "",
     role: "user",
     newPassword: "",
+    allowedModules: [] as string[],
   });
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
