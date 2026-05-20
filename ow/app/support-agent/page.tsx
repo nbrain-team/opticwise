@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import rehypeRaw from 'rehype-raw'
+import { ModuleGate } from "@/app/components/ModuleGate"
 
 interface Message {
   role: 'user' | 'assistant'

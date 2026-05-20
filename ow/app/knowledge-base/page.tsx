@@ -25,6 +25,14 @@ interface Stats {
 }
 
 export default function KnowledgeBasePage() {
+  return (
+    <ModuleGate moduleKey="knowledge-base">
+      <KnowledgeBasePageContent />
+    </ModuleGate>
+  );
+}
+
+function KnowledgeBasePageContent() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
