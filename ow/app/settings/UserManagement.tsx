@@ -597,7 +597,7 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
             <div className="flex items-center justify-between p-6 pb-4 border-b border-gray-200">
               <h3 className="text-xl font-semibold text-gray-900">Add New User</h3>
               <button
-                onClick={() => { setShowAddUser(false); setError(null); setFormData({ email: "", name: "", password: "", department: "" }); }}
+                onClick={() => { setShowAddUser(false); setError(null); setFormData({ email: "", name: "", password: "", department: "", allowedModules: AVAILABLE_MODULES.map(m => m.key) }); }}
                 className="text-gray-400 hover:text-gray-600 p-1"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
