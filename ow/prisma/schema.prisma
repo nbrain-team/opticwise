@@ -14,7 +14,8 @@ model User {
   passwordHash     String
   role             String    @default("user") // admin, user
   isActive         Boolean   @default(true)
-  department       String? // finance, marketing, ops (placeholder for future permissions)
+  department       String? // finance, marketing, ops
+  allowedModules   String[] @default([])
   emailSyncEnabled Boolean   @default(false)
   lastEmailSync    DateTime?
   emailSyncStatus  String? // ok, error, syncing
