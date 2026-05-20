@@ -78,7 +78,6 @@ export async function PATCH(
     }
     if (body.isActive !== undefined) updateData.isActive = body.isActive;
     if (body.emailSyncEnabled !== undefined) {
-      // Only allow @opticwise.com emails to enable sync
       const targetUser = await prisma.user.findUnique({ where: { id } });
       if (body.emailSyncEnabled && targetUser && !targetUser.email.endsWith('@opticwise.com')) {
         return NextResponse.json(
@@ -87,6 +86,9 @@ export async function PATCH(
         );
       }
       updateData.emailSyncEnabled = body.emailSyncEnabled;
+    }
+    if (body.allowedModules !== undefined) {
+      updateData.allowedModules = Array.isArray(body.allowedModules) ? body.allowedModules : [];
     }
 
     const updatedUser = await prisma.user.update({
