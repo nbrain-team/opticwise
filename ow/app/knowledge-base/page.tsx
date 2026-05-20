@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { ModuleGate } from "@/app/components/ModuleGate";
 
 interface DriveTypeStat {
   mimeType: string;
