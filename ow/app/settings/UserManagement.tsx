@@ -175,11 +175,12 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
     setEditSuccess(null);
 
     try {
-      const payload: Record<string, string> = {
+      const payload: Record<string, unknown> = {
         name: editData.name,
         email: editData.email,
         department: editData.department,
         role: editData.role,
+        allowedModules: editData.allowedModules,
       };
       if (editData.newPassword) {
         payload.newPassword = editData.newPassword;
