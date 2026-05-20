@@ -155,10 +155,16 @@ export default function BlogPage() {
                     className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${
                       post.status === "published"
                         ? "bg-green-50 text-green-700"
+                        : post.status === "scheduled"
+                        ? "bg-amber-50 text-amber-700"
                         : "bg-yellow-50 text-yellow-700"
                     }`}
                   >
-                    {post.status === "published" ? "● Live" : "○ Draft"}
+                    {post.status === "published"
+                      ? "● Live"
+                      : post.status === "scheduled"
+                      ? `◷ ${new Date(post.scheduledFor!).toLocaleDateString()} ${new Date(post.scheduledFor!).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+                      : "○ Draft"}
                   </span>
                   <span className="text-xs text-gray-400">{post.category}</span>
                 </div>
