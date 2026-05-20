@@ -676,13 +676,62 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
                   </div>
                 </div>
 
+                {/* Module Access for new user */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Module Access
+                    </label>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, allowedModules: AVAILABLE_MODULES.map(m => m.key) })}
+                        className="text-xs text-[#3B6B8F] hover:underline"
+                      >
+                        All
+                      </button>
+                      <span className="text-gray-300">|</span>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, allowedModules: [] })}
+                        className="text-xs text-gray-500 hover:underline"
+                      >
+                        None
+                      </button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 max-h-40 overflow-y-auto p-2 border border-gray-200 rounded-lg bg-gray-50">
+                    {AVAILABLE_MODULES.map((mod) => {
+                      const checked = formData.allowedModules.includes(mod.key);
+                      return (
+                        <label key={mod.key} className="flex items-center gap-2 cursor-pointer py-0.5">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                allowedModules: checked
+                                  ? prev.allowedModules.filter((k) => k !== mod.key)
+                                  : [...prev.allowedModules, mod.key],
+                              }));
+                            }}
+                            className="h-3.5 w-3.5 rounded border-gray-300 text-[#3B6B8F] focus:ring-[#3B6B8F]"
+                          />
+                          <span className="text-xs text-gray-700">{mod.label}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-end gap-3 pt-4 border-t">
                   <button
                     type="button"
                     onClick={() => {
                       setShowAddUser(false);
                       setError(null);
-                      setFormData({ email: "", name: "", password: "", department: "" });
+                      setFormData({ email: "", name: "", password: "", department: "", allowedModules: AVAILABLE_MODULES.map(m => m.key) });
                     }}
                     className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 text-sm font-medium"
                     disabled={loading}
