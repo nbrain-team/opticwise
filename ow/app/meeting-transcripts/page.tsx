@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { BackfillCategoriesButton } from "@/app/components/BackfillCategoriesButton";
+import { checkModuleAccess } from "@/lib/access-control";
 
 export default async function MeetingTranscriptsPage({
   searchParams,
