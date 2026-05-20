@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
       excerpt: true,
       category: true,
       status: true,
+      scheduledFor: true,
       publishedAt: true,
       coverImageUrl: true,
       author: true,
