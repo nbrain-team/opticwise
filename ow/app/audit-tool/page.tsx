@@ -22,6 +22,14 @@ type AuditResults = {
 };
 
 export default function AuditToolPage() {
+  return (
+    <ModuleGate moduleKey="audit-tool">
+      <AuditToolPageContent />
+    </ModuleGate>
+  );
+}
+
+function AuditToolPageContent() {
   const [step, setStep] = useState<Step>('welcome');
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<AuditResults | null>(null);
