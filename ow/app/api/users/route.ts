@@ -31,6 +31,7 @@ export async function GET() {
         emailSyncEnabled: true,
         lastEmailSync: true,
         emailSyncStatus: true,
+        allowedModules: true,
         createdAt: true,
       },
       orderBy: { createdAt: "desc" },
@@ -64,7 +65,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { email, name, password, department } = body;
+    const { email, name, password, department, allowedModules } = body;
 
     if (!email || !name || !password) {
       return NextResponse.json(
