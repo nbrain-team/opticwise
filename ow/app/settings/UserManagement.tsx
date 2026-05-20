@@ -161,6 +161,7 @@ export function UserManagement({ currentUser, users }: UserManagementProps) {
       department: user.department || "",
       role: user.role,
       newPassword: "",
+      allowedModules: user.allowedModules || [],
     });
     setEditError(null);
     setEditSuccess(null);
