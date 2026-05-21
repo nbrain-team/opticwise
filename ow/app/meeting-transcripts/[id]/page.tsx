@@ -102,6 +102,21 @@ export default async function MeetingDetailPage({
     organization: meeting.organization,
   };
 
+  // Pre-match participants to existing contacts by email
+  const emailToPersonMap = new Map(
+    people
+      .filter((p) => p.email)
+      .map((p) => [
+        p.email!.toLowerCase(),
+        {
+          id: p.id,
+          name: `${p.firstName} ${p.lastName}`.trim(),
+          email: p.email,
+          orgName: p.organization?.name || null,
+        },
+      ])
+  );
+
   return (
     <div className="p-8 space-y-6">
       {/* Header */}
