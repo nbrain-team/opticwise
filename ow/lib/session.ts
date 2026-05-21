@@ -33,7 +33,7 @@ export async function setSession(payload: SessionPayload) {
 }
 
 export async function clearSession() {
-  (await cookies()).delete(AUTH_COOKIE);
+  (await cookies()).delete({ name: AUTH_COOKIE, path: "/" });
 }
 
 export async function getSession(): Promise<SessionPayload | null> {
