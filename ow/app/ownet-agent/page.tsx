@@ -1290,12 +1290,13 @@ export default function OWnetAgentPage() {
 
   // Render artifact indicator inline in markdown
   const renderMessageContent = useCallback((msg: Message, idx: number) => {
+    const content = msg.content || ''
     const artifactCardRegex = /\[artifact:([^\]:]+):([^\]:]+):([^\]]+)\]/g
     const parts: (string | { artifactId: string; title: string; type: string })[] = []
     let lastIndex = 0
     let match
 
-    while ((match = artifactCardRegex.exec(msg.content)) !== null) {
+    while ((match = artifactCardRegex.exec(content)) !== null) {
       if (match.index > lastIndex) {
         parts.push(msg.content.slice(lastIndex, match.index))
       }
