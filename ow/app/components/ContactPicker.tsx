@@ -218,6 +218,7 @@ export function ContactPicker({
   initialValue,
   required,
   allowClear = true,
+  onChange,
 }: Props) {
   return (
     <InlineCreatePicker
@@ -230,6 +231,7 @@ export function ContactPicker({
       createLabel="Create new contact"
       required={required}
       allowClear={allowClear}
+      onChange={onChange}
       renderCreateModal={({ initialQuery, onCreated, onCancel }) => (
         <CreateContactModal
           initialQuery={initialQuery}
