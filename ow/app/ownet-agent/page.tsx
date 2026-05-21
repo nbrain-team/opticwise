@@ -1298,13 +1298,13 @@ export default function OWnetAgentPage() {
 
     while ((match = artifactCardRegex.exec(content)) !== null) {
       if (match.index > lastIndex) {
-        parts.push(msg.content.slice(lastIndex, match.index))
+        parts.push(content.slice(lastIndex, match.index))
       }
       parts.push({ artifactId: match[1], title: match[2], type: match[3] })
       lastIndex = match.index + match[0].length
     }
-    if (lastIndex < msg.content.length) {
-      parts.push(msg.content.slice(lastIndex))
+    if (lastIndex < content.length) {
+      parts.push(content.slice(lastIndex))
     }
 
     return (
