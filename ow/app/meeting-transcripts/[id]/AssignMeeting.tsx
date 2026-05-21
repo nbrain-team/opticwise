@@ -116,31 +116,57 @@ export function AssignMeeting({
     setCreateSaving(true);
     setCreateError(null);
     try {
-      const res = await fetch("/api/contacts/find-or-create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: createEmail || undefined,
-          meetingId: meeting.id,
-          create: {
+      let personId: string;
+      let organizationId: string | null = null;
+
+      if (createEmail) {
+        // Use find-or-create for email-based lookup + creation
+        const res = await fetch("/api/contacts/find-or-create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: createEmail,
+            meetingId: meeting.id,
+            create: {
+              firstName: createFirstName,
+              lastName: createLastName,
+              organizationName: createOrgName || undefined,
+            },
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error ?? `Failed (${res.status})`);
+        personId = data.person.id;
+        organizationId = data.person.organizationId || null;
+
+        // If found (not created), the API already linked to the meeting
+        if (data.found) {
+          await fetch(`/api/meeting-transcripts/${meeting.id}/assign`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ personId, organizationId }),
+          });
+        }
+      } else {
+        // No email — create contact directly, then link
+        const createRes = await fetch("/api/contacts", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
             firstName: createFirstName,
             lastName: createLastName,
             organizationName: createOrgName || undefined,
-          },
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? `Failed (${res.status})`);
+          }),
+        });
+        const created = await createRes.json();
+        if (!createRes.ok) throw new Error(created.error ?? `Failed (${createRes.status})`);
+        personId = created.id;
+        organizationId = created.organizationId || null;
 
-      // If find-or-create found an existing contact, still link it
-      if (data.found && data.person) {
         await fetch(`/api/meeting-transcripts/${meeting.id}/assign`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            personId: data.person.id,
-            organizationId: data.person.organizationId || null,
-          }),
+          body: JSON.stringify({ personId, organizationId }),
         });
       }
 
