@@ -83,6 +83,7 @@ export function InlineCreatePicker({
   noneLabel = "— No selection —",
   allowClear = true,
   required = false,
+  onChange,
 }: InlineCreatePickerProps) {
   const [selected, setSelected] = useState<PickerOption | null>(initialValue ?? null);
   const [open, setOpen] = useState(false);
