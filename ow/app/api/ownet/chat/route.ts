@@ -103,6 +103,9 @@ export async function POST(request: NextRequest) {
       apiKey: process.env.OPENAI_API_KEY,
     });
     const pc = getPinecone();
+    if (!pc) {
+      console.log('[OWnet] Pinecone not configured (PINECONE_API_KEY missing) — skipping transcript vector search');
+    }
 
     // Pre-flight validation: ensure critical env vars are set
     if (!process.env.OPENAI_API_KEY) {
