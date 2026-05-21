@@ -67,6 +67,15 @@ export function EditContactModal({ isOpen, onClose, contact, organizations }: Ed
     labels: getString(contact.labels),
   });
 
+  const orgOptions: PickerOption[] = useMemo(
+    () => organizations.map((o) => ({ id: o.id, label: o.name })),
+    [organizations]
+  );
+  const orgInitial = useMemo(
+    () => orgOptions.find((o) => o.id === formData.organizationId) ?? null,
+    [orgOptions, formData.organizationId]
+  );
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
