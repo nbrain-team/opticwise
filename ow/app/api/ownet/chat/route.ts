@@ -754,7 +754,7 @@ When the user asks for customer or prospect questions from emails:
 
     // Combine with available data context
     const systemPrompt = brandScriptPrompt + `
-
+${digitalTwinContext || ''}
 **AVAILABLE INFORMATION:**
 ${transcriptMetadataContext || ''}
 ${crmContext || ''}
