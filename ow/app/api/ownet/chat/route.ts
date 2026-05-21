@@ -683,10 +683,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate BrandScript-compliant system prompt
-    // Detect explicit voice requests: "as Bill", "in Bill's voice", "think like Bill", etc.
-    const billVoiceRequested = /\b(as\s+bill|bill'?s?\s+voice|like\s+bill|bill'?s?\s+(thinking|perspective|style|tone)|think\s+like\s+bill|respond\s+as\s+bill|write\s+as\s+bill|bill\s+would\s+say|what\s+would\s+bill)\b/i.test(message);
-    const drewVoiceRequested = /\b(as\s+drew|drew'?s?\s+voice|like\s+drew|drew'?s?\s+(thinking|perspective|style|tone)|think\s+like\s+drew|respond\s+as\s+drew|write\s+as\s+drew|drew\s+would\s+say|what\s+would\s+drew)\b/i.test(message);
-    
     const requestedAuthor: 'bill' | 'drew' | 'opticwise' = drewVoiceRequested || (/\bdrew\b/i.test(message) && isContentGenIntent)
       ? 'drew'
       : billVoiceRequested || (/\bbill\b/i.test(message) && isContentGenIntent)
