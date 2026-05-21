@@ -652,6 +652,9 @@ export async function POST(request: NextRequest) {
       /\b(blog post|linkedin post|linkedin article|short[- ]form post|weekly briefing|content engine|draft (a|me)? (post|article|blog)|write (a|me)? (post|article|blog))\b/i.test(
         message
       );
+    // Detect explicit voice requests: "as Bill", "in Bill's voice", "think like Bill", etc.
+    const billVoiceRequested = /\b(as\s+bill|bill'?s?\s+voice|like\s+bill|bill'?s?\s+(thinking|perspective|style|tone)|think\s+like\s+bill|respond\s+as\s+bill|write\s+as\s+bill|bill\s+would\s+say|what\s+would\s+bill)\b/i.test(message);
+    const drewVoiceRequested = /\b(as\s+drew|drew'?s?\s+voice|like\s+drew|drew'?s?\s+(thinking|perspective|style|tone)|think\s+like\s+drew|respond\s+as\s+drew|write\s+as\s+drew|drew\s+would\s+say|what\s+would\s+drew)\b/i.test(message);
     const needsVoiceExemplars = isContentGenIntent || billVoiceRequested || drewVoiceRequested;
     if (needsVoiceExemplars) {
       try {
