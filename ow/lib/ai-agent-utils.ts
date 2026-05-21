@@ -319,7 +319,7 @@ export async function loadContextWithinBudget(
   query: string,
   db: Pool,
   openai: OpenAI,
-  pinecone: Pinecone,
+  pinecone: Pinecone | null,
   sessionId: string,
   maxContextTokens: number = 180000,
   userId?: string
