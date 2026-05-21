@@ -1,8 +1,12 @@
 "use client"
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
-import ReactMarkdown from 'react-markdown'
-import rehypeRaw from 'rehype-raw'
+import dynamic from 'next/dynamic'
+
+const ReactMarkdown = dynamic(() => import('react-markdown'), { ssr: false })
+const rehypeRaw = typeof window !== 'undefined'
+  ? require('rehype-raw')
+  : null
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
