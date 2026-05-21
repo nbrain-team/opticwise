@@ -242,7 +242,13 @@ export default async function DealDetailPage({ params }: { params: Promise<{ id:
       orderBy: { name: "asc" },
     }),
     prisma.person.findMany({
-      select: { id: true, firstName: true, lastName: true },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        organization: { select: { name: true } },
+      },
       orderBy: { lastName: "asc" },
     }),
   ]);
