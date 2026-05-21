@@ -978,17 +978,18 @@ export default function OWnetAgentPage() {
   const loadMessages = async (sessionId: string) => {
     try {
       const res = await fetch(`/api/ownet/sessions/${sessionId}`)
+      if (!res.ok) return
       const data = await res.json()
-      if (data.success) {
+      if (data.success && Array.isArray(data.messages)) {
         const mappedMessages = data.messages.map((m: { role: 'user' | 'assistant'; content: string; id?: string }) => {
-          if (m.role === 'assistant') {
+          if (m.role === 'assistant' && m.content) {
             const { cleanText, artifacts } = parseArtifacts(m.content, '')
             if (artifacts.length > 0) {
               artifacts.forEach(a => addArtifactToGroups(a))
               return { role: m.role, content: cleanText, messageId: m.id, artifacts }
             }
           }
-          return { role: m.role, content: m.content, messageId: m.id }
+          return { role: m.role, content: m.content || '', messageId: m.id }
         })
         setMessages(mappedMessages)
       }
