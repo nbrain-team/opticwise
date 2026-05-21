@@ -18,7 +18,13 @@ interface EditDealModalProps {
   };
   stages: Array<{ id: string; name: string }>;
   organizations: Array<{ id: string; name: string }>;
-  people: Array<{ id: string; firstName: string; lastName: string }>;
+  people: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    email?: string | null;
+    organization?: { name: string } | null;
+  }>;
 }
 
 export function EditDealModal({ isOpen, onClose, deal, stages, organizations, people }: EditDealModalProps) {
