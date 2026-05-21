@@ -42,6 +42,13 @@ export function AssignMeeting({
   const [mode, setMode] = useState<"view" | "deal" | "contact">("view");
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  const [showCreateContact, setShowCreateContact] = useState(false);
+  const [createFirstName, setCreateFirstName] = useState("");
+  const [createLastName, setCreateLastName] = useState("");
+  const [createEmail, setCreateEmail] = useState("");
+  const [createOrgName, setCreateOrgName] = useState("");
+  const [createSaving, setCreateSaving] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   async function assignDeal(dealId: string) {
     setSaving(true);

@@ -177,10 +177,10 @@ function classify(absPath: string): CanonFile | null {
       absPath,
       relPath,
       fileName,
-      category: 'Canon — Author Voice',
+      category: 'Canon — Digital Twin',
       subcategory: 'Bill',
-      priority: 2,
-      comment: "Bill Douglas's voice canon — direct, practitioner-led, visionary CRE veteran tone.",
+      priority: 1,
+      comment: "Bill Douglas's full Digital Twin AI OS — voice, operating philosophy, modes, non-negotiables. Load verbatim when users request Bill's voice/thinking.",
     };
   }
   if (lower.includes('drew_hall_ai_os') || lower === 'drew_hall_ai_os_v1.md') {
@@ -188,10 +188,10 @@ function classify(absPath: string): CanonFile | null {
       absPath,
       relPath,
       fileName,
-      category: 'Canon — Author Voice',
+      category: 'Canon — Digital Twin',
       subcategory: 'Drew',
-      priority: 2,
-      comment: "Drew Hall's voice canon — chief architect, demystifies systems, calm/analytical tone.",
+      priority: 1,
+      comment: "Drew Hall's full Digital Twin AI OS — voice, operating philosophy, modes, non-negotiables. Load verbatim when users request Drew's voice/thinking.",
     };
   }
   if (lower.includes('drew_hall_transfer_pack')) {
