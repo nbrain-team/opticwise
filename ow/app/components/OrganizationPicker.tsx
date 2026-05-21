@@ -197,6 +197,7 @@ export function OrganizationPicker({
   initialValue,
   required,
   allowClear = true,
+  onChange,
 }: Props) {
   return (
     <InlineCreatePicker
@@ -209,6 +210,7 @@ export function OrganizationPicker({
       createLabel="Create new organization"
       required={required}
       allowClear={allowClear}
+      onChange={onChange}
       renderCreateModal={({ initialQuery, onCreated, onCancel }) => (
         <CreateOrganizationModal
           initialQuery={initialQuery}
