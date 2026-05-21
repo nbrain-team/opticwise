@@ -335,6 +335,7 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.log('[OWnet] Pinecone transcript search error:', error);
     }
+    }
 
     // 2. Search Google Workspace data (emails, calendar, drive)
     let googleContext = '';
