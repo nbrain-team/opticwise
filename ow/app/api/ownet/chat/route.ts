@@ -1070,10 +1070,17 @@ AI response summary: ${fullResponse.slice(0, 300)}`;
 
   } catch (error) {
     console.error('[OWnet Chat] Error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const errorDetails = error instanceof Error && error.stack ? error.stack.split('\n')[0] : '';
     return NextResponse.json(
       { 
         error: 'Failed to process message',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: errorMessage,
+        hint: errorDetails.includes('ECONNREFUSED') ? 'Database connection failed — check DATABASE_URL' :
+              errorDetails.includes('401') || errorMessage.includes('401') ? 'API authentication failed — check API keys' :
+              errorDetails.includes('429') || errorMessage.includes('429') ? 'Rate limit exceeded — try again shortly' :
+              errorMessage.includes('timeout') ? 'Request timed out — the system may be under heavy load' :
+              'Check server logs for more details'
       },
       { status: 500 }
     );
