@@ -263,7 +263,8 @@ export async function POST(request: NextRequest) {
       }>(
         `SELECT id, title, "startTime", "endTime", participants, summary
          FROM "ReadAIMeeting"
-         ORDER BY "startTime" DESC NULLS LAST`
+         ORDER BY "startTime" DESC NULLS LAST
+         LIMIT 50`
       );
 
       const totalCount = readAiMeetings.rows.length;
