@@ -1184,7 +1184,19 @@ export default function OWnetAgentPage() {
                     loadSessions()
                   }, 500)
                 } else if (data.type === 'error') {
-                  throw new Error(data.details || data.error)
+                  const errText = data.error || 'Unknown error'
+                  const errDetails = data.details ? `\n\n_${data.details}_` : ''
+                  setMessages(prev => {
+                    const newMessages = [...prev]
+                    newMessages[assistantIndex] = {
+                      role: 'assistant',
+                      content: `Sorry, something went wrong: **${errText}**${errDetails}`
+                    }
+                    return newMessages
+                  })
+                  setIsLoading(false)
+                  reader.cancel()
+                  return
                 }
               } catch (parseError) {
                 console.error('Error parsing SSE data:', parseError)
