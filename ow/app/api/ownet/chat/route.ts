@@ -1008,7 +1008,6 @@ AI response summary: ${fullResponse.slice(0, 300)}`;
               const titleResponse = await ai.messages.create({
                 model: 'claude-opus-4-7',
                 max_tokens: 50,
-                temperature: 0.3,
                 messages: [{ role: 'user', content: titlePrompt }],
               });
 
