@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AssignMeeting } from "./AssignMeeting";
+import { ParticipantLink } from "./ParticipantLink";
 import { GenerateFromTranscript } from "@/app/components/GenerateFromTranscript";
 import { CategoryPicker } from "@/app/components/CategoryPicker";
 import { GENERATE_ACTIONS, type MeetingCategoryValue } from "@/lib/meeting-generate";
