@@ -696,6 +696,33 @@ export async function POST(request: NextRequest) {
       contentEngineMode: isContentGenIntent,
     });
     
+    // Load Digital Twin persona from knowledge base when Bill/Drew voice is explicitly requested
+    let digitalTwinContext = '';
+    if (billVoiceRequested || drewVoiceRequested) {
+      try {
+        const twinAuthor = billVoiceRequested ? 'Bill' : 'Drew';
+        const twinResult = await db.query(
+          `SELECT kc."chunkText", kd.name as doc_name
+           FROM "KnowledgeChunk" kc
+           JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
+           WHERE kd.category LIKE '%Digital Twin%' OR kd.category LIKE '%Author Voice%'
+             AND (kd.name ILIKE $1 OR kd.comment ILIKE $1)
+           ORDER BY kc."chunkIndex" ASC`,
+          [`%${twinAuthor}%`]
+        );
+        
+        if (twinResult.rows.length > 0) {
+          digitalTwinContext = `\n\n**DIGITAL TWIN PERSONA — ${twinAuthor.toUpperCase()} (FULL AI OS — FOLLOW THIS EXACTLY):**\n\n`;
+          digitalTwinContext += twinResult.rows.map((r: { chunkText: string }) => r.chunkText).join('\n\n');
+          console.log(`[OWnet] Loaded ${twinResult.rows.length} Digital Twin chunks for ${twinAuthor}`);
+        } else {
+          console.log(`[OWnet] No Digital Twin KB chunks found for ${twinAuthor} — using brandscript voice only`);
+        }
+      } catch (twinError) {
+        console.log('[OWnet] Digital Twin KB load error (non-fatal):', twinError);
+      }
+    }
+
     // Add specific context about customer questions (operational requirement)
     const customerQuestionsGuidance = `
 
