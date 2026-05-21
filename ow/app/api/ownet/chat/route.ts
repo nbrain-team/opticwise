@@ -705,8 +705,8 @@ export async function POST(request: NextRequest) {
           `SELECT kc."chunkText", kd.name as doc_name
            FROM "KnowledgeChunk" kc
            JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
-           WHERE kd.category LIKE '%Digital Twin%' OR kd.category LIKE '%Author Voice%'
-             AND (kd.name ILIKE $1 OR kd.comment ILIKE $1)
+           WHERE (kd.category IN ('Canon — Digital Twin', 'Canon — Author Voice'))
+             AND (kd.name ILIKE $1 OR kd.comment ILIKE $1 OR kd."fileName" ILIKE $1)
            ORDER BY kc."chunkIndex" ASC`,
           [`%${twinAuthor}%`]
         );
