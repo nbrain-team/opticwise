@@ -800,23 +800,48 @@ ${customerQuestionsGuidance}`;
             message: intent.type === 'deep_analysis' ? 'Generating comprehensive analysis (this may take a moment)...' : 'Generating response...'
           });
           
-          // Stream the actual response from Claude
-          const claudeStream = await ai.messages.stream({
-            model: 'claude-opus-4-7',
-            max_tokens: maxTokens,
-            temperature: temperature,
-            system: systemPrompt,
-            messages,
-          });
+          // Validate API key before calling Claude
+          if (!process.env.ANTHROPIC_API_KEY) {
+            throw new Error('ANTHROPIC_API_KEY is not configured. Cannot generate response.');
+          }
+          
+          // Stream the actual response from Claude with error boundary
+          let claudeStream;
+          try {
+            claudeStream = await ai.messages.stream({
+              model: 'claude-opus-4-7',
+              max_tokens: maxTokens,
+              temperature: temperature,
+              system: systemPrompt,
+              messages,
+            });
+          } catch (claudeError) {
+            const errMsg = claudeError instanceof Error ? claudeError.message : String(claudeError);
+            console.error('[OWnet] Claude API initialization failed:', errMsg);
+            sendData({
+              type: 'error',
+              error: 'AI model failed to respond',
+              details: `Claude API error: ${errMsg}`
+            });
+            controller.close();
+            clearInterval(heartbeatTimer);
+            return;
+          }
           
           let fullResponse = '';
           let chunkCount = 0;
+          let firstTokenReceived = false;
           
           for await (const chunk of claudeStream) {
             if (chunk.type === 'content_block_delta' && chunk.delta.type === 'text_delta') {
               const text = chunk.delta.text;
               fullResponse += text;
               chunkCount++;
+              
+              if (!firstTokenReceived) {
+                firstTokenReceived = true;
+                console.log(`[OWnet] First token received in ${Date.now() - startTime}ms`);
+              }
               
               // Stream content to user
               sendData({
@@ -832,6 +857,19 @@ ${customerQuestionsGuidance}`;
                 });
               }
             }
+          }
+          
+          // If Claude returned zero content, report it
+          if (!fullResponse.trim()) {
+            console.error('[OWnet] Claude returned empty response');
+            sendData({
+              type: 'error',
+              error: 'AI model returned an empty response. Please try again.',
+              details: 'Claude stream completed with no content.'
+            });
+            controller.close();
+            clearInterval(heartbeatTimer);
+            return;
           }
           
           // Clear heartbeat timer
