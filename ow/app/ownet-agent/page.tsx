@@ -1334,7 +1334,7 @@ export default function OWnetAgentPage() {
                 [&_details>summary]:select-none [&_details>summary]:list-none
                 [&_details[open]>summary]:mb-3
               ">
-                <ReactMarkdown rehypePlugins={[rehypeRaw]}>{sanitizeForDisplay(part)}</ReactMarkdown>
+                <ReactMarkdown rehypePlugins={rehypeRaw ? [rehypeRaw] : []}>{sanitizeForDisplay(part)}</ReactMarkdown>
               </div>
             )
           }
