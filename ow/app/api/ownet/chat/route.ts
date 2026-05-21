@@ -120,7 +120,12 @@ export async function POST(request: NextRequest) {
     console.log('[OWnet] Processing query:', message);
     
     // Step 1: Check semantic cache for similar recent queries
-    const cachedResponse = await checkSemanticCache(message, db, openai, 0.95);
+    let cachedResponse = null;
+    try {
+      cachedResponse = await checkSemanticCache(message, db, openai, 0.95);
+    } catch (cacheError) {
+      console.warn('[OWnet] Semantic cache check failed (non-fatal):', cacheError instanceof Error ? cacheError.message : cacheError);
+    }
     if (cachedResponse) {
       console.log('[OWnet] Cache hit! Returning cached response');
       
