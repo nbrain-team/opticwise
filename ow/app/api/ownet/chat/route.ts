@@ -101,6 +101,22 @@ export async function POST(request: NextRequest) {
     });
     const pc = getPinecone();
 
+    // Pre-flight validation: ensure critical env vars are set
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('[OWnet] OPENAI_API_KEY is not set');
+      return NextResponse.json(
+        { error: 'Server configuration error', details: 'OpenAI API key not configured' },
+        { status: 500 }
+      );
+    }
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error('[OWnet] ANTHROPIC_API_KEY is not set');
+      return NextResponse.json(
+        { error: 'Server configuration error', details: 'Anthropic API key not configured' },
+        { status: 500 }
+      );
+    }
+
     console.log('[OWnet] Processing query:', message);
     
     // Step 1: Check semantic cache for similar recent queries
