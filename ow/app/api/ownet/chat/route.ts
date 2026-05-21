@@ -56,10 +56,13 @@ function getAnthropic() {
   return anthropic;
 }
 
-function getPinecone() {
+function getPinecone(): Pinecone | null {
+  if (!process.env.PINECONE_API_KEY) {
+    return null;
+  }
   if (!pinecone) {
     pinecone = new Pinecone({
-      apiKey: process.env.PINECONE_API_KEY!,
+      apiKey: process.env.PINECONE_API_KEY,
     });
   }
   return pinecone;
