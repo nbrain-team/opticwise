@@ -70,6 +70,30 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
     lostReason: getString(deal.lostReason),
   });
 
+  const orgOptions: PickerOption[] = useMemo(
+    () => organizations.map((o) => ({ id: o.id, label: o.name })),
+    [organizations]
+  );
+  const orgInitial = useMemo(
+    () => orgOptions.find((o) => o.id === formData.organizationId) ?? null,
+    [orgOptions, formData.organizationId]
+  );
+
+  const personOptions: PickerOption[] = useMemo(
+    () =>
+      people.map((p) => ({
+        id: p.id,
+        label: `${p.firstName} ${p.lastName}`.trim(),
+        sublabel:
+          [p.email, p.organization?.name].filter(Boolean).join(" · ") || null,
+      })),
+    [people]
+  );
+  const personInitial = useMemo(
+    () => personOptions.find((p) => p.id === formData.personId) ?? null,
+    [personOptions, formData.personId]
+  );
+
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
