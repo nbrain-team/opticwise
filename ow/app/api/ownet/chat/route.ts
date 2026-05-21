@@ -303,6 +303,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1b. Search transcripts using Pinecone for semantic content matching
+    if (pc) {
     try {
       const index = pc.index(process.env.PINECONE_INDEX_NAME || 'opticwise-transcripts');
       
