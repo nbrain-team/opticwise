@@ -872,7 +872,6 @@ ${customerQuestionsGuidance}`;
             claudeStream = await ai.messages.stream({
               model: 'claude-opus-4-7',
               max_tokens: maxTokens,
-              temperature: temperature,
               system: systemPrompt,
               messages,
             });
