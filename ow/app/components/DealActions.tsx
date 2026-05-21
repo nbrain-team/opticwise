@@ -14,7 +14,13 @@ interface DealActionsProps {
   };
   stages: Array<{ id: string; name: string }>;
   organizations: Array<{ id: string; name: string }>;
-  people: Array<{ id: string; firstName: string; lastName: string }>;
+  people: Array<{
+    id: string;
+    firstName: string;
+    lastName: string;
+    email?: string | null;
+    organization?: { name: string } | null;
+  }>;
 }
 
 export function DealActions({ deal, stages, organizations, people }: DealActionsProps) {
