@@ -38,21 +38,22 @@ export default function GlobalError({
             <a href="/dashboard" style={{ fontWeight: 700, color: "#50555C", textDecoration: "none", fontSize: 18 }}>
               OpticWise
             </a>
-            <form action="/api/auth/logout" method="POST">
-              <button
-                type="submit"
-                style={{
-                  fontSize: 14,
-                  border: "1px solid #d1d5db",
-                  borderRadius: 9999,
-                  padding: "6px 16px",
-                  background: "#fff",
-                  cursor: "pointer",
-                }}
-              >
-                Logout
-              </button>
-            </form>
+            <button
+              onClick={() => {
+                fetch("/api/auth/logout", { method: "POST" })
+                  .finally(() => { window.location.href = "/login" })
+              }}
+              style={{
+                fontSize: 14,
+                border: "1px solid #d1d5db",
+                borderRadius: 9999,
+                padding: "6px 16px",
+                background: "#fff",
+                cursor: "pointer",
+              }}
+            >
+              Logout
+            </button>
           </div>
         </header>
         <main
