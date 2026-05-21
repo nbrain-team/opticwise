@@ -354,6 +354,29 @@ export function AssignMeeting({
               </div>
             )}
           </div>
+          <div className="border-t border-gray-100 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                const parts = search.trim().split(/\s+/);
+                setCreateFirstName(parts[0] || "");
+                setCreateLastName(parts.slice(1).join(" ") || "");
+                setCreateEmail(search.includes("@") ? search.trim() : "");
+                setShowCreateContact(true);
+              }}
+              className="w-full text-left px-3 py-1.5 text-sm text-[#3B6B8F] hover:bg-blue-50 rounded flex items-center gap-1.5"
+            >
+              <span className="text-base leading-none">+</span>
+              <span>
+                Create new contact
+                {search && (
+                  <span className="text-gray-500">
+                    {" "}&ldquo;{search}&rdquo;
+                  </span>
+                )}
+              </span>
+            </button>
+          </div>
           <button
             onClick={() => {
               setMode("view");
@@ -363,6 +386,97 @@ export function AssignMeeting({
           >
             Cancel
           </button>
+        </div>
+      )}
+
+      {showCreateContact && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+          <form
+            onSubmit={createAndAssignContact}
+            className="bg-white rounded-lg shadow-xl w-full max-w-md p-5 space-y-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-medium text-[#50555C]">New Contact</h3>
+            <p className="text-xs text-gray-500">
+              Create a contact and link to this meeting.
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  First name
+                </label>
+                <input
+                  autoFocus
+                  type="text"
+                  value={createFirstName}
+                  onChange={(e) => setCreateFirstName(e.target.value)}
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#3B6B8F]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Last name
+                </label>
+                <input
+                  type="text"
+                  value={createLastName}
+                  onChange={(e) => setCreateLastName(e.target.value)}
+                  className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#3B6B8F]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                value={createEmail}
+                onChange={(e) => setCreateEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#3B6B8F]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Organization (optional)
+              </label>
+              <input
+                type="text"
+                value={createOrgName}
+                onChange={(e) => setCreateOrgName(e.target.value)}
+                placeholder="Company name — created if it doesn't exist"
+                className="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#3B6B8F]"
+              />
+            </div>
+
+            {createError && (
+              <div className="text-xs text-red-700 bg-red-50 border border-red-200 rounded px-2 py-1.5">
+                {createError}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowCreateContact(false)}
+                disabled={createSaving}
+                className="px-3 py-1.5 text-sm border border-gray-300 text-gray-700 rounded hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={createSaving}
+                className="px-3 py-1.5 text-sm bg-[#3B6B8F] text-white rounded hover:bg-[#2d5270] disabled:opacity-50"
+              >
+                {createSaving ? "Creating\u2026" : "Create & Link"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

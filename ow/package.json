@@ -23,6 +23,8 @@
     "brand:test": "tsx scripts/test-style-examples.ts",
     "agent:test": "tsx scripts/test-enhanced-features.ts",
     "support:ingest": "tsx scripts/ingest-support-data.ts",
+    "canon:ingest": "tsx scripts/ingest-content-engine-canon.ts",
+    "twins:ingest": "tsx scripts/ingest-digital-twins.ts",
     "seed:website-forms": "tsx scripts/seed-website-forms.ts"
   },
   "dependencies": {
