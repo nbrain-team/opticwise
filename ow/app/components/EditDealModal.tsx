@@ -360,20 +360,22 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Technical POC</label>
-                <select
-                  name="technicalPOC"
-                  value={formData.technicalPOC}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                >
-                  <option value="">Select a contact</option>
-                  {people.map(person => (
-                    <option key={person.id} value={`${person.firstName} ${person.lastName}`}>
-                      {person.firstName} {person.lastName}
-                    </option>
-                  ))}
-                </select>
+                <ContactPicker
+                  fieldName="technicalPOC"
+                  label="Technical POC"
+                  initialOptions={personOptions.map((p) => ({
+                    ...p,
+                    id: p.label,
+                  }))}
+                  initialValue={
+                    formData.technicalPOC
+                      ? { id: formData.technicalPOC, label: formData.technicalPOC }
+                      : null
+                  }
+                  onChange={(name) =>
+                    setFormData((prev) => ({ ...prev, technicalPOC: name || "" }))
+                  }
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">ICP Segment</label>
