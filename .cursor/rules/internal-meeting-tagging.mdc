@@ -1,0 +1,22 @@
+---
+description: Auto-classify internal-only meeting transcripts and assign CRM tags based on attendee list
+alwaysApply: true
+---
+
+# Internal Meeting Transcript Tagging
+
+When processing a meeting transcript from `ReadAIMeeting`, check the attendee/participant list. If the **only** attendees are one of the pairs below, apply the corresponding classification:
+
+## Rules
+
+| Attendees (exactly) | Classification | CRM Assignment |
+|---|---|---|
+| Bill Douglas + Drew Hall | Internal | Drew Hall |
+| Bill Douglas + Danny Demichele | Internal | Danny Demichele |
+
+## Behavior
+
+1. **Mark as internal** — set the meeting's type/category to "internal" (or the equivalent field in the current workflow).
+2. **Tag the CRM assignment** — assign the non-Bill attendee listed above in the CRM Assignment field.
+3. These rules apply regardless of who scheduled the meeting or which calendar it originated from.
+4. If additional attendees are present beyond the pair, do **not** auto-classify as internal — follow normal processing.
