@@ -67,6 +67,8 @@ export type InlineCreatePickerProps = {
   allowClear?: boolean;
   /** Required marker rendered next to the label. */
   required?: boolean;
+  /** Called when the selected value changes (for controlled-state integration). */
+  onChange?: (id: string | null) => void;
 };
 
 export function InlineCreatePicker({
