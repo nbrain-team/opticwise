@@ -245,34 +245,26 @@ export function EditDealModal({ isOpen, onClose, deal, stages, organizations, pe
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Organization</label>
-                <select
-                  name="organizationId"
-                  value={formData.organizationId}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                >
-                  <option value="">No organization</option>
-                  {organizations.map(org => (
-                    <option key={org.id} value={org.id}>{org.name}</option>
-                  ))}
-                </select>
+                <OrganizationPicker
+                  fieldName="organizationId"
+                  label="Organization"
+                  initialOptions={orgOptions}
+                  initialValue={orgInitial}
+                  onChange={(id) =>
+                    setFormData((prev) => ({ ...prev, organizationId: id || "" }))
+                  }
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Contact Person</label>
-                <select
-                  name="personId"
-                  value={formData.personId}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3B6B8F] focus:border-transparent"
-                >
-                  <option value="">No contact person</option>
-                  {people.map(person => (
-                    <option key={person.id} value={person.id}>
-                      {person.firstName} {person.lastName}
-                    </option>
-                  ))}
-                </select>
+                <ContactPicker
+                  fieldName="personId"
+                  label="Contact Person"
+                  initialOptions={personOptions}
+                  initialValue={personInitial}
+                  onChange={(id) =>
+                    setFormData((prev) => ({ ...prev, personId: id || "" }))
+                  }
+                />
               </div>
             </div>
           </div>
