@@ -960,8 +960,9 @@ export default function OWnetAgentPage() {
   const loadSessions = async () => {
     try {
       const res = await fetch('/api/ownet/sessions')
+      if (!res.ok) return
       const data = await res.json()
-      if (data.success) {
+      if (data.success && Array.isArray(data.sessions)) {
         setSessions(data.sessions)
         if (!currentSessionId && data.sessions.length > 0) {
           setCurrentSessionId(data.sessions[0].id)
