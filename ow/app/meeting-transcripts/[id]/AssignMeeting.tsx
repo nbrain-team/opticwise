@@ -107,6 +107,58 @@ export function AssignMeeting({
     }
   }
 
+  async function createAndAssignContact(e: React.FormEvent) {
+    e.preventDefault();
+    if (!createFirstName && !createLastName && !createEmail) {
+      setCreateError("Provide at least a name or email.");
+      return;
+    }
+    setCreateSaving(true);
+    setCreateError(null);
+    try {
+      const res = await fetch("/api/contacts/find-or-create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: createEmail || undefined,
+          meetingId: meeting.id,
+          create: {
+            firstName: createFirstName,
+            lastName: createLastName,
+            organizationName: createOrgName || undefined,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `Failed (${res.status})`);
+
+      // If find-or-create found an existing contact, still link it
+      if (data.found && data.person) {
+        await fetch(`/api/meeting-transcripts/${meeting.id}/assign`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            personId: data.person.id,
+            organizationId: data.person.organizationId || null,
+          }),
+        });
+      }
+
+      router.refresh();
+      setShowCreateContact(false);
+      setMode("view");
+      setSearch("");
+      setCreateFirstName("");
+      setCreateLastName("");
+      setCreateEmail("");
+      setCreateOrgName("");
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setCreateSaving(false);
+    }
+  }
+
   const q = search.toLowerCase();
   const filteredDeals = search
     ? deals.filter(
@@ -154,7 +206,7 @@ export function AssignMeeting({
                 Contact
               </div>
               <Link
-                href={`/contact/${meeting.person.id}`}
+                href={`/person/${meeting.person.id}`}
                 className="text-sm font-medium text-[#3B6B8F] hover:underline"
               >
                 {meeting.person.firstName} {meeting.person.lastName}
