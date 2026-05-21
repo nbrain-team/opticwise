@@ -643,16 +643,17 @@ export async function POST(request: NextRequest) {
       console.log('[OWnet] Error fetching style examples:', error);
     }
 
-    // Voice exemplars — only retrieved for content-generation intents (writing
-    // a blog post, LinkedIn article, short post, or weekly briefing). The
-    // exemplars are previously published OpticWise pieces ingested by
+    // Voice exemplars — retrieved for content-generation intents OR when a
+    // specific author voice is explicitly requested. The exemplars are
+    // previously published OpticWise pieces ingested by
     // `scripts/ingest-voice-exemplars.ts` and stored in StyleGuide with
     // category = 'voice_exemplar'.
     const isContentGenIntent =
       /\b(blog post|linkedin post|linkedin article|short[- ]form post|weekly briefing|content engine|draft (a|me)? (post|article|blog)|write (a|me)? (post|article|blog))\b/i.test(
         message
       );
-    if (isContentGenIntent) {
+    const needsVoiceExemplars = isContentGenIntent || billVoiceRequested || drewVoiceRequested;
+    if (needsVoiceExemplars) {
       try {
         const exemplarAuthor: 'Bill' | 'Drew' | undefined = /\bdrew\b/i.test(message)
           ? 'Drew'
