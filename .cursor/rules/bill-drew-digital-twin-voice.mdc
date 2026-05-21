@@ -48,4 +48,6 @@ Whenever the user (or anyone on the OW team via OWnet) asks for output **explici
 
 ## OWnet platform implementation (separate from this rule)
 
-This rule governs me (the coding assistant). The OWnet platform's own agent must enforce the same behavior for OW team members via the `/ownet-agent` UI. Tracked as a build task in `OWNET-V1-PUNCH-LIST-PLAN.md` Section 1.2 — the two AI OS files must be ingested as `category = "Canon — Digital Twin"` with `author = "Bill" | "Drew"` and loaded into the system prompt whenever the user's request explicitly invokes one of those voices.
+This rule governs me (the coding assistant). The OWnet platform's own agent enforces the same behavior for OW team members via the `/ownet-agent` UI. The two AI OS files are ingested as `category = "Canon — Digital Twin"` with `author = "Bill" | "Drew"` and loaded into the system prompt whenever the user's request explicitly invokes one of those voices (e.g., "as Bill", "in Bill's voice", "think like Bill", "respond as Drew").
+
+**Ingestion script:** `ow/scripts/ingest-digital-twins.ts` — run with `npx tsx scripts/ingest-digital-twins.ts` from the `ow/` directory against the production DATABASE_URL to load the files into the knowledge base.
