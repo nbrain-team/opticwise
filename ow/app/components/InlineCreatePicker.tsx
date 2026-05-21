@@ -191,7 +191,8 @@ export function InlineCreatePicker({
     setSelected(opt);
     setOpen(false);
     setQuery("");
-  }, []);
+    onChange?.(opt?.id ?? null);
+  }, [onChange]);
 
   const handleCreated = useCallback((opt: PickerOption) => {
     setExtraOptions((prev) => [opt, ...prev]);
@@ -199,7 +200,8 @@ export function InlineCreatePicker({
     setCreateOpen(false);
     setOpen(false);
     setQuery("");
-  }, []);
+    onChange?.(opt.id);
+  }, [onChange]);
 
   const handleKey = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {

@@ -24,6 +24,7 @@ type Props = {
   initialValue?: PickerOption | null;
   required?: boolean;
   allowClear?: boolean;
+  onChange?: (id: string | null) => void;
 };
 
 async function searchContacts(query: string): Promise<PickerOption[]> {
