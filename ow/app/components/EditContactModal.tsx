@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { OrganizationPicker } from "./OrganizationPicker";
+import type { PickerOption } from "./InlineCreatePicker";
 
 interface EditContactModalProps {
   isOpen: boolean;
