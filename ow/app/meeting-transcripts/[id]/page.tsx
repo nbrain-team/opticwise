@@ -357,26 +357,25 @@ export default async function MeetingDetailPage({
                 Participants ({participants.length})
               </h2>
               <ul className="space-y-2">
-                {participants.map((p, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center gap-2 text-sm"
-                  >
-                    <div className="w-7 h-7 rounded-full bg-[#3B6B8F] text-white flex items-center justify-center text-xs font-medium flex-shrink-0">
-                      {(p.first_name?.[0] || p.name?.[0] || "?").toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-800">
-                        {p.name ||
-                          `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
-                          "Unknown"}
-                      </div>
-                      {p.email && (
-                        <div className="text-xs text-gray-500">{p.email}</div>
-                      )}
-                    </div>
-                  </li>
-                ))}
+                {participants.map((p, i) => {
+                  const displayName =
+                    p.name ||
+                    `${p.first_name || ""} ${p.last_name || ""}`.trim() ||
+                    "Unknown";
+                  const email = p.email || null;
+                  const matchedPerson = email
+                    ? emailToPersonMap.get(email.toLowerCase()) ?? null
+                    : null;
+                  return (
+                    <ParticipantLink
+                      key={i}
+                      meetingId={meeting.id}
+                      participantName={displayName}
+                      participantEmail={email}
+                      matchedPerson={matchedPerson}
+                    />
+                  );
+                })}
               </ul>
             </div>
           )}
