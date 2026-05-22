@@ -599,9 +599,11 @@ async function generateEpisode(ep: EpisodeData): Promise<void> {
   await new Promise((r) => setTimeout(r, 2000));
 }
 
-// ── Phase 2: Publish ─────────────────────────────────────────────────
+// ── Phase 2: Publish (local filesystem) ──────────────────────────────
 
-async function publishEpisode(jsonPath: string): Promise<void> {
+const OPTICWISE_HTML_ROOT = path.resolve(__dirname, "../../../../opticwise-html");
+
+function publishEpisodeLocal(jsonPath: string): void {
   const raw = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
   const blogSlug = raw.slug as string;
   const publishedAt = new Date(raw.publishedAt);
@@ -610,12 +612,9 @@ async function publishEpisode(jsonPath: string): Promise<void> {
   console.log(`Publishing: ${raw.title}`);
   console.log(`Slug: ${blogSlug}`);
 
-  const db = getPrisma();
-
-  // Check if already published
-  const existing = await db.blogPost.findUnique({ where: { slug: blogSlug } });
-  if (existing && existing.status === "published") {
-    console.log(`  SKIP: Already published in DB`);
+  const postDir = path.join(OPTICWISE_HTML_ROOT, "insights", blogSlug);
+  if (fs.existsSync(path.join(postDir, "index.html"))) {
+    console.log(`  SKIP: Already exists at ${postDir}`);
     return;
   }
 
@@ -632,26 +631,50 @@ async function publishEpisode(jsonPath: string): Promise<void> {
     metaTitle: raw.metaTitle,
     metaDescription: raw.metaDescription,
     metaKeywords: null as string | null,
-    status: "published",
     publishedAt,
   };
 
-  // Upsert in DB
-  await db.blogPost.upsert({
-    where: { slug: blogSlug },
-    create: postData,
-    update: postData,
-  });
-  console.log(`  DB: Upserted BlogPost`);
+  // Generate HTML
+  const postHtml = generatePostHtml(postData);
+  const indexCard = generateIndexCard(postData);
 
-  // Generate HTML and publish to GitHub
-  const postHtml = generatePostHtml({ ...postData, publishedAt });
-  const indexCard = generateIndexCard({ ...postData, publishedAt });
-  const liveUrl = await publishPost(blogSlug, postHtml, indexCard, raw.title);
-  console.log(`  PUBLISHED: ${liveUrl}`);
+  // Write post file
+  fs.mkdirSync(postDir, { recursive: true });
+  fs.writeFileSync(path.join(postDir, "index.html"), postHtml, "utf-8");
+  console.log(`  Wrote: ${postDir}/index.html`);
 
-  // Rate-limit between GitHub API calls
-  await new Promise((r) => setTimeout(r, 2000));
+  // Update insights/index.html — prepend card to grid
+  const indexPath = path.join(OPTICWISE_HTML_ROOT, "insights", "index.html");
+  let indexHtml = fs.readFileSync(indexPath, "utf-8");
+
+  // Dedup: remove existing cards for this slug
+  const slugAttr = `data-ow-slug="${blogSlug}"`;
+  while (indexHtml.includes(slugAttr)) {
+    const slugPos = indexHtml.indexOf(slugAttr);
+    const openTag = '<a class="group block';
+    let cardStart = slugPos;
+    while (cardStart > 0 && indexHtml.slice(cardStart, cardStart + openTag.length) !== openTag) {
+      cardStart--;
+    }
+    const closeTag = "</a>";
+    const rawEnd = indexHtml.indexOf(closeTag, slugPos);
+    if (rawEnd === -1) break;
+    indexHtml = indexHtml.slice(0, cardStart) + indexHtml.slice(rawEnd + closeTag.length);
+  }
+
+  // Insert card at the top of the grid
+  const GRID_MARKER = "data-ow-insights-grid>";
+  const markerIdx = indexHtml.indexOf(GRID_MARKER);
+  if (markerIdx === -1) {
+    console.error(`  ERROR: Could not find grid marker in index.html`);
+    return;
+  }
+  const insertAt = markerIdx + GRID_MARKER.length;
+  indexHtml = indexHtml.slice(0, insertAt) + indexCard + indexHtml.slice(insertAt);
+  fs.writeFileSync(indexPath, indexHtml, "utf-8");
+
+  console.log(`  Updated: insights/index.html`);
+  console.log(`  DONE: https://www.opticwise.com/insights/${blogSlug}/`);
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────
