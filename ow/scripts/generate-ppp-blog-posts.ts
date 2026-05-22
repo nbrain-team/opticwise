@@ -735,12 +735,13 @@ async function main() {
   }
 
   if (doPublish) {
-    if (!process.env.DATABASE_URL) {
-      console.error("ERROR: DATABASE_URL is required for --publish");
+    if (!fs.existsSync(OPTICWISE_HTML_ROOT)) {
+      console.error(`ERROR: opticwise-html repo not found at ${OPTICWISE_HTML_ROOT}`);
       process.exit(1);
     }
-    if (!process.env.GITHUB_TOKEN) {
-      console.error("ERROR: GITHUB_TOKEN is required for --publish");
+
+    if (!fs.existsSync(OUTPUT_DIR)) {
+      console.error(`ERROR: No generated output found at ${OUTPUT_DIR}. Run --generate first.`);
       process.exit(1);
     }
 
@@ -756,15 +757,14 @@ async function main() {
       });
     }
 
-    console.log(`Publishing ${jsonFiles.length} posts from ${OUTPUT_DIR}`);
+    console.log(`Publishing ${jsonFiles.length} posts to ${OPTICWISE_HTML_ROOT}/insights/`);
     for (const f of jsonFiles) {
       try {
-        await publishEpisode(f);
+        publishEpisodeLocal(f);
       } catch (err) {
         console.error(`  ERROR publishing ${f}:`, err);
       }
     }
-    await getPrisma().$disconnect();
   }
 
   console.log(`\nDone!`);
