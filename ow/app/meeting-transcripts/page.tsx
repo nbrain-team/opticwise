@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { BackfillCategoriesButton } from "@/app/components/BackfillCategoriesButton";
 import { checkModuleAccess } from "@/lib/access-control";
+import { ArchiveButton } from "./ArchiveButton";
 
 export default async function MeetingTranscriptsPage({
   searchParams,
@@ -16,12 +17,27 @@ export default async function MeetingTranscriptsPage({
   const perPage = 25;
   const skip = (page - 1) * perPage;
 
-  const where: Record<string, unknown> = {};
+  const now = new Date();
+  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const where: Record<string, any> = {};
+
+  // Exclude archived by default; only show them when explicitly filtered
+  if (status === "archived") {
+    where.archivedAt = { not: null };
+  } else {
+    where.archivedAt = null;
+  }
 
   if (search) {
-    where.OR = [
-      { title: { contains: search, mode: "insensitive" } },
-      { summary: { contains: search, mode: "insensitive" } },
+    where.AND = [
+      {
+        OR: [
+          { title: { contains: search, mode: "insensitive" } },
+          { summary: { contains: search, mode: "insensitive" } },
+        ],
+      },
     ];
   }
 
@@ -35,12 +51,13 @@ export default async function MeetingTranscriptsPage({
     where.dealId = null;
     where.personId = null;
     where.organizationId = null;
+  } else if (status === "thisweek") {
+    where.startTime = { gte: weekAgo };
   }
 
-  const now = new Date();
-  const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const notArchived = { archivedAt: null };
 
-  const [meetings, totalCount, assignedCount, unassignedCount, thisWeekCount, uncategorizedCount] =
+  const [meetings, totalCount, assignedCount, unassignedCount, thisWeekCount, archivedCount, uncategorizedCount] =
     await Promise.all([
       prisma.readAIMeeting.findMany({
         where,
@@ -58,6 +75,7 @@ export default async function MeetingTranscriptsPage({
       prisma.readAIMeeting.count({ where }),
       prisma.readAIMeeting.count({
         where: {
+          ...notArchived,
           OR: [
             { dealId: { not: null } },
             { personId: { not: null } },
@@ -67,16 +85,20 @@ export default async function MeetingTranscriptsPage({
       }),
       prisma.readAIMeeting.count({
         where: {
+          ...notArchived,
           dealId: null,
           personId: null,
           organizationId: null,
         },
       }),
       prisma.readAIMeeting.count({
-        where: { startTime: { gte: weekAgo } },
+        where: { ...notArchived, startTime: { gte: weekAgo } },
       }),
       prisma.readAIMeeting.count({
-        where: { categorizedAt: null },
+        where: { archivedAt: { not: null } },
+      }),
+      prisma.readAIMeeting.count({
+        where: { ...notArchived, categorizedAt: null },
       }),
     ]);
 
