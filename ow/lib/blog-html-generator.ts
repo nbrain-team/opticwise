@@ -116,9 +116,10 @@ export function generatePostHtml(post: BlogPostData): string {
 export function generateIndexCard(post: BlogPostData): string {
   const title = escapeHtml(post.title)
   const excerpt = escapeHtml(post.excerpt)
+  const author = escapeHtml(post.author)
   const category = escapeHtml(post.category)
   const coverUrl = post.coverImageUrl || "https://www.opticwise.com/images/og-insights.png"
   const dateStr = formatDate(post.publishedAt)
 
-  return `<a class="group block bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-ow-blue/20 transition-all no-underline" href="../insights/${post.slug}/index.html" data-ow-slug="${post.slug}" data-ow-cat="${category}"><div class="aspect-[16/9] overflow-hidden bg-gray-100"><img src="${coverUrl}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="eager" decoding="async"/></div><div class="p-6"><span class="inline-block text-xs font-bold text-ow-blue bg-blue-50 px-3 py-1 rounded-full mb-3">${category}</span><h3 class="text-base font-bold text-gray-900 mb-2 leading-snug group-hover:text-ow-blue transition-colors">${title}</h3><p class="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-3">${excerpt}</p><div class="flex items-center gap-2 text-xs text-gray-400"><span>${dateStr}</span></div></div></a>`
+  return `<a class="group block bg-white border border-gray-200 rounded-2xl overflow-hidden hover:shadow-xl hover:-translate-y-1 hover:border-ow-blue/20 transition-all no-underline" href="../insights/${post.slug}/index.html" data-ow-slug="${post.slug}" data-ow-cat="${category}"><div class="aspect-[16/9] overflow-hidden bg-gray-100"><img src="${coverUrl}" alt="${title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="eager" decoding="async"/></div><div class="p-6"><span class="inline-block text-xs font-bold text-ow-blue bg-blue-50 px-3 py-1 rounded-full mb-3">${category}</span><h3 class="text-base font-bold text-gray-900 mb-2 leading-snug group-hover:text-ow-blue transition-colors">${title}</h3><p class="text-sm text-gray-500 leading-relaxed line-clamp-3 mb-3">${excerpt}</p><div class="flex items-center gap-2 text-xs text-gray-400"><span>${dateStr}</span><span>\u00b7</span><span>${author}</span></div></div></a>`
 }
