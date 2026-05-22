@@ -109,6 +109,7 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
   const [saving, setSaving] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [scheduling, setScheduling] = useState(false)
+  const [previewing, setPreviewing] = useState(false)
   const [error, setError] = useState("")
   const [publishSuccess, setPublishSuccess] = useState<string | null>(null)
   const [scheduledFor, setScheduledFor] = useState(
