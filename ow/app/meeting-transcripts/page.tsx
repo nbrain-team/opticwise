@@ -431,6 +431,10 @@ export default async function MeetingTranscriptsPage({
                           Read AI Report
                         </a>
                       )}
+                      <ArchiveButton
+                        meetingId={meeting.id}
+                        isArchived={!!meeting.archivedAt}
+                      />
                     </div>
                   </div>
                 </div>
