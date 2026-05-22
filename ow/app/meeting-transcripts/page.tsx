@@ -116,30 +116,58 @@ export default async function MeetingTranscriptsPage({
         </p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards — clickable filters */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#3B6B8F] rounded-lg p-4 text-white">
+        <Link
+          href={`/meeting-transcripts?status=all${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+          className={`rounded-lg p-4 text-white transition-all hover:scale-[1.02] hover:shadow-lg ${
+            status === "all"
+              ? "bg-[#3B6B8F] ring-2 ring-offset-2 ring-[#3B6B8F]"
+              : "bg-[#3B6B8F] opacity-80 hover:opacity-100"
+          }`}
+        >
           <div className="text-sm font-medium opacity-90">
             Total Transcripts
           </div>
           <div className="text-3xl font-bold mt-1">{grandTotal}</div>
-        </div>
-        <div className="bg-emerald-500 rounded-lg p-4 text-white">
+        </Link>
+        <Link
+          href={`/meeting-transcripts?status=assigned${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+          className={`rounded-lg p-4 text-white transition-all hover:scale-[1.02] hover:shadow-lg ${
+            status === "assigned"
+              ? "bg-emerald-500 ring-2 ring-offset-2 ring-emerald-500"
+              : "bg-emerald-500 opacity-80 hover:opacity-100"
+          }`}
+        >
           <div className="text-sm font-medium opacity-90">
             Linked to CRM
           </div>
           <div className="text-3xl font-bold mt-1">{assignedCount}</div>
-        </div>
-        <div className="bg-amber-500 rounded-lg p-4 text-white">
+        </Link>
+        <Link
+          href={`/meeting-transcripts?status=unassigned${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+          className={`rounded-lg p-4 text-white transition-all hover:scale-[1.02] hover:shadow-lg ${
+            status === "unassigned"
+              ? "bg-amber-500 ring-2 ring-offset-2 ring-amber-500"
+              : "bg-amber-500 opacity-80 hover:opacity-100"
+          }`}
+        >
           <div className="text-sm font-medium opacity-90">
             Needs Assignment
           </div>
           <div className="text-3xl font-bold mt-1">{unassignedCount}</div>
-        </div>
-        <div className="bg-[#6366f1] rounded-lg p-4 text-white">
+        </Link>
+        <Link
+          href={`/meeting-transcripts?status=thisweek${search ? `&search=${encodeURIComponent(search)}` : ""}`}
+          className={`rounded-lg p-4 text-white transition-all hover:scale-[1.02] hover:shadow-lg ${
+            status === "thisweek"
+              ? "bg-[#6366f1] ring-2 ring-offset-2 ring-[#6366f1]"
+              : "bg-[#6366f1] opacity-80 hover:opacity-100"
+          }`}
+        >
           <div className="text-sm font-medium opacity-90">This Week</div>
           <div className="text-3xl font-bold mt-1">{thisWeekCount}</div>
-        </div>
+        </Link>
       </div>
 
       {/* Backfill prompt */}
