@@ -1,10 +1,23 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: May 20, 2026  
-**Latest Period**: February 14 - May 20, 2026  
-**Status**: Blog Publisher Live — Create & Publish Posts from Ownet Directly to opticwise.com, Peak Property Performance® Site Now Wired Into the OpticWise CRM (PPP Review Form Live), Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
+**Latest Update**: May 22, 2026  
+**Latest Period**: February 14 - May 22, 2026  
+**Status**: 36 PPP Podcast Blog Posts Published to OpticWise Insights, Blog Publisher Live — Create & Publish Posts from Ownet Directly to opticwise.com, Peak Property Performance® Site Now Wired Into the OpticWise CRM (PPP Review Form Live), Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
 
 ---
+
+### 2026-05-22 — 36 Peak Property Performance® Podcast Blog Posts Published to OpticWise Insights
+
+- **36 new Insights blog posts** published to opticwise.com/insights/ — one for each episode of the Peak Property Performance® Podcast (Episodes 1-36)
+- Each post is a **1,200-1,500 word article summary** of the episode, written in OpticWise's blended Bill Douglas & Drew Hall voice — not a transcript rehash, but a substantive article that draws insights and actionable takeaways from the conversation
+- **New "Peak Property Performance®" category** added to the Insights page with a dedicated filter tab, so all 36 podcast posts can be browsed as a collection
+- Every post includes: episode thumbnail as cover image, links to the specific episode page on peakpropertyperformance.com, links to the podcast hub and the PPP book page, and a "Request to Be on the Show" call-to-action at the bottom
+- Posts are **backdated to match original episode publish dates** (July 2025 through May 2026) so they appear in correct chronological order alongside existing Insights content
+- Each post is auto-tagged with a **secondary category** (e.g., Data Ownership, Tenant Experience, NOI & Revenue, The 5C™ Plan) based on episode content, enabling cross-category discovery
+- **Automated pipeline integration**: the PPP podcast generation pipeline (`update_podcast.py`) now includes a Step 7 that automatically generates and publishes an OpticWise Insights post whenever a new episode page is built — no manual intervention needed for future episodes
+- **Generation script**: `ow/scripts/generate-ppp-blog-posts.ts` — two-phase workflow (generate AI content → publish to opticwise-html) that reads episode transcripts, generates articles via OpenAI, and writes the HTML directly to the opticwise-html repo for Render deployment
+- **SEO-complete**: every post includes full meta tags, Open Graph, Twitter card, JSON-LD Article + BreadcrumbList schema, and canonical URLs
+
 
 ### 2026-05-20 — Blog Publisher: Create & Publish Posts from Ownet to opticwise.com
 
