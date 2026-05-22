@@ -242,6 +242,50 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
     else router.refresh()
   }
 
+  async function handlePreview() {
+    setPreviewing(true)
+    setError("")
+
+    const tags = tagsInput
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+
+    const res = await fetch("/api/blog/posts/preview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title,
+        slug,
+        excerpt,
+        content,
+        coverImageUrl: coverImageUrl || null,
+        author,
+        category,
+        secondaryCats: secondaryCats || null,
+        tags,
+        metaTitle: metaTitle || null,
+        metaDescription: metaDescription || null,
+        metaKeywords: metaKeywords || null,
+      }),
+    })
+
+    if (!res.ok) {
+      const data = await res.json()
+      setError(data.error || "Preview failed")
+      setPreviewing(false)
+      return
+    }
+
+    const html = await res.text()
+    const previewWindow = window.open("", "_blank")
+    if (previewWindow) {
+      previewWindow.document.write(html)
+      previewWindow.document.close()
+    }
+    setPreviewing(false)
+  }
+
   const isPublished = initialPost?.status === "published"
   const isScheduled = initialPost?.status === "scheduled"
 
