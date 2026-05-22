@@ -597,6 +597,9 @@ model ReadAIMeeting {
   personId       String?
   organizationId String?
 
+  // Soft-delete / archive
+  archivedAt DateTime?
+
   // Metadata
   rawPayload      Json? // Full original webhook payload
   vectorized      Boolean @default(false)
@@ -616,6 +619,7 @@ model ReadAIMeeting {
   @@index([startTime])
   @@index([vectorized])
   @@index([category])
+  @@index([archivedAt])
 }
 
 // Google Workspace Integration Models
