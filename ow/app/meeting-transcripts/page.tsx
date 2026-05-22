@@ -210,6 +210,26 @@ export default async function MeetingTranscriptsPage({
             >
               Unassigned
             </Link>
+            <Link
+              href={`/meeting-transcripts?${search ? `search=${encodeURIComponent(search)}&` : ""}status=thisweek`}
+              className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
+                status === "thisweek"
+                  ? "bg-[#6366f1] text-white border-[#6366f1]"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              This Week
+            </Link>
+            <Link
+              href={`/meeting-transcripts?${search ? `search=${encodeURIComponent(search)}&` : ""}status=archived`}
+              className={`px-3 py-2 text-sm rounded-lg border transition-colors ${
+                status === "archived"
+                  ? "bg-gray-600 text-white border-gray-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+            >
+              Archived{archivedCount > 0 ? ` (${archivedCount})` : ""}
+            </Link>
           </div>
           <input
             name="search"
