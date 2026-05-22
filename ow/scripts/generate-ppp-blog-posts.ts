@@ -295,7 +295,8 @@ async function generateArticle(ep: EpisodeData, transcript: string): Promise<{
     ? transcript.slice(0, 25000) + "\n\n[transcript truncated]"
     : transcript;
 
-  const systemPrompt = `You are OpticWise's content engine, writing Insights blog posts that blend the voices of Bill Douglas (CEO) and Drew Hall (Co-Founder & Chief Architect).
+  // Step 1: Generate the full article body (no JSON constraint = longer output)
+  const articlePrompt = `You are OpticWise's content engine, writing Insights blog posts that blend the voices of Bill Douglas (CEO) and Drew Hall (Co-Founder & Chief Architect).
 
 VOICE GUIDELINES:
 - Write as OpticWise — the trusted guide for CRE owners navigating data & digital infrastructure
@@ -309,22 +310,19 @@ VOICE GUIDELINES:
 - Use concrete examples from the episode — real scenarios, real problems, real solutions
 - Always use the registered mark: Peak Property Performance®
 
-STRUCTURE REQUIREMENTS:
-- Title: Engaging, SEO-friendly, different from the episode title but capturing the same theme
-- Length: 1,500-2,000 words of article body content
-- Opening: Hook the reader with the core insight or problem discussed
-- Body: 4-6 sections with clear H2 headings, drawing from episode content
-- Include 2-3 pull quotes from the episode (use <blockquote> tags)
-- Naturally weave in links where contextually appropriate (don't force them)
-- Closing: Actionable takeaway for CRE owners
+Write a 1,500-2,000 word blog article in HTML format based on this podcast episode.
 
-LINKS TO INCLUDE (weave naturally, don't list them all at the end):
-- Episode page: ${episodeUrl}
-- Podcast hub: ${PPP_PODCAST_URL}
-- Book page: ${PPP_BOOK_URL}
+STRUCTURE:
+1. Opening paragraph: Hook the reader with the core insight or problem discussed
+2. 5-7 sections with <h2> headings, each with 2-4 substantial paragraphs
+3. Include 2-3 direct quotes from the episode using <blockquote> tags
+4. Weave in these links naturally (not forced):
+   - Episode: ${episodeUrl}
+   - Podcast: ${PPP_PODCAST_URL}
+   - Book: ${PPP_BOOK_URL}
+5. Closing paragraph: Actionable takeaway for CRE owners
+6. End with this exact CTA block:
 
-FINAL CTA (always include at the very end, after the article body):
-End with this exact HTML block:
 <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px; padding: 40px; text-align: center; margin-top: 48px;">
 <p style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 12px;">Peak Property Performance® Podcast</p>
 <h3 style="color: white; font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;">Have a story to share?</h3>
@@ -332,23 +330,7 @@ End with this exact HTML block:
 <a href="${PPP_BE_ON_SHOW_URL}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 32px; border-radius: 8px; font-weight: 600; text-decoration: none;">Request to Be on the Show</a>
 </div>
 
-CRITICAL LENGTH REQUIREMENT:
-The article MUST be between 1,500 and 2,000 words. This is non-negotiable.
-- Aim for 6-8 substantial paragraphs per section
-- Include at least 5-6 H2 sections
-- Use concrete examples, scenarios, and specific details from the transcript
-- Don't summarize at a high level — go deep on the most valuable insights
-- Include transition paragraphs between sections
-
-OUTPUT FORMAT:
-Return a JSON object with these fields:
-- "title": Article title (not the episode title)
-- "excerpt": 1-2 sentence summary for the card/meta description (max 200 chars)
-- "content": Full HTML article body (use <h2>, <p>, <blockquote>, <a>, <ul>/<li> tags). MUST be 1,500-2,000 words.
-- "metaTitle": SEO title (max 60 chars, include "OpticWise" or "CRE")
-- "metaDescription": SEO description (max 155 chars)`;
-
-  const userPrompt = `Write an Insights blog post based on this Peak Property Performance® podcast episode.
+Use <h2>, <p>, <blockquote>, <a>, <ul>/<li> tags. Output ONLY the HTML body content (no <html>, <head>, <body> wrappers). The article MUST be at least 1,500 words — go deep on insights, don't skim.
 
 EPISODE: ${ep.rss_title} (Episode ${ep.rss_ep_num})
 DATE: ${ep.rss_pub_date}
@@ -359,27 +341,53 @@ ${ep.rss_description_html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()}
 FULL TRANSCRIPT:
 ${truncatedTranscript}`;
 
-  const response = await openai.chat.completions.create({
+  const articleResponse = await openai.chat.completions.create({
     model: "gpt-4o",
     temperature: 0.7,
     max_tokens: 8192,
-    response_format: { type: "json_object" },
     messages: [
-      { role: "system", content: systemPrompt },
-      { role: "user", content: userPrompt },
+      { role: "user", content: articlePrompt },
     ],
   });
 
-  const raw = response.choices[0]?.message?.content;
-  if (!raw) throw new Error(`Empty response for episode ${ep.rss_ep_num}`);
+  let content = articleResponse.choices[0]?.message?.content;
+  if (!content) throw new Error(`Empty article response for episode ${ep.rss_ep_num}`);
+  // Strip any markdown code fences the model may wrap around the HTML
+  content = content.replace(/^```html?\n?/i, "").replace(/\n?```\s*$/i, "").trim();
 
-  const parsed = JSON.parse(raw);
+  // Step 2: Generate metadata (title, excerpt, SEO) via a quick JSON call
+  const metaResponse = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
+    temperature: 0.5,
+    max_tokens: 512,
+    response_format: { type: "json_object" },
+    messages: [
+      {
+        role: "system",
+        content: `You generate SEO metadata for OpticWise blog posts. Return JSON with:
+- "title": Engaging article title, different from the episode title (max 80 chars)
+- "excerpt": 1-2 sentence summary (max 200 chars)
+- "metaTitle": SEO title with "CRE" or "OpticWise" (max 60 chars)
+- "metaDescription": SEO description (max 155 chars)
+Always use the registered mark: Peak Property Performance®`,
+      },
+      {
+        role: "user",
+        content: `Episode title: ${ep.rss_title}\n\nArticle opening:\n${content.slice(0, 1500)}`,
+      },
+    ],
+  });
+
+  const metaRaw = metaResponse.choices[0]?.message?.content;
+  if (!metaRaw) throw new Error(`Empty meta response for episode ${ep.rss_ep_num}`);
+  const meta = JSON.parse(metaRaw);
+
   return {
-    title: parsed.title,
-    excerpt: parsed.excerpt,
-    content: parsed.content,
-    metaTitle: parsed.metaTitle,
-    metaDescription: parsed.metaDescription,
+    title: meta.title,
+    excerpt: meta.excerpt,
+    content,
+    metaTitle: meta.metaTitle,
+    metaDescription: meta.metaDescription,
   };
 }
 
