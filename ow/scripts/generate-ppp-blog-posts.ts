@@ -603,6 +603,83 @@ async function generateEpisode(ep: EpisodeData): Promise<void> {
 
 const OPTICWISE_HTML_ROOT = path.resolve(__dirname, "../../../../opticwise-html");
 
+const OW_ABOUT_BLOCK =
+  '<p style="margin-top:32px;padding:20px 24px;background:#f8fafc;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;font-size:0.95em;line-height:1.7;color:#334155">' +
+  '<strong>About OpticWise:</strong> OpticWise provides owner-controlled ' +
+  '<a href="https://www.opticwise.com/property-brain/">data &amp; digital infrastructure</a> ' +
+  'for commercial real estate — from ' +
+  '<a href="https://www.opticwise.com/ppp-audit/">PPP Audits</a> to ' +
+  '<a href="https://www.opticwise.com/portfolio-brain/">portfolio-wide intelligence</a>. ' +
+  '<a href="https://www.opticwise.com/how-we-operate/">See how we operate</a> or ' +
+  '<a href="https://www.opticwise.com/customer-outcomes/">read customer outcomes</a>.' +
+  '</p>';
+
+function injectAboutBlock(content: string): string {
+  if (content.includes("About OpticWise:")) return content;
+  const ctaMarker = '<div style="background: linear-gradient(135deg, #0f172a';
+  const idx = content.indexOf(ctaMarker);
+  if (idx === -1) return content + "\n\n" + OW_ABOUT_BLOCK;
+  return content.slice(0, idx) + OW_ABOUT_BLOCK + "\n\n" + content.slice(idx);
+}
+
+function addBacklinkToPPPPage(episodeSlug: string, owUrl: string): void {
+  const pppPage = path.join(PPP_HTML_ROOT, "podcast", episodeSlug, "index.html");
+  if (!fs.existsSync(pppPage)) return;
+
+  let html = fs.readFileSync(pppPage, "utf-8");
+  if (html.includes("opticwise.com/insights/ppp-")) return;
+
+  const insightsCard =
+    '<div class="aside-card" style="background:linear-gradient(135deg,#1e40af,#3b82f6);color:white;border-color:#1e40af">' +
+    '<h4 style="color:white">Read the Article</h4>' +
+    '<p style="color:rgba(255,255,255,0.85);font-size:var(--fs-body-sm);margin-block:var(--space-3)">Read a full summary of this episode on OpticWise Insights.</p>' +
+    '<a class="btn" style="width:100%;background:white;color:#1e40af;font-weight:600" href="' + owUrl + '" target="_blank" rel="noopener noreferrer">Read on OpticWise</a>' +
+    '</div>';
+
+  const marker = '<div class="aside-card"><h4>Recent Episodes</h4>';
+  if (html.includes(marker)) {
+    html = html.replace(marker, insightsCard + marker);
+    fs.writeFileSync(pppPage, html, "utf-8");
+    console.log(`  PPP backlink: added to ${episodeSlug}`);
+  }
+}
+
+function sortInsightsIndex(indexPath: string): void {
+  let html = fs.readFileSync(indexPath, "utf-8");
+  const GRID_MARKER = "data-ow-insights-grid>";
+  const gridStart = html.indexOf(GRID_MARKER);
+  if (gridStart === -1) return;
+  const contentStart = gridStart + GRID_MARKER.length;
+
+  const cardOpen = '<a class="group block';
+  const cardClose = "</a>";
+  let pos = contentStart;
+  const cards: Array<{ html: string; dateMs: number }> = [];
+  let lastCardEnd = contentStart;
+
+  while (true) {
+    const start = html.indexOf(cardOpen, pos);
+    if (start === -1) break;
+    const nextSection = html.indexOf("</section>", contentStart);
+    if (start > nextSection) break;
+    const end = html.indexOf(cardClose, start);
+    if (end === -1) break;
+    const cardHtml = html.slice(start, end + cardClose.length);
+    const dateMatch = cardHtml.match(/<span>([A-Z][a-z]+ \d{1,2}, \d{4})<\/span>/);
+    const dateMs = dateMatch ? new Date(dateMatch[1]).getTime() : 0;
+    cards.push({ html: cardHtml, dateMs });
+    lastCardEnd = end + cardClose.length;
+    pos = lastCardEnd;
+  }
+
+  if (cards.length < 2) return;
+  cards.sort((a, b) => b.dateMs - a.dateMs);
+  const sorted = cards.map((c) => c.html).join("");
+  const newHtml = html.slice(0, contentStart) + sorted + html.slice(lastCardEnd);
+  fs.writeFileSync(indexPath, newHtml, "utf-8");
+  console.log(`  Sorted: ${cards.length} cards by date`);
+}
+
 function publishEpisodeLocal(jsonPath: string): void {
   const raw = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
   const blogSlug = raw.slug as string;
@@ -618,11 +695,14 @@ function publishEpisodeLocal(jsonPath: string): void {
     return;
   }
 
+  // Inject "About OpticWise" cross-link block into the article content
+  const enrichedContent = injectAboutBlock(raw.content);
+
   const postData = {
     title: raw.title,
     slug: blogSlug,
     excerpt: raw.excerpt,
-    content: raw.content,
+    content: enrichedContent,
     coverImageUrl: raw.coverImageUrl,
     author: raw.author,
     category: raw.category,
@@ -643,7 +723,7 @@ function publishEpisodeLocal(jsonPath: string): void {
   fs.writeFileSync(path.join(postDir, "index.html"), postHtml, "utf-8");
   console.log(`  Wrote: ${postDir}/index.html`);
 
-  // Update insights/index.html — prepend card to grid
+  // Update insights/index.html — add card and sort by date
   const indexPath = path.join(OPTICWISE_HTML_ROOT, "insights", "index.html");
   let indexHtml = fs.readFileSync(indexPath, "utf-8");
 
@@ -673,8 +753,16 @@ function publishEpisodeLocal(jsonPath: string): void {
   indexHtml = indexHtml.slice(0, insertAt) + indexCard + indexHtml.slice(insertAt);
   fs.writeFileSync(indexPath, indexHtml, "utf-8");
 
+  // Sort the full index by publish date (newest first)
+  sortInsightsIndex(indexPath);
+
   console.log(`  Updated: insights/index.html`);
-  console.log(`  DONE: https://www.opticwise.com/insights/${blogSlug}/`);
+
+  // Add "Read the Article" backlink to the PPP episode page
+  const owUrl = `https://www.opticwise.com/insights/${blogSlug}/`;
+  addBacklinkToPPPPage(raw.episodeSlug, owUrl);
+
+  console.log(`  DONE: ${owUrl}`);
 }
 
 // ── CLI ──────────────────────────────────────────────────────────────
