@@ -295,33 +295,77 @@ async function generateArticle(ep: EpisodeData, transcript: string): Promise<{
     ? transcript.slice(0, 25000) + "\n\n[transcript truncated]"
     : transcript;
 
-  // Step 1: Generate the full article body (no JSON constraint = longer output)
-  const articlePrompt = `You are OpticWise's content engine, writing Insights blog posts that blend the voices of Bill Douglas (CEO) and Drew Hall (Co-Founder & Chief Architect).
+  const voiceGuidelines = `You are OpticWise's content engine, writing Insights blog posts that blend the voices of Bill Douglas (CEO) and Drew Hall (Co-Founder & Chief Architect).
 
-VOICE GUIDELINES:
+VOICE RULES:
 - Write as OpticWise — the trusted guide for CRE owners navigating data & digital infrastructure
 - Blend Bill's owner/operator perspective (strategic, big-picture, relationship-driven) with Drew's architect perspective (technical depth, "let's demystify this", practical problem-solving)
 - Use "we" when referencing OpticWise perspectives shared on the podcast
 - Never say "PropTech" — always "data & digital infrastructure"
 - The reframe line is: "If you don't own your data & digital infrastructure, your vendors do."
 - Reference the PPP 5C™ framework (Clarify, Connect, Collect, Coordinate, Control) when relevant
-- Reference the 5S® UX standard (Seamless Mobility, Security, Stability, Speed, Service) when relevant
 - Be direct, operator-to-operator. No jargon-heavy academic tone.
 - Use concrete examples from the episode — real scenarios, real problems, real solutions
-- Always use the registered mark: Peak Property Performance®
+- Always use the registered mark: Peak Property Performance®`;
 
-Write a 1,500-2,000 word blog article in HTML format based on this podcast episode.
+  const showNotes = ep.rss_description_html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
-STRUCTURE:
-1. Opening paragraph: Hook the reader with the core insight or problem discussed
-2. 5-7 sections with <h2> headings, each with 2-4 substantial paragraphs
-3. Include 2-3 direct quotes from the episode using <blockquote> tags
-4. Weave in these links naturally (not forced):
-   - Episode: ${episodeUrl}
-   - Podcast: ${PPP_PODCAST_URL}
-   - Book: ${PPP_BOOK_URL}
-5. Closing paragraph: Actionable takeaway for CRE owners
-6. End with this exact CTA block:
+  // Step 1a: Generate first half of the article (sections 1-3)
+  const part1Response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    temperature: 0.7,
+    max_tokens: 6000,
+    messages: [{
+      role: "user",
+      content: `${voiceGuidelines}
+
+Write the FIRST HALF of a long-form blog article (approximately 800-1,000 words) based on this Peak Property Performance® podcast episode. Output HTML only.
+
+Include:
+- An engaging opening paragraph that hooks the reader with the core problem or insight
+- 3 strong sections with <h2> headings, each with 3-4 paragraphs
+- 1-2 direct quotes from the episode using <blockquote> tags
+- Link to the episode: <a href="${episodeUrl}">listen to the full episode</a>
+- Deep, specific examples from the transcript — not surface-level summaries
+
+Use <h2>, <p>, <blockquote>, <a>, <ul>/<li> tags. Output ONLY raw HTML — no code fences, no wrappers.
+
+EPISODE: ${ep.rss_title} (Episode ${ep.rss_ep_num})
+
+SHOW NOTES: ${showNotes}
+
+TRANSCRIPT:
+${truncatedTranscript.slice(0, 15000)}`,
+    }],
+  });
+
+  let part1 = part1Response.choices[0]?.message?.content;
+  if (!part1) throw new Error(`Empty part1 response for episode ${ep.rss_ep_num}`);
+  part1 = part1.replace(/^```html?\n?/i, "").replace(/\n?```\s*$/i, "").trim();
+
+  // Step 1b: Generate second half of the article (sections 4-6 + closing)
+  const part2Response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    temperature: 0.7,
+    max_tokens: 6000,
+    messages: [{
+      role: "user",
+      content: `${voiceGuidelines}
+
+You are continuing a blog article. Here is what was written so far:
+
+${part1.slice(0, 3000)}
+[... article continues ...]
+
+Write the SECOND HALF of this article (approximately 800-1,000 more words). Output HTML only.
+
+Include:
+- 3 more sections with <h2> headings, each with 3-4 paragraphs
+- 1-2 more direct quotes from the episode using <blockquote> tags
+- Link to the book: <a href="${PPP_BOOK_URL}">Peak Property Performance® book</a>
+- Link to the podcast hub: <a href="${PPP_PODCAST_URL}">Peak Property Performance® Podcast</a>
+- A strong closing section with actionable takeaways for CRE owners
+- End with this exact CTA block:
 
 <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px; padding: 40px; text-align: center; margin-top: 48px;">
 <p style="color: #94a3b8; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 2.5px; margin-bottom: 12px;">Peak Property Performance® Podcast</p>
@@ -330,30 +374,18 @@ STRUCTURE:
 <a href="${PPP_BE_ON_SHOW_URL}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 32px; border-radius: 8px; font-weight: 600; text-decoration: none;">Request to Be on the Show</a>
 </div>
 
-Use <h2>, <p>, <blockquote>, <a>, <ul>/<li> tags. Output ONLY the HTML body content (no <html>, <head>, <body> wrappers). The article MUST be at least 1,500 words — go deep on insights, don't skim.
+Draw from these later sections of the transcript:
+${truncatedTranscript.slice(8000)}
 
-EPISODE: ${ep.rss_title} (Episode ${ep.rss_ep_num})
-DATE: ${ep.rss_pub_date}
-
-SHOW NOTES:
-${ep.rss_description_html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()}
-
-FULL TRANSCRIPT:
-${truncatedTranscript}`;
-
-  const articleResponse = await openai.chat.completions.create({
-    model: "gpt-4o",
-    temperature: 0.7,
-    max_tokens: 8192,
-    messages: [
-      { role: "user", content: articlePrompt },
-    ],
+Output ONLY raw HTML — no code fences, no wrappers. Do NOT repeat any h2 headings from the first half.`,
+    }],
   });
 
-  let content = articleResponse.choices[0]?.message?.content;
-  if (!content) throw new Error(`Empty article response for episode ${ep.rss_ep_num}`);
-  // Strip any markdown code fences the model may wrap around the HTML
-  content = content.replace(/^```html?\n?/i, "").replace(/\n?```\s*$/i, "").trim();
+  let part2 = part2Response.choices[0]?.message?.content;
+  if (!part2) throw new Error(`Empty part2 response for episode ${ep.rss_ep_num}`);
+  part2 = part2.replace(/^```html?\n?/i, "").replace(/\n?```\s*$/i, "").trim();
+
+  const content = part1 + "\n\n" + part2;
 
   // Step 2: Generate metadata (title, excerpt, SEO) via a quick JSON call
   const metaResponse = await openai.chat.completions.create({
