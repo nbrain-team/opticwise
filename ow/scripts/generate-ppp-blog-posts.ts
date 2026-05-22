@@ -332,11 +332,19 @@ End with this exact HTML block:
 <a href="${PPP_BE_ON_SHOW_URL}" target="_blank" rel="noopener noreferrer" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 32px; border-radius: 8px; font-weight: 600; text-decoration: none;">Request to Be on the Show</a>
 </div>
 
+CRITICAL LENGTH REQUIREMENT:
+The article MUST be between 1,500 and 2,000 words. This is non-negotiable.
+- Aim for 6-8 substantial paragraphs per section
+- Include at least 5-6 H2 sections
+- Use concrete examples, scenarios, and specific details from the transcript
+- Don't summarize at a high level — go deep on the most valuable insights
+- Include transition paragraphs between sections
+
 OUTPUT FORMAT:
 Return a JSON object with these fields:
 - "title": Article title (not the episode title)
 - "excerpt": 1-2 sentence summary for the card/meta description (max 200 chars)
-- "content": Full HTML article body (use <h2>, <p>, <blockquote>, <a>, <ul>/<li> tags)
+- "content": Full HTML article body (use <h2>, <p>, <blockquote>, <a>, <ul>/<li> tags). MUST be 1,500-2,000 words.
 - "metaTitle": SEO title (max 60 chars, include "OpticWise" or "CRE")
 - "metaDescription": SEO description (max 155 chars)`;
 
