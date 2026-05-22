@@ -495,21 +495,21 @@ async function publishPost(
   return `https://www.opticwise.com/insights/${slug}/`;
 }
 
-async function processEpisode(ep: EpisodeData, dryRun: boolean): Promise<void> {
+// ── Phase 1: Generate ────────────────────────────────────────────────
+
+async function generateEpisode(ep: EpisodeData): Promise<void> {
   const blogSlug = `ppp-${ep.slug}`;
+  const outPath = path.join(OUTPUT_DIR, `${blogSlug}.json`);
+
   console.log(`\n${"=".repeat(60)}`);
   console.log(`Episode ${ep.rss_ep_num}: ${ep.rss_title}`);
   console.log(`Slug: ${blogSlug}`);
-  console.log(`Date: ${ep.rss_pub_date}`);
 
-  // Check if already exists in DB
-  const existing = await prisma.blogPost.findUnique({ where: { slug: blogSlug } });
-  if (existing && existing.status === "published") {
-    console.log(`  SKIP: Already published`);
+  if (fs.existsSync(outPath)) {
+    console.log(`  SKIP: Output already exists at ${outPath}`);
     return;
   }
 
-  // Extract transcript
   const transcript = extractTranscript(ep.slug);
   if (!transcript || transcript.length < 200) {
     console.log(`  SKIP: No transcript found or too short (${transcript?.length || 0} chars)`);
@@ -517,88 +517,120 @@ async function processEpisode(ep: EpisodeData, dryRun: boolean): Promise<void> {
   }
   console.log(`  Transcript: ${transcript.length} chars`);
 
-  // Infer categories and tags
   const secondaryCat = inferSecondaryCategory(ep.rss_title, transcript);
   const tags = inferTags(ep.rss_title, transcript, secondaryCat);
   console.log(`  Secondary category: ${secondaryCat}`);
-  console.log(`  Tags: ${tags.join(", ")}`);
 
-  // Generate article via AI
-  console.log(`  Generating article...`);
+  console.log(`  Generating article via AI...`);
   const article = await generateArticle(ep, transcript);
   console.log(`  Title: ${article.title}`);
   console.log(`  Content length: ${article.content.length} chars`);
 
-  const coverUrl = ep.youtube_thumb_maxres || ep.youtube_thumb_hq || "";
-  const publishedAt = new Date(ep.rss_pub_date + "T12:00:00Z");
-
-  if (dryRun) {
-    console.log(`  DRY RUN: Would publish "${article.title}" → ${blogSlug}`);
-    console.log(`  Excerpt: ${article.excerpt}`);
-    return;
-  }
-
-  // Upsert BlogPost in DB
   const postData = {
+    episodeNum: ep.rss_ep_num,
     title: article.title,
     slug: blogSlug,
     excerpt: article.excerpt,
     content: article.content,
-    coverImageUrl: coverUrl,
+    coverImageUrl: ep.youtube_thumb_maxres || ep.youtube_thumb_hq || "",
     author: AUTHOR,
     category: CATEGORY,
     secondaryCats: secondaryCat,
     tags,
     metaTitle: article.metaTitle,
     metaDescription: article.metaDescription,
+    publishedAt: ep.rss_pub_date + "T12:00:00Z",
+    episodeSlug: ep.slug,
+    episodeTitle: ep.rss_title,
+  };
+
+  fs.writeFileSync(outPath, JSON.stringify(postData, null, 2), "utf-8");
+  console.log(`  SAVED: ${outPath}`);
+
+  // Rate-limit between AI calls
+  await new Promise((r) => setTimeout(r, 2000));
+}
+
+// ── Phase 2: Publish ─────────────────────────────────────────────────
+
+async function publishEpisode(jsonPath: string): Promise<void> {
+  const raw = JSON.parse(fs.readFileSync(jsonPath, "utf-8"));
+  const blogSlug = raw.slug as string;
+  const publishedAt = new Date(raw.publishedAt);
+
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`Publishing: ${raw.title}`);
+  console.log(`Slug: ${blogSlug}`);
+
+  const db = getPrisma();
+
+  // Check if already published
+  const existing = await db.blogPost.findUnique({ where: { slug: blogSlug } });
+  if (existing && existing.status === "published") {
+    console.log(`  SKIP: Already published in DB`);
+    return;
+  }
+
+  const postData = {
+    title: raw.title,
+    slug: blogSlug,
+    excerpt: raw.excerpt,
+    content: raw.content,
+    coverImageUrl: raw.coverImageUrl,
+    author: raw.author,
+    category: raw.category,
+    secondaryCats: raw.secondaryCats,
+    tags: raw.tags,
+    metaTitle: raw.metaTitle,
+    metaDescription: raw.metaDescription,
     metaKeywords: null as string | null,
     status: "published",
     publishedAt,
   };
 
-  await prisma.blogPost.upsert({
+  // Upsert in DB
+  await db.blogPost.upsert({
     where: { slug: blogSlug },
     create: postData,
     update: postData,
   });
   console.log(`  DB: Upserted BlogPost`);
 
-  // Generate HTML
+  // Generate HTML and publish to GitHub
   const postHtml = generatePostHtml({ ...postData, publishedAt });
   const indexCard = generateIndexCard({ ...postData, publishedAt });
-
-  // Publish to GitHub
-  const liveUrl = await publishPost(blogSlug, postHtml, indexCard, article.title);
+  const liveUrl = await publishPost(blogSlug, postHtml, indexCard, raw.title);
   console.log(`  PUBLISHED: ${liveUrl}`);
 
-  // Rate-limit: wait between episodes to avoid hammering APIs
-  await new Promise((r) => setTimeout(r, 3000));
+  // Rate-limit between GitHub API calls
+  await new Promise((r) => setTimeout(r, 2000));
+}
+
+// ── CLI ──────────────────────────────────────────────────────────────
+
+function parseEpisodeArgs(args: string[]): number[] | null {
+  const epIdx = args.indexOf("--episodes");
+  if (epIdx !== -1 && args[epIdx + 1]) {
+    return args[epIdx + 1].split(",").map(Number).filter((n) => !isNaN(n));
+  }
+  const episodeFlag = args.find((a) => a.startsWith("--episodes="));
+  if (episodeFlag) {
+    return episodeFlag.split("=")[1].split(",").map(Number).filter((n) => !isNaN(n));
+  }
+  return null;
 }
 
 async function main() {
   const args = process.argv.slice(2);
-  const dryRun = args.includes("--dry-run");
-  const episodeFlag = args.find((a) => a.startsWith("--episodes=") || a.startsWith("--episodes "));
-  let requestedEpisodes: number[] | null = null;
+  const doGenerate = args.includes("--generate");
+  const doPublish = args.includes("--publish");
+  const requestedEpisodes = parseEpisodeArgs(args);
 
-  const epIdx = args.indexOf("--episodes");
-  if (epIdx !== -1 && args[epIdx + 1]) {
-    requestedEpisodes = args[epIdx + 1].split(",").map(Number).filter((n) => !isNaN(n));
-  } else if (episodeFlag && episodeFlag.includes("=")) {
-    requestedEpisodes = episodeFlag.split("=")[1].split(",").map(Number).filter((n) => !isNaN(n));
-  }
-
-  if (!process.env.OPENAI_API_KEY) {
-    console.error("ERROR: OPENAI_API_KEY is required");
-    process.exit(1);
-  }
-  if (!dryRun && !process.env.GITHUB_TOKEN) {
-    console.error("ERROR: GITHUB_TOKEN is required for publishing (use --dry-run to skip)");
-    process.exit(1);
-  }
-  if (!dryRun && !process.env.DATABASE_URL) {
-    console.error("ERROR: DATABASE_URL is required for publishing (use --dry-run to skip)");
-    process.exit(1);
+  if (!doGenerate && !doPublish) {
+    console.log("Usage:");
+    console.log("  --generate [--episodes 1,2]   Generate article JSON from transcripts (needs OPENAI_API_KEY)");
+    console.log("  --publish  [--episodes 1,2]   Publish generated JSON to DB + GitHub (needs DATABASE_URL, GITHUB_TOKEN)");
+    process.exit(0);
   }
 
   // Load episode index
@@ -607,31 +639,64 @@ async function main() {
     process.exit(1);
   }
   const index: EpisodeIndex = JSON.parse(fs.readFileSync(EPISODE_INDEX_PATH, "utf-8"));
-  console.log(`Loaded ${index.episodes.length} episodes from index`);
 
-  // Filter episodes (skip ep 0)
-  let episodes = index.episodes.filter((ep) => ep.rss_ep_num && ep.rss_ep_num > 0);
+  if (doGenerate) {
+    if (!process.env.OPENAI_API_KEY) {
+      console.error("ERROR: OPENAI_API_KEY is required for --generate");
+      process.exit(1);
+    }
+    fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
-  if (requestedEpisodes) {
-    episodes = episodes.filter((ep) => requestedEpisodes!.includes(ep.rss_ep_num));
-    console.log(`Filtered to episodes: ${requestedEpisodes.join(", ")}`);
-  }
+    let episodes = index.episodes.filter((ep) => ep.rss_ep_num && ep.rss_ep_num > 0);
+    if (requestedEpisodes) {
+      episodes = episodes.filter((ep) => requestedEpisodes!.includes(ep.rss_ep_num));
+    }
+    episodes.sort((a, b) => a.rss_ep_num - b.rss_ep_num);
 
-  // Sort by episode number ascending (oldest first for correct index ordering)
-  episodes.sort((a, b) => a.rss_ep_num - b.rss_ep_num);
-
-  console.log(`Processing ${episodes.length} episodes${dryRun ? " (DRY RUN)" : ""}`);
-
-  for (const ep of episodes) {
-    try {
-      await processEpisode(ep, dryRun);
-    } catch (err) {
-      console.error(`  ERROR on episode ${ep.rss_ep_num}:`, err);
+    console.log(`Generating ${episodes.length} episodes → ${OUTPUT_DIR}`);
+    for (const ep of episodes) {
+      try {
+        await generateEpisode(ep);
+      } catch (err) {
+        console.error(`  ERROR on episode ${ep.rss_ep_num}:`, err);
+      }
     }
   }
 
+  if (doPublish) {
+    if (!process.env.DATABASE_URL) {
+      console.error("ERROR: DATABASE_URL is required for --publish");
+      process.exit(1);
+    }
+    if (!process.env.GITHUB_TOKEN) {
+      console.error("ERROR: GITHUB_TOKEN is required for --publish");
+      process.exit(1);
+    }
+
+    let jsonFiles = fs.readdirSync(OUTPUT_DIR)
+      .filter((f) => f.endsWith(".json"))
+      .map((f) => path.join(OUTPUT_DIR, f))
+      .sort();
+
+    if (requestedEpisodes) {
+      jsonFiles = jsonFiles.filter((f) => {
+        const data = JSON.parse(fs.readFileSync(f, "utf-8"));
+        return requestedEpisodes!.includes(data.episodeNum);
+      });
+    }
+
+    console.log(`Publishing ${jsonFiles.length} posts from ${OUTPUT_DIR}`);
+    for (const f of jsonFiles) {
+      try {
+        await publishEpisode(f);
+      } catch (err) {
+        console.error(`  ERROR publishing ${f}:`, err);
+      }
+    }
+    await getPrisma().$disconnect();
+  }
+
   console.log(`\nDone!`);
-  await prisma.$disconnect();
 }
 
 main().catch((err) => {
