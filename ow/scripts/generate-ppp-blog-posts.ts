@@ -36,6 +36,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const PPP_HTML_ROOT = path.resolve(__dirname, "../../../../ppp-html");
 const EPISODE_INDEX_PATH = path.join(PPP_HTML_ROOT, "scripts/podcast/_episode_index.json");
 const PODCAST_DIR = path.join(PPP_HTML_ROOT, "podcast");
+const OUTPUT_DIR = path.join(__dirname, "_ppp-blog-output");
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN!;
 const REPO_OWNER = "nbrain-team";
