@@ -5,20 +5,32 @@
  * podcast episode transcripts. Each post is a 1,500-2,000 word article
  * summary written in OpticWise's blended Bill/Drew voice.
  *
- * Usage:
- *   npx tsx scripts/generate-ppp-blog-posts.ts                  # all episodes
- *   npx tsx scripts/generate-ppp-blog-posts.ts --episodes 1,2   # specific episodes
- *   npx tsx scripts/generate-ppp-blog-posts.ts --dry-run         # generate but don't publish
+ * Two-phase workflow:
+ *   Phase 1 — Generate: Reads transcripts, calls AI, saves post JSON to _output/
+ *   Phase 2 — Publish: Reads post JSON, creates DB records, pushes to GitHub
  *
- * Requires: DATABASE_URL, OPENAI_API_KEY, GITHUB_TOKEN
+ * Usage:
+ *   npx tsx scripts/generate-ppp-blog-posts.ts --generate --episodes 1,2
+ *   npx tsx scripts/generate-ppp-blog-posts.ts --publish --episodes 1,2
+ *   npx tsx scripts/generate-ppp-blog-posts.ts --generate              # all episodes
+ *   npx tsx scripts/generate-ppp-blog-posts.ts --publish               # all generated
+ *
+ * Generate requires: OPENAI_API_KEY
+ * Publish requires:  DATABASE_URL, GITHUB_TOKEN
  */
 
-import { PrismaClient } from "@prisma/client";
 import OpenAI from "openai";
 import * as fs from "fs";
 import * as path from "path";
 
-const prisma = new PrismaClient();
+let prisma: any = null;
+function getPrisma() {
+  if (!prisma) {
+    const { PrismaClient } = require("@prisma/client");
+    prisma = new PrismaClient();
+  }
+  return prisma;
+}
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const PPP_HTML_ROOT = path.resolve(__dirname, "../../../../ppp-html");
