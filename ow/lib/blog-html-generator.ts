@@ -23,6 +23,10 @@ function escapeHtml(str: string): string {
     .replace(/>/g, "&gt;")
 }
 
+function authorSlug(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "")
+}
+
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
 }
