@@ -448,6 +448,9 @@ export default function BlogPostForm({ initialPost }: BlogPostFormProps) {
                   min={new Date().toISOString().slice(0, 16)}
                   className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#123b6d] focus:ring-1 focus:ring-[#123b6d]/20"
                 />
+                <p className="text-xs text-gray-400">
+                  Times are in your local time zone ({Intl.DateTimeFormat().resolvedOptions().timeZone})
+                </p>
                 <button
                   onClick={handleSchedule}
                   disabled={saving || publishing || scheduling || !title || !slug || !excerpt || !content || !scheduledFor}
