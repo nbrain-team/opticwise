@@ -362,7 +362,7 @@ ${truncatedTranscript}`;
   const response = await openai.chat.completions.create({
     model: "gpt-4o",
     temperature: 0.7,
-    max_tokens: 4096,
+    max_tokens: 8192,
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: systemPrompt },
