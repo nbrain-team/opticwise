@@ -1,0 +1,42 @@
+name: Content Engine — Token Check
+on:
+  schedule:
+    # Monday 6:00 AM Denver
+    # MDT → Mon 12:00 UTC
+    # MST → Mon 13:00 UTC
+    - cron: '0 12 * * 1'
+    - cron: '0 13 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: content-engine/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: content-engine
+
+      - name: Verify secrets
+        run: npx tsx scripts/verify-secrets.ts
+        working-directory: content-engine
+        env:
+          GOOGLE_SA_CLIENT_EMAIL:    ${{ secrets.GOOGLE_SA_CLIENT_EMAIL }}
+          GOOGLE_SA_PRIVATE_KEY:     ${{ secrets.GOOGLE_SA_PRIVATE_KEY }}
+          ANTHROPIC_API_KEY:         ${{ secrets.ANTHROPIC_API_KEY }}
+          IMAGE_API_KEY:             ${{ secrets.IMAGE_API_KEY }}
+          OWNET_API_TOKEN:           ${{ secrets.OWNET_API_TOKEN }}
+          SLACK_BOT_TOKEN:           ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_NOTIFY_CHANNEL_ID:   ${{ secrets.SLACK_NOTIFY_CHANNEL_ID }}
+          DRIVE_MASTER_FOLDER_ID:    ${{ secrets.DRIVE_MASTER_FOLDER_ID }}
