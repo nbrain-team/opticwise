@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     const account = await prisma.socialAccount.findUnique({
       where: { id: socialAccountId },
-      select: { id: true, platform: true, platformAccountId: true },
+      select: { id: true, platform: true, platformAccountId: true, accountType: true },
     });
 
     if (!account) {
@@ -62,9 +62,9 @@ export async function POST(request: NextRequest) {
 
     // LinkedIn image upload flow
     const token = await ensureFreshToken(account.id);
-    const authorUrn = account.platformAccountId;
+    const ownerUrn = buildOwnerUrn(account.platformAccountId, account.accountType);
 
-    const { uploadUrl, imageUrn } = await initializeImageUpload(token, authorUrn);
+    const { uploadUrl, imageUrn } = await initializeImageUpload(token, ownerUrn);
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
