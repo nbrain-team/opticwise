@@ -1,7 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { Linkedin, Instagram, Image as ImageIcon } from 'lucide-react';
+
+const MENTION_REGEX = /@\[([^\]]+)\]\(([^)]+)\)/g;
+
+function renderContentWithMentions(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  const regex = new RegExp(MENTION_REGEX.source, 'g');
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(<Fragment key={`t-${lastIndex}`}>{text.slice(lastIndex, match.index)}</Fragment>);
+    }
+    const displayName = match[1];
+    parts.push(
+      <span key={`m-${match.index}`} className="text-[#0A66C2] font-semibold cursor-default">
+        {displayName}
+      </span>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    parts.push(<Fragment key={`t-${lastIndex}`}>{text.slice(lastIndex)}</Fragment>);
+  }
+  return parts;
+}
 
 interface MediaItem {
   type: string;
