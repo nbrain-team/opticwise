@@ -63,6 +63,14 @@ const SUGGESTED_HASHTAGS = [
   '#opticwise', '#buildingtech',
 ];
 
+const EMOJI_GROUPS = [
+  { label: 'Common', emojis: ['👍', '🔥', '💡', '🎯', '✅', '🚀', '💪', '👏', '🙌', '⭐', '❤️', '🤝', '📈', '💰', '🏆'] },
+  { label: 'Business', emojis: ['📊', '💼', '🏢', '📋', '🔑', '⚡', '🛠️', '📌', '🎓', '📣', '🗓️', '💻', '📱', '🌐', '🔒'] },
+  { label: 'Arrows & Symbols', emojis: ['→', '←', '↑', '↓', '•', '◆', '■', '▪️', '➡️', '⬇️', '🔹', '🔸', '✨', '⚠️', '💬'] },
+  { label: 'Hands & People', emojis: ['👋', '🤔', '😊', '🧠', '👀', '🎉', '🤩', '😤', '🙏', '✋', '👊', '🫡', '🤓', '😎', '🥇'] },
+  { label: 'Real Estate', emojis: ['🏠', '🏗️', '🏘️', '🔌', '💡', '🌡️', '📡', '🔧', '🏛️', '🧱', '🪟', '🚪', '🛗', '📐', '🌿'] },
+];
+
 export default function ComposePageWrapper() {
   return (
     <Suspense fallback={<div className="p-6 text-center text-gray-400">Loading...</div>}>
