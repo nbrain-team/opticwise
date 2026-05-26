@@ -65,13 +65,6 @@ const SUGGESTED_HASHTAGS = [
   '#opticwise', '#buildingtech',
 ];
 
-const EMOJI_GROUPS = [
-  { label: 'Common', emojis: ['👍', '🔥', '💡', '🎯', '✅', '🚀', '💪', '👏', '🙌', '⭐', '❤️', '🤝', '📈', '💰', '🏆'] },
-  { label: 'Business', emojis: ['📊', '💼', '🏢', '📋', '🔑', '⚡', '🛠️', '📌', '🎓', '📣', '🗓️', '💻', '📱', '🌐', '🔒'] },
-  { label: 'Arrows & Symbols', emojis: ['→', '←', '↑', '↓', '•', '◆', '■', '▪️', '➡️', '⬇️', '🔹', '🔸', '✨', '⚠️', '💬'] },
-  { label: 'Hands & People', emojis: ['👋', '🤔', '😊', '🧠', '👀', '🎉', '🤩', '😤', '🙏', '✋', '👊', '🫡', '🤓', '😎', '🥇'] },
-  { label: 'Real Estate', emojis: ['🏠', '🏗️', '🏘️', '🔌', '💡', '🌡️', '📡', '🔧', '🏛️', '🧱', '🪟', '🚪', '🛗', '📐', '🌿'] },
-];
 
 export default function ComposePageWrapper() {
   return (
