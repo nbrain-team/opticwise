@@ -398,7 +398,57 @@ function ComposePage() {
   const autoResize = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     e.target.style.height = 'auto';
     e.target.style.height = e.target.scrollHeight + 'px';
-    setContent(e.target.value);
+    const newContent = e.target.value;
+    setContent(newContent);
+
+    // Detect @mention trigger
+    const cursorPos = e.target.selectionStart;
+    const textBeforeCursor = newContent.slice(0, cursorPos);
+    const atMatch = textBeforeCursor.match(/@([^\s@[\](){}\\]*)$/);
+
+    if (atMatch && !isInstagram) {
+      const query = atMatch[1];
+      mentionStartRef.current = cursorPos - query.length - 1; // position of @
+      setMentionQuery(query);
+      setMentionVisible(true);
+
+      // Position the dropdown near the cursor
+      const textarea = e.target;
+      const lineHeight = 22;
+      const charsPerLine = Math.floor(textarea.clientWidth / 9);
+      const linesBeforeCursor = textBeforeCursor.split('\n').length;
+      const lastLineLength = (textBeforeCursor.split('\n').pop() || '').length;
+      setMentionPosition({
+        top: linesBeforeCursor * lineHeight + 8,
+        left: Math.min(lastLineLength * 9, textarea.clientWidth - 288),
+      });
+    } else {
+      if (mentionVisible) {
+        setMentionVisible(false);
+        mentionStartRef.current = null;
+      }
+    }
+  };
+
+  const handleMentionSelect = (result: { name: string; urn: string; type: string }) => {
+    const textarea = textareaRef.current;
+    if (!textarea || mentionStartRef.current === null) return;
+
+    const mentionText = `@[${result.name}](${result.urn})`;
+    const before = content.slice(0, mentionStartRef.current);
+    const after = content.slice(textarea.selectionStart);
+    const newContent = before + mentionText + ' ' + after;
+    setContent(newContent);
+
+    setMentionVisible(false);
+    setMentionQuery('');
+    mentionStartRef.current = null;
+
+    const newCursorPos = before.length + mentionText.length + 1;
+    requestAnimationFrame(() => {
+      textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+      textarea.focus();
+    });
   };
 
   const handleContentBlur = () => {
