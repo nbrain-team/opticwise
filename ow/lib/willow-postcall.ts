@@ -282,6 +282,39 @@ export async function processWillowCall(data: WillowCallData): Promise<CrmResult
       }).catch((err) => console.error("[willow] DealContact upsert failed:", err));
     }
 
+    // Note — surfaces call details prominently on the deal's Notes tab
+    const noteLines: string[] = [
+      `📞 Inbound call via Willow Voice Agent`,
+      ``,
+      `Caller: ${data.callerName?.trim() || "Unknown"}`,
+    ];
+    if (data.callerCompany) noteLines.push(`Company: ${data.callerCompany}`);
+    if (data.callerRole) noteLines.push(`Role: ${data.callerRole}`);
+    if (data.callerPhone) noteLines.push(`Phone: ${data.callerPhone}`);
+    if (data.contactInfo) noteLines.push(`Contact info: ${data.contactInfo}`);
+    if (data.callbackPreference) noteLines.push(`Callback preference: ${data.callbackPreference}`);
+    if (data.urgency) noteLines.push(`Urgency: ${data.urgency}`);
+    noteLines.push(``);
+    if (data.callReason) {
+      noteLines.push(`What did the caller ask?`);
+      noteLines.push(data.callReason);
+      noteLines.push(``);
+    }
+    if (data.transcriptSummary) {
+      noteLines.push(`Call summary:`);
+      noteLines.push(data.transcriptSummary);
+    }
+
+    await prisma.note.create({
+      data: {
+        content: noteLines.join("\n"),
+        dealId: deal.id,
+        personId: personId ?? undefined,
+        organizationId: organizationId ?? undefined,
+        createdBy: "Willow Voice Agent",
+      },
+    });
+
     // Activity log
     await prisma.activity.create({
       data: {
