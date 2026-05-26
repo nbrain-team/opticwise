@@ -64,8 +64,8 @@ export async function GET(request: NextRequest) {
       if (post.platform === "linkedin") {
         const token = await ensureFreshToken(post.socialAccount.id);
         const mediaIds = post.mediaItems
-          ? (post.mediaItems as Array<{ id?: string }>)
-              .map((m) => m.id)
+          ? (post.mediaItems as Array<{ mediaId?: string; id?: string }>)
+              .map((m) => m.mediaId || m.id)
               .filter(Boolean) as string[]
           : undefined;
 
