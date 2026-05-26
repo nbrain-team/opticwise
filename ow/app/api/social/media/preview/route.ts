@@ -41,9 +41,7 @@ export async function GET(req: NextRequest) {
     }
 
     const data = await resp.json();
-    const downloadUrl = data.downloadUrl || data.downloadUrlExpiresAt
-      ? data.downloadUrl
-      : null;
+    const downloadUrl = data.downloadUrl || null;
 
     if (!downloadUrl) {
       return NextResponse.json({ error: "No download URL available" }, { status: 404 });
