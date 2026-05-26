@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Loader2, User, Building2, Linkedin } from 'lucide-react';
+import { Loader2, User, Building2, Linkedin, AlertCircle } from 'lucide-react';
 
 interface MentionResult {
   name: string;
@@ -10,6 +10,7 @@ interface MentionResult {
   headline?: string;
   avatarUrl?: string;
   source: 'linkedin' | 'crm';
+  resolved?: boolean;
 }
 
 interface MentionTypeaheadProps {
