@@ -625,6 +625,60 @@ model ReadAIMeeting {
   @@index([archivedAt])
 }
 
+// ElevenLabs Voice Agent Calls (Willow post-call webhook)
+model VoiceAgentCall {
+  id             String @id @default(cuid())
+  conversationId String @unique
+
+  // Agent metadata
+  agentId   String?
+  agentName String?
+  status    String? // "done", "failed", etc.
+
+  // Caller info (from data_collection_results)
+  callerPhone        String?
+  callerName         String?
+  callerCompany      String?
+  callerRole         String?
+  callReason         String? @db.Text
+  callbackPreference String?
+  contactInfo        String?
+  urgency            String?
+
+  // Call content
+  transcript        Json?
+  transcriptSummary String? @db.Text
+  callSuccessful    String?
+
+  // Call metadata
+  startTime         DateTime
+  duration          Int?
+  cost              Int?
+  terminationReason String?
+
+  // CRM linking
+  dealId         String?
+  personId       String?
+  organizationId String?
+
+  // Raw webhook payload
+  rawPayload Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  deal         Deal?         @relation(fields: [dealId], references: [id], onDelete: SetNull)
+  person       Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+
+  @@index([conversationId])
+  @@index([dealId])
+  @@index([personId])
+  @@index([organizationId])
+  @@index([startTime])
+  @@index([callerPhone])
+}
+
 // Google Workspace Integration Models
 
 model GmailMessage {
