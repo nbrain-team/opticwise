@@ -215,6 +215,7 @@ model Person {
   chatbotConversations ChatbotConversation[]
   readAIMeetings       ReadAIMeeting[]
   formSubmissions      FormSubmission[]
+  voiceAgentCalls      VoiceAgentCall[]
 }
 
 enum DealStatus {
