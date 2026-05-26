@@ -875,87 +875,16 @@ function ComposePage() {
 
             {/* Platform-aware preview */}
             {content && (
-              <div className="bg-white rounded-xl border">
-                <div className="p-4 border-b">
-                  <h3 className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                    <PlatformIcon className="w-4 h-4" style={{ color: platformColor }} />
-                    {platformLabel} Preview
-                  </h3>
-                </div>
-
-                {isInstagram ? (
-                  /* Instagram-style card */
-                  <div className="p-0">
-                    {/* Header */}
-                    <div className="flex items-center gap-3 px-4 py-3">
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-xs"
-                        style={{ background: 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)' }}
-                      >
-                        {selectedAccount?.displayName?.charAt(0) || 'B'}
-                      </div>
-                      <span className="text-sm font-semibold text-gray-900">
-                        {selectedAccount?.username || selectedAccount?.displayName || 'opticwise'}
-                      </span>
-                    </div>
-                    {/* Image placeholder */}
-                    {mediaItems.length > 0 && mediaItems[0].preview ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={mediaItems[0].preview} alt="" className="w-full aspect-square object-cover" />
-                    ) : (
-                      <div className="w-full aspect-square bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-gray-300" />
-                      </div>
-                    )}
-                    {/* Action icons row */}
-                    <div className="flex items-center gap-4 px-4 py-2.5 text-gray-900">
-                      <span className="text-lg">♡</span>
-                      <span className="text-lg">💬</span>
-                      <span className="text-lg">📤</span>
-                      <span className="ml-auto text-lg">🔖</span>
-                    </div>
-                    {/* Caption */}
-                    <div className="px-4 pb-4">
-                      <p className="text-sm text-gray-800 leading-relaxed">
-                        <span className="font-semibold mr-1">{selectedAccount?.username || 'opticwise'}</span>
-                        {content.length > 200 ? content.slice(0, 200) + '…' : content}
-                      </p>
-                      {content.length > 200 && (
-                        <button className="text-xs text-gray-400 mt-0.5">more</button>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  /* LinkedIn-style card */
-                  <div className="p-4">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-10 h-10 rounded-full bg-[#0A66C2] flex items-center justify-center text-white font-semibold text-sm">
-                        {selectedAccount?.displayName?.charAt(0) || 'B'}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{selectedAccount?.displayName || 'Bill Demas'}</p>
-                        <p className="text-xs text-gray-500">CEO at Opticwise · Just now</p>
-                      </div>
-                    </div>
-                    <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                      {content.length > 300 ? content.slice(0, 300) + '…' : content}
-                    </div>
-                    {content.length > 300 && (
-                      <button className="text-sm text-gray-500 mt-1 hover:text-gray-700">…see more</button>
-                    )}
-                    {mediaItems.length > 0 && mediaItems[0].preview && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={mediaItems[0].preview} alt="" className="w-full h-48 object-cover rounded-lg mt-3" />
-                    )}
-                    <div className="flex items-center gap-6 mt-4 pt-3 border-t text-xs text-gray-500">
-                      <span>👍 Like</span>
-                      <span>💬 Comment</span>
-                      <span>🔄 Repost</span>
-                      <span>📤 Send</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <SocialPostPreview
+                content={content}
+                platform={platform}
+                firstComment={firstComment || null}
+                mediaItems={mediaItems}
+                accountName={selectedAccount?.displayName}
+                accountUsername={selectedAccount?.username}
+                accountAvatarUrl={selectedAccount?.avatarUrl}
+                accountType={selectedAccount?.accountType}
+              />
             )}
           </div>
         )}
