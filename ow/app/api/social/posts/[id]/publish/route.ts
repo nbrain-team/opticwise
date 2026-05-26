@@ -55,9 +55,16 @@ export async function POST(
         ? `urn:li:organization:${platformId}`
         : `urn:li:person:${platformId}`;
 
+    const mediaIds = existing.mediaItems
+      ? (existing.mediaItems as Array<{ mediaId?: string; id?: string }>)
+          .map((m) => m.mediaId || m.id)
+          .filter(Boolean) as string[]
+      : undefined;
+
     const { postUrn } = await createPost(accessToken, {
       authorUrn,
       text: existing.content,
+      mediaIds: mediaIds?.length ? mediaIds : undefined,
     });
 
     const post = await prisma.socialPost.update({
