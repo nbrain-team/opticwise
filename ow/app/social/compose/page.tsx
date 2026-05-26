@@ -107,6 +107,8 @@ function ComposePage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
 
   const selectedAccount = accounts.find(a => a.id === selectedAccountId) || null;
   const platform = selectedAccount?.platform ?? 'linkedin';
