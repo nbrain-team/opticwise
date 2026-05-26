@@ -306,8 +306,12 @@ function ComposePage() {
 
     for (const file of Array.from(files)) {
       try {
+        if (!selectedAccountId) {
+          throw new Error('Please select an account before uploading media');
+        }
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('socialAccountId', selectedAccountId);
         const res = await fetch('/api/social/media/upload', {
           method: 'POST',
           body: formData,
