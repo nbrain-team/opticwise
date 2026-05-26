@@ -29,6 +29,7 @@ interface MediaItem {
   type: string;
   url: string;
   filename: string;
+  mediaId?: string;
   preview?: string;
 }
 
