@@ -231,13 +231,37 @@ export interface CreatePostResult {
   postUrn: string;
 }
 
+/**
+ * Prepare post text for LinkedIn's "little text format".
+ * Escapes reserved characters in plain-text portions while
+ * preserving @[Name](urn) mention syntax and {hashtag|#|tag} syntax.
+ */
+export function prepareLittleTextContent(text: string): string {
+  const MENTION_PATTERN = /@\[[^\]]+\]\([^)]+\)/g;
+  const parts: string[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = MENTION_PATTERN.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(escapeLittleTextFormat(text.slice(lastIndex, match.index)));
+    }
+    parts.push(match[0]); // keep mention as-is
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    parts.push(escapeLittleTextFormat(text.slice(lastIndex)));
+  }
+  return parts.join("");
+}
+
 export async function createPost(
   accessToken: string,
   opts: CreatePostOptions
 ): Promise<CreatePostResult> {
   const body: Record<string, unknown> = {
     author: opts.authorUrn,
-    commentary: opts.text,
+    commentary: prepareLittleTextContent(opts.text),
     visibility: opts.visibility || "PUBLIC",
     distribution: {
       feedDistribution: "MAIN_FEED",
