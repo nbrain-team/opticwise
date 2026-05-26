@@ -4,9 +4,13 @@ import { processWillowCall, WillowCallData } from "@/lib/willow-postcall";
 
 const WEBHOOK_SECRET = process.env.ELEVENLABS_WEBHOOK_SECRET;
 
-const elevenlabs = new ElevenLabsClient({
-  apiKey: process.env.ELEVENLABS_API_KEY,
-});
+let _elevenlabs: ElevenLabsClient | null = null;
+function getClient() {
+  if (!_elevenlabs) {
+    _elevenlabs = new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY });
+  }
+  return _elevenlabs;
+}
 
 interface TranscriptTurn {
   role: string;
@@ -78,7 +82,7 @@ export async function POST(request: NextRequest) {
     // Verify HMAC signature via the ElevenLabs SDK
     let event: PostCallTranscriptionEvent;
     try {
-      event = (await elevenlabs.webhooks.constructEvent(
+      event = (await getClient().webhooks.constructEvent(
         body,
         signature,
         WEBHOOK_SECRET
