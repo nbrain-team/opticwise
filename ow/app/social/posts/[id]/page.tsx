@@ -20,9 +20,17 @@ interface Comment {
   likes: number;
 }
 
+interface MediaItem {
+  type: string;
+  url: string;
+  filename: string;
+  preview?: string;
+}
+
 interface PostDetail {
   id: string;
   content: string;
+  firstComment: string | null;
   platform: string;
   status: string;
   publishedAt: string | null;
@@ -37,7 +45,7 @@ interface PostDetail {
   aiGenerated: boolean;
   riskTier: string | null;
   riskReason: string | null;
-  mediaItems: unknown[] | null;
+  mediaItems: MediaItem[] | null;
   mediaType: string | null;
   socialAccount: {
     id: string;
