@@ -20,6 +20,7 @@ export async function GET(
           select: {
             id: true,
             displayName: true,
+            username: true,
             platform: true,
             accountType: true,
             avatarUrl: true,
