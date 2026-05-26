@@ -109,7 +109,7 @@ export default function SocialPostPreview({
           <div className="px-4 pb-4">
             <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
               <span className="font-semibold mr-1">{username}</span>
-              {isTruncated ? content.slice(0, truncateAt) + '…' : content}
+              {renderContentWithMentions(isTruncated ? content.slice(0, truncateAt) + '…' : content)}
             </p>
             {content.length > truncateAt && !expanded && (
               <button
