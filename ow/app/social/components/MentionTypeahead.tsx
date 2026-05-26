@@ -141,6 +141,11 @@ export default function MentionTypeahead({
                 )}
               </div>
               <div className="flex items-center gap-1 flex-shrink-0">
+                {result.resolved === false && (
+                  <span title="May not link — connect Company Page for full mentions">
+                    <AlertCircle className="w-3 h-3 text-amber-400" />
+                  </span>
+                )}
                 {result.source === 'linkedin' && (
                   <Linkedin className="w-3 h-3 text-[#0A66C2]" />
                 )}
