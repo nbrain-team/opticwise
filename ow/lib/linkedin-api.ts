@@ -375,6 +375,102 @@ export async function getPostStats(
   }
 }
 
+// ─── Mentions / People Search ─────────────────────────────────
+
+export interface MentionSearchResult {
+  personUrn: string;
+  firstName: string;
+  lastName: string;
+  headline?: string;
+  photo?: string;
+}
+
+/**
+ * Search for mentionable members (followers of the organization page).
+ * Uses LinkedIn People Typeahead API.
+ * Requires r_organization_social scope.
+ */
+export async function searchMentionableMembers(
+  accessToken: string,
+  orgUrn: string,
+  query: string
+): Promise<MentionSearchResult[]> {
+  try {
+    const params = new URLSearchParams({
+      q: "all",
+      query,
+      organization: orgUrn,
+      count: "10",
+    });
+    const data = await liApiFetch<{
+      elements?: Array<{
+        personUrn?: string;
+        person?: string;
+        firstName?: string;
+        lastName?: string;
+        headline?: string;
+        photo?: string;
+      }>;
+    }>(`/rest/typeahead?${params}`, accessToken);
+
+    return (data.elements || []).map((el) => ({
+      personUrn: el.personUrn || el.person || "",
+      firstName: el.firstName || "",
+      lastName: el.lastName || "",
+      headline: el.headline,
+      photo: el.photo,
+    }));
+  } catch (err) {
+    console.error("LinkedIn mention search failed:", err);
+    return [];
+  }
+}
+
+/**
+ * Resolve a LinkedIn vanity URL to a person URN.
+ * Uses the People Typeahead vanityUrl finder scoped to an organization.
+ */
+export async function resolveVanityUrl(
+  accessToken: string,
+  orgUrn: string,
+  vanityName: string
+): Promise<{ personUrn: string; firstName: string; lastName: string } | null> {
+  try {
+    const params = new URLSearchParams({
+      q: "vanityUrl",
+      vanityUrl: vanityName,
+      organization: orgUrn,
+    });
+    const data = await liApiFetch<{
+      elements?: Array<{
+        personUrn?: string;
+        person?: string;
+        firstName?: string;
+        lastName?: string;
+      }>;
+    }>(`/rest/typeahead?${params}`, accessToken);
+
+    const el = data.elements?.[0];
+    if (!el) return null;
+    return {
+      personUrn: el.personUrn || el.person || "",
+      firstName: el.firstName || "",
+      lastName: el.lastName || "",
+    };
+  } catch (err) {
+    console.error("LinkedIn vanity URL resolve failed:", err);
+    return null;
+  }
+}
+
+/**
+ * Escape reserved characters in non-mention text per LinkedIn's
+ * "little text format" spec. Reserved: @ [ ] ( ) { } \
+ */
+export function escapeLittleTextFormat(text: string): string {
+  return text.replace(/([\\@[\](){}])/g, "\\$1");
+}
+
 // ─── Token Management ────────────────────────────────────────
 
 /**
