@@ -84,3 +84,11 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+function buildOwnerUrn(platformAccountId: string, accountType: string | null): string {
+  if (platformAccountId.startsWith("urn:")) return platformAccountId;
+  if (accountType === "company_page") {
+    return `urn:li:organization:${platformAccountId}`;
+  }
+  return `urn:li:person:${platformAccountId}`;
+}
