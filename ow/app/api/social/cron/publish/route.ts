@@ -69,8 +69,14 @@ export async function GET(request: NextRequest) {
               .filter(Boolean) as string[]
           : undefined;
 
+        const authorUrn = post.socialAccount.platformAccountId.startsWith("urn:")
+          ? post.socialAccount.platformAccountId
+          : post.socialAccount.accountType === "company_page"
+            ? `urn:li:organization:${post.socialAccount.platformAccountId}`
+            : `urn:li:person:${post.socialAccount.platformAccountId}`;
+
         const result = await createPost(token, {
-          authorUrn: post.socialAccount.platformAccountId,
+          authorUrn,
           text: post.content,
           mediaIds: mediaIds?.length ? mediaIds : undefined,
         });
