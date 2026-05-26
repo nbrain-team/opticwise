@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 
 const PIPELINE_NAME = "Landing Pages Leads";
-const STAGE_NAME = "Willow Inbound Call";
+const STAGE_NAME = "888-OW main inbound";
 const OWNER_EMAIL = "bill@opticwise.com";
 
 export interface WillowCallData {
