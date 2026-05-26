@@ -9,6 +9,7 @@ import {
   Linkedin, Instagram, Loader2, X, MessageSquareText, Clock,
   FileText, Wand2, Shield, ChevronDown,
 } from 'lucide-react';
+import SocialPostPreview from './components/SocialPostPreview';
 
 interface Account {
   id: string;
