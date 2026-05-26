@@ -71,6 +71,7 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<PostDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(true);
 
   const fetchPost = useCallback(async () => {
     setLoading(true);
