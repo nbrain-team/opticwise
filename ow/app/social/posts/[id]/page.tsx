@@ -51,6 +51,7 @@ interface PostDetail {
   socialAccount: {
     id: string;
     displayName: string | null;
+    username: string | null;
     platform: string;
     accountType: string;
     avatarUrl: string | null;
