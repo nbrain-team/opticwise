@@ -668,26 +668,18 @@ function ComposePage() {
                       Emoji
                     </button>
                     {showEmojiPicker && (
-                      <div className="absolute bottom-full left-0 mb-2 w-72 bg-white rounded-xl border border-gray-200 shadow-xl z-30 p-3">
-                        <div className="max-h-52 overflow-y-auto space-y-2">
-                          {EMOJI_GROUPS.map(group => (
-                            <div key={group.label}>
-                              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">{group.label}</p>
-                              <div className="flex flex-wrap gap-0.5">
-                                {group.emojis.map(emoji => (
-                                  <button
-                                    key={emoji}
-                                    type="button"
-                                    onClick={() => insertEmoji(emoji)}
-                                    className="w-7 h-7 flex items-center justify-center rounded hover:bg-gray-100 text-base transition-colors"
-                                  >
-                                    {emoji}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                      <div className="absolute bottom-full left-0 mb-2 z-30">
+                        <Picker
+                          data={data}
+                          onEmojiSelect={(emoji: { native: string }) => {
+                            insertEmoji(emoji.native);
+                          }}
+                          theme="light"
+                          previewPosition="none"
+                          skinTonePosition="search"
+                          maxFrequentRows={2}
+                          perLine={8}
+                        />
                       </div>
                     )}
                   </div>
