@@ -75,13 +75,11 @@ export class OWnetClient {
   }
 
   private async verifyInsightsSchedule(postId: string): Promise<InsightsScheduleResponse> {
-    const baseUrl = this.config.insightsEndpoint.replace(/\/schedule$/, '');
-    return this.get<InsightsScheduleResponse>(`${baseUrl}/schedule/${postId}`);
+    return this.get<InsightsScheduleResponse>(`${this.config.insightsEndpoint}/${postId}`);
   }
 
   private async verifySocialSchedule(postId: string): Promise<SocialComposeResponse> {
-    const baseUrl = this.config.socialEndpoint.replace(/\/compose$/, '');
-    return this.get<SocialComposeResponse>(`${baseUrl}/${postId}`);
+    return this.get<SocialComposeResponse>(`${this.config.socialEndpoint}/${postId}`);
   }
 
   private async post<T>(url: string, body: unknown, idempotencyKey: string): Promise<T> {
