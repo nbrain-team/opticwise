@@ -316,6 +316,7 @@ export default function PostDetailPage() {
               accountUsername={post.socialAccount?.username}
               accountAvatarUrl={post.socialAccount?.avatarUrl}
               accountType={post.socialAccount?.accountType}
+              defaultExpanded
             />
           ) : (
             <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
