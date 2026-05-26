@@ -323,9 +323,10 @@ function ComposePage() {
         }
         const data = await res.json();
         setMediaItems(prev => [...prev, {
-          type: data.type,
-          url: data.url,
+          type: file.type.startsWith('image/') ? 'image' : 'file',
+          url: data.url || '',
           filename: data.filename,
+          mediaId: data.mediaId,
           preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
         }]);
       } catch (err) {
