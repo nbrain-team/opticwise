@@ -10,6 +10,8 @@ import {
   FileText, Wand2, Shield, ChevronDown, Smile,
 } from 'lucide-react';
 import SocialPostPreview from '../components/SocialPostPreview';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 interface Account {
   id: string;
