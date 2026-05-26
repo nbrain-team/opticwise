@@ -641,15 +641,25 @@ function ComposePage() {
                 </div>
               )}
 
-              <textarea
-                ref={textareaRef}
-                value={content}
-                onChange={autoResize}
-                onBlur={handleContentBlur}
-                placeholder={isInstagram ? 'Write your caption…' : 'What do you want to talk about?'}
-                className="w-full min-h-[200px] resize-none border-0 focus:ring-0 text-gray-800 text-[15px] leading-relaxed placeholder:text-gray-400 outline-none"
-                style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
-              />
+              <div className="relative">
+                <textarea
+                  ref={textareaRef}
+                  value={content}
+                  onChange={autoResize}
+                  onBlur={handleContentBlur}
+                  placeholder={isInstagram ? 'Write your caption…' : 'What do you want to talk about?'}
+                  className="w-full min-h-[200px] resize-none border-0 focus:ring-0 text-gray-800 text-[15px] leading-relaxed placeholder:text-gray-400 outline-none"
+                  style={{ fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' }}
+                />
+                <MentionTypeahead
+                  query={mentionQuery}
+                  accountId={selectedAccountId}
+                  visible={mentionVisible}
+                  position={mentionPosition}
+                  onSelect={handleMentionSelect}
+                  onClose={() => setMentionVisible(false)}
+                />
+              </div>
 
               {/* Media Previews */}
               {mediaItems.length > 0 && (
