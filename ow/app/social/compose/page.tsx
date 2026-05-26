@@ -202,10 +202,10 @@ function ComposePage() {
             preview: m.preview,
           }));
           setMediaItems(loaded);
-          // Fetch preview URLs for items that have a mediaId but no preview
+          // Fetch preview URLs for items that have a mediaId but no displayable URL
           for (let i = 0; i < loaded.length; i++) {
             const item = loaded[i];
-            if (item.mediaId && !item.preview && post.socialAccountId) {
+            if (item.mediaId && !item.preview && !item.url && post.socialAccountId) {
               fetch(`/api/social/media/preview?mediaId=${encodeURIComponent(item.mediaId)}&accountId=${encodeURIComponent(post.socialAccountId)}`)
                 .then(r => r.ok ? r.json() : null)
                 .then(data => {
