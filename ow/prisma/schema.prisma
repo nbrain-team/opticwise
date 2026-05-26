@@ -324,6 +324,7 @@ model Deal {
   chatbotConversationsConverted ChatbotConversation[]
   readAIMeetings                ReadAIMeeting[]
   formSubmissions               FormSubmission[]
+  voiceAgentCalls               VoiceAgentCall[]
   dealFiles                     DealFile[]
   dealAttachmentChunks          DealAttachmentChunk[]
 
