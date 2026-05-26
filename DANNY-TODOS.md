@@ -312,3 +312,42 @@ These are not Danny-blocked — they're deferred follow-ups from Sprint 2 that B
 - Instagram Graph API is listed under Products
 - Bill adds `META_APP_ID` and `META_APP_SECRET` to Render env vars
 - Bill is listed as an app admin or test user for Development Mode testing
+
+---
+
+# Sprint 3 — Willow Voice Agent TODOs
+
+---
+
+## 6. ElevenLabs Willow Webhook — Register URL + Add Env Vars on Render
+
+**Priority:** Sprint 3 (blocks Section 4.8/4.9 Voice Agent CRM integration)
+**Opened:** 2026-05-26
+**Blocked entity:** OWnet v1 Punch List — Section 4.8 "ElevenLabs / Willow voice"
+
+**Context:** The Willow voice agent is configured in ElevenLabs and the post-call webhook handler is deployed at `/api/webhooks/willow-postcall`. Two environment variables need to be added to the Render `opticwise-backend` service for the webhook to authenticate incoming requests.
+
+**Steps:**
+
+1. **Get the HMAC webhook secret from ElevenLabs:**
+   - Go to https://elevenlabs.io → ElevenAgents settings → Webhooks
+   - The post-call webhook should already be configured. Copy the **HMAC shared secret** that was generated when the webhook was created.
+   - If no webhook exists yet, create one:
+     - URL: `https://app.opticwise.com/api/webhooks/willow-postcall`
+     - Auth method: **HMAC**
+     - Copy the generated secret
+
+2. **Get the ElevenLabs API key:**
+   - Go to https://elevenlabs.io → Profile → API Keys
+   - Copy an existing key or generate a new one
+
+3. **Add env vars on Render (`opticwise-backend`):**
+   - `ELEVENLABS_WEBHOOK_SECRET` = the HMAC secret from step 1
+   - `ELEVENLABS_API_KEY` = the API key from step 2
+   - Save and trigger a manual deploy
+
+4. **Verify:** Call `888-623-6890`, complete a short conversation with Willow, then check OWnet:
+   - A new Deal should appear in **Landing Pages Leads → Willow Inbound Call** stage
+   - The deal should have a linked Contact and Activity
+
+**Note on OITVOiP routing:** The Twilio number `888-623-6890` is imported directly into ElevenLabs, which handles the Willow leg. OITVOiP's IVR routes callers to this number as the "new inquiry" option. No additional Twilio configuration is needed.
