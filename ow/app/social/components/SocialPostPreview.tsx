@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Linkedin, Instagram, Image as ImageIcon } from 'lucide-react';
 
 interface MediaItem {
@@ -18,6 +19,7 @@ interface SocialPostPreviewProps {
   accountUsername?: string | null;
   accountAvatarUrl?: string | null;
   accountType?: string;
+  defaultExpanded?: boolean;
 }
 
 export default function SocialPostPreview({
@@ -29,7 +31,9 @@ export default function SocialPostPreview({
   accountUsername,
   accountAvatarUrl,
   accountType,
+  defaultExpanded = false,
 }: SocialPostPreviewProps) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const isInstagram = platform === 'instagram';
   const displayName = accountName || 'Bill Douglas';
   const username = accountUsername || accountName || 'opticwise';
@@ -38,6 +42,9 @@ export default function SocialPostPreview({
   const imageUrl = mediaItems?.[0]?.preview || mediaItems?.[0]?.url;
 
   if (isInstagram) {
+    const truncateAt = 200;
+    const isTruncated = content.length > truncateAt && !expanded;
+
     return (
       <div className="bg-white rounded-xl border overflow-hidden">
         <div className="p-4 border-b">
@@ -74,18 +81,26 @@ export default function SocialPostPreview({
             <span className="ml-auto text-lg">🔖</span>
           </div>
           <div className="px-4 pb-4">
-            <p className="text-sm text-gray-800 leading-relaxed">
+            <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
               <span className="font-semibold mr-1">{username}</span>
-              {content.length > 200 ? content.slice(0, 200) + '…' : content}
+              {isTruncated ? content.slice(0, truncateAt) + '…' : content}
             </p>
-            {content.length > 200 && (
-              <button className="text-xs text-gray-400 mt-0.5">more</button>
+            {content.length > truncateAt && !expanded && (
+              <button
+                onClick={() => setExpanded(true)}
+                className="text-xs text-gray-400 mt-0.5 hover:text-gray-600"
+              >
+                more
+              </button>
             )}
           </div>
         </div>
       </div>
     );
   }
+
+  const truncateAt = 300;
+  const isTruncated = content.length > truncateAt && !expanded;
 
   return (
     <div className="bg-white rounded-xl border overflow-hidden">
@@ -112,10 +127,15 @@ export default function SocialPostPreview({
           </div>
         </div>
         <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-          {content.length > 300 ? content.slice(0, 300) + '…' : content}
+          {isTruncated ? content.slice(0, truncateAt) + '…' : content}
         </div>
-        {content.length > 300 && (
-          <button className="text-sm text-gray-500 mt-1 hover:text-gray-700">…see more</button>
+        {content.length > truncateAt && !expanded && (
+          <button
+            onClick={() => setExpanded(true)}
+            className="text-sm text-gray-500 mt-1 hover:text-gray-700"
+          >
+            …see more
+          </button>
         )}
         {imageUrl && (
           <img src={imageUrl} alt="" className="w-full h-48 object-cover rounded-lg mt-3" />
