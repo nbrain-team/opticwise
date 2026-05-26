@@ -184,7 +184,7 @@ export default function SocialPostPreview({
               )}
               <div className="bg-gray-50 rounded-lg px-3 py-2 flex-1">
                 <p className="text-xs font-semibold text-gray-700">{displayName}</p>
-                <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-wrap">{firstComment}</p>
+                <p className="text-xs text-gray-600 mt-0.5 whitespace-pre-wrap">{renderContentWithMentions(firstComment)}</p>
               </div>
             </div>
           </div>
