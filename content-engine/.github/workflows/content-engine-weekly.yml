@@ -1,0 +1,57 @@
+name: Content Engine — Weekly
+on:
+  schedule:
+    # Wed 20:00 America/Denver
+    # MDT (Mar-Nov) = UTC-6 → Thu 02:00 UTC
+    # MST (Nov-Mar) = UTC-7 → Thu 03:00 UTC
+    # Both lines fire; index.ts exits early on the wrong-season run.
+    - cron: '0 2 * * 4'
+    - cron: '0 3 * * 4'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: content-engine
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: content-engine/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: content-engine
+
+      - name: Run content engine
+        run: npx tsx src/index.ts
+        working-directory: content-engine
+        env:
+          GOOGLE_SA_CLIENT_EMAIL:    ${{ secrets.GOOGLE_SA_CLIENT_EMAIL }}
+          GOOGLE_SA_PRIVATE_KEY:     ${{ secrets.GOOGLE_SA_PRIVATE_KEY }}
+          ANTHROPIC_API_KEY:         ${{ secrets.ANTHROPIC_API_KEY }}
+          IMAGE_API_KEY:             ${{ secrets.IMAGE_API_KEY }}
+          OWNET_API_TOKEN:           ${{ secrets.OWNET_API_TOKEN }}
+          OWNET_INSIGHTS_ENDPOINT:   ${{ secrets.OWNET_INSIGHTS_ENDPOINT }}
+          OWNET_SOCIAL_ENDPOINT:     ${{ secrets.OWNET_SOCIAL_ENDPOINT }}
+          DRIVE_MASTER_FOLDER_ID:    ${{ secrets.DRIVE_MASTER_FOLDER_ID }}
+          SLACK_BOT_TOKEN:           ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_NOTIFY_CHANNEL_ID:   ${{ secrets.SLACK_NOTIFY_CHANNEL_ID }}
+
+      - name: Upload Drive-failure artifact (if any)
+        if: failure() && hashFiles('content-engine/artifacts/**') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-engine-output-${{ github.run_id }}
+          path: content-engine/artifacts/
+          retention-days: 30
