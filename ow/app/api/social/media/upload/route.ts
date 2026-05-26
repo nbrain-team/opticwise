@@ -71,9 +71,13 @@ export async function POST(request: NextRequest) {
 
     await uploadImageBinary(uploadUrl, token, buffer, file.type);
 
+    // Generate a base64 data URL for preview (LinkedIn doesn't serve unpublished images)
+    const base64 = buffer.toString("base64");
+    const previewDataUrl = `data:${file.type};base64,${base64}`;
+
     return NextResponse.json({
       mediaId: imageUrn,
-      url: "",
+      url: previewDataUrl,
       filename: file.name,
     });
   } catch (error) {
