@@ -368,7 +368,12 @@ function ComposePage() {
 
       if (!isInstagram && firstComment) body.firstComment = firstComment;
       if (mediaItems.length > 0) {
-        body.mediaItems = mediaItems.map(m => ({ type: m.type, url: m.url }));
+        body.mediaItems = mediaItems.map(m => ({
+          type: m.type,
+          url: m.url,
+          mediaId: m.mediaId,
+          filename: m.filename,
+        }));
         body.mediaType = mediaItems[0].type;
       }
 
