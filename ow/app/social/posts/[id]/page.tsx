@@ -34,6 +34,7 @@ interface PostDetail {
   content: string;
   firstComment: string | null;
   platform: string;
+  socialAccountId: string | null;
   status: string;
   publishedAt: string | null;
   scheduledFor: string | null;
