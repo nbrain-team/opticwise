@@ -157,6 +157,12 @@ export default function MentionTypeahead({
           ))}
         </div>
       )}
+      {results.length > 0 && results.some(r => r.resolved === false) && (
+        <div className="px-3 py-1.5 border-t bg-amber-50 text-[10px] text-amber-600 flex items-center gap-1">
+          <AlertCircle className="w-3 h-3 flex-shrink-0" />
+          Connect a Company Page on /social for clickable mentions
+        </div>
+      )}
       <div className="px-3 py-1.5 border-t bg-gray-50 text-[10px] text-gray-400">
         ↑↓ navigate · Enter select · Esc close
       </div>
