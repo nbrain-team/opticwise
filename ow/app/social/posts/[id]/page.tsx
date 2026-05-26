@@ -10,7 +10,7 @@ import {
   MousePointerClick, XCircle, MonitorSmartphone,
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
-import SocialPostPreview from '../components/SocialPostPreview';
+import SocialPostPreview from '../../components/SocialPostPreview';
 
 interface Comment {
   id: string;
