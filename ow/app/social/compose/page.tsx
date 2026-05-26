@@ -194,11 +194,28 @@ function ComposePage() {
         }
         if (post.socialAccountId) setSelectedAccountId(post.socialAccountId);
         if (post.mediaItems?.length) {
-          setMediaItems(post.mediaItems.map((m: { type: string; url: string; filename?: string }) => ({
+          const loaded = post.mediaItems.map((m: { type: string; url: string; filename?: string; mediaId?: string; preview?: string }) => ({
             type: m.type,
             url: m.url,
             filename: m.filename || 'media',
-          })));
+            mediaId: m.mediaId,
+            preview: m.preview,
+          }));
+          setMediaItems(loaded);
+          // Fetch preview URLs for items that have a mediaId but no preview
+          for (let i = 0; i < loaded.length; i++) {
+            const item = loaded[i];
+            if (item.mediaId && !item.preview && post.socialAccountId) {
+              fetch(`/api/social/media/preview?mediaId=${encodeURIComponent(item.mediaId)}&accountId=${encodeURIComponent(post.socialAccountId)}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                  if (data?.url) {
+                    setMediaItems(prev => prev.map((m, idx) => idx === i ? { ...m, preview: data.url } : m));
+                  }
+                })
+                .catch(() => {});
+            }
+          }
         }
         if (post.scheduledFor) {
           setScheduleMode('schedule');

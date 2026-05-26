@@ -134,6 +134,7 @@ model Organization {
   conferenceAttendees ConferenceAttendee[]
   readAIMeetings      ReadAIMeeting[]
   formSubmissions     FormSubmission[]
+  voiceAgentCalls     VoiceAgentCall[]
 }
 
 model Person {
