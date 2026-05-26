@@ -85,7 +85,29 @@ export default function PostDetailPage() {
         return;
       }
       const data = await res.json();
-      setPost(data.post || data);
+      const loaded = data.post || data;
+      setPost(loaded);
+      // Resolve media preview URLs for items with mediaId
+      if (loaded.mediaItems?.length && loaded.socialAccountId) {
+        for (let i = 0; i < loaded.mediaItems.length; i++) {
+          const item = loaded.mediaItems[i];
+          if (item.mediaId && !item.preview && !item.url) {
+            fetch(`/api/social/media/preview?mediaId=${encodeURIComponent(item.mediaId)}&accountId=${encodeURIComponent(loaded.socialAccountId)}`)
+              .then(r => r.ok ? r.json() : null)
+              .then(result => {
+                if (result?.url) {
+                  setPost(prev => {
+                    if (!prev) return prev;
+                    const updated = [...(prev.mediaItems || [])];
+                    updated[i] = { ...updated[i], preview: result.url };
+                    return { ...prev, mediaItems: updated };
+                  });
+                }
+              })
+              .catch(() => {});
+          }
+        }
+      }
     } catch (err) {
       console.error('Fetch post error:', err);
       setError('Failed to load post');
