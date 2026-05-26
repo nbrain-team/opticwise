@@ -33,7 +33,7 @@ export default function MentionTypeahead({
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchResults = useCallback(async (q: string) => {
     if (q.length < 2) {
