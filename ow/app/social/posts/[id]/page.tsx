@@ -7,9 +7,10 @@ import {
   ArrowLeft, Plus, Linkedin, Instagram, Search, CheckCircle2,
   Clock, FileText, AlertCircle, Eye, Heart, MessageSquare,
   Share2, Sparkles, MoreHorizontal, Trash2, Send, Shield,
-  MousePointerClick, XCircle,
+  MousePointerClick, XCircle, MonitorSmartphone,
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
+import SocialPostPreview from '../components/SocialPostPreview';
 
 interface Comment {
   id: string;
