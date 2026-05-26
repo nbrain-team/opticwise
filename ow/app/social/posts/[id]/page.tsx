@@ -313,6 +313,7 @@ export default function PostDetailPage() {
               firstComment={post.firstComment}
               mediaItems={post.mediaItems}
               accountName={post.socialAccount?.displayName}
+              accountUsername={post.socialAccount?.username}
               accountAvatarUrl={post.socialAccount?.avatarUrl}
               accountType={post.socialAccount?.accountType}
             />
