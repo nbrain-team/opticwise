@@ -48,8 +48,15 @@ export async function POST(
 
     const accessToken = await ensureFreshToken(existing.socialAccountId);
 
+    const platformId = existing.socialAccount.platformAccountId;
+    const authorUrn = platformId.startsWith("urn:")
+      ? platformId
+      : existing.socialAccount.accountType === "company_page"
+        ? `urn:li:organization:${platformId}`
+        : `urn:li:person:${platformId}`;
+
     const { postUrn } = await createPost(accessToken, {
-      authorUrn: existing.socialAccount.platformAccountId,
+      authorUrn,
       text: existing.content,
     });
 
