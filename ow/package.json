@@ -28,7 +28,7 @@
     "seed:website-forms": "tsx scripts/seed-website-forms.ts"
   },
   "dependencies": {
-    "@elevenlabs/elevenlabs-js": "^1.0.0",
+    "@elevenlabs/elevenlabs-js": "^2.49.1",
     "@anthropic-ai/sdk": "^0.76.0",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/sortable": "10.0.0",
