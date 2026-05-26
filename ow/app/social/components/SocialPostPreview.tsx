@@ -165,7 +165,9 @@ export default function SocialPostPreview({
           </button>
         )}
         {imageUrl && (
-          <img src={imageUrl} alt="" className="w-full h-48 object-cover rounded-lg mt-3" />
+          <div className="-mx-4 mt-3">
+            <img src={imageUrl} alt="" className="w-full max-h-[400px] object-cover" />
+          </div>
         )}
         <div className="flex items-center gap-6 mt-4 pt-3 border-t text-xs text-gray-500">
           <span>👍 Like</span>
