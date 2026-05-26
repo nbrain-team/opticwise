@@ -114,6 +114,11 @@ function ComposePage() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
 
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [mentionVisible, setMentionVisible] = useState(false);
+  const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 });
+  const mentionStartRef = useRef<number | null>(null);
+
   const selectedAccount = accounts.find(a => a.id === selectedAccountId) || null;
   const platform = selectedAccount?.platform ?? 'linkedin';
   const { charLimit, color: platformColor, label: platformLabel, Icon: PlatformIcon } = PLATFORM_CONFIG[platform];
