@@ -10,6 +10,7 @@ import {
   FileText, Wand2, Shield, ChevronDown, Smile,
 } from 'lucide-react';
 import SocialPostPreview from '../components/SocialPostPreview';
+import MentionTypeahead from '../components/MentionTypeahead';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
