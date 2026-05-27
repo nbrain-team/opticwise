@@ -150,6 +150,14 @@ const FORMS: SeedForm[] = [
         placeholder: "Number of units, current challenges…",
         mapsTo: "deal_notes",
       },
+      {
+        label: "Yes, OpticWise may send me SMS updates about my review",
+        fieldKey: "sms_opt_in",
+        fieldType: "checkbox",
+        required: false,
+        helpText:
+          "Message frequency varies. Reply STOP to opt out. Msg & data rates may apply.",
+      },
     ],
   },
 
