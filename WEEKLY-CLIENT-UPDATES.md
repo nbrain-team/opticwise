@@ -8,16 +8,19 @@
 
 ### 2026-05-27 — GDPR Cookie Consent System Deployed to opticwise.com
 
-- **Full GDPR-compliant cookie consent system** implemented across all 202 pages of opticwise.com — custom-built, lightweight, no third-party CMP dependency
-- **Cookie consent banner** appears on first visit with three options: Accept All, Reject Non-Essential, and Customize — slides up from the bottom with a smooth animation matching the OW dark brand palette
-- **Preferences modal** lets visitors toggle individual categories (Strictly Necessary, Analytics, Embedded Content) with accessible toggle switches and detailed descriptions
-- **Google Analytics 4 gated behind consent** — GA4 (G-XSB5M0FJC0) no longer loads until the visitor explicitly accepts analytics cookies; rejecting clears existing `_ga` cookies
+- **Full GDPR-compliant cookie consent system** implemented across all 204 pages of opticwise.com — custom-built, lightweight, no third-party CMP dependency
+- **Google Consent Mode v2** — GA4 loads on every page with all consent categories denied by default, sending cookieless pings for aggregate modeling; switches to full measurement only after explicit consent
+- **Timezone-based EU/EEA/UK geo-detection** — uses `Intl.DateTimeFormat` timezone (no external API call, zero latency, offline-compatible) to determine if the visitor needs a consent banner; US visitors see no banner and get full analytics automatically
+- **Cookie consent banner** for EU/EEA/UK visitors with three options: Accept All, Reject All, and Manage Preferences — slides up from the bottom with a smooth animation matching the OW dark brand palette
+- **Preferences modal** lets visitors toggle individual categories (Strictly Necessary, Analytics with Consent Mode v2 explanation, Embedded Content) with accessible toggle switches and detailed descriptions
+- **Consent persists in localStorage** (13-month expiry per GDPR maximum) — returning visitors who already chose won't see the banner again
 - **Vimeo embed gating** on 4 marketing pages (How It Works, Customer Outcomes, About, 5S Standard) — videos show a placeholder with "Accept & Play" button until embeds consent is granted
-- **"Cookie Preferences" footer link** added to every page (marketing + blog) — reopens the preferences modal so visitors can change their choices at any time
-- **Privacy Policy updated for GDPR** (opticwise.com/privacy/) — added: Legal Basis for Processing (Art. 6), complete cookie inventory table, EU/EEA rights section (access, rectification, erasure, restriction, portability, objection, complaint to supervisory authority), Data Controller identification, International Data Transfers section referencing Google's SCCs, and consent withdrawal instructions
-- **Blog footer standardized** — all 37 newer blog posts that were missing Privacy/Terms links now include Privacy Policy, Terms of Use, and Cookie Preferences in the footer; blog-html-generator.ts template updated for all future posts
-- **CSP-compatible** — uses `data-ow-cookie-prefs` attribute with event delegation instead of inline onclick handlers; no CSP changes needed beyond cache headers for the two new assets
-- **Consent persists** via `ow_consent` cookie (JSON, 365-day expiry, SameSite=Lax) — returning visitors who already chose won't see the banner again
+- **Dedicated Cookie Policy page** (opticwise.com/cookie-policy/) — full cookie inventory table, Consent Mode v2 explanation, international visitors section, and how-to-withdraw instructions
+- **"Cookie Settings" footer link** on every page (204 pages) — reopens the preferences modal so visitors can change their choices at any time; "Cookie Policy" link also added to every footer
+- **Privacy Policy updated for GDPR** (opticwise.com/privacy/) — added: Consent Mode v2 explanation, Legal Basis for Processing (Art. 6), complete cookie inventory table (updated for localStorage), EU/EEA rights section, Data Controller identification, International Data Transfers section, and consent withdrawal instructions
+- **Blog footer standardized** — all blog posts include Privacy Policy, Terms of Use, Cookie Policy, and Cookie Settings in the footer; blog-html-generator.ts template updated for all future posts
+- **Sitemap updated** — cookie-policy page added with proper lastmod date
+- **CSP tightened** — removed Cloudflare from connect-src (no longer needed with timezone-based geo-detection)
 
 ---
 
