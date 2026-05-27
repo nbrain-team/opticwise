@@ -351,3 +351,65 @@ These are not Danny-blocked — they're deferred follow-ups from Sprint 2 that B
    - The deal should have a linked Contact and Activity
 
 **Note on OITVOiP routing:** The Twilio number `888-623-6890` is imported directly into ElevenLabs, which handles the Willow leg. OITVOiP's IVR routes callers to this number as the "new inquiry" option. No additional Twilio configuration is needed.
+
+---
+
+# Sprint 3 — Twilio SMS TODOs
+
+---
+
+## 7. Twilio 10DLC Registration + Env Vars for Outbound SMS
+
+**Priority:** Sprint 3 (blocks Section 4.9 Outbound SMS — Audit Confirmation Texts)
+**Opened:** 2026-05-27
+**Blocked entity:** OWnet v1 Punch List — Section 4.9 "Twilio (Willow inbound voice + outbound SMS)"
+
+**Context:** When a prospect submits a Schedule Review or PPP Review form and opts in to SMS, they'll receive a confirmation text. This requires 10DLC (10-Digit Long Code) registration with Twilio's TCR (The Campaign Registry) for A2P messaging compliance. The code is deployed and ready — it gracefully skips SMS sending until the env vars are set.
+
+**Step 1 — Identify SMS number:**
+- Log into https://console.twilio.com → Phone Numbers → Manage → Active Numbers
+- Find or buy a local 10-digit number with SMS capability (NOT the 888 number — toll-free numbers have separate registration requirements)
+- Note the number in E.164 format (e.g. `+17205551234`)
+
+**Step 2 — Register 10DLC brand with TCR:**
+- In Twilio console: Messaging → Trust Hub → US A2P 10DLC → Brands
+- Click "Register a Brand"
+- Fill in: legal business name (OpticWise Inc.), EIN, business address, website, vertical (Technology), contact info
+- Submit for vetting (typically approved in 1–3 business days)
+
+**Step 3 — Register a Campaign:**
+After brand is approved:
+- Go to Messaging → Trust Hub → US A2P 10DLC → Campaigns
+- Create campaign: use case "Customer Care" or "Marketing"
+- Sample message: *"OpticWise: Your review request is confirmed! We'll reach out within one business day. Reply STOP to opt out."*
+- Link the SMS number from Step 1
+- Submit (carrier approval: 1–5 business days typically)
+
+**Step 4 — Add env vars on Render (`opticwise-backend`):**
+- `TWILIO_ACCOUNT_SID` — from Twilio console → Account → API keys & tokens
+- `TWILIO_AUTH_TOKEN` — same location
+- `TWILIO_SMS_NUMBER` — the E.164 number from Step 1 (e.g. `+17205551234`)
+- Save and trigger a manual deploy
+
+**Step 5 — Configure Twilio SMS status webhook:**
+- In Twilio console → Phone Numbers → Manage → Active Numbers → click the SMS number
+- Under "Messaging", set:
+  - **A MESSAGE COMES IN:** Webhook, `https://app.opticwise.com/api/webhooks/twilio-sms-status`, HTTP POST
+  - **STATUS CALLBACK URL:** `https://app.opticwise.com/api/webhooks/twilio-sms-status`
+- Save
+
+**Step 6 — Re-seed forms (one-time, after deploy):**
+Run the form seed script to add the SMS opt-in checkbox to the Schedule Review and PPP Review forms:
+```bash
+# From the Render shell for opticwise-backend, or locally:
+npx tsx scripts/seed-website-forms.ts
+```
+If the seed script is idempotent/upsert, this just adds the new field. Otherwise, manually add the `sms_opt_in` checkbox field to the two forms via the OWnet admin UI.
+
+**Verification:**
+1. Submit a Schedule Review or PPP Review form with a phone number and the SMS opt-in checkbox checked
+2. If 10DLC is approved and env vars are set → you should receive the confirmation text
+3. Reply STOP → the Person record in OWnet should get `smsOptedOut = true`
+4. Submit again with the same number → no SMS sent (opt-out respected)
+
+**Timeline:** 10DLC brand + campaign registration typically takes 1–6 weeks total. The code handles this gracefully — while waiting, form submissions work normally; SMS is just skipped with a server log warning.
