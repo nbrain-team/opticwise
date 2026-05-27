@@ -370,6 +370,14 @@ const FORMS: SeedForm[] = [
         placeholder: "Top 1–3 priorities, current challenges, or what brought you to PPP…",
         mapsTo: "deal_notes",
       },
+      {
+        label: "Yes, OpticWise may send me SMS updates about my review",
+        fieldKey: "sms_opt_in",
+        fieldType: "checkbox",
+        required: false,
+        helpText:
+          "Message frequency varies. Reply STOP to opt out. Msg & data rates may apply.",
+      },
     ],
   },
 
