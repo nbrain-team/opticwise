@@ -1,8 +1,23 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: May 22, 2026  
-**Latest Period**: February 14 - May 22, 2026  
-**Status**: 36 PPP Podcast Blog Posts Published to OpticWise Insights, Blog Publisher Live — Create & Publish Posts from Ownet Directly to opticwise.com, Peak Property Performance® Site Now Wired Into the OpticWise CRM (PPP Review Form Live), Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
+**Latest Update**: May 27, 2026  
+**Latest Period**: February 14 - May 27, 2026  
+**Status**: GDPR Cookie Consent System Deployed to opticwise.com, 36 PPP Podcast Blog Posts Published to OpticWise Insights, Blog Publisher Live — Create & Publish Posts from Ownet Directly to opticwise.com, Peak Property Performance® Site Now Wired Into the OpticWise CRM (PPP Review Form Live), Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
+
+---
+
+### 2026-05-27 — GDPR Cookie Consent System Deployed to opticwise.com
+
+- **Full GDPR-compliant cookie consent system** implemented across all 202 pages of opticwise.com — custom-built, lightweight, no third-party CMP dependency
+- **Cookie consent banner** appears on first visit with three options: Accept All, Reject Non-Essential, and Customize — slides up from the bottom with a smooth animation matching the OW dark brand palette
+- **Preferences modal** lets visitors toggle individual categories (Strictly Necessary, Analytics, Embedded Content) with accessible toggle switches and detailed descriptions
+- **Google Analytics 4 gated behind consent** — GA4 (G-XSB5M0FJC0) no longer loads until the visitor explicitly accepts analytics cookies; rejecting clears existing `_ga` cookies
+- **Vimeo embed gating** on 4 marketing pages (How It Works, Customer Outcomes, About, 5S Standard) — videos show a placeholder with "Accept & Play" button until embeds consent is granted
+- **"Cookie Preferences" footer link** added to every page (marketing + blog) — reopens the preferences modal so visitors can change their choices at any time
+- **Privacy Policy updated for GDPR** (opticwise.com/privacy/) — added: Legal Basis for Processing (Art. 6), complete cookie inventory table, EU/EEA rights section (access, rectification, erasure, restriction, portability, objection, complaint to supervisory authority), Data Controller identification, International Data Transfers section referencing Google's SCCs, and consent withdrawal instructions
+- **Blog footer standardized** — all 37 newer blog posts that were missing Privacy/Terms links now include Privacy Policy, Terms of Use, and Cookie Preferences in the footer; blog-html-generator.ts template updated for all future posts
+- **CSP-compatible** — uses `data-ow-cookie-prefs` attribute with event delegation instead of inline onclick handlers; no CSP changes needed beyond cache headers for the two new assets
+- **Consent persists** via `ow_consent` cookie (JSON, 365-day expiry, SameSite=Lax) — returning visitors who already chose won't see the banner again
 
 ---
 
