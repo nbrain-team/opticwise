@@ -562,6 +562,19 @@ export async function processFormSubmission(
       });
     }
 
+    // ----- SMS confirmation (best-effort) -----
+    // Fires when the submitter checked the SMS opt-in box AND provided a phone.
+    // Gracefully skips if Twilio env vars aren't configured yet (10DLC pending).
+    if (cleanPayload.sms_opt_in && mapped.person_phone) {
+      const smsBody =
+        "OpticWise: Your review request is confirmed! " +
+        "We'll reach out within one business day. " +
+        "Reply STOP to opt out.";
+      sendSms(mapped.person_phone, smsBody).catch((err) => {
+        console.error("[forms] SMS confirmation failed:", err);
+      });
+    }
+
     return {
       ok: true,
       submissionId: submission.id,
