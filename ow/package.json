@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@elevenlabs/elevenlabs-js": "^2.49.1",
+    "twilio": "^6.0.2",
     "@anthropic-ai/sdk": "^0.76.0",
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/sortable": "10.0.0",
