@@ -343,15 +343,15 @@ export default function FormEditor({
       )}
 
       {/* SECTION 1 — Basics */}
-      <Section title="Basics" subtitle="Name, slug, status">
+      <Section title="Basics" subtitle="Title, subtitle, slug, status">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <Field label="Form name *">
+          <Field label="Form title *" help="Shown as the heading on the website form.">
             <input
               type="text"
               value={form.name}
               onChange={(e) => update("name", e.target.value)}
               className="ow-input"
-              placeholder="e.g. Demo Request"
+              placeholder="e.g. Complimentary CRE Data & Digital Review"
             />
           </Field>
           <Field
@@ -366,17 +366,26 @@ export default function FormEditor({
                 update("slug", slugify(e.target.value));
               }}
               className="ow-input font-mono text-sm"
-              placeholder="demo-request"
+              placeholder="schedule-review"
             />
           </Field>
         </div>
-        <Field label="Description (internal only)">
+        <Field label="Subtitle" help="Shown below the title on the public form.">
           <textarea
             value={form.description}
             onChange={(e) => update("description", e.target.value)}
             rows={2}
             className="ow-input"
-            placeholder="What this form is for. Not shown to visitors."
+            placeholder="e.g. One building. 45 minutes. No software pitch."
+          />
+        </Field>
+        <Field label="Internal notes" help="Not shown to visitors. Use for tracking where this form is used (e.g. which CTA triggers it).">
+          <textarea
+            value={form.internalNotes}
+            onChange={(e) => update("internalNotes", e.target.value)}
+            rows={2}
+            className="ow-input"
+            placeholder="e.g. Triggered from the 'Schedule Your Review' CTA across opticwise.com"
           />
         </Field>
         <label className="inline-flex items-center gap-2 text-sm text-gray-700">
