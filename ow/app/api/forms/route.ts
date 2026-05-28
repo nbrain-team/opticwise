@@ -77,6 +77,7 @@ export async function POST(request: NextRequest) {
       name: body.name.trim(),
       slug: body.slug.trim(),
       description: body.description?.trim() || null,
+      internalNotes: body.internalNotes?.trim() || null,
       isActive: body.isActive,
       pipelineId: body.pipelineId,
       stageId: body.stageId,
