@@ -52,6 +52,7 @@ export type FormInput = {
   name: string;
   slug: string;
   description?: string | null;
+  internalNotes?: string | null;
   isActive: boolean;
   pipelineId: string;
   stageId: string;
