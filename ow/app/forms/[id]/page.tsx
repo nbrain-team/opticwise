@@ -37,6 +37,7 @@ export default async function EditFormPage({
     submitButtonLabel: form.submitButtonLabel,
     successMessage: form.successMessage,
     honeypotFieldName: form.honeypotFieldName,
+    footerHtml: form.footerHtml ?? "",
     confirmationEmailEnabled: form.confirmationEmailEnabled,
     confirmationEmailSubject: form.confirmationEmailSubject ?? "",
     confirmationEmailFromName: form.confirmationEmailFromName ?? "Bill Demas",
