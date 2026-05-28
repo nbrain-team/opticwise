@@ -1406,6 +1406,11 @@ model Form {
   // HTML message authored in the form builder. Sent FROM bill@opticwise.com
   // via the existing Gmail service account. Subject + HTML support merge
   // tags like {firstName}, {company}, etc. (rendered server-side).
+  // Public footer — rich HTML shown on the embedded form itself (above the
+  // submit button). Supports links, bold, italic. Typical use: SMS consent
+  // disclaimer with hyperlinked Privacy Policy / Terms.
+  footerHtml String? @db.Text
+
   confirmationEmailEnabled  Boolean @default(false)
   confirmationEmailSubject  String?
   confirmationEmailFromName String  @default("Bill Demas")
