@@ -535,6 +535,17 @@ export default function FormEditor({
             className="ow-input"
           />
         </Field>
+        <Field
+          label="Form footer (shown on public form)"
+          help="Displayed above the submit button on the embedded form. Use the toolbar to add hyperlinks, bold, etc. Leave empty for no footer."
+        >
+          <RichTextEmailEditor
+            value={form.footerHtml}
+            onChange={(html) => update("footerHtml", html)}
+            placeholder="e.g. By providing your phone number, you agree to receive text messages…"
+            minHeight={120}
+          />
+        </Field>
       </Section>
 
       {/* SECTION 4.5 — Confirmation Email */}
