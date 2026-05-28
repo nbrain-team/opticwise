@@ -129,6 +129,45 @@
     while (node.firstChild) node.removeChild(node.firstChild);
   }
 
+  // Sanitize HTML to a safe subset (links, basic formatting).
+  // Strips everything except: a, p, br, strong, b, em, i, u, span, ul, ol, li.
+  // Only href is allowed on <a> tags; all other attributes are stripped.
+  function sanitizeHtml(html) {
+    var div = document.createElement("div");
+    div.innerHTML = html;
+    var SAFE_TAGS = {
+      A: 1, P: 1, BR: 1, STRONG: 1, B: 1, EM: 1, I: 1, U: 1, SPAN: 1, UL: 1, OL: 1, LI: 1
+    };
+    function walk(parent) {
+      var children = Array.prototype.slice.call(parent.childNodes);
+      for (var i = 0; i < children.length; i++) {
+        var node = children[i];
+        if (node.nodeType === 3) continue; // text node — keep
+        if (node.nodeType !== 1) { parent.removeChild(node); continue; }
+        if (!SAFE_TAGS[node.tagName]) {
+          // Replace unsafe element with its children
+          while (node.firstChild) parent.insertBefore(node.firstChild, node);
+          parent.removeChild(node);
+        } else {
+          // Strip all attributes except href on anchors
+          var attrs = Array.prototype.slice.call(node.attributes);
+          for (var j = 0; j < attrs.length; j++) {
+            if (node.tagName === "A" && attrs[j].name === "href") {
+              // Force links to open in new tab and add noopener
+              node.setAttribute("target", "_blank");
+              node.setAttribute("rel", "noopener noreferrer");
+              continue;
+            }
+            node.removeAttribute(attrs[j].name);
+          }
+          walk(node);
+        }
+      }
+    }
+    walk(div);
+    return div.innerHTML;
+  }
+
   // ---------- Per-mount logic ----------
   function mount(container) {
     if (container.getAttribute("data-opticwise-mounted") === "1") return;
