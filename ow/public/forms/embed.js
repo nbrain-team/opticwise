@@ -71,6 +71,10 @@
       ".ow-form-embed-button{width:100%;padding:12px 20px;font-size:15px;font-weight:600;font-family:inherit;color:#fff;background:#2B6CB0;border:0;border-radius:8px;cursor:pointer;transition:background 120ms;}" +
       ".ow-form-embed-button:hover:not(:disabled){background:#1E4E8C;}" +
       ".ow-form-embed-button:disabled{opacity:.6;cursor:not-allowed;}" +
+      ".ow-form-embed-footer{font-size:12px;line-height:1.5;color:#6b7280;margin:16px 0 4px;}" +
+      ".ow-form-embed-footer a{color:#2B6CB0;text-decoration:underline;}" +
+      ".ow-form-embed-footer a:hover{color:#1E4E8C;}" +
+      ".ow-form-embed-footer p{margin:0 0 4px;}" +
       ".ow-form-embed-error{font-size:14px;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:10px 14px;border-radius:8px;margin-bottom:14px;}" +
       ".ow-form-embed-success{font-size:15px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;padding:18px 20px;border-radius:8px;text-align:left;}" +
       ".ow-form-embed-loading{font-size:14px;color:#6b7280;padding:8px 0;}" +
