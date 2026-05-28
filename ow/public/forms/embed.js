@@ -92,6 +92,8 @@
       ".ow-form-embed.ow-fe-dark .ow-form-embed-check-row{color:rgba(255,255,255,.85);}" +
       ".ow-form-embed.ow-fe-dark .ow-form-embed-button{background:#fff;color:#0a1628;}" +
       ".ow-form-embed.ow-fe-dark .ow-form-embed-button:hover:not(:disabled){background:rgba(255,255,255,.92);}" +
+      ".ow-form-embed.ow-fe-dark .ow-form-embed-footer{color:rgba(255,255,255,.55);}" +
+      ".ow-form-embed.ow-fe-dark .ow-form-embed-footer a{color:#93c5fd;}" +
       ".ow-form-embed.ow-fe-dark .ow-form-embed-error{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.4);color:#fca5a5;}" +
       ".ow-form-embed.ow-fe-dark .ow-form-embed-success{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.4);color:#a7f3d0;}";
     document.head.appendChild(style);
