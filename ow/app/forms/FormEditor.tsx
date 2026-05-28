@@ -94,6 +94,7 @@ const DEFAULT_FORM: FormShape = {
   submitButtonLabel: "Submit",
   successMessage: "Thanks — we'll be in touch shortly.",
   honeypotFieldName: "website_url_extra",
+  footerHtml: "",
   confirmationEmailEnabled: false,
   confirmationEmailSubject: "Thanks for reaching out, {firstName}",
   confirmationEmailFromName: "Bill Demas",
