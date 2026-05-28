@@ -53,6 +53,7 @@ type FormShape = {
   name: string;
   slug: string;
   description: string;
+  internalNotes: string;
   isActive: boolean;
   pipelineId: string;
   stageId: string;
