@@ -34,6 +34,7 @@ export async function GET(
         submitButtonLabel: form.submitButtonLabel,
         successMessage: form.successMessage,
         honeypotFieldName: form.honeypotFieldName,
+        footerHtml: form.footerHtml || null,
         fields: form.fields.map((f) => ({
           id: f.id,
           label: f.label,
