@@ -1380,11 +1380,12 @@ enum FormSubmissionStatus {
 }
 
 model Form {
-  id          String  @id @default(cuid())
-  name        String
-  slug        String  @unique
-  description String?
-  isActive    Boolean @default(true)
+  id             String  @id @default(cuid())
+  name           String
+  slug           String  @unique
+  description    String?
+  internalNotes  String?
+  isActive       Boolean @default(true)
 
   // Routing — every submission lands in this pipeline/stage owned by this user
   pipelineId String
