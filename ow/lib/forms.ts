@@ -60,6 +60,7 @@ export type FormInput = {
   submitButtonLabel: string;
   successMessage: string;
   honeypotFieldName: string;
+  footerHtml?: string | null;
   // Confirmation email sent to the submitter after successful submission.
   // When `confirmationEmailEnabled` is true, the email is rendered with merge
   // tags and sent FROM bill@opticwise.com (display name configurable).
