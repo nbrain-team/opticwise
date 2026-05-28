@@ -390,6 +390,12 @@
       ])
     );
 
+    // ---------- Footer (disclaimer / fine print with links) ----------
+    if (form.footerHtml) {
+      var footerDiv = el("div", { class: "ow-form-embed-footer", html: sanitizeHtml(form.footerHtml) });
+      formNode.appendChild(footerDiv);
+    }
+
     // ---------- Error placeholder + submit button ----------
     var errorBox = el("div", { class: "ow-form-embed-error", style: "display:none" });
     formNode.appendChild(errorBox);
