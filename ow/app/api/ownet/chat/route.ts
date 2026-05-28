@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
   
   try {
     let currentUserId: string;
+    let currentUserEmail: string | null = null;
 
     const internalKey = request.headers.get('x-internal-api-key');
     const isInternalCall = internalKey && process.env.AUTH_SECRET && internalKey === process.env.AUTH_SECRET;
@@ -85,7 +86,21 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
       }
       currentUserId = session.userId;
+      currentUserEmail = session.email ?? null;
     }
+
+    // Brain access tier: internal-restricted canon (competitive SWOT, acquirer
+    // positioning, board-level strategy — see ow/brain/decisions/0005) surfaces
+    // only to principals. Everyone else (and Slack/internal service calls) gets
+    // the restricted tier excluded from RAG. Allowlist via BRAIN_PRINCIPAL_EMAILS.
+    const principalEmails = (process.env.BRAIN_PRINCIPAL_EMAILS || '')
+      .split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    const isPrincipal =
+      !!currentUserEmail && principalEmails.includes(currentUserEmail.toLowerCase());
+    // SQL fragment appended to KnowledgeDocument queries to enforce the tier.
+    const visibilityGate = isPrincipal ? '' : ` AND kd.visibility <> 'internal-restricted'`;
 
     const body = await request.json();
     const { message, sessionId } = body;
@@ -509,7 +524,7 @@ export async function POST(request: NextRequest) {
                     1 - (kc.embedding <=> $1::vector) as similarity
              FROM "KnowledgeChunk" kc
              JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
-             WHERE kc.embedding IS NOT NULL
+             WHERE kc.embedding IS NOT NULL${visibilityGate}
              ORDER BY kc.embedding <=> $1::vector
              LIMIT 8`,
             [`[${queryVector.join(',')}]`]
@@ -520,6 +535,7 @@ export async function POST(request: NextRequest) {
                     0.5 as similarity
              FROM "KnowledgeChunk" kc
              JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
+             WHERE 1=1${visibilityGate}
              ORDER BY kd."createdAt" DESC
              LIMIT 8`
           );
@@ -691,7 +707,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate BrandScript-compliant system prompt
+    // Generate BrandScript-compliant system prompt. requestedAuthor drives the
+    // full digital-twin persona injected by generateBrandScriptPrompt (Brain canon).
     const requestedAuthor: 'bill' | 'drew' | 'opticwise' = drewVoiceRequested || (/\bdrew\b/i.test(message) && isContentGenIntent)
       ? 'drew'
       : billVoiceRequested || (/\bbill\b/i.test(message) && isContentGenIntent)
@@ -715,7 +732,7 @@ export async function POST(request: NextRequest) {
            FROM "KnowledgeChunk" kc
            JOIN "KnowledgeDocument" kd ON kc."documentId" = kd.id
            WHERE (kd.category IN ('Canon — Digital Twin', 'Canon — Author Voice'))
-             AND (kd.name ILIKE $1 OR kd.comment ILIKE $1 OR kd."fileName" ILIKE $1)
+             AND (kd.name ILIKE $1 OR kd.comment ILIKE $1 OR kd."fileName" ILIKE $1)${visibilityGate}
            ORDER BY kc."chunkIndex" ASC`,
           [`%${twinAuthor}%`]
         );

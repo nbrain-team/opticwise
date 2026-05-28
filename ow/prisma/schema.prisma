@@ -1736,6 +1736,10 @@ model KnowledgeDocument {
   content    String?          @db.Text
   comment    String?          @db.Text
   category   String?
+  // Brain visibility tier: shareable | internal | internal-restricted.
+  // Drives RAG gating — internal-restricted is excluded from general queries
+  // and surfaced only to principals (see BRAIN_PRINCIPAL_EMAILS).
+  visibility String           @default("internal")
   uploadedBy String?
   vectorized Boolean          @default(false)
   createdAt  DateTime         @default(now())

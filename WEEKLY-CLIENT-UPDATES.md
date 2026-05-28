@@ -1,8 +1,20 @@
 # Weekly Client Update - OpticWise Platform
 
-**Latest Update**: May 27, 2026  
-**Latest Period**: February 14 - May 27, 2026  
-**Status**: GDPR Cookie Consent System Deployed to opticwise.com, 36 PPP Podcast Blog Posts Published to OpticWise Insights, Blog Publisher Live — Create & Publish Posts from Ownet Directly to opticwise.com, Peak Property Performance® Site Now Wired Into the OpticWise CRM (PPP Review Form Live), Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
+**Latest Update**: May 28, 2026  
+**Latest Period**: February 14 - May 28, 2026  
+**Status**: OWnet Brain Rebuild — Agent Now Runs on a Single Source-of-Truth Knowledge Base (Governed Canon, Always-On Brand Rules, Full Bill/Drew Digital Twins, Access-Tier Gating), GDPR Cookie Consent System Deployed to opticwise.com, 36 PPP Podcast Blog Posts Published to OpticWise Insights, Blog Publisher Live — Create & Publish Posts from Ownet Directly to opticwise.com, Peak Property Performance® Site Now Wired Into the OpticWise CRM (PPP Review Form Live), Forms Now Embed in Plain HTML (Two-Line Drop-In, No CMS Required), Form Builder Now Sends Auto-Reply Emails to Submitters, Cursor MCP Bridge Connected to Platform Data Sources, OWnet Agent Trained on the Full Content Engine Canon (May 2026 BrandScript, Asset-Manager Lens, Author Voices, Voice Exemplars), Content Engine Mode Shipped, CRM Overhaul, Knowledge Base & Slack Bot Deployed, LinkedIn Manager Launched, Marketing Forms → CRM Bridge Live, Five Production Forms Seeded for OpticWise.com, Self-Serve Password Reset Live
+
+---
+
+### 2026-05-28 — OWnet Brain: The Agent Now Runs on a Single, Governed Source of Truth
+
+- **Rebuilt how the OWnet agent knows OpticWise.** The brand, voice, positioning, proof rules, and terminology are no longer hardcoded inside the app — they now live in a governed knowledge base ("the OWnet Brain") of 50 canonical files that you and your team author and control. The agent reads from the Brain; the Brain is upstream of everything. Edit the canon in one place, re-run one command, and every answer the agent gives reflects the change.
+- **Always-on brand guardrail.** Every one of the Brain's behavior rules (voice & tone, "lead with results," language & terminology, banned words like "PropTech"/"ESG"/bare "infrastructure," NOI-benchmark discipline, proof discipline, IT-vs-OT stance, competitive posture) plus the core positioning (two-layer model, PPP 5C™, the SB7 BrandScript, the differentiator glossary, company facts) is now injected into **every** response — not left to chance. The model is told, explicitly, that this canon overrides anything else it retrieves.
+- **Bill and Drew digital twins, in full.** When anyone asks the agent to write "in Bill's voice" or "in Drew's voice" (or to draft content attributed to one of them), the agent now loads that person's complete persona file as the writing voice — and the two are never blended. A bare mention of a name no longer flips the voice; it takes an explicit request.
+- **Access tiers enforced.** The Brain marks each file as shareable, internal, or internal-restricted. Sensitive material (competitor analysis, acquirer positioning, board-level strategy) is now **excluded from everyday answers** and surfaced only to designated principals (Bill, Drew, Danny) — a guardrail the platform didn't have before.
+- **Only "active" canon propagates.** Drafts and retired material stay out of the agent automatically, so work-in-progress can live safely alongside live canon.
+- **Safe by design.** A feature flag lets us instantly revert to the previous prompt if needed, the prior voice-enforcement safety net still runs on every response, and the legacy Drive canon it supersedes can be retired with a single dry-run-first maintenance command.
+- **Content Engine inherits all of it.** The weekly Bill/Drew content packages now draw from the same single source of truth, so chat answers and published content stay perfectly in sync.
 
 ---
 
