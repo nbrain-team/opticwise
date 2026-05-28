@@ -87,6 +87,7 @@ const DEFAULT_FORM: FormShape = {
   name: "",
   slug: "",
   description: "",
+  internalNotes: "",
   isActive: true,
   pipelineId: "",
   stageId: "",
