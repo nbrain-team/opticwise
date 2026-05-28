@@ -29,6 +29,7 @@ export default async function EditFormPage({
     name: form.name,
     slug: form.slug,
     description: form.description ?? "",
+    internalNotes: form.internalNotes ?? "",
     isActive: form.isActive,
     pipelineId: form.pipelineId,
     stageId: form.stageId,
