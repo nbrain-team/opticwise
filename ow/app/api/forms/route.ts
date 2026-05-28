@@ -85,6 +85,7 @@ export async function POST(request: NextRequest) {
       submitButtonLabel: body.submitButtonLabel?.trim() || "Submit",
       successMessage: body.successMessage?.trim() || "Thanks — we'll be in touch shortly.",
       honeypotFieldName: body.honeypotFieldName.trim(),
+      footerHtml: body.footerHtml?.trim() || null,
       confirmationEmailEnabled: !!body.confirmationEmailEnabled,
       confirmationEmailSubject: body.confirmationEmailEnabled
         ? body.confirmationEmailSubject?.trim() || null
