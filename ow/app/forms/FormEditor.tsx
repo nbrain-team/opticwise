@@ -61,6 +61,7 @@ type FormShape = {
   submitButtonLabel: string;
   successMessage: string;
   honeypotFieldName: string;
+  footerHtml: string;
   // Confirmation email — when enabled, the submitter receives a templated
   // email after successful submission. Sent FROM bill@opticwise.com.
   confirmationEmailEnabled: boolean;
